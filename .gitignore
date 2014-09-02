@@ -1,0 +1,12 @@
+
+*.class
+
+lib/testng-6.8.8.jar
+
+*.jar
+
+*.iws
+
+*.ipr
+
+*.iml

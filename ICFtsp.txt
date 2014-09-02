@@ -1,0 +1,25 @@
+public static Constraint[] tsp(IntVar[] SUCCS, IntVar COST, int[][] COST_MATRIX, boolean STRONG) {
+        int n = SUCCS.length;
+        assert n > 1;
+        assert n == COST_MATRIX.length && n == COST_MATRIX[0].length;
+        IntVar[] costOf = new IntVar[n];
+        for (int i = 0; i < n; i++) {
+            costOf[i] = VF.enumerated("costOf(" + i + ")", COST_MATRIX[i], COST.getSolver());
+        }
+        Constraint[] model = new Constraint[n + 2];
+        for (int i = 0; i < n; i++) {
+            model[i] = element(costOf[i], COST_MATRIX[i], SUCCS[i]);
+        }
+        model[n] = sum(costOf, COST);
+        model[n + 1] = circuit(SUCCS, 0);
+        if (STRONG) {
+            boolean symmetric = PropLagr_OneTree_IntVar.checkSymmetry(COST_MATRIX);
+            assert symmetric : "TSP matrix should be symmetric";
+            if (symmetric) {
+                return ArrayUtils.append(model, new Constraint[]{
+                        new Constraint("HeldKarpFilter", new PropLagr_OneTree_IntVar(SUCCS, COST, COST_MATRIX, true))
+                });
+            }
+        }
+        return model;
+    }
