@@ -31,8 +31,10 @@ import solver.ICause;
 import solver.Solver;
 import solver.constraints.Propagator;
 import solver.exception.ContradictionException;
+import solver.variables.delta.GraphDeltaMonitor;
 import solver.variables.delta.IGraphDelta;
 import solver.variables.delta.IGraphDeltaMonitor;
+import solver.variables.delta.monitor.SetDeltaMonitor;
 import util.objects.graphs.UndirectedGraph;
 import util.objects.setDataStructures.ISet;
 
@@ -139,17 +141,8 @@ public class UndirectedGraphVar extends GraphVar<UndirectedGraph> implements IUn
 				"be called on undirected graph var");
 	}
 
-	//***********************************************************************************
-    // ACCESSORS
-    //***********************************************************************************
-
     @Override
     public boolean isDirected() {
         return false;
     }
-
-	@Override
-	public IGraphDeltaMonitor monitorDelta(Propagator prop) {
-		return null;
-	}
 }

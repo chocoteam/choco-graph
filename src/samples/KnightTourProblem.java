@@ -62,7 +62,7 @@ public class KnightTourProblem extends AbstractProblem {
     @Option(name = "-tl", usage = "time limit.", required = false)
     private long limit = 20000;
     @Option(name = "-bl", usage = "Board length.", required = false)
-    private int boardLength = 120;
+    private int boardLength = 8;
     @Option(name = "-open", usage = "Open tour (path instead of cycle).", required = false)
     private boolean closedTour = true;
 
@@ -91,8 +91,8 @@ public class KnightTourProblem extends AbstractProblem {
             matrix = HCP_Utils.generateOpenKingTourInstance(boardLength);
         }
         // variables
-		int n = matrix.length;
 		SetFactory.RECYCLE = false; //(optim)
+		int n = matrix.length;
 		UndirectedGraph GLB = new UndirectedGraph(solver.getEnvironment(),n,SetType.LINKED_LIST,true);
 		UndirectedGraph GUB = new UndirectedGraph(solver.getEnvironment(),n,SetType.LINKED_LIST,true);
 		for (int i = 0; i < n; i++) {

@@ -287,6 +287,7 @@ public abstract class GraphVar<E extends IGraph> extends AbstractVariable implem
         }
     }
 
+	@Override
     public IGraphDeltaMonitor monitorDelta(ICause propagator) {
         createDelta();
         return new GraphDeltaMonitor(delta, propagator);

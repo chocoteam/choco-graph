@@ -147,5 +147,5 @@ public interface IGraphVar<E extends IGraph> extends Variable {
 	 */
 	public void instantiateTo(boolean[][] value, ICause cause) throws ContradictionException ;
 
-	IGraphDeltaMonitor monitorDelta(Propagator prop);
+	IGraphDeltaMonitor monitorDelta(ICause prop);
 }

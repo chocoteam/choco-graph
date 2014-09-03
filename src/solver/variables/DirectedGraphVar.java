@@ -137,17 +137,8 @@ public class DirectedGraphVar extends GraphVar<DirectedGraph> implements IDirect
 		return getPotSuccOrNeighOf(idx);
 	}
 
-	//***********************************************************************************
-    // ACCESSORS
-    //***********************************************************************************
-
     @Override
     public boolean isDirected() {
         return true;
     }
-
-	@Override
-	public IGraphDeltaMonitor monitorDelta(Propagator prop) {
-		return null;
-	}
 }
