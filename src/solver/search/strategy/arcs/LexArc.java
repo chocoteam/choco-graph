@@ -27,12 +27,12 @@
 package solver.search.strategy.arcs;
 
 import solver.search.strategy.ArcStrategy;
-import solver.variables.GraphVar;
+import solver.variables.IGraphVar;
 import util.objects.setDataStructures.ISet;
 
-public class LexArc extends ArcStrategy<GraphVar> {
+public class LexArc extends ArcStrategy<IGraphVar> {
 
-    public LexArc(GraphVar g) {
+    public LexArc(IGraphVar g) {
         super(g);
     }
 
@@ -40,8 +40,8 @@ public class LexArc extends ArcStrategy<GraphVar> {
     public boolean computeNextArc() {
         ISet envSuc, kerSuc;
         for (int i = envNodes.getFirstElement(); i >= 0; i = envNodes.getNextElement()) {
-            envSuc = g.getEnvelopGraph().getSuccsOrNeigh(i);
-            kerSuc = g.getKernelGraph().getSuccsOrNeigh(i);
+            envSuc = g.getPotSuccOrNeighOf(i);
+            kerSuc = g.getMandSuccOrNeighOf(i);
             if (envSuc.getSize() != kerSuc.getSize()) {
                 for (int j = envSuc.getFirstElement(); j >= 0; j = envSuc.getNextElement()) {
                     if (!kerSuc.contain(j)) {

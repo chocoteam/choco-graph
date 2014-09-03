@@ -37,7 +37,9 @@ import solver.search.loop.monitors.SearchMonitorFactory;
 import solver.search.GraphStrategyFactory;
 import solver.search.strategy.ArcStrategy;
 import solver.search.strategy.GraphStrategy;
-import solver.variables.UndirectedGraphVar;
+import solver.variables.GraphVarFactory;
+import solver.variables.IUndirectedGraphVar;
+import util.objects.graphs.UndirectedGraph;
 import util.objects.setDataStructures.ISet;
 import util.objects.setDataStructures.SetType;
 
@@ -53,52 +55,54 @@ import util.objects.setDataStructures.SetType;
  */
 public class HamiltonianCycleProblem extends AbstractProblem {
 
-    //***********************************************************************************
-    // VARIABLES
-    //***********************************************************************************
+	//***********************************************************************************
+	// VARIABLES
+	//***********************************************************************************
 
-    @Option(name = "-tl", usage = "time limit.", required = false)
-    private long limit = 10000;
-    @Option(name = "-inst", usage = "TSPLIB HCP Instance file path (see http://comopt.ifi.uni-heidelberg.de/software/TSPLIB95/) .", required = false)
-    private String instancePath = "/Users/jfages07/Documents/code/ALL_hcp/alb1000.hcp";
-    // graph variable expected to form a Hamiltonian Cycle
-    private UndirectedGraphVar graph;
+	@Option(name = "-tl", usage = "time limit.", required = false)
+	private long limit = 10000;
+	@Option(name = "-inst", usage = "TSPLIB HCP Instance file path (see http://comopt.ifi.uni-heidelberg.de/software/TSPLIB95/) .", required = false)
+	private String instancePath = "/Users/jfages07/Documents/code/ALL_hcp/alb1000.hcp";
+	// graph variable expected to form a Hamiltonian Cycle
+	private IUndirectedGraphVar graph;
 
-    //***********************************************************************************
-    // METHODS
-    //***********************************************************************************
+	//***********************************************************************************
+	// METHODS
+	//***********************************************************************************
 
-    public static void main(String[] args) {
-        new HamiltonianCycleProblem().execute(args);
-    }
+	public static void main(String[] args) {
+		new HamiltonianCycleProblem().execute(args);
+	}
 
-    @Override
-    public void createSolver() {
+	@Override
+	public void createSolver() {
 		level = Level.SILENT;
-        solver = new Solver("solving the Hamiltonian Cycle Problem");
-    }
+		solver = new Solver("solving the Hamiltonian Cycle Problem");
+	}
 
-    @Override
-    public void buildModel() {
-        boolean[][] matrix = HCP_Utils.parseTSPLIBInstance(instancePath);
-        int n = matrix.length;
-        // variables (use linked lists because the graph is sparse)
-        graph = new UndirectedGraphVar("G", solver, n, SetType.LINKED_LIST, SetType.LINKED_LIST, true);
-        for (int i = 0; i < n; i++) {
-            for (int j = i + 1; j < n; j++) {
-                if (matrix[i][j]) {
-                    graph.getEnvelopGraph().addEdge(i, j);
-                }
-            }
-        }
-        // constraints
-        solver.post(GraphConstraintFactory.hamiltonianCycle(graph));
-    }
+	@Override
+	public void buildModel() {
+		boolean[][] matrix = HCP_Utils.parseTSPLIBInstance(instancePath);
+		int n = matrix.length;
+		// variables (use linked lists because the graph is sparse)
+		UndirectedGraph GLB = new UndirectedGraph(solver.getEnvironment(),n,SetType.LINKED_LIST,true);
+		UndirectedGraph GUB = new UndirectedGraph(solver.getEnvironment(),n,SetType.LINKED_LIST,true);
+		for (int i = 0; i < n; i++) {
+			for (int j = i + 1; j < n; j++) {
+				if (matrix[i][j]) {
+					GUB.addEdge(i, j);
+				}
+			}
+		}
+		graph = GraphVarFactory.undirectedGraph("G", GLB, GUB, solver);
+		// constraints
+		solver.post(GraphConstraintFactory.hamiltonianCycle(graph));
+	}
 
-    @Override
-    public void configureSearch() {
-        solver.set(GraphStrategyFactory.graphStrategy(graph, null, new MinNeigh(graph), GraphStrategy.NodeArcPriority.ARCS));
-        SearchMonitorFactory.limitTime(solver, limit);
+	@Override
+	public void configureSearch() {
+		solver.set(GraphStrategyFactory.graphStrategy(graph, null, new MinNeigh(graph), GraphStrategy.NodeArcPriority.ARCS));
+		SearchMonitorFactory.limitTime(solver, limit);
 		SearchMonitorFactory.log(solver, false, false);
 		// restart search every 100 fails
 		solver.plugMonitor(new IMonitorContradiction() {
@@ -112,40 +116,40 @@ public class HamiltonianCycleProblem extends AbstractProblem {
 				}
 			}
 		});
-    }
+	}
 
-    @Override
-    public void solve() {
-        solver.findSolution();
-    }
+	@Override
+	public void solve() {
+		solver.findSolution();
+	}
 
-    @Override
-    public void prettyOut() {}
+	@Override
+	public void prettyOut() {}
 
-    //***********************************************************************************
-    // HEURISTICS
-    //***********************************************************************************
+	//***********************************************************************************
+	// HEURISTICS
+	//***********************************************************************************
 
 	// basically branch on sparse areas of the graph
-    private static class MinNeigh extends ArcStrategy<UndirectedGraphVar> {
-        int n;
+	private static class MinNeigh extends ArcStrategy<IUndirectedGraphVar> {
+		int n;
 
-        public MinNeigh(UndirectedGraphVar graphVar) {
-            super(graphVar);
-            n = graphVar.getEnvelopGraph().getNbNodes();
-        }
+		public MinNeigh(IUndirectedGraphVar graphVar) {
+			super(graphVar);
+			n = graphVar.getNbMaxNodes();
+		}
 
-        @Override
-        public boolean computeNextArc() {
-            ISet suc;
+		@Override
+		public boolean computeNextArc() {
+			ISet suc;
 			to = -1;
 			int size = 2*n+2;
-            for (int i = 0; i < n; i++) {
-				suc = g.getEnvelopGraph().getNeighborsOf(i);
-				int deltai = g.getEnvelopGraph().getNeighborsOf(i).getSize() - g.getKernelGraph().getNeighborsOf(i).getSize();
+			for (int i = 0; i < n; i++) {
+				suc = g.getPotNeighOf(i);
+				int deltai = g.getPotNeighOf(i).getSize() - g.getMandNeighOf(i).getSize();
 				for (int j = suc.getFirstElement(); j >= 0; j = suc.getNextElement()) {
-					if(!g.getKernelGraph().edgeExists(i,j)){
-						int deltaj = g.getEnvelopGraph().getNeighborsOf(i).getSize() - g.getKernelGraph().getNeighborsOf(i).getSize();
+					if(!g.getMandNeighOf(i).contain(j)){
+						int deltaj = g.getPotNeighOf(i).getSize() - g.getMandNeighOf(i).getSize();
 						if (deltai+deltaj < size && deltai+deltaj > 0) {
 							from = i;
 							to = j;
@@ -153,11 +157,11 @@ public class HamiltonianCycleProblem extends AbstractProblem {
 						}
 					}
 				}
-            }
-            if (to == -1) {
-                return false;
-            }
-            return true;
-        }
-    }
+			}
+			if (to == -1) {
+				return false;
+			}
+			return true;
+		}
+	}
 }

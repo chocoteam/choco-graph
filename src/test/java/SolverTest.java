@@ -31,7 +31,6 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 import solver.Solver;
 import solver.variables.*;
-import solver.variables.GraphVar;
 
 /**
  * <br/>
@@ -48,7 +47,7 @@ public class SolverTest {
         IntVar i = VF.bounded("i", VF.MIN_INT_BOUND, VF.MAX_INT_BOUND, solver);
         SetVar s = VF.set("s", 2, 3, solver);
         RealVar r = VF.real("r", 1.0, 2.2, 0.01, solver);
-        GraphVar g = GraphVarFactory.directedGraph("g", 2, solver);
+		IGraphVar g = GraphVarFactory.directedGraph("g", null, null, solver);
 
 
         BoolVar[] bvars = solver.retrieveBoolVars();
@@ -63,8 +62,8 @@ public class SolverTest {
         RealVar[] rvars = solver.retrieveRealVars();
         Assert.assertEquals(rvars, new RealVar[]{r});
 
-        GraphVar[] gvars = GraphVarFactory.retrieveGraphVars(solver);
-        Assert.assertEquals(gvars, new GraphVar[]{g});
+		IGraphVar[] gvars = GraphVarFactory.retrieveGraphVars(solver);
+        Assert.assertEquals(gvars, new IGraphVar[]{g});
     }
 
 }

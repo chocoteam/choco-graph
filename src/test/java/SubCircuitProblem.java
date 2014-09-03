@@ -45,9 +45,11 @@ import solver.search.strategy.arcs.RandomArc;
 import solver.search.strategy.nodes.RandomNode;
 import solver.search.strategy.strategy.AbstractStrategy;
 import solver.search.strategy.GraphStrategy;
+import solver.variables.GraphVarFactory;
 import solver.variables.IntVar;
 import solver.variables.VariableFactory;
-import solver.variables.DirectedGraphVar;
+import solver.variables.IDirectedGraphVar;
+import util.objects.graphs.DirectedGraph;
 import util.objects.graphs.Orientation;
 import util.objects.setDataStructures.SetType;
 
@@ -62,7 +64,7 @@ public class SubCircuitProblem extends AbstractProblem {
 	private static SetType gt;
 
 	private int n;
-	private DirectedGraphVar graph;
+	private IDirectedGraphVar graph;
 	private IntVar circuitLength;
 	private boolean[][] adjacencyMatrix;
 	private Constraint gc;
@@ -92,23 +94,20 @@ public class SubCircuitProblem extends AbstractProblem {
 	@Override
 	public void buildModel() {
 		// create model
-		graph = new DirectedGraphVar("G", solver, n, gt, SetType.LINKED_LIST, false);
-		circuitLength = VariableFactory.bounded("length",0,n,solver);
-		try {
-			for (int i = 0; i < n; i++) {
-				if(!adjacencyMatrix[i][i]){
-					graph.getKernelGraph().getActiveNodes().add(i);
-				}
-				for (int j = 0; j < n; j++) {
-					if (adjacencyMatrix[i][j]) {
-						graph.getEnvelopGraph().addArc(i, j);
-					}
+		DirectedGraph GLB = new DirectedGraph(solver.getEnvironment(), n, SetType.LINKED_LIST, false);
+		DirectedGraph GUB = new DirectedGraph(solver.getEnvironment(), n, gt, false);
+		for (int i = 0; i < n; i++) {
+			if(!adjacencyMatrix[i][i]){
+				GLB.activateNode(i);
+			}
+			for (int j = 0; j < n; j++) {
+				if (adjacencyMatrix[i][j]) {
+					GUB.addArc(i, j);
 				}
 			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			System.exit(0);
 		}
+		graph = GraphVarFactory.directedGraph("G", GLB, GUB, solver);
+		circuitLength = VariableFactory.bounded("length",0,n,solver);
 		solver.post(new Constraint("SubCircuit",
 				new PropKNodes(graph, circuitLength),
 				new PropKCC(graph,VariableFactory.fixed(1,solver)),

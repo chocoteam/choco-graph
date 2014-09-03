@@ -26,10 +26,10 @@
  */
 package solver.search.strategy;
 
-import solver.variables.GraphVar;
+import solver.variables.IGraphVar;
 import util.objects.setDataStructures.ISet;
 
-public abstract class ArcStrategy<G extends GraphVar> {
+public abstract class ArcStrategy<G extends IGraphVar> {
 
     protected G g;
     protected ISet envNodes;
@@ -39,7 +39,7 @@ public abstract class ArcStrategy<G extends GraphVar> {
 
     public ArcStrategy(G g) {
         this.g = g;
-        this.envNodes = g.getEnvelopGraph().getActiveNodes();
+        this.envNodes = g.getPotentialNodes();
     }
 
     public abstract boolean computeNextArc();

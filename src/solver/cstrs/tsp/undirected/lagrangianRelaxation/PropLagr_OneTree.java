@@ -36,7 +36,7 @@ import solver.exception.ContradictionException;
 import solver.variables.EventType;
 import solver.variables.IntVar;
 import solver.variables.Variable;
-import solver.variables.UndirectedGraphVar;
+import solver.variables.IUndirectedGraphVar;
 import util.ESat;
 import util.objects.graphs.UndirectedGraph;
 import util.objects.setDataStructures.ISet;
@@ -55,7 +55,7 @@ public class PropLagr_OneTree extends Propagator implements GraphLagrangianRelax
     //***********************************************************************************
 
 	protected UndirectedGraph g;
-	protected UndirectedGraphVar gV;
+	protected IUndirectedGraphVar gV;
     protected IntVar obj;
     protected int n;
     protected int[][] originalCosts;
@@ -86,7 +86,7 @@ public class PropLagr_OneTree extends Propagator implements GraphLagrangianRelax
 		HKfilter = new KruskalOneTree_GAC(n, this);
 	}
 
-    public PropLagr_OneTree(UndirectedGraphVar graph, IntVar cost, int[][] costMatrix) {
+    public PropLagr_OneTree(IUndirectedGraphVar graph, IntVar cost, int[][] costMatrix) {
         this(new Variable[]{graph, cost}, costMatrix);
         g = graph.getEnvelopGraph();
 		gV = graph;
@@ -171,7 +171,7 @@ public class PropLagr_OneTree extends Propagator implements GraphLagrangianRelax
         mandatoryArcsList.clear();
         ISet nei;
         for (int i = 0; i < n; i++) {
-            nei = gV.getKernelGraph().getNeighborsOf(i);
+            nei = gV.getMandNeighOf(i);
             for (int j = nei.getFirstElement(); j >= 0; j = nei.getNextElement()) {
                 if (i < j) {
                     mandatoryArcsList.add(i * n + j);
@@ -279,7 +279,7 @@ public class PropLagr_OneTree extends Propagator implements GraphLagrangianRelax
     }
 
     public boolean isMandatory(int i, int j) {
-        return gV.getKernelGraph().edgeExists(i, j);
+        return gV.getMandNeighOf(i).contain(j);
     }
 
     public void waitFirstSolution(boolean b) {

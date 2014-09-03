@@ -31,9 +31,9 @@ import solver.constraints.Propagator;
 import solver.constraints.PropagatorPriority;
 import solver.exception.ContradictionException;
 import solver.variables.EventType;
+import solver.variables.IGraphVar;
 import solver.variables.IntVar;
 import solver.variables.Variable;
-import solver.variables.GraphVar;
 import util.ESat;
 import util.objects.setDataStructures.ISet;
 
@@ -48,16 +48,16 @@ public class PropKNodes extends Propagator {
     // VARIABLES
     //***********************************************************************************
 
-    private GraphVar g;
+    private IGraphVar g;
     private IntVar k;
 
     //***********************************************************************************
     // CONSTRUCTORS
     //***********************************************************************************
 
-    public PropKNodes(GraphVar graph, IntVar k) {
+    public PropKNodes(IGraphVar graph, IntVar k) {
         super(new Variable[]{graph, k}, PropagatorPriority.LINEAR, true);
-        this.g = (GraphVar) vars[0];
+        this.g = (IGraphVar) vars[0];
         this.k = (IntVar) vars[1];
     }
 
@@ -67,22 +67,22 @@ public class PropKNodes extends Propagator {
 
     @Override
     public void propagate(int evtmask) throws ContradictionException {
-        int env = g.getEnvelopGraph().getActiveNodes().getSize();
-        int ker = g.getKernelGraph().getActiveNodes().getSize();
+        int env = g.getPotentialNodes().getSize();
+        int ker = g.getMandatoryNodes().getSize();
         k.updateLowerBound(ker, aCause);
         k.updateUpperBound(env, aCause);
         if (ker == env) {
             setPassive();
         } else if (k.isInstantiated()) {
             int v = k.getValue();
-            ISet envNodes = g.getEnvelopGraph().getActiveNodes();
+            ISet envNodes = g.getPotentialNodes();
             if (v == env) {
                 for (int i = envNodes.getFirstElement(); i >= 0; i = envNodes.getNextElement()) {
                     g.enforceNode(i, aCause);
                 }
                 setPassive();
             } else if (v == ker) {
-                ISet kerNodes = g.getKernelGraph().getActiveNodes();
+                ISet kerNodes = g.getMandatoryNodes();
                 for (int i = envNodes.getFirstElement(); i >= 0; i = envNodes.getNextElement()) {
                     if (!kerNodes.contain(i)) {
                         g.removeNode(i, aCause);
@@ -109,8 +109,8 @@ public class PropKNodes extends Propagator {
 
     @Override
     public ESat isEntailed() {
-        int env = g.getEnvelopGraph().getActiveNodes().getSize();
-        int ker = g.getKernelGraph().getActiveNodes().getSize();
+        int env = g.getPotentialNodes().getSize();
+        int ker = g.getMandatoryNodes().getSize();
         if (env < k.getLB() || ker > k.getUB()) {
             return ESat.FALSE;
         }

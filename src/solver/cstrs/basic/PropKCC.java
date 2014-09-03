@@ -30,9 +30,9 @@ package solver.cstrs.basic;
 import solver.constraints.Propagator;
 import solver.constraints.PropagatorPriority;
 import solver.exception.ContradictionException;
+import solver.variables.IGraphVar;
 import solver.variables.IntVar;
 import solver.variables.Variable;
-import solver.variables.GraphVar;
 import util.ESat;
 import util.graphOperations.connectivity.ConnectivityFinder;
 import util.objects.setDataStructures.ISet;
@@ -50,7 +50,7 @@ public class PropKCC extends Propagator {
     // VARIABLES
     //***********************************************************************************
 
-    private GraphVar g;
+    private IGraphVar g;
     private IntVar k;
     private ConnectivityFinder env_CC_finder, ker_CC_finder;
 
@@ -58,9 +58,9 @@ public class PropKCC extends Propagator {
     // CONSTRUCTORS
     //***********************************************************************************
 
-    public PropKCC(GraphVar graph, IntVar k) {
+    public PropKCC(IGraphVar graph, IntVar k) {
         super(new Variable[]{graph, k}, PropagatorPriority.LINEAR, true);
-        this.g = (GraphVar) vars[0];
+        this.g = (IGraphVar) vars[0];
         this.k = (IntVar) vars[1];
         env_CC_finder = new ConnectivityFinder(g.getEnvelopGraph());
         ker_CC_finder = new ConnectivityFinder(g.getKernelGraph());

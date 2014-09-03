@@ -38,7 +38,7 @@ import solver.cstrs.IGraphRelaxation;
 import solver.search.GraphAssignment;
 import solver.search.GraphDecision;
 import solver.search.strategy.decision.Decision;
-import solver.variables.GraphVar;
+import solver.variables.IGraphVar;
 import util.objects.setDataStructures.ISet;
 
 public class GraphStrategies extends GraphStrategy {
@@ -83,11 +83,11 @@ public class GraphStrategies extends GraphStrategy {
      * @param costMatrix can be null
      * @param relaxation can be null
      */
-    public GraphStrategies(GraphVar graphVar, int[][] costMatrix, IGraphRelaxation relaxation) {
+    public GraphStrategies(IGraphVar graphVar, int[][] costMatrix, IGraphRelaxation relaxation) {
         super(graphVar, null, null, NodeArcPriority.ARCS);
         costs = costMatrix;
         relax = relaxation;
-        n = g.getEnvelopGraph().getNbNodes();
+        n = g.getNbMaxNodes();
     }
 
     /**
@@ -145,12 +145,12 @@ public class GraphStrategies extends GraphStrategy {
     }
 
     private boolean evaluateNeighbors(int i) {
-        ISet set = g.getEnvelopGraph().getSuccsOrNeigh(i);
-        if (set.getSize() == g.getKernelGraph().getSuccsOrNeigh(i).getSize()) {
+        ISet set = g.getPotSuccOrNeighOf(i);
+        if (set.getSize() == g.getMandSuccOrNeighOf(i).getSize()) {
             return false;
         }
         for (int j = set.getFirstElement(); j >= 0; j = set.getNextElement()) {
-            if (!g.getKernelGraph().isArcOrEdge(i, j)) {
+            if (!g.getMandSuccOrNeighOf(i).contain(j)) {
                 int v = -1;
                 switch (mode) {
                     case LEX:
@@ -159,20 +159,20 @@ public class GraphStrategies extends GraphStrategy {
                         return true;
                     case MIN_P_DEGREE:
                     case MAX_P_DEGREE:
-                        v = g.getEnvelopGraph().getSuccsOrNeigh(i).getSize()
-                                + g.getEnvelopGraph().getPredsOrNeigh(j).getSize();
+                        v = g.getPotSuccOrNeighOf(i).getSize()
+                                + g.getPotPredOrNeighOf(j).getSize();
                         break;
                     case MIN_M_DEGREE:
                     case MAX_M_DEGREE:
-                        v = g.getKernelGraph().getSuccsOrNeigh(i).getSize()
-                                + g.getKernelGraph().getPredsOrNeigh(j).getSize();
+                        v = g.getMandSuccOrNeighOf(i).getSize()
+                                + g.getMandPredOrNeighOf(j).getSize();
                         break;
                     case MIN_DELTA_DEGREE:
                     case MAX_DELTA_DEGREE:
-                        v = g.getEnvelopGraph().getSuccsOrNeigh(i).getSize()
-                                + g.getEnvelopGraph().getPredsOrNeigh(j).getSize()
-                                - g.getKernelGraph().getSuccsOrNeigh(i).getSize()
-                                - g.getKernelGraph().getPredsOrNeigh(j).getSize();
+                        v = g.getPotSuccOrNeighOf(i).getSize()
+                                + g.getPotPredOrNeighOf(j).getSize()
+                                - g.getMandSuccOrNeighOf(i).getSize()
+                                - g.getMandPredOrNeighOf(j).getSize();
                         break;
                     case MIN_COST:
                     case MAX_COST:

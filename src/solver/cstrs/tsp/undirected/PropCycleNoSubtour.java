@@ -40,8 +40,8 @@ import solver.constraints.Propagator;
 import solver.constraints.PropagatorPriority;
 import solver.exception.ContradictionException;
 import solver.variables.EventType;
-import solver.variables.delta.GraphDeltaMonitor;
-import solver.variables.UndirectedGraphVar;
+import solver.variables.delta.IGraphDeltaMonitor;
+import solver.variables.IUndirectedGraphVar;
 import util.ESat;
 import util.graphOperations.connectivity.ConnectivityFinder;
 import util.objects.setDataStructures.ISet;
@@ -50,14 +50,14 @@ import util.procedure.PairProcedure;
 /**
  * Simple NoSubtour of Caseau-Laburthe adapted to the undirected case
  */
-public class PropCycleNoSubtour extends Propagator<UndirectedGraphVar> {
+public class PropCycleNoSubtour extends Propagator<IUndirectedGraphVar> {
 
     //***********************************************************************************
     // VARIABLES
     //***********************************************************************************
 
-    private UndirectedGraphVar g;
-    private GraphDeltaMonitor gdm;
+    private IUndirectedGraphVar g;
+    private IGraphDeltaMonitor gdm;
     private int n;
     private PairProcedure arcEnforced;
     private IStateInt[] e1, e2, size;
@@ -72,11 +72,11 @@ public class PropCycleNoSubtour extends Propagator<UndirectedGraphVar> {
      *
      * @param graph
      */
-    public PropCycleNoSubtour(UndirectedGraphVar graph) {
-        super(new UndirectedGraphVar[]{graph}, PropagatorPriority.LINEAR, true);
+    public PropCycleNoSubtour(IUndirectedGraphVar graph) {
+        super(new IUndirectedGraphVar[]{graph}, PropagatorPriority.LINEAR, true);
         g = graph;
-        gdm = (GraphDeltaMonitor) g.monitorDelta(this);
-        this.n = g.getEnvelopGraph().getNbNodes();
+        gdm = g.monitorDelta(this);
+        this.n = g.getNbMaxNodes();
         arcEnforced = new EnfArc();
         e1 = new IStateInt[n];
         e2 = new IStateInt[n];
@@ -102,7 +102,7 @@ public class PropCycleNoSubtour extends Propagator<UndirectedGraphVar> {
         }
         ISet nei;
         for (int i = 0; i < n; i++) {
-            nei = g.getKernelGraph().getNeighborsOf(i);
+            nei = g.getMandNeighOf(i);
             for (int j = nei.getFirstElement(); j >= 0; j = nei.getNextElement()) {
                 if (i < j) {
                     enforce(i, j);
@@ -126,16 +126,16 @@ public class PropCycleNoSubtour extends Propagator<UndirectedGraphVar> {
 
     @Override
     public ESat isEntailed() {
-        ISet nodes = g.getKernelGraph().getActiveNodes();
+        ISet nodes = g.getMandatoryNodes();
         for (int i = nodes.getFirstElement(); i >= 0; i = nodes.getNextElement()) {
-            if (g.getKernelGraph().getNeighborsOf(i).getSize() > 2 || g.getEnvelopGraph().getNeighborsOf(i).getSize() < 2) {
+            if (g.getMandNeighOf(i).getSize() > 2 || g.getPotNeighOf(i).getSize() < 2) {
                 return ESat.FALSE;
             }
         }
-        ConnectivityFinder cf = new ConnectivityFinder(g.getEnvelopGraph());
-        if (!cf.isBiconnected()) {
-            return ESat.FALSE;
-        }
+//        ConnectivityFinder cf = new ConnectivityFinder(g.getEnvelopGraph());
+//        if (!cf.isBiconnected()) {
+//            return ESat.FALSE;
+//        }
         if (g.isInstantiated()) {
             return ESat.TRUE;
         }

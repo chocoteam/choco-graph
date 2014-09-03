@@ -32,8 +32,8 @@ import solver.constraints.PropagatorPriority;
 import solver.cstrs.channeling.relations.GraphRelation;
 import solver.exception.ContradictionException;
 import solver.variables.EventType;
+import solver.variables.IGraphVar;
 import solver.variables.Variable;
-import solver.variables.GraphVar;
 import util.ESat;
 import util.objects.setDataStructures.ISet;
 
@@ -42,7 +42,7 @@ import util.objects.setDataStructures.ISet;
  *
  * @author Jean-Guillaume Fages
  */
-public class PropGraphRelation<G extends GraphVar> extends Propagator<G> {
+public class PropGraphRelation<G extends IGraphVar> extends Propagator<G> {
 
     //***********************************************************************************
     // VARIABLES
@@ -58,7 +58,7 @@ public class PropGraphRelation<G extends GraphVar> extends Propagator<G> {
     //***********************************************************************************
 
     public PropGraphRelation(Variable[] vars, G graph, GraphRelation relation) {
-        super((G[]) new GraphVar[]{graph}, PropagatorPriority.QUADRATIC, true);
+        super((G[]) new IGraphVar[]{graph}, PropagatorPriority.QUADRATIC, true);
         this.g = graph;
         this.nodeVars = vars;
         this.n = nodeVars.length;
@@ -111,7 +111,7 @@ public class PropGraphRelation<G extends GraphVar> extends Propagator<G> {
     //***********************************************************************************
 
     private void checkVar(int i) throws ContradictionException {
-        ISet ker = g.getKernelGraph().getActiveNodes();
+        ISet ker = g.getMandatoryNodes();
         for (int j = ker.getFirstElement(); j >= 0; j = ker.getNextElement()) {
             if (g.getKernelGraph().isArcOrEdge(i, j)) {
                 relation.applyTrue(i, j, solver, aCause);

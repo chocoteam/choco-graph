@@ -32,8 +32,8 @@ import solver.constraints.PropagatorPriority;
 import solver.cstrs.channeling.relations.GraphRelation;
 import solver.exception.ContradictionException;
 import solver.variables.EventType;
+import solver.variables.IGraphVar;
 import solver.variables.Variable;
-import solver.variables.GraphVar;
 import util.ESat;
 import util.objects.setDataStructures.ISet;
 
@@ -48,7 +48,7 @@ public class PropRelationGraph extends Propagator {
     // VARIABLES
     //***********************************************************************************
 
-    private GraphVar g;
+    private IGraphVar g;
     private int n;
     private Variable[] nodeVars;
     private GraphRelation relation;
@@ -57,7 +57,7 @@ public class PropRelationGraph extends Propagator {
     // CONSTRUCTOR
     //***********************************************************************************
 
-    public PropRelationGraph(Variable[] vars, GraphVar graph, GraphRelation relation) {
+    public PropRelationGraph(Variable[] vars, IGraphVar graph, GraphRelation relation) {
         super(vars, PropagatorPriority.LINEAR, true);
         this.g = graph;
         this.nodeVars = vars;
@@ -114,7 +114,7 @@ public class PropRelationGraph extends Propagator {
     //***********************************************************************************
 
     private void checkVar(int i) throws ContradictionException {
-        ISet ker = g.getKernelGraph().getActiveNodes();
+        ISet ker = g.getMandatoryNodes();
         ISet nei = g.getEnvelopGraph().getSuccsOrNeigh(i);
         for (int j = nei.getFirstElement(); j >= 0; j = nei.getNextElement()) {
             switch (relation.isEntail(i, j)) {

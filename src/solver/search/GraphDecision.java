@@ -31,10 +31,10 @@ import solver.exception.ContradictionException;
 import solver.explanations.Deduction;
 import solver.explanations.Explanation;
 import solver.search.strategy.decision.Decision;
-import solver.variables.GraphVar;
+import solver.variables.IGraphVar;
 import util.PoolManager;
 
-public class GraphDecision extends Decision<GraphVar> {
+public class GraphDecision extends Decision<IGraphVar> {
 
     //***********************************************************************************
     // VARIABLES
@@ -61,14 +61,14 @@ public class GraphDecision extends Decision<GraphVar> {
         }
     }
 
-    public void setNode(GraphVar variable, int node, GraphAssignment graph_ass) {
+    public void setNode(IGraphVar variable, int node, GraphAssignment graph_ass) {
         super.set(variable);
         this.from = node;
         this.to = -1;
         assignment = graph_ass;
     }
 
-    public void setArc(GraphVar variable, int from, int to, GraphAssignment graph_ass) {
+    public void setArc(IGraphVar variable, int from, int to, GraphAssignment graph_ass) {
         super.set(variable);
         this.from = from;
         this.to = to;

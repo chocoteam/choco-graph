@@ -31,7 +31,7 @@ import solver.constraints.Propagator;
 import solver.constraints.PropagatorPriority;
 import solver.exception.ContradictionException;
 import solver.variables.EventType;
-import solver.variables.DirectedGraphVar;
+import solver.variables.IDirectedGraphVar;
 import util.ESat;
 import util.objects.graphs.DirectedGraph;
 import util.objects.setDataStructures.ISet;
@@ -44,13 +44,13 @@ import java.util.LinkedList;
  * Arborescence constraint (simplification from tree constraint)
  * Use naive implementation in O(n.m) for testing
  */
-public class PropArborescence_NaiveForm extends Propagator<DirectedGraphVar> {
+public class PropArborescence_NaiveForm extends Propagator<IDirectedGraphVar> {
 
     //***********************************************************************************
     // VARIABLES
     //***********************************************************************************
 
-    DirectedGraphVar g;
+    IDirectedGraphVar g;
     int source;
     int n;
     LinkedList<Integer> list;
@@ -68,10 +68,10 @@ public class PropArborescence_NaiveForm extends Propagator<DirectedGraphVar> {
      * @param graph
      * @param source root of the arborescence
      */
-    public PropArborescence_NaiveForm(DirectedGraphVar graph, int source) {
-        super(new DirectedGraphVar[]{graph}, PropagatorPriority.QUADRATIC, true);
+    public PropArborescence_NaiveForm(IDirectedGraphVar graph, int source) {
+        super(new IDirectedGraphVar[]{graph}, PropagatorPriority.QUADRATIC, true);
         g = vars[0];
-        n = g.getEnvelopGraph().getNbNodes();
+        n = g.getNbMaxNodes();
         this.source = source;
         list = new LinkedList<Integer>();
         visited = new BitSet(n);
@@ -125,7 +125,7 @@ public class PropArborescence_NaiveForm extends Propagator<DirectedGraphVar> {
             DirectedGraph dig = new DirectedGraph(n, SetType.LINKED_LIST, false);
             for (int j = 0; j < n; j++) {
                 if (j != i) {
-                    succ = g.getEnvelopGraph().getSuccessorsOf(j);
+                    succ = g.getPotSuccOf(j);
                     for (int k = succ.getFirstElement(); k >= 0; k = succ.getNextElement()) {
                         dig.addArc(j, k);
                     }

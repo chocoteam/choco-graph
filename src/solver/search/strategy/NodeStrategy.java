@@ -26,18 +26,18 @@
  */
 package solver.search.strategy;
 
-import solver.variables.GraphVar;
+import solver.variables.IGraphVar;
 import util.objects.setDataStructures.ISet;
 
-public abstract class NodeStrategy<G extends GraphVar> {
+public abstract class NodeStrategy<G extends IGraphVar> {
 
     protected G g;
     protected ISet envNodes, kerNodes;
 
     public NodeStrategy(G g) {
         this.g = g;
-        this.envNodes = g.getEnvelopGraph().getActiveNodes();
-        this.kerNodes = g.getKernelGraph().getActiveNodes();
+        this.envNodes = g.getPotentialNodes();
+        this.kerNodes = g.getMandatoryNodes();
     }
 
     public abstract int nextNode();

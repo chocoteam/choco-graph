@@ -46,7 +46,7 @@ import util.objects.setDataStructures.SetType;
  */
 public class TransitiveClosure extends AbstractProblem{
 
-	DirectedGraphVar tc;
+	IDirectedGraphVar tc;
 	IntVar nbArcs;
 
 	@Override
@@ -68,21 +68,19 @@ public class TransitiveClosure extends AbstractProblem{
 		// VARIABLE COUNTING THE NUMBER OF ARCS IN THE TC
 		nbArcs = VF.bounded("edgeCount", 0, n * n, solver);
 		// TRANSITIVE CLOSURE VARIABLE : initial domain
-		tc = GraphVarFactory.directedGraph("transitive closure", n, solver);
+		DirectedGraph GLB = new DirectedGraph(solver.getEnvironment(), n, SetType.BITSET, true);
+		DirectedGraph GUB = new DirectedGraph(solver.getEnvironment(), n, SetType.BITSET, true);
 		for (int i = 0; i < n; i++) {
-			tc.getEnvelopGraph().activateNode(i);		// potential node
-			tc.getEnvelopGraph().addArc(i, i);			// potential loop
-			tc.getKernelGraph().activateNode(i);		// mandatory node
-			tc.getKernelGraph().addArc(i, i);			// mandatory loop
+			GUB.addArc(i, i);			// potential loop
+			GLB.addArc(i, i);			// mandatory loop
 			for (int j = 0; j < n; j++) {
+				GUB.addArc(i, j);		// potential edge
 				if (input.arcExists(i,j)) {
-					tc.getKernelGraph().addArc(i, j);	// mandatory edge
-					tc.getEnvelopGraph().addArc(i, j);	// potential edge
-				}else{
-					tc.getEnvelopGraph().addArc(i, j);	// potential edge
+					GLB.addArc(i, j);	// mandatory edge
 				}
 			}
 		}
+		tc = GraphVarFactory.directedGraph("transitive closure", GLB, GUB, solver);
 
 		// CONSTRAINTS
 		solver.post(new Constraint("Graph_TC",new PropTransitivity(tc),new PropKArcs(tc,nbArcs)));

@@ -38,11 +38,11 @@ import solver.constraints.Propagator;
 import solver.constraints.PropagatorPriority;
 import solver.exception.ContradictionException;
 import solver.variables.EventType;
+import solver.variables.IGraphVar;
 import solver.variables.SetVar;
 import solver.variables.Variable;
 import solver.variables.delta.IGraphDeltaMonitor;
 import solver.variables.delta.ISetDeltaMonitor;
-import solver.variables.GraphVar;
 import util.ESat;
 import util.objects.setDataStructures.ISet;
 import util.procedure.IntProcedure;
@@ -65,7 +65,7 @@ public class PropGraphChannel extends Propagator<Variable> {
     private ISetDeltaMonitor[] sdm;
     private SetVar[] sets;
     private IGraphDeltaMonitor gdm;
-    private GraphVar g;
+    private IGraphVar g;
     private IntProcedure elementForced, elementRemoved;
     private PairProcedure arcForced, arcRemoved;
 
@@ -80,15 +80,15 @@ public class PropGraphChannel extends Propagator<Variable> {
      * @param setsV
      * @param gV
      */
-    public PropGraphChannel(SetVar[] setsV, GraphVar gV) {
+    public PropGraphChannel(SetVar[] setsV, IGraphVar gV) {
         super(ArrayUtils.append(setsV, new Variable[]{gV}), PropagatorPriority.LINEAR, true);
         this.sets = new SetVar[setsV.length];
         for (int i = 0; i < setsV.length; i++) {
             this.sets[i] = (SetVar) vars[i];
         }
         n = sets.length;
-        this.g = (GraphVar) vars[n];
-        assert (n == g.getEnvelopGraph().getNbNodes());
+        this.g = (IGraphVar) vars[n];
+        assert (n == g.getNbMaxNodes());
         sdm = new ISetDeltaMonitor[n];
         for (int i = 0; i < n; i++) {
             sdm[i] = sets[i].monitorDelta(this);
@@ -139,16 +139,16 @@ public class PropGraphChannel extends Propagator<Variable> {
             for (int j=sets[i].getKernelFirst(); j!=SetVar.END; j=sets[i].getKernelNext()) {
                 g.enforceArc(i, j, aCause);
             }
-            ISet tmp = g.getKernelGraph().getSuccsOrNeigh(i);
+            ISet tmp = g.getPotSuccOrNeighOf(i);
             for (int j = tmp.getFirstElement(); j >= 0; j = tmp.getNextElement()) {
                 sets[i].addToKernel(j, aCause);
             }
             for (int j=sets[i].getEnvelopeFirst(); j!=SetVar.END; j=sets[i].getEnvelopeNext()) {
-                if (!g.getEnvelopGraph().isArcOrEdge(i, j)) {
+                if (!g.getPotSuccOrNeighOf(i).contain(j)) {
                     sets[i].removeFromEnvelope(j, aCause);
                 }
             }
-            tmp = g.getEnvelopGraph().getSuccsOrNeigh(i);
+            tmp = g.getPotSuccOrNeighOf(i);
             for (int j = tmp.getFirstElement(); j >= 0; j = tmp.getNextElement()) {
                 if (!sets[i].envelopeContains(j)) {
                     g.removeArc(i, j, aCause);
@@ -181,11 +181,11 @@ public class PropGraphChannel extends Propagator<Variable> {
     public ESat isEntailed() {
         for (int i = 0; i < n; i++) {
             for (int j=sets[i].getKernelFirst(); j!=SetVar.END; j=sets[i].getKernelNext()) {
-                if (!g.getEnvelopGraph().isArcOrEdge(i, j)) {
+                if (!g.getPotSuccOrNeighOf(i).contain(j)) {
                     return ESat.FALSE;
                 }
             }
-            ISet tmp = g.getKernelGraph().getSuccsOrNeigh(i);
+            ISet tmp = g.getMandSuccOrNeighOf(i);
             for (int j = tmp.getFirstElement(); j >= 0; j = tmp.getNextElement()) {
                 if (!sets[i].envelopeContains(j)) {
                     return ESat.FALSE;

@@ -30,10 +30,7 @@ package solver.cstrs.basic;
 import solver.constraints.Propagator;
 import solver.constraints.PropagatorPriority;
 import solver.exception.ContradictionException;
-import solver.variables.EventType;
-import solver.variables.IntVar;
-import solver.variables.Variable;
-import solver.variables.GraphVar;
+import solver.variables.*;
 import util.ESat;
 import util.objects.setDataStructures.ISet;
 
@@ -48,16 +45,16 @@ public class PropKLoops extends Propagator {
     // VARIABLES
     //***********************************************************************************
 
-    private GraphVar g;
+    private IGraphVar g;
     private IntVar k;
 
     //***********************************************************************************
     // CONSTRUCTORS
     //***********************************************************************************
 
-    public PropKLoops(GraphVar graph, IntVar k) {
+    public PropKLoops(IGraphVar graph, IntVar k) {
         super(new Variable[]{graph, k}, PropagatorPriority.LINEAR, true);
-        this.g = (GraphVar) vars[0];
+        this.g = (IGraphVar) vars[0];
         this.k = (IntVar) vars[1];
     }
 
@@ -69,12 +66,12 @@ public class PropKLoops extends Propagator {
     public void propagate(int evtmask) throws ContradictionException {
         int min = 0;
         int max = 0;
-        ISet nodes = g.getEnvelopGraph().getActiveNodes();
+        ISet nodes = g.getPotentialNodes();
         for (int i = nodes.getFirstElement(); i >= 0; i = nodes.getNextElement()) {
-            if (g.getKernelGraph().isArcOrEdge(i, i)) {
+            if (g.getMandSuccOrNeighOf(i).contain(i)) {
                 min++;
                 max++;
-            } else if (g.getEnvelopGraph().isArcOrEdge(i, i)) {
+            } else if (g.getPotSuccOrNeighOf(i).contain(i)) {
                 max++;
             }
         }
@@ -85,7 +82,7 @@ public class PropKLoops extends Propagator {
         } else if (k.isInstantiated()) {
             if (k.getValue() == max) {
                 for (int i = nodes.getFirstElement(); i >= 0; i = nodes.getNextElement()) {
-                    if (g.getEnvelopGraph().isArcOrEdge(i, i)) {
+                    if (g.getPotSuccOrNeighOf(i).contain(i)) {
                         g.enforceArc(i, i, aCause);
                     }
                 }
@@ -93,7 +90,7 @@ public class PropKLoops extends Propagator {
             }
             if (k.getValue() == min) {
                 for (int i = nodes.getFirstElement(); i >= 0; i = nodes.getNextElement()) {
-                    if (!g.getKernelGraph().isArcOrEdge(i, i)) {
+                    if (!g.getMandSuccOrNeighOf(i).contain(i)) {
                         g.removeArc(i, i, aCause);
                     }
                 }
@@ -121,12 +118,12 @@ public class PropKLoops extends Propagator {
     public ESat isEntailed() {
         int min = 0;
         int max = 0;
-        ISet env = g.getEnvelopGraph().getActiveNodes();
+        ISet env = g.getPotentialNodes();
         for (int i = env.getFirstElement(); i >= 0; i = env.getNextElement()) {
-            if (g.getKernelGraph().isArcOrEdge(i, i)) {
+            if (g.getMandSuccOrNeighOf(i).contain(i)) {
                 min++;
                 max++;
-            } else if (g.getEnvelopGraph().isArcOrEdge(i, i)) {
+            } else if (g.getPotSuccOrNeighOf(i).contain(i)) {
                 max++;
             }
         }

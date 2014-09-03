@@ -34,7 +34,7 @@ import solver.exception.ContradictionException;
 import solver.variables.EventType;
 import solver.variables.IntVar;
 import solver.variables.Variable;
-import solver.variables.UndirectedGraphVar;
+import solver.variables.IUndirectedGraphVar;
 import util.ESat;
 import util.graphOperations.connectivity.ConnectivityFinder;
 import util.objects.setDataStructures.ISet;
@@ -52,7 +52,7 @@ public class PropKCliques extends Propagator {
     // VARIABLES
     //***********************************************************************************
 
-    private UndirectedGraphVar g;
+    private IUndirectedGraphVar g;
     private IntVar k;
     private int n;
     private BitSet in;
@@ -65,11 +65,11 @@ public class PropKCliques extends Propagator {
     // CONSTRUCTORS
     //***********************************************************************************
 
-    public PropKCliques(UndirectedGraphVar graph, IntVar k) {
+    public PropKCliques(IUndirectedGraphVar graph, IntVar k) {
         super(new Variable[]{graph, k}, PropagatorPriority.LINEAR, true);
-        g = (UndirectedGraphVar) vars[0];
+        g = (IUndirectedGraphVar) vars[0];
         this.k = (IntVar) vars[1];
-        n = g.getEnvelopGraph().getNbNodes();
+        n = g.getNbMaxNodes();
         in = new BitSet(n);
         inMIS = new BitSet(n);
         nbNeighbors = new int[n];
@@ -85,13 +85,13 @@ public class PropKCliques extends Propagator {
     public void propagate(int evtmask) throws ContradictionException {
         connectivityFinder.findAllCC();
         int max = connectivityFinder.getNBCC();
-        max += g.getEnvelopOrder() - g.getKernelOrder();
+        max += g.getPotentialNodes().getSize() - g.getMandatoryNodes().getSize();
         k.updateUpperBound(max, aCause);
         if (max == k.getLB()) {
-            ISet nodes = g.getKernelGraph().getActiveNodes();
+            ISet nodes = g.getMandatoryNodes();
             for (int i = 0; i < n; i++) {
                 if (!nodes.contain(i)) {
-                    ISet nei = g.getEnvelopGraph().getNeighborsOf(i);
+                    ISet nei = g.getPotNeighOf(i);
                     for (int j = nei.getFirstElement(); j >= 0; j = nei.getNextElement()) {
                         g.removeArc(i, j, aCause);
                     }
@@ -115,10 +115,10 @@ public class PropKCliques extends Propagator {
         // prepare data structures
         in.clear();
         inMIS.clear();
-        ISet nodes = g.getKernelGraph().getActiveNodes();
+        ISet nodes = g.getMandatoryNodes();
         int min = 0;
         for (int i = 0; i < n; i++) {
-            nbNeighbors[i] = g.getEnvelopGraph().getNeighborsOf(i).getSize();
+            nbNeighbors[i] = g.getPotNeighOf(i).getSize();
             if (!nodes.contain(i)) {
                 in.set(i);
             }
@@ -139,7 +139,7 @@ public class PropKCliques extends Propagator {
     }
 
     private void addToMIS(int node) {
-        ISet nei = g.getEnvelopGraph().getNeighborsOf(node);
+        ISet nei = g.getPotNeighOf(node);
         inMIS.set(node);
         in.set(node);
         list.clear();
@@ -150,7 +150,7 @@ public class PropKCliques extends Propagator {
             }
         }
         for (int i = list.size() - 1; i >= 0; i--) {
-            nei = g.getEnvelopGraph().getNeighborsOf(list.get(i));
+            nei = g.getPotNeighOf(list.get(i));
             for (int j = nei.getFirstElement(); j >= 0; j = nei.getNextElement()) {
                 nbNeighbors[j]--;
             }
@@ -161,11 +161,11 @@ public class PropKCliques extends Propagator {
         ISet nei;
         in.clear();
         int mate;
-        ISet nodes = g.getKernelGraph().getActiveNodes();
+        ISet nodes = g.getMandatoryNodes();
         for (int i = nodes.getFirstElement(); i >= 0; i = nodes.getNextElement()) {
             if (!inMIS.get(i)) {
                 mate = -1;
-                nei = g.getEnvelopGraph().getNeighborsOf(i);
+                nei = g.getPotNeighOf(i);
                 for (int j = nei.getFirstElement(); j >= 0; j = nei.getNextElement()) {
                     if (inMIS.get(j)) {
                         if (mate == -1) {

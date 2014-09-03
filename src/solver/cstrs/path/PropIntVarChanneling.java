@@ -41,8 +41,8 @@ import solver.variables.EventType;
 import solver.variables.IntVar;
 import solver.variables.Variable;
 import solver.variables.delta.IIntDeltaMonitor;
-import solver.variables.delta.GraphDeltaMonitor;
-import solver.variables.DirectedGraphVar;
+import solver.variables.delta.IGraphDeltaMonitor;
+import solver.variables.IDirectedGraphVar;
 import util.ESat;
 import util.objects.setDataStructures.ISet;
 import util.procedure.IntProcedure;
@@ -62,8 +62,8 @@ public class PropIntVarChanneling extends Propagator {
     // VARIABLES
     //***********************************************************************************
 
-    DirectedGraphVar g;
-    GraphDeltaMonitor gdm;
+    IDirectedGraphVar g;
+    IGraphDeltaMonitor gdm;
     int n;
     IntVar[] intVars;
     protected final IIntDeltaMonitor[] idms;
@@ -83,16 +83,16 @@ public class PropIntVarChanneling extends Propagator {
      * @param intVars
      * @param graph
      */
-    public PropIntVarChanneling(IntVar[] intVars, DirectedGraphVar graph) {
+    public PropIntVarChanneling(IntVar[] intVars, IDirectedGraphVar graph) {
         super(ArrayUtils.append(intVars, new Variable[]{graph}), PropagatorPriority.LINEAR, true);
         g = graph;
-        gdm = (GraphDeltaMonitor) g.monitorDelta(this);
+        gdm = g.monitorDelta(this);
         this.intVars = intVars;
         this.idms = new IIntDeltaMonitor[intVars.length];
         for (int i = 0; i < intVars.length; i++) {
             idms[i] = intVars[i].monitorDelta(this);
         }
-        this.n = g.getEnvelopGraph().getNbNodes();
+        this.n = g.getNbMaxNodes();
         valRemoved = new ValRem();
         arcEnforced = new EnfArc();
         if (intVars[0].hasEnumeratedDomain()) {
@@ -111,7 +111,7 @@ public class PropIntVarChanneling extends Propagator {
         ISet nei;
         IntVar v;
         for (int i = 0; i < n; i++) {
-            nei = g.getEnvelopGraph().getSuccessorsOf(i);
+            nei = g.getPotSuccOf(i);
             for (int j = nei.getFirstElement(); j >= 0; j = nei.getNextElement()) {
                 if (!intVars[i].contains(j)) {
                     g.removeArc(i, j, aCause);
@@ -120,13 +120,13 @@ public class PropIntVarChanneling extends Propagator {
             v = intVars[i];
             int ub = v.getUB();
             for (int j = v.getLB(); j <= ub; j = v.nextValue(j)) {
-                if (j < n && !g.getEnvelopGraph().arcExists(i, j)) {
+                if (j < n && !g.getPotSuccOf(i).contain(j)) {
                     v.removeValue(j, aCause);
                 }
             }
             if (!v.hasEnumeratedDomain()) {
                 ub = v.getUB();
-                while (ub >= 0 && ub < n && !g.getEnvelopGraph().arcExists(i, ub)) {
+                while (ub >= 0 && ub < n && !g.getPotSuccOf(i).contain(ub)) {
                     v.removeValue(ub, aCause);
                     ub--;
                 }
@@ -176,10 +176,10 @@ public class PropIntVarChanneling extends Propagator {
         int val;
         for (int i = 0; i < n; i++) {
             val = intVars[i].getValue();
-            if (val < n && !g.getEnvelopGraph().arcExists(i, val)) {
+            if (val < n && !g.getPotSuccOf(i).contain(val)) {
                 return ESat.FALSE;
             }
-            if (g.getEnvelopGraph().getSuccessorsOf(i).getSize() > 1) {
+            if (g.getPotSuccOf(i).getSize() > 1) {
                 return ESat.FALSE;
             }
         }
@@ -215,12 +215,12 @@ public class PropIntVarChanneling extends Propagator {
         @Override
         public void execute(int from, int to) throws ContradictionException {
             if (to == intVars[from].getLB()) {
-                while (to < n && !g.getEnvelopGraph().arcExists(from, to)) {
+                while (to < n && !g.getPotSuccOf(from).contain(to)) {
                     to++;
                 }
                 intVars[from].updateLowerBound(to, aCause);
             } else if (to == intVars[from].getUB()) {
-                while (to >= 0 && !g.getEnvelopGraph().arcExists(from, to)) {
+                while (to >= 0 && !g.getPotSuccOf(from).contain(to)) {
                     to--;
                 }
                 intVars[from].updateUpperBound(to, aCause);

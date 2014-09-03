@@ -31,7 +31,7 @@ import solver.constraints.Propagator;
 import solver.constraints.PropagatorPriority;
 import solver.exception.ContradictionException;
 import solver.variables.EventType;
-import solver.variables.UndirectedGraphVar;
+import solver.variables.IUndirectedGraphVar;
 import util.ESat;
 import util.graphOperations.connectivity.ConnectivityFinder;
 
@@ -42,13 +42,13 @@ import util.graphOperations.connectivity.ConnectivityFinder;
  *
  * @author Jean-Guillaume Fages
  */
-public class PropBiconnected extends Propagator<UndirectedGraphVar> {
+public class PropBiconnected extends Propagator<IUndirectedGraphVar> {
 
     //***********************************************************************************
     // VARIABLES
     //***********************************************************************************
 
-    private UndirectedGraphVar g;
+    private IUndirectedGraphVar g;
     private ConnectivityFinder env_CC_finder;
 	int timestamp = 0;
 
@@ -56,8 +56,8 @@ public class PropBiconnected extends Propagator<UndirectedGraphVar> {
     // CONSTRUCTORS
     //***********************************************************************************
 
-    public PropBiconnected(UndirectedGraphVar graph) {
-        super(new UndirectedGraphVar[]{graph}, PropagatorPriority.LINEAR, true);
+    public PropBiconnected(IUndirectedGraphVar graph) {
+        super(new IUndirectedGraphVar[]{graph}, PropagatorPriority.LINEAR, true);
         this.g = vars[0];
         env_CC_finder = new ConnectivityFinder(g.getEnvelopGraph());
     }
@@ -68,7 +68,7 @@ public class PropBiconnected extends Propagator<UndirectedGraphVar> {
 
     @Override
     public void propagate(int evtmask) throws ContradictionException {
-        if (g.getEnvelopOrder() == g.getKernelOrder() && !env_CC_finder.isBiconnected()) {
+        if (g.getPotentialNodes().getSize() == g.getMandatoryNodes().getSize() && !env_CC_finder.isBiconnected()) {
             contradiction(g, "");
         }
     }

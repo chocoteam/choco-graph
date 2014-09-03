@@ -36,15 +36,16 @@ package solver.cstrs.degree;
 
 import solver.ICause;
 import solver.exception.ContradictionException;
-import solver.variables.GraphVar;
-import util.objects.graphs.IGraph;
+import solver.variables.IGraphVar;
 import util.objects.setDataStructures.ISet;
 
 interface IncidentSet {
 
-    ISet getSet(IGraph graph, int i);
+	ISet getPotSet(IGraphVar graph, int i);
 
-    void enforce(GraphVar g, int from, int to, ICause cause) throws ContradictionException;
+	ISet getMandSet(IGraphVar graph, int i);
 
-    void remove(GraphVar g, int from, int to, ICause cause) throws ContradictionException;
+    void enforce(IGraphVar g, int from, int to, ICause cause) throws ContradictionException;
+
+    void remove(IGraphVar g, int from, int to, ICause cause) throws ContradictionException;
 }

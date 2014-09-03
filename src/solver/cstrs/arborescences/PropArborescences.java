@@ -31,7 +31,7 @@ import solver.constraints.Propagator;
 import solver.constraints.PropagatorPriority;
 import solver.exception.ContradictionException;
 import solver.variables.EventType;
-import solver.variables.DirectedGraphVar;
+import solver.variables.IDirectedGraphVar;
 import util.ESat;
 import util.graphOperations.dominance.AbstractLengauerTarjanDominatorsFinder;
 import util.graphOperations.dominance.AlphaDominatorsFinder;
@@ -46,14 +46,14 @@ import util.objects.setDataStructures.SetType;
  * Uses simple LT algorithm which runs in O(m.log(n)) worst case time
  * but very efficient in practice
  */
-public class PropArborescences extends Propagator<DirectedGraphVar> {
+public class PropArborescences extends Propagator<IDirectedGraphVar> {
 
     //***********************************************************************************
     // VARIABLES
     //***********************************************************************************
 
     // flow graph
-    DirectedGraphVar g;
+    IDirectedGraphVar g;
     DirectedGraph connectedGraph;
     // number of nodes
     int n;
@@ -65,10 +65,10 @@ public class PropArborescences extends Propagator<DirectedGraphVar> {
     // CONSTRUCTORS
     //***********************************************************************************
 
-    public PropArborescences(DirectedGraphVar graph, boolean simple) {
-        super(new DirectedGraphVar[]{graph}, PropagatorPriority.QUADRATIC, true);
+    public PropArborescences(IDirectedGraphVar graph, boolean simple) {
+        super(new IDirectedGraphVar[]{graph}, PropagatorPriority.QUADRATIC, true);
         g = vars[0];
-        n = g.getEnvelopGraph().getNbNodes();
+        n = g.getNbMaxNodes();
         successors = new ISet[n];
         connectedGraph = new DirectedGraph(n + 1, SetType.LINKED_LIST, false);
         if (simple) {
@@ -99,7 +99,7 @@ public class PropArborescences extends Propagator<DirectedGraphVar> {
         }
         ISet nei;
         for (int i = 0; i < n; i++) {
-            nei = g.getEnvelopGraph().getPredecessorsOf(i);
+            nei = g.getPotPredOf(i);
             if (nei.isEmpty()) {
                 connectedGraph.addArc(n, i);
             } else {
@@ -110,7 +110,7 @@ public class PropArborescences extends Propagator<DirectedGraphVar> {
         }
         if (domFinder.findDominators()) {
             for (int x = 0; x < n; x++) {
-                nei = g.getEnvelopGraph().getSuccessorsOf(x);
+                nei = g.getPotSuccOf(x);
                 for (int y = nei.getFirstElement(); y >= 0; y = nei.getNextElement()) {
                     //--- STANDART PRUNING
                     if (domFinder.isDomminatedBy(x, y)) {

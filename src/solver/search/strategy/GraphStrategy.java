@@ -33,7 +33,7 @@ import solver.search.GraphDecision;
 import solver.search.strategy.arcs.LexArc;
 import solver.search.strategy.nodes.LexNode;
 import solver.search.strategy.strategy.AbstractStrategy;
-import solver.variables.GraphVar;
+import solver.variables.IGraphVar;
 import util.PoolManager;
 
 /**
@@ -42,9 +42,9 @@ import util.PoolManager;
  * @author Jean-Guillaume Fages
  * @since 1 April 2011
  */
-public class GraphStrategy extends AbstractStrategy<GraphVar> {
+public class GraphStrategy extends AbstractStrategy<IGraphVar> {
 
-    protected GraphVar g;
+    protected IGraphVar g;
     protected NodeStrategy nodeStrategy;
     protected ArcStrategy arcStrategy;
     protected NodeArcPriority priority;
@@ -55,8 +55,8 @@ public class GraphStrategy extends AbstractStrategy<GraphVar> {
         ARCS;
     }
 
-    public GraphStrategy(GraphVar g, NodeStrategy ns, ArcStrategy as, NodeArcPriority priority) {
-        super(new GraphVar[]{g});
+    public GraphStrategy(IGraphVar g, NodeStrategy ns, ArcStrategy as, NodeArcPriority priority) {
+        super(new IGraphVar[]{g});
         this.g = g;
         this.nodeStrategy = ns;
         this.arcStrategy = as;
@@ -64,7 +64,7 @@ public class GraphStrategy extends AbstractStrategy<GraphVar> {
         pool = new PoolManager<GraphDecision>();
     }
 
-    public GraphStrategy(GraphVar g) {
+    public GraphStrategy(IGraphVar g) {
         this(g, new LexNode(g), new LexArc(g), NodeArcPriority.NODES_THEN_ARCS);
     }
 

@@ -35,7 +35,9 @@ import solver.search.loop.monitors.SearchMonitorFactory;
 import solver.search.GraphStrategyFactory;
 import solver.search.strategy.ArcStrategy;
 import solver.search.strategy.GraphStrategy;
-import solver.variables.UndirectedGraphVar;
+import solver.variables.GraphVarFactory;
+import solver.variables.IUndirectedGraphVar;
+import util.objects.graphs.UndirectedGraph;
 import util.objects.setDataStructures.ISet;
 import util.objects.setDataStructures.SetFactory;
 import util.objects.setDataStructures.SetType;
@@ -64,7 +66,7 @@ public class KnightTourProblem extends AbstractProblem {
     @Option(name = "-open", usage = "Open tour (path instead of cycle).", required = false)
     private boolean closedTour = true;
 
-    private UndirectedGraphVar graph;
+    private IUndirectedGraphVar graph;
 
     //***********************************************************************************
     // METHODS
@@ -91,14 +93,16 @@ public class KnightTourProblem extends AbstractProblem {
         // variables
 		int n = matrix.length;
 		SetFactory.RECYCLE = false; //(optim)
-		graph = new UndirectedGraphVar("G", solver, n, SetType.LINKED_LIST, SetType.LINKED_LIST, true);
-        for (int i = 0; i < n; i++) {
+		UndirectedGraph GLB = new UndirectedGraph(solver.getEnvironment(),n,SetType.LINKED_LIST,true);
+		UndirectedGraph GUB = new UndirectedGraph(solver.getEnvironment(),n,SetType.LINKED_LIST,true);
+		for (int i = 0; i < n; i++) {
             for (int j = i + 1; j < n; j++) {
                 if (matrix[i][j]) {
-                    graph.getEnvelopGraph().addEdge(i, j);
+                    GUB.addEdge(i, j);
                 }
             }
         }
+		graph = GraphVarFactory.undirectedGraph("G", GLB, GUB, solver);
         // constraints
         solver.post(GraphConstraintFactory.hamiltonianCycle(graph));
     }
@@ -123,12 +127,12 @@ public class KnightTourProblem extends AbstractProblem {
     // HEURISTICS
     //***********************************************************************************
 
-    private static class MinNeigh extends ArcStrategy<UndirectedGraphVar> {
+    private static class MinNeigh extends ArcStrategy<IUndirectedGraphVar> {
         int n;
 
-        public MinNeigh(UndirectedGraphVar graphVar) {
+        public MinNeigh(IUndirectedGraphVar graphVar) {
             super(graphVar);
-            n = graphVar.getEnvelopGraph().getNbNodes();
+            n = graphVar.getNbMaxNodes();
         }
 
         @Override
@@ -138,7 +142,7 @@ public class KnightTourProblem extends AbstractProblem {
             int sizi;
 			from = -1;
             for (int i = 0; i < n; i++) {
-                sizi = g.getEnvelopGraph().getNeighborsOf(i).getSize() - g.getKernelGraph().getNeighborsOf(i).getSize();
+                sizi = g.getPotNeighOf(i).getSize() - g.getMandNeighOf(i).getSize();
                 if (sizi < size && sizi > 0) {
                     from = i;
                     size = sizi;
@@ -147,9 +151,9 @@ public class KnightTourProblem extends AbstractProblem {
             if (from == -1) {
                 return false;
             }
-            suc = g.getEnvelopGraph().getNeighborsOf(from);
+            suc = g.getPotNeighOf(from);
             for (int j = suc.getFirstElement(); j >= 0; j = suc.getNextElement()) {
-                if (!g.getKernelGraph().edgeExists(from, j)) {
+                if (!g.getMandNeighOf(from).contain(j)) {
 					to = j;
 					return true;
                 }

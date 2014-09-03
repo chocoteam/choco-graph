@@ -46,7 +46,7 @@ import util.objects.setDataStructures.ISet;
  * User: chameau, Jean-Guillaume Fages
  * Date: 7 feb. 2011
  */
-public abstract class GraphVar<E extends IGraph> extends AbstractVariable {
+public abstract class ExplicitGraphVar<E extends IGraph> extends AbstractVariable implements IGraphVar<E>{
 
     //////////////////////////////// GRAPH PART /////////////////////////////////////////
     //***********************************************************************************
@@ -54,7 +54,6 @@ public abstract class GraphVar<E extends IGraph> extends AbstractVariable {
     //***********************************************************************************
 
     protected E envelop, kernel;
-    protected IEnvironment environment;
     protected IGraphDelta delta;
     ///////////// Attributes related to Variable ////////////
     protected boolean reactOnModification;
@@ -68,9 +67,10 @@ public abstract class GraphVar<E extends IGraph> extends AbstractVariable {
      *
      * @param solver
      */
-    public GraphVar(String name, Solver solver) {
+    public ExplicitGraphVar(String name, Solver solver, E LB, E UB) {
         super(name, solver);
-        this.environment = solver.getEnvironment();
+		this.kernel = LB;
+		this.envelop = UB;
     }
 
     //***********************************************************************************
@@ -79,7 +79,7 @@ public abstract class GraphVar<E extends IGraph> extends AbstractVariable {
 
     @Override
     public boolean isInstantiated() {
-        if (getEnvelopOrder() != getKernelOrder()) {
+        if (getPotentialNodes().getSize() != getMandatoryNodes().getSize()) {
             return false;
         }
         ISet suc;
@@ -199,24 +199,6 @@ public abstract class GraphVar<E extends IGraph> extends AbstractVariable {
 	}
 
     /**
-     * Compute the order of the graph in its current state (ie the number of nodes that may belong to an instantiation)
-     *
-     * @return the number of nodes that may belong to an instantiation
-     */
-    public int getEnvelopOrder() {
-        return envelop.getActiveNodes().getSize();
-    }
-
-    /**
-     * Compute the order of the graph in its final state (ie the minimum number of nodes that necessarily belong to any instantiation)
-     *
-     * @return the minimum number of nodes that necessarily belong to any instantiation
-     */
-    public int getKernelOrder() {
-        return kernel.getActiveNodes().getSize();
-    }
-
-    /**
      * @return the graph representing the domain of the variable graph
      */
     public E getKernelGraph() {
@@ -230,10 +212,35 @@ public abstract class GraphVar<E extends IGraph> extends AbstractVariable {
         return envelop;
     }
 
+	@Override
+	public ISet getMandSuccOrNeighOf(int idx){
+		return kernel.getSuccsOrNeigh(idx);
+	}
+
+	@Override
+	public ISet getPotSuccOrNeighOf(int idx){
+		return envelop.getSuccsOrNeigh(idx);
+	}
+
+	@Override
+	public ISet getMandPredOrNeighOf(int idx){
+		return kernel.getPredsOrNeigh(idx);
+	}
+
+	@Override
+	public ISet getPotPredOrNeighOf(int idx){
+		return envelop.getPredsOrNeigh(idx);
+	}
+
     /**
      * @return true iff the graph is directed
      */
     public abstract boolean isDirected();
+
+	@Override
+	public boolean isExplicit(){
+		return true;
+	}
 
     //***********************************************************************************
     // VARIABLE STUFF
@@ -260,7 +267,7 @@ public abstract class GraphVar<E extends IGraph> extends AbstractVariable {
     }
 
     @Override
-    public GraphVar duplicate() {
+    public ExplicitGraphVar duplicate() {
         throw new UnsupportedOperationException("Cannot duplicate GraphVar");
     }
 

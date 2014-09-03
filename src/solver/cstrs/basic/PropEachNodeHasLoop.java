@@ -31,8 +31,8 @@ import solver.constraints.Propagator;
 import solver.constraints.PropagatorPriority;
 import solver.exception.ContradictionException;
 import solver.variables.EventType;
-import solver.variables.delta.GraphDeltaMonitor;
-import solver.variables.GraphVar;
+import solver.variables.IGraphVar;
+import solver.variables.delta.IGraphDeltaMonitor;
 import util.ESat;
 import util.objects.setDataStructures.ISet;
 import util.procedure.IntProcedure;
@@ -43,14 +43,14 @@ import util.procedure.PairProcedure;
  *
  * @author Jean-Guillaume Fages
  */
-public class PropEachNodeHasLoop extends Propagator<GraphVar> {
+public class PropEachNodeHasLoop extends Propagator<IGraphVar> {
 
     //***********************************************************************************
     // VARIABLES
     //***********************************************************************************
 
-    private GraphVar g;
-    GraphDeltaMonitor gdm;
+    private IGraphVar g;
+    private IGraphDeltaMonitor gdm;
     private IntProcedure enfNode;
     private PairProcedure remArc;
     private ISet concernedNodes;
@@ -59,17 +59,17 @@ public class PropEachNodeHasLoop extends Propagator<GraphVar> {
     // CONSTRUCTORS
     //***********************************************************************************
 
-    public PropEachNodeHasLoop(GraphVar graph, ISet concernedNodes) {
-        super(new GraphVar[]{graph}, PropagatorPriority.UNARY, true);
+    public PropEachNodeHasLoop(IGraphVar graph, ISet concernedNodes) {
+        super(new IGraphVar[]{graph}, PropagatorPriority.UNARY, true);
         this.g = vars[0];
-        gdm = (GraphDeltaMonitor) g.monitorDelta(this);
+        this.gdm = g.monitorDelta(this);
         this.enfNode = new NodeEnf();
         this.remArc = new ArcRem();
         this.concernedNodes = concernedNodes;
     }
 
-    public PropEachNodeHasLoop(GraphVar graph) {
-        this(graph, graph.getEnvelopGraph().getActiveNodes());
+    public PropEachNodeHasLoop(IGraphVar graph) {
+        this(graph, graph.getPotentialNodes());
     }
 
     //***********************************************************************************
@@ -78,11 +78,11 @@ public class PropEachNodeHasLoop extends Propagator<GraphVar> {
 
     @Override
     public void propagate(int evtmask) throws ContradictionException {
-        ISet env = g.getEnvelopGraph().getActiveNodes();
+        ISet env = g.getPotentialNodes();
         for (int i = env.getFirstElement(); i >= 0; i = env.getNextElement()) {
             if (concernedNodes.contain(i)) {
-                if (g.getEnvelopGraph().isArcOrEdge(i, i)) {
-                    if (g.getKernelGraph().getActiveNodes().contain(i)) {
+                if (g.getPotSuccOrNeighOf(i).contain(i)) {
+                    if (g.getMandatoryNodes().contain(i)) {
                         g.enforceArc(i, i, aCause);
                     }
                 } else {
@@ -116,13 +116,13 @@ public class PropEachNodeHasLoop extends Propagator<GraphVar> {
 
     @Override
     public ESat isEntailed() {
-        ISet ker = g.getKernelGraph().getActiveNodes();
+        ISet ker = g.getMandatoryNodes();
         for (int i = ker.getFirstElement(); i >= 0; i = ker.getNextElement()) {
-            if (concernedNodes.contain(i) && !g.getKernelGraph().getSuccsOrNeigh(i).contain(i)) {
+            if (concernedNodes.contain(i) && !g.getMandSuccOrNeighOf(i).contain(i)) {
                 return ESat.FALSE;
             }
         }
-        if (g.getEnvelopOrder() != g.getKernelOrder()) {
+        if (g.getPotentialNodes().getSize() != g.getMandatoryNodes().getSize()) {
             return ESat.UNDEFINED;
         }
         return ESat.TRUE;

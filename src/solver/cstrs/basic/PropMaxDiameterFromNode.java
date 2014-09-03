@@ -32,19 +32,19 @@ import solver.constraints.Propagator;
 import solver.constraints.PropagatorPriority;
 import solver.exception.ContradictionException;
 import solver.variables.EventType;
-import solver.variables.UndirectedGraphVar;
+import solver.variables.IUndirectedGraphVar;
 import util.ESat;
 import util.objects.setDataStructures.ISet;
 
 import java.util.BitSet;
 
-public class PropMaxDiameterFromNode extends Propagator<UndirectedGraphVar> {
+public class PropMaxDiameterFromNode extends Propagator<IUndirectedGraphVar> {
 
     //***********************************************************************************
     // VARIABLES
     //***********************************************************************************
 
-    private UndirectedGraphVar g;
+    private IUndirectedGraphVar g;
     private int maxDiam, node, n;
     private BitSet visited;
     private TIntArrayList set, nextSet;
@@ -54,12 +54,12 @@ public class PropMaxDiameterFromNode extends Propagator<UndirectedGraphVar> {
     // CONSTRUCTORS
     //***********************************************************************************
 
-    public PropMaxDiameterFromNode(UndirectedGraphVar graph, int maxDiam, int rootNode) {
-        super(new UndirectedGraphVar[]{graph}, PropagatorPriority.LINEAR, true);
+    public PropMaxDiameterFromNode(IUndirectedGraphVar graph, int maxDiam, int rootNode) {
+        super(new IUndirectedGraphVar[]{graph}, PropagatorPriority.LINEAR, true);
         this.g = vars[0];
         this.node = rootNode;
         this.maxDiam = maxDiam;
-        this.n = g.getEnvelopGraph().getNbNodes();
+        this.n = g.getNbMaxNodes();
         this.visited = new BitSet(n);
         this.set = new TIntArrayList();
         this.nextSet = new TIntArrayList();
@@ -90,7 +90,7 @@ public class PropMaxDiameterFromNode extends Propagator<UndirectedGraphVar> {
         int depth = 0;
         while (!set.isEmpty() && depth < maxDiam) {
             for (i = set.size() - 1; i >= 0; i--) {
-                nei = g.getEnvelopGraph().getNeighborsOf(set.get(i));
+                nei = g.getPotNeighOf(set.get(i));
                 for (int j = nei.getFirstElement(); j >= 0; j = nei.getNextElement()) {
                     if (!visited.get(j)) {
                         visited.set(j);
@@ -123,7 +123,7 @@ public class PropMaxDiameterFromNode extends Propagator<UndirectedGraphVar> {
 
     @Override
     public ESat isEntailed() {
-        ISet nodes = g.getKernelGraph().getActiveNodes();
+        ISet nodes = g.getMandatoryNodes();
         if (!nodes.contain(node)) {
             return ESat.FALSE;
         }

@@ -33,7 +33,7 @@ import solver.search.strategy.strategy.AbstractStrategy;
 import solver.search.strategy.ArcStrategy;
 import solver.search.strategy.GraphStrategy;
 import solver.search.strategy.NodeStrategy;
-import solver.variables.GraphVar;
+import solver.variables.IGraphVar;
 
 /**
  * Basic strategies over graph variables
@@ -68,7 +68,7 @@ public final class GraphStrategyFactory {
      * @param GRAPHVAR a graph variable to branch on
      * @return a lexicographic strategy to instantiate g
      */
-    public static <G extends GraphVar> AbstractStrategy graphLexico(G GRAPHVAR) {
+    public static <G extends IGraphVar> AbstractStrategy graphLexico(G GRAPHVAR) {
         return new GraphStrategy(GRAPHVAR);
     }
 
@@ -93,7 +93,7 @@ public final class GraphStrategyFactory {
      * @param SEED     randomness seed
      * @return a random strategy to instantiate g
      */
-    public static <G extends GraphVar> AbstractStrategy graphRandom(G GRAPHVAR, long SEED) {
+    public static <G extends IGraphVar> AbstractStrategy graphRandom(G GRAPHVAR, long SEED) {
         return graphStrategy(GRAPHVAR, new RandomNode(GRAPHVAR, SEED), new RandomArc(GRAPHVAR, SEED), GraphStrategy.NodeArcPriority.NODES_THEN_ARCS);
     }
 
@@ -107,7 +107,7 @@ public final class GraphStrategyFactory {
      * @param <G>        either directed or undirected graph variable
      * @return a dedicated strategy to instantiate GRAPHVAR
      */
-    public static <G extends GraphVar> AbstractStrategy graphStrategy(G GRAPHVAR, NodeStrategy NODE_STRAT, ArcStrategy ARC_STRAT, GraphStrategy.NodeArcPriority PRIORITY) {
+    public static <G extends IGraphVar> AbstractStrategy graphStrategy(G GRAPHVAR, NodeStrategy NODE_STRAT, ArcStrategy ARC_STRAT, GraphStrategy.NodeArcPriority PRIORITY) {
         return new GraphStrategy(GRAPHVAR, NODE_STRAT, ARC_STRAT, PRIORITY);
     }
 }

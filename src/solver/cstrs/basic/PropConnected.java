@@ -31,7 +31,7 @@ import solver.constraints.Propagator;
 import solver.constraints.PropagatorPriority;
 import solver.exception.ContradictionException;
 import solver.variables.EventType;
-import solver.variables.UndirectedGraphVar;
+import solver.variables.IUndirectedGraphVar;
 import util.ESat;
 import util.graphOperations.connectivity.ConnectivityFinder;
 import util.objects.setDataStructures.ISet;
@@ -45,7 +45,7 @@ import java.util.BitSet;
  *
  * @author Jean-Guillaume Fages
  */
-public class PropConnected extends Propagator<UndirectedGraphVar> {
+public class PropConnected extends Propagator<IUndirectedGraphVar> {
 
 
     //***********************************************************************************
@@ -55,17 +55,17 @@ public class PropConnected extends Propagator<UndirectedGraphVar> {
     private int n;
     private BitSet visited;
     private int[] fifo;
-    private UndirectedGraphVar g;
+    private IUndirectedGraphVar g;
     private ConnectivityFinder env_CC_finder;
 
     //***********************************************************************************
     // CONSTRUCTORS
     //***********************************************************************************
 
-    public PropConnected(UndirectedGraphVar graph) {
-        super(new UndirectedGraphVar[]{graph}, PropagatorPriority.LINEAR, true);
+    public PropConnected(IUndirectedGraphVar graph) {
+        super(new IUndirectedGraphVar[]{graph}, PropagatorPriority.LINEAR, true);
         g = graph;
-        n = graph.getEnvelopGraph().getNbNodes();
+        n = graph.getNbMaxNodes();
         visited = new BitSet(n);
         fifo = new int[n];
         env_CC_finder = new ConnectivityFinder(g.getEnvelopGraph());
@@ -82,8 +82,8 @@ public class PropConnected extends Propagator<UndirectedGraphVar> {
 
     @Override
     public void propagate(int evtmask) throws ContradictionException {
-        int maxOrder = g.getEnvelopOrder();
-        if (maxOrder == g.getKernelOrder() && maxOrder > 1) {
+        int maxOrder = g.getPotentialNodes().getSize();
+        if (maxOrder == g.getMandatoryNodes().getSize() && maxOrder > 1) {
             if (!env_CC_finder.isConnectedAndFindIsthma()) {
                 contradiction(g, "");
             }
@@ -100,9 +100,9 @@ public class PropConnected extends Propagator<UndirectedGraphVar> {
 
     @Override
     public void propagate(int idxVarInProp, int mask) throws ContradictionException {
-        int maxOrder = g.getEnvelopOrder();
+        int maxOrder = g.getPotentialNodes().getSize();
         if (solver.getMeasures().getFailCount() > 0
-                && maxOrder == g.getKernelOrder() && maxOrder > 1) {
+                && maxOrder == g.getMandatoryNodes().getSize() && maxOrder > 1) {
             if (!env_CC_finder.isConnectedAndFindIsthma()) {
                 contradiction(g, "");
             }
@@ -132,15 +132,15 @@ public class PropConnected extends Propagator<UndirectedGraphVar> {
         visited.clear();
         int first = 0;
         int last = 0;
-        int nbNodes = g.getEnvelopGraph().getActiveNodes().getSize();
+        int nbNodes = g.getPotentialNodes().getSize();
         if (nbNodes == 0) return true;//empty graph
-        int i = g.getEnvelopGraph().getActiveNodes().getFirstElement();
+        int i = g.getPotentialNodes().getFirstElement();
         fifo[last++] = i;
         visited.set(i);
         int nbReached = 1;
         while (first < last && nbReached < nbNodes) {
             i = fifo[first++];
-            ISet s = g.getEnvelopGraph().getNeighborsOf(i);
+            ISet s = g.getPotNeighOf(i);
             for (int j = s.getFirstElement(); j >= 0; j = s.getNextElement()) {
                 if (!visited.get(j)) {
                     visited.set(j);

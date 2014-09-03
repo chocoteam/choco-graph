@@ -35,7 +35,7 @@ import solver.exception.ContradictionException;
 import solver.variables.EventType;
 import solver.variables.IntVar;
 import solver.variables.delta.IGraphDeltaMonitor;
-import solver.variables.UndirectedGraphVar;
+import solver.variables.IUndirectedGraphVar;
 import util.ESat;
 import util.objects.setDataStructures.ISet;
 import util.procedure.PairProcedure;
@@ -44,13 +44,13 @@ import util.procedure.PairProcedure;
  * Compute the cost of the graph by summing edge costs
  * - For minimization problem
  */
-public class PropTreeCostScalar extends Propagator<UndirectedGraphVar> {
+public class PropTreeCostScalar extends Propagator<IUndirectedGraphVar> {
 
     //***********************************************************************************
     // VARIABLES
     //***********************************************************************************
 
-    protected UndirectedGraphVar g;
+    protected IUndirectedGraphVar g;
     private IGraphDeltaMonitor gdm;
     private PairProcedure edgeEnf, edgeRem;
     protected int n;
@@ -62,11 +62,11 @@ public class PropTreeCostScalar extends Propagator<UndirectedGraphVar> {
     // CONSTRUCTORS
     //***********************************************************************************
 
-    public PropTreeCostScalar(UndirectedGraphVar graph, IntVar obj, int[][] costMatrix) {
-        super(new UndirectedGraphVar[]{graph}, PropagatorPriority.LINEAR, true);
+    public PropTreeCostScalar(IUndirectedGraphVar graph, IntVar obj, int[][] costMatrix) {
+        super(new IUndirectedGraphVar[]{graph}, PropagatorPriority.LINEAR, true);
         g = graph;
         sum = obj;
-        n = g.getEnvelopGraph().getNbNodes();
+        n = g.getNbMaxNodes();
         distMatrix = costMatrix;
 		IEnvironment environment = solver.getEnvironment();
         minSum = environment.makeInt(0);
@@ -95,11 +95,11 @@ public class PropTreeCostScalar extends Propagator<UndirectedGraphVar> {
         int min = 0;
         int max = 0;
         for (int i = 0; i < n; i++) {
-            ISet nei = g.getEnvelopGraph().getNeighborsOf(i);
+            ISet nei = g.getPotNeighOf(i);
             for (int j = nei.getFirstElement(); j >= 0; j = nei.getNextElement()) {
                 if (i <= j) {
                     max += distMatrix[i][j];
-                    if (g.getKernelGraph().edgeExists(i, j)) {
+                    if (g.getMandNeighOf(i).contain(j)) {
                         min += distMatrix[i][j];
                     }
                 }
@@ -131,11 +131,11 @@ public class PropTreeCostScalar extends Propagator<UndirectedGraphVar> {
         int min = 0;
         int max = 0;
         for (int i = 0; i < n; i++) {
-            ISet nei = g.getEnvelopGraph().getNeighborsOf(i);
+            ISet nei = g.getPotNeighOf(i);
             for (int j = nei.getFirstElement(); j >= 0; j = nei.getNextElement()) {
                 if (i <= j) {
                     max += distMatrix[i][j];
-                    if (g.getKernelGraph().edgeExists(i, j)) {
+                    if (g.getMandNeighOf(i).contain(j)) {
                         min += distMatrix[i][j];
                     }
                 }

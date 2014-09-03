@@ -29,9 +29,12 @@ package solver.variables;
 
 import solver.ICause;
 import solver.Solver;
+import solver.constraints.Propagator;
 import solver.exception.ContradictionException;
 import solver.variables.delta.IGraphDelta;
+import solver.variables.delta.IGraphDeltaMonitor;
 import util.objects.graphs.UndirectedGraph;
+import util.objects.setDataStructures.ISet;
 import util.objects.setDataStructures.SetType;
 
 /**
@@ -39,24 +42,25 @@ import util.objects.setDataStructures.SetType;
  * User: chameau, Jean-Guillaume Fages
  * Date: 7 feb. 2011
  */
-public class UndirectedGraphVar extends GraphVar<UndirectedGraph> {
+public class UndirectedGraphVar extends ExplicitGraphVar<UndirectedGraph> implements IUndirectedGraphVar {
 
-    //////////////////////////////// GRAPH PART /////////////////////////////////////////
+	//////////////////////////////// GRAPH PART /////////////////////////////////////////
 
     //***********************************************************************************
     // CONSTRUCTORS
     //***********************************************************************************
 
-    public UndirectedGraphVar(String name, Solver solver, int nbNodes,
-                              SetType typeEnv, SetType typeKer, boolean allNodes) {
-        super(name, solver);
-        envelop = new UndirectedGraph(environment, nbNodes, typeEnv, allNodes);
-        kernel = new UndirectedGraph(environment, nbNodes, typeKer, allNodes);
-    }
-
-    public UndirectedGraphVar(String name, Solver solver, int nbNodes, boolean allNodes) {
-        this(name, solver, nbNodes, SetType.ENVELOPE_BEST, SetType.KERNEL_BEST, allNodes);
-    }
+	/**
+	 * Creates a graph variable
+	 *
+	 * @param name
+	 * @param solver
+	 * @param LB
+	 * @param UB
+	 */
+	public UndirectedGraphVar(String name, Solver solver, UndirectedGraph LB, UndirectedGraph UB) {
+		super(name, solver, LB, UB);
+	}
 
     //***********************************************************************************
     // METHODS
@@ -102,7 +106,52 @@ public class UndirectedGraphVar extends GraphVar<UndirectedGraph> {
         return false;
     }
 
-    //***********************************************************************************
+	@Override
+	public int getNbMaxNodes() {
+		return 0;
+	}
+
+	@Override
+	public ISet getMandatoryNodes() {
+		return null;
+	}
+
+	@Override
+	public ISet getPotentialNodes() {
+		return null;
+	}
+
+	@Override
+	public ISet getMandNeighOf(int idx) {
+		return null;
+	}
+
+	@Override
+	public ISet getPotNeighOf(int idx) {
+		return null;
+	}
+
+	@Override
+	public ISet getMandSuccOf(int idx) {
+		return null;
+	}
+
+	@Override
+	public ISet getPotSuccOf(int idx) {
+		return null;
+	}
+
+	@Override
+	public ISet getMandPredOf(int idx) {
+		return null;
+	}
+
+	@Override
+	public ISet getPotPredOf(int idx) {
+		return null;
+	}
+
+	//***********************************************************************************
     // ACCESSORS
     //***********************************************************************************
 
@@ -110,6 +159,11 @@ public class UndirectedGraphVar extends GraphVar<UndirectedGraph> {
     public boolean isDirected() {
         return false;
     }
+
+	@Override
+	public IGraphDeltaMonitor monitorDelta(Propagator prop) {
+		return null;
+	}
 
 	/**
 	 * Checks whether or not the edge (u,v) may belong to a solution or not

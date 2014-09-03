@@ -33,20 +33,20 @@ import solver.constraints.PropagatorPriority;
 import solver.exception.ContradictionException;
 import solver.variables.EventType;
 import solver.variables.delta.IGraphDeltaMonitor;
-import solver.variables.UndirectedGraphVar;
+import solver.variables.IUndirectedGraphVar;
 import util.ESat;
 import util.objects.setDataStructures.ISet;
 import util.procedure.PairProcedure;
 
 import java.util.BitSet;
 
-public class PropNoTriangle extends Propagator<UndirectedGraphVar> {
+public class PropNoTriangle extends Propagator<IUndirectedGraphVar> {
 
     //***********************************************************************************
     // VARIABLES
     //***********************************************************************************
 
-    private UndirectedGraphVar g;
+    private IUndirectedGraphVar g;
     private IGraphDeltaMonitor gdm;
     private BitSet toCompute;
     private TIntArrayList list;
@@ -58,10 +58,10 @@ public class PropNoTriangle extends Propagator<UndirectedGraphVar> {
     // CONSTRUCTORS
     //***********************************************************************************
 
-    public PropNoTriangle(UndirectedGraphVar graph) {
-        super(new UndirectedGraphVar[]{graph}, PropagatorPriority.LINEAR, true);
+    public PropNoTriangle(IUndirectedGraphVar graph) {
+        super(new IUndirectedGraphVar[]{graph}, PropagatorPriority.LINEAR, true);
         g = vars[0];
-        n = g.getEnvelopGraph().getNbNodes();
+        n = g.getNbMaxNodes();
         gdm = g.monitorDelta(this);
         arcEnf = new EnfArc();
         toCompute = new BitSet(n);
@@ -82,14 +82,14 @@ public class PropNoTriangle extends Propagator<UndirectedGraphVar> {
 
     private void check(int i) throws ContradictionException {
         list.clear();
-        ISet nei = g.getKernelGraph().getNeighborsOf(i);
+        ISet nei = g.getMandNeighOf(i);
         for (int j = nei.getFirstElement(); j >= 0; j = nei.getNextElement()) {
             list.add(j);
         }
         int nl = list.size();
         for (int j1 = 0; j1 < nl; j1++) {
             for (int j2 = j1 + 1; j2 < nl; j2++) {
-                if (g.getKernelGraph().getNeighborsOf(list.get(j1)).contain(list.get(j2))) {
+                if (g.getMandNeighOf(list.get(j1)).contain(list.get(j2))) {
                     g.removeArc(list.get(j2), i, aCause);
                 }
             }

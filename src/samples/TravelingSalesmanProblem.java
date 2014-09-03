@@ -38,9 +38,11 @@ import solver.search.loop.monitors.IMonitorSolution;
 import solver.search.loop.monitors.SMF;
 import solver.search.loop.monitors.SearchMonitorFactory;
 import solver.search.strategy.GraphStrategies;
+import solver.variables.GraphVarFactory;
 import solver.variables.IntVar;
 import solver.variables.VariableFactory;
-import solver.variables.UndirectedGraphVar;
+import solver.variables.IUndirectedGraphVar;
+import util.objects.graphs.UndirectedGraph;
 import util.objects.setDataStructures.SetType;
 
 /**
@@ -74,7 +76,7 @@ public class TravelingSalesmanProblem extends AbstractProblem {
     // input cost matrix
     private int[][] costMatrix;
     // graph variable representing the cycle
-    private UndirectedGraphVar graph;
+    private IUndirectedGraphVar graph;
     // integer variable representing the objective
     private IntVar totalCost;
 
@@ -100,13 +102,15 @@ public class TravelingSalesmanProblem extends AbstractProblem {
         // variables
         totalCost = VariableFactory.bounded("obj", 0, 9999999, solver);
         // creates a graph containing n nodes
-        graph = new UndirectedGraphVar("G", solver, n, SetType.SWAP_ARRAY, SetType.LINKED_LIST, true);
+		UndirectedGraph GLB = new UndirectedGraph(solver.getEnvironment(), n, SetType.LINKED_LIST, true);
+		UndirectedGraph GUB = new UndirectedGraph(solver.getEnvironment(), n, SetType.SWAP_ARRAY, true);
         // adds potential edges
         for (int i = 0; i < n; i++) {
             for (int j = i + 1; j < n; j++) {
-                graph.getEnvelopGraph().addEdge(i, j);
+                GUB.addEdge(i, j);
             }
         }
+        graph = GraphVarFactory.undirectedGraph("G", GLB, GUB, solver);
         // constraints (TSP basic model + lagrangian relaxation)
 		solver.post(GraphConstraintFactory.tsp(graph, totalCost, costMatrix, 2));
     }

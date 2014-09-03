@@ -32,8 +32,8 @@ import solver.constraints.PropagatorPriority;
 import solver.exception.ContradictionException;
 import solver.variables.BoolVar;
 import solver.variables.EventType;
-import solver.variables.delta.GraphDeltaMonitor;
-import solver.variables.GraphVar;
+import solver.variables.IGraphVar;
+import solver.variables.delta.IGraphDeltaMonitor;
 import util.ESat;
 import util.procedure.PairProcedure;
 
@@ -42,14 +42,14 @@ import util.procedure.PairProcedure;
  *
  * @author Jean-Guillaume Fages
  */
-public class PropGraphBool extends Propagator<GraphVar> {
+public class PropGraphBool extends Propagator<IGraphVar> {
 
     //***********************************************************************************
     // VARIABLES
     //***********************************************************************************
 
-    protected GraphVar graph;
-    GraphDeltaMonitor gdm;
+    protected IGraphVar graph;
+    IGraphDeltaMonitor gdm;
     protected BoolVar[][] relations;
     protected PairProcedure enf, rem;
     protected int n;
@@ -58,10 +58,10 @@ public class PropGraphBool extends Propagator<GraphVar> {
     // CONSTRUCTOR
     //***********************************************************************************
 
-    public PropGraphBool(GraphVar graph, BoolVar[][] rel) {
-        super(new GraphVar[]{graph}, PropagatorPriority.QUADRATIC, true);
+    public PropGraphBool(IGraphVar graph, BoolVar[][] rel) {
+        super(new IGraphVar[]{graph}, PropagatorPriority.QUADRATIC, true);
         this.graph = graph;
-        gdm = (GraphDeltaMonitor) graph.monitorDelta(this);
+        gdm = graph.monitorDelta(this);
         relations = rel;
         n = rel.length;
         enf = new EnfArc();

@@ -29,7 +29,7 @@ package samples.dcmstp;
 
 import solver.cstrs.IGraphRelaxation;
 import solver.search.strategy.ArcStrategy;
-import solver.variables.UndirectedGraphVar;
+import solver.variables.IUndirectedGraphVar;
 import util.objects.setDataStructures.ISet;
 
 /**
@@ -42,7 +42,7 @@ import util.objects.setDataStructures.ISet;
  * @author Jean-Guillaume Fages
  * @since 21/02/13
  */
-public class NextSol extends ArcStrategy<UndirectedGraphVar> {
+public class NextSol extends ArcStrategy<IUndirectedGraphVar> {
 
     //***********************************************************************************
     // VARIABLES
@@ -56,7 +56,7 @@ public class NextSol extends ArcStrategy<UndirectedGraphVar> {
     // CONSTRUCTORS
     //***********************************************************************************
 
-    public NextSol(UndirectedGraphVar g, int[] maxDeg, IGraphRelaxation relaxation) {
+    public NextSol(IUndirectedGraphVar g, int[] maxDeg, IGraphRelaxation relaxation) {
         super(g);
         n = maxDeg.length;
         dMax = maxDeg;
@@ -69,12 +69,12 @@ public class NextSol extends ArcStrategy<UndirectedGraphVar> {
 
     @Override
     public boolean computeNextArc() {
-        if (from != -1 && g.getEnvelopGraph().getNeighborsOf(from).getSize() != g.getKernelGraph().getNeighborsOf(from).getSize()) {
+        if (from != -1 && g.getPotNeighOf(from).getSize() != g.getMandNeighOf(from).getSize()) {
             to = -1;
             int i = from;
-            ISet nei = g.getEnvelopGraph().getNeighborsOf(i);
+            ISet nei = g.getPotNeighOf(i);
             for (int j = nei.getFirstElement(); j >= 0; j = nei.getNextElement()) {
-                if (!g.getKernelGraph().edgeExists(i, j)) {
+                if (!g.getMandNeighOf(i).contain(j)) {
                     if (!relax.contains(i, j))
                         if (dMax[i] == 1 && dMax[j] == 2) {
                             from = i;
@@ -84,7 +84,7 @@ public class NextSol extends ArcStrategy<UndirectedGraphVar> {
                 }
             }
             for (int j = nei.getFirstElement(); j >= 0; j = nei.getNextElement()) {
-                if (!g.getKernelGraph().edgeExists(i, j)) {
+                if (!g.getMandNeighOf(i).contain(j)) {
                     if (!relax.contains(i, j))
                         if (dMax[i] == 1 || dMax[j] == 1) {
                             from = i;
@@ -94,7 +94,7 @@ public class NextSol extends ArcStrategy<UndirectedGraphVar> {
                 }
             }
             for (int j = nei.getFirstElement(); j >= 0; j = nei.getNextElement()) {
-                if (!g.getKernelGraph().edgeExists(i, j)) {
+                if (!g.getMandNeighOf(i).contain(j)) {
                     if (!relax.contains(i, j))
                         if (dMax[i] == 2 && dMax[j] == 2) {
                             from = i;
@@ -104,7 +104,7 @@ public class NextSol extends ArcStrategy<UndirectedGraphVar> {
                 }
             }
             for (int j = nei.getFirstElement(); j >= 0; j = nei.getNextElement()) {
-                if (!g.getKernelGraph().edgeExists(i, j)) {
+                if (!g.getMandNeighOf(i).contain(j)) {
                     if (!relax.contains(i, j))
                         if (dMax[i] == 2 || dMax[j] == 2) {
                             from = i;
@@ -114,7 +114,7 @@ public class NextSol extends ArcStrategy<UndirectedGraphVar> {
                 }
             }
             for (int j = nei.getFirstElement(); j >= 0; j = nei.getNextElement()) {
-                if (!g.getKernelGraph().edgeExists(i, j)) {
+                if (!g.getMandNeighOf(i).contain(j)) {
                     if (!relax.contains(i, j)) {
                         from = i;
                         to = j;
@@ -126,9 +126,9 @@ public class NextSol extends ArcStrategy<UndirectedGraphVar> {
         from = -1;
         to = -1;
         for (int i = 0; i < n; i++) {
-            ISet nei = g.getEnvelopGraph().getNeighborsOf(i);
+            ISet nei = g.getPotNeighOf(i);
             for (int j = nei.getFirstElement(); j >= 0; j = nei.getNextElement()) {
-                if (!g.getKernelGraph().edgeExists(i, j)) {
+                if (!g.getMandNeighOf(i).contain(j)) {
                     if (!relax.contains(i, j))
                         if (dMax[i] == 1 && dMax[j] == 2) {
                             from = i;
@@ -139,9 +139,9 @@ public class NextSol extends ArcStrategy<UndirectedGraphVar> {
             }
         }
         for (int i = 0; i < n; i++) {
-            ISet nei = g.getEnvelopGraph().getNeighborsOf(i);
+            ISet nei = g.getPotNeighOf(i);
             for (int j = nei.getFirstElement(); j >= 0; j = nei.getNextElement()) {
-                if (!g.getKernelGraph().edgeExists(i, j)) {
+                if (!g.getMandNeighOf(i).contain(j)) {
                     if (!relax.contains(i, j))
                         if (dMax[i] == 1 || dMax[j] == 1) {
                             from = i;
@@ -152,9 +152,9 @@ public class NextSol extends ArcStrategy<UndirectedGraphVar> {
             }
         }
         for (int i = 0; i < n; i++) {
-            ISet nei = g.getEnvelopGraph().getNeighborsOf(i);
+            ISet nei = g.getPotNeighOf(i);
             for (int j = nei.getFirstElement(); j >= 0; j = nei.getNextElement()) {
-                if (!g.getKernelGraph().edgeExists(i, j)) {
+                if (!g.getMandNeighOf(i).contain(j)) {
                     if (!relax.contains(i, j))
                         if (dMax[i] == 2 && dMax[j] == 2) {
                             from = i;
@@ -165,9 +165,9 @@ public class NextSol extends ArcStrategy<UndirectedGraphVar> {
             }
         }
         for (int i = 0; i < n; i++) {
-            ISet nei = g.getEnvelopGraph().getNeighborsOf(i);
+            ISet nei = g.getPotNeighOf(i);
             for (int j = nei.getFirstElement(); j >= 0; j = nei.getNextElement()) {
-                if (!g.getKernelGraph().edgeExists(i, j)) {
+                if (!g.getMandNeighOf(i).contain(j)) {
                     if (!relax.contains(i, j))
                         if (dMax[i] == 2 || dMax[j] == 2) {
                             from = i;
@@ -178,9 +178,9 @@ public class NextSol extends ArcStrategy<UndirectedGraphVar> {
             }
         }
         for (int i = 0; i < n; i++) {
-            ISet nei = g.getEnvelopGraph().getNeighborsOf(i);
+            ISet nei = g.getPotNeighOf(i);
             for (int j = nei.getFirstElement(); j >= 0; j = nei.getNextElement()) {
-                if (!g.getKernelGraph().edgeExists(i, j)) {
+                if (!g.getMandNeighOf(i).contain(j)) {
                     if (!relax.contains(i, j)) {
                         from = i;
                         to = j;

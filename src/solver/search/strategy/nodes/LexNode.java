@@ -27,11 +27,11 @@
 package solver.search.strategy.nodes;
 
 import solver.search.strategy.NodeStrategy;
-import solver.variables.GraphVar;
+import solver.variables.IGraphVar;
 
-public class LexNode extends NodeStrategy<GraphVar> {
+public class LexNode extends NodeStrategy<IGraphVar> {
 
-    public LexNode(GraphVar g) {
+    public LexNode(IGraphVar g) {
         super(g);
     }
 

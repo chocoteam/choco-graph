@@ -35,63 +35,61 @@ import solver.cstrs.GraphConstraintFactory;
 import solver.exception.ContradictionException;
 import solver.search.GraphStrategyFactory;
 import solver.search.strategy.strategy.AbstractStrategy;
+import solver.variables.GraphVarFactory;
 import solver.variables.IntVar;
 import solver.variables.VariableFactory;
-import solver.variables.DirectedGraphVar;
+import solver.variables.IDirectedGraphVar;
+import util.objects.graphs.DirectedGraph;
 import util.objects.setDataStructures.SetType;
 
 import static org.testng.Assert.assertTrue;
 
 public class NTreeTest {
 
-    private static SetType graphTypeEnv = SetType.BOOL_ARRAY;
-    private static SetType graphTypeKer = SetType.BOOL_ARRAY;
+	private static SetType graphTypeEnv = SetType.BOOL_ARRAY;
+	private static SetType graphTypeKer = SetType.BOOL_ARRAY;
 
-    public static void model(int n, int tmin, int tmax, int seed) {
-        Solver s = new Solver();
-        DirectedGraphVar g = new DirectedGraphVar("G", s, n, graphTypeEnv, graphTypeKer, false);
-        for (int i = 0; i < n; i++) {
-            for (int j = 0; j < n; j++) {
-                g.getEnvelopGraph().addArc(i, j);
-            }
-            try {
-                g.enforceNode(i, Cause.Null);
-            } catch (ContradictionException e) {
-                e.printStackTrace();
-                System.exit(0);
-            }
-        }
-        IntVar nTree = VariableFactory.bounded("NTREE ", tmin, tmax, s);
-        Constraint gc = GraphConstraintFactory.nTrees(g, nTree);
-        AbstractStrategy strategy = GraphStrategyFactory.graphRandom(g, seed);
+	public static void model(int n, int tmin, int tmax, int seed) {
+		Solver s = new Solver();
+		DirectedGraph GLB = new DirectedGraph(s.getEnvironment(),n,graphTypeKer, true);
+		DirectedGraph GUB = new DirectedGraph(s.getEnvironment(),n,graphTypeEnv, true);
+		for (int i = 0; i < n; i++) {
+			for (int j = 0; j < n; j++) {
+				GUB.addArc(i, j);
+			}
+		}
+		IDirectedGraphVar g = GraphVarFactory.directedGraph("G", GLB, GUB, s);
+		IntVar nTree = VariableFactory.bounded("NTREE ", tmin, tmax, s);
+		Constraint gc = GraphConstraintFactory.nTrees(g, nTree);
+		AbstractStrategy strategy = GraphStrategyFactory.graphRandom(g, seed);
 
-        s.post(gc);
-        s.set(strategy);
-        s.findAllSolutions();
+		s.post(gc);
+		s.set(strategy);
+		s.findAllSolutions();
 
-        assertTrue(s.getMeasures().getFailCount() == 0);
-        assertTrue(s.getMeasures().getSolutionCount() > 0);
-    }
+		assertTrue(s.getMeasures().getFailCount() == 0);
+		assertTrue(s.getMeasures().getSolutionCount() > 0);
+	}
 
-    @Test(groups = "10s")
-    public static void debug() {
-        for (int n = 5; n < 7; n++) {
-            for (int t1 = 1; t1 < n; t1++) {
-                for (int t2 = t1; t2 < n; t2++) {
+	@Test(groups = "10s")
+	public static void debug() {
+		for (int n = 5; n < 7; n++) {
+			for (int t1 = 1; t1 < n; t1++) {
+				for (int t2 = t1; t2 < n; t2++) {
 //                    System.out.println("tree : n=" + n + " nbTrees = [" + t1 + "," + t2 + "]");
-                    model(n, t1, t2, (int) System.currentTimeMillis());
-                }
-            }
-        }
-    }
+					model(n, t1, t2, (int) System.currentTimeMillis());
+				}
+			}
+		}
+	}
 
-    @Test(groups = "1m")
-    public static void testAllDataStructure() {
-        for (SetType ge : SetType.values()) {
-            graphTypeEnv = ge;
-            graphTypeKer = ge;
+	@Test(groups = "1m")
+	public static void testAllDataStructure() {
+		for (SetType ge : SetType.values()) {
+			graphTypeEnv = ge;
+			graphTypeKer = ge;
 //            System.out.println("env:" + ge + " ker :" + ge);
-            debug();
-        }
-    }
+			debug();
+		}
+	}
 }

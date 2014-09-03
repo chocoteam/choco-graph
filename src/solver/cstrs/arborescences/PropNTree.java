@@ -31,10 +31,7 @@ import gnu.trove.list.array.TIntArrayList;
 import solver.constraints.Propagator;
 import solver.constraints.PropagatorPriority;
 import solver.exception.ContradictionException;
-import solver.variables.EventType;
-import solver.variables.IntVar;
-import solver.variables.Variable;
-import solver.variables.DirectedGraphVar;
+import solver.variables.*;
 import util.ESat;
 import util.graphOperations.GraphTools;
 import util.graphOperations.connectivity.StrongConnectivityFinder;
@@ -49,7 +46,7 @@ public class PropNTree extends Propagator {
     // VARIABLES
     //***********************************************************************************
 
-    private DirectedGraphVar g;
+    private IDirectedGraphVar g;
     private IntVar nTree;
     private int minTree = 0;
     private TIntArrayList nonSinks;
@@ -62,13 +59,13 @@ public class PropNTree extends Propagator {
     // CONSTRUCTORS
     //***********************************************************************************
 
-    public PropNTree(DirectedGraphVar graph, IntVar nT) {
+    public PropNTree(IDirectedGraphVar graph, IntVar nT) {
         super(new Variable[]{graph, nT}, PropagatorPriority.QUADRATIC, true);
-        g = (DirectedGraphVar) vars[0];
+        g = (IDirectedGraphVar) vars[0];
         nTree = (IntVar) vars[1];
         SCCfinder = new StrongConnectivityFinder(g.getEnvelopGraph());
         nonSinks = new TIntArrayList();
-        n = g.getEnvelopGraph().getNbNodes();
+        n = g.getNbMaxNodes();
         Grs = new DirectedGraph(n + 1, g.getEnvelopGraph().getType(), false);
         dominatorsFinder = new AlphaDominatorsFinder(n, Grs);
     }
@@ -106,7 +103,7 @@ public class PropNTree extends Propagator {
         Grs.getActiveNodes().clear();
         ISet nei;
         for (int node = 0; node < n; node++) {
-            nei = g.getEnvelopGraph().getSuccessorsOf(node);
+            nei = g.getPotSuccOf(node);
             for (int suc = nei.getFirstElement(); suc >= 0; suc = nei.getNextElement()) {
                 if (suc == node) {
                     Grs.addArc(n, node);
@@ -118,7 +115,7 @@ public class PropNTree extends Propagator {
         //dominators
         if (dominatorsFinder.findDominators()) {
             for (int x = 0; x < n; x++) {
-                nei = g.getEnvelopGraph().getSuccessorsOf(x);
+                nei = g.getPotSuccOf(x);
                 for (int y = nei.getFirstElement(); y >= 0; y = nei.getNextElement()) {
                     //--- STANDART PRUNING
                     if (dominatorsFinder.isDomminatedBy(y, x)) {
@@ -140,7 +137,7 @@ public class PropNTree extends Propagator {
                 scc = nonSinks.get(k);
                 node = SCCfinder.getSCCFirstNode(scc);
                 while (node != -1) {
-                    if (g.getEnvelopGraph().arcExists(node, node)) {
+                    if (g.getPotSuccOf(node).contain(node)) {
                         g.removeArc(node, node, aCause);
                     }
                     node = SCCfinder.getNextNode(node);
@@ -162,10 +159,10 @@ public class PropNTree extends Propagator {
             boolean inKer = false;
             node = SCCfinder.getSCCFirstNode(i);
             while (node != -1) {
-                if (g.getKernelGraph().getActiveNodes().contain(node)) {
+                if (g.getMandatoryNodes().contain(node)) {
                     inKer = true;
                 }
-                nei = g.getEnvelopGraph().getSuccessorsOf(node);
+                nei = g.getPotSuccOf(node);
                 for (int suc = nei.getFirstElement(); suc >= 0 && looksSink; suc = nei.getNextElement()) {
                     if (sccOf[suc] != sccOf[node]) {
                         looksSink = false;
@@ -202,13 +199,13 @@ public class PropNTree extends Propagator {
         int MAXTREE = calcMaxTree();
         ISet nei;
         if (nTree.getLB() <= MAXTREE && nTree.getUB() >= MINTREE) {
-            ISet act = g.getEnvelopGraph().getActiveNodes();
+            ISet act = g.getPotentialNodes();
             DirectedGraph Grs = new DirectedGraph(n + 1, g.getEnvelopGraph().getType(), false);
             for (int node = act.getFirstElement(); node >= 0; node = act.getNextElement()) {
-                if (g.getEnvelopGraph().getSuccessorsOf(node).getSize() < 1 || g.getKernelGraph().getSuccessorsOf(node).getSize() > 1) {
+                if (g.getPotSuccOf(node).getSize() < 1 || g.getMandSuccOf(node).getSize() > 1) {
                     return ESat.FALSE;
                 }
-                nei = g.getEnvelopGraph().getSuccessorsOf(node);
+                nei = g.getPotSuccOf(node);
                 for (int suc = nei.getFirstElement(); suc >= 0; suc = nei.getNextElement()) {
                     Grs.addArc(suc, node);
                     if (suc == node) {
@@ -235,9 +232,9 @@ public class PropNTree extends Propagator {
 
     private int calcMaxTree() {
         int ct = 0;
-        ISet act = g.getEnvelopGraph().getActiveNodes();
+        ISet act = g.getPotentialNodes();
         for (int node = act.getFirstElement(); node >= 0; node = act.getNextElement()) {
-            if (g.getEnvelopGraph().arcExists(node, node)) {
+            if (g.getPotSuccOf(node).contain(node)) {
                 ct++;
             }
         }
@@ -255,7 +252,7 @@ public class PropNTree extends Propagator {
             looksSink = true;
             node = SCCfinder.getSCCFirstNode(scc);
             while (node != -1) {
-                nei = g.getEnvelopGraph().getSuccessorsOf(node);
+                nei = g.getPotSuccOf(node);
                 for (int suc = nei.getFirstElement(); suc >= 0 && looksSink; suc = nei.getNextElement()) {
                     if (sccOf[suc] != sccOf[node]) {
                         looksSink = false;

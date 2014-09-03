@@ -24,38 +24,14 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package solver.search.strategy.nodes;
 
-import solver.search.strategy.NodeStrategy;
-import solver.variables.IGraphVar;
+package solver.variables;
 
-import java.util.Random;
+import util.objects.graphs.DirectedGraph;
 
-public class RandomNode extends NodeStrategy<IGraphVar> {
-
-    private Random rd;
-
-    public RandomNode(IGraphVar g, long seed) {
-        super(g);
-        this.rd = new Random(seed);
-
-    }
-
-    @Override
-    public int nextNode() {
-        int delta = envNodes.getSize() - kerNodes.getSize();
-        if (delta != 0) {
-            delta = rd.nextInt(delta);
-            for (int i = envNodes.getFirstElement(); i >= 0; i = envNodes.getNextElement()) {
-                if (!kerNodes.contain(i)) {
-                    if (delta == 0) {
-                        return i;
-                    } else {
-                        delta--;
-                    }
-                }
-            }
-        }
-        return -1;
-    }
-}
+/**
+ * Created by IntelliJ IDEA.
+ * User: chameau, Jean-Guillaume Fages
+ * Date: 7 feb. 2011
+ */
+public interface IDirectedGraphVar extends IGraphVar<DirectedGraph> {}

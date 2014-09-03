@@ -40,8 +40,8 @@ import solver.constraints.Propagator;
 import solver.constraints.PropagatorPriority;
 import solver.exception.ContradictionException;
 import solver.variables.EventType;
-import solver.variables.delta.GraphDeltaMonitor;
-import solver.variables.DirectedGraphVar;
+import solver.variables.delta.IGraphDeltaMonitor;
+import solver.variables.IDirectedGraphVar;
 import util.ESat;
 import util.graphOperations.connectivity.StrongConnectivityFinder;
 import util.objects.graphs.DirectedGraph;
@@ -62,15 +62,15 @@ import java.util.BitSet;
  * @author Jean-Guillaume Fages
  * @since 17/11/2011
  */
-public class PropReducedPath extends Propagator<DirectedGraphVar> {
+public class PropReducedPath extends Propagator<IDirectedGraphVar> {
 
     //***********************************************************************************
     // VARIABLES
     //***********************************************************************************
 
     private int n;                     // number of nodes in G
-    private DirectedGraphVar G;                    // the graph variable
-    GraphDeltaMonitor gdm;
+    private IDirectedGraphVar G;                    // the graph variable
+    private IGraphDeltaMonitor gdm;
     private IStateInt[] sccOf;        // SCC of each node
     private IStateInt[] sccFirst, sccNext; // nodes of each scc
     private ISet[] mates;        // arcs of G that fit with outgoing arcs of a node in G_R
@@ -91,11 +91,11 @@ public class PropReducedPath extends Propagator<DirectedGraphVar> {
      *
      * @param graph
      */
-    public PropReducedPath(DirectedGraphVar graph) {
-        super(new DirectedGraphVar[]{graph}, PropagatorPriority.LINEAR, true);
+    public PropReducedPath(IDirectedGraphVar graph) {
+        super(new IDirectedGraphVar[]{graph}, PropagatorPriority.LINEAR, true);
         G = graph;
-        gdm = (GraphDeltaMonitor) G.monitorDelta(this);
-        n = G.getEnvelopGraph().getNbNodes();
+        gdm = G.monitorDelta(this);
+        n = G.getNbMaxNodes();
 		IEnvironment environment = solver.getEnvironment();
         n_R = environment.makeInt(0);
         G_R = new DirectedGraph(environment, n, SetType.DOUBLE_LINKED_LIST, false);
@@ -149,7 +149,7 @@ public class PropReducedPath extends Propagator<DirectedGraphVar> {
         int x;
         for (int i = 0; i < n; i++) {
             x = sccOf[i].get();
-            succs = G.getEnvelopGraph().getSuccessorsOf(i);
+            succs = G.getPotSuccOf(i);
             for (j = succs.getFirstElement(); j >= 0; j = succs.getNextElement()) {
                 if (x != sccOf[j].get()) {
                     G_R.addArc(x, sccOf[j].get());
@@ -175,7 +175,7 @@ public class PropReducedPath extends Propagator<DirectedGraphVar> {
         }
         int to, arc;
         for (int i = 0; i < n; i++) {
-            to = G.getKernelGraph().getSuccessorsOf(i).getFirstElement();
+            to = G.getMandSuccOf(i).getFirstElement();
             x = sccOf[i].get();
             if (to != -1 && sccOf[to].get() != x && mates[x].getSize() > 1) {
                 arc = (i + 1) * n + to;
@@ -238,7 +238,7 @@ public class PropReducedPath extends Propagator<DirectedGraphVar> {
         }
         int to, x;
         for (int i = 0; i < n; i++) {
-            to = G.getKernelGraph().getSuccessorsOf(i).getFirstElement();
+            to = G.getMandSuccOf(i).getFirstElement();
             x = sccOf[i].get();
             if (to != -1 && sccOf[to].get() != x && mates[x].getSize() > 1) {
                 int arc = (i + 1) * n + to;
@@ -358,7 +358,7 @@ public class PropReducedPath extends Propagator<DirectedGraphVar> {
                             sccE = sccOf[SCCfinder.getSCCFirstNode(scc)].get();
                             e = SCCfinder.getSCCFirstNode(scc);
                             while (e != -1) {
-                                nei = G.getEnvelopGraph().getSuccessorsOf(e);
+                                nei = G.getPotSuccOf(e);
                                 for (int next = nei.getFirstElement(); next >= 0; next = nei.getNextElement()) {
                                     if (sccE != sccOf[next].get()) {
                                         G_R.addArc(sccE, sccOf[next].get());

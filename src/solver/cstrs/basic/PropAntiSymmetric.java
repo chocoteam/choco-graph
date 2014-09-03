@@ -31,8 +31,8 @@ import solver.constraints.Propagator;
 import solver.constraints.PropagatorPriority;
 import solver.exception.ContradictionException;
 import solver.variables.EventType;
-import solver.variables.delta.GraphDeltaMonitor;
-import solver.variables.DirectedGraphVar;
+import solver.variables.delta.IGraphDeltaMonitor;
+import solver.variables.IDirectedGraphVar;
 import util.ESat;
 import util.objects.setDataStructures.ISet;
 import util.procedure.PairProcedure;
@@ -44,14 +44,14 @@ import util.procedure.PairProcedure;
  *
  * @author Jean-Guillaume Fages
  */
-public class PropAntiSymmetric extends Propagator<DirectedGraphVar> {
+public class PropAntiSymmetric extends Propagator<IDirectedGraphVar> {
 
     //***********************************************************************************
     // VARIABLES
     //***********************************************************************************
 
-    DirectedGraphVar g;
-    GraphDeltaMonitor gdm;
+	IDirectedGraphVar g;
+    IGraphDeltaMonitor gdm;
     EnfProc enf;
     int n;
 
@@ -59,12 +59,12 @@ public class PropAntiSymmetric extends Propagator<DirectedGraphVar> {
     // CONSTRUCTORS
     //***********************************************************************************
 
-    public PropAntiSymmetric(DirectedGraphVar graph) {
-        super(new DirectedGraphVar[]{graph}, PropagatorPriority.UNARY, true);
+    public PropAntiSymmetric(IDirectedGraphVar graph) {
+        super(new IDirectedGraphVar[]{graph}, PropagatorPriority.UNARY, true);
         g = vars[0];
-        gdm = (GraphDeltaMonitor) g.monitorDelta(this);
+        gdm = g.monitorDelta(this);
         enf = new EnfProc();
-        n = g.getEnvelopGraph().getNbNodes();
+        n = g.getNbMaxNodes();
     }
 
     //***********************************************************************************
@@ -73,10 +73,10 @@ public class PropAntiSymmetric extends Propagator<DirectedGraphVar> {
 
     @Override
     public void propagate(int evtmask) throws ContradictionException {
-        ISet ker = g.getKernelGraph().getActiveNodes();
+        ISet ker = g.getMandatoryNodes();
         ISet succ;
         for (int i = ker.getFirstElement(); i >= 0; i = ker.getNextElement()) {
-            succ = g.getKernelGraph().getSuccessorsOf(i);
+            succ = g.getMandSuccOf(i);
             for (int j = succ.getFirstElement(); j >= 0; j = succ.getNextElement()) {
                 g.removeArc(j, i, aCause);
             }
@@ -98,12 +98,12 @@ public class PropAntiSymmetric extends Propagator<DirectedGraphVar> {
 
     @Override
     public ESat isEntailed() {
-        ISet ker = g.getKernelGraph().getActiveNodes();
+        ISet ker = g.getMandatoryNodes();
         ISet succ;
         for (int i = ker.getFirstElement(); i >= 0; i = ker.getNextElement()) {
-            succ = g.getKernelGraph().getSuccessorsOf(i);
+            succ = g.getMandSuccOf(i);
             for (int j = succ.getFirstElement(); j >= 0; j = succ.getNextElement()) {
-                if (g.getKernelGraph().getSuccessorsOf(j).contain(i)) {
+                if (g.getMandSuccOf(j).contain(i)) {
                     return ESat.FALSE;
                 }
             }

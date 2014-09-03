@@ -102,9 +102,4 @@ public class Dist_Int extends GraphRelation<IntVar> {
     public boolean isDirected() {
         return true;
     }
-
-//	@Override
-//	public GraphProperty[] getGraphProperties() {
-//		return new GraphProperty[]{GraphProperty.REFLEXIVITY};
-//	}
 }

@@ -34,7 +34,7 @@ import solver.exception.ContradictionException;
 import solver.variables.EventType;
 import solver.variables.IntVar;
 import solver.variables.Variable;
-import solver.variables.UndirectedGraphVar;
+import solver.variables.IUndirectedGraphVar;
 import util.ESat;
 import util.objects.graphs.UndirectedGraph;
 import util.objects.setDataStructures.ISet;
@@ -49,7 +49,7 @@ public class PropLagr_DCMST extends Propagator implements GraphLagrangianRelaxat
     // VARIABLES
     //***********************************************************************************
 
-    protected UndirectedGraphVar gV;
+    protected IUndirectedGraphVar gV;
     protected UndirectedGraph g;
     protected IntVar obj;
     protected int n;
@@ -74,10 +74,10 @@ public class PropLagr_DCMST extends Propagator implements GraphLagrangianRelaxat
     /**
      * Propagator performing the Lagrangian relaxation of the Degree Constrained Minimum Spanning Tree Problem
      */
-    public PropLagr_DCMST(UndirectedGraphVar graph, IntVar cost, int[] maxDegree, int[][] costMatrix, boolean waitFirstSol) {
+    public PropLagr_DCMST(IUndirectedGraphVar graph, IntVar cost, int[] maxDegree, int[][] costMatrix, boolean waitFirstSol) {
         super(new Variable[]{graph, cost}, PropagatorPriority.CUBIC, true);
         gV = graph;
-        n = gV.getEnvelopGraph().getNbNodes();
+        n = gV.getNbMaxNodes();
         obj = cost;
         originalCosts = costMatrix;
         costs = new double[n][n];
@@ -112,7 +112,7 @@ public class PropLagr_DCMST extends Propagator implements GraphLagrangianRelaxat
         totalPenalities = 0;
         for (int i = 0; i < n; i++) {
             totalPenalities += penalities[i] * maxDegree[i];
-            nei = gV.getKernelGraph().getNeighborsOf(i);
+            nei = gV.getMandNeighOf(i);
             for (int j = nei.getFirstElement(); j >= 0; j = nei.getNextElement()) {
                 if (i < j) {
                     mandatoryArcsList.add(i * n + j);
@@ -312,7 +312,7 @@ public class PropLagr_DCMST extends Propagator implements GraphLagrangianRelaxat
     }
 
     public boolean isMandatory(int i, int j) {
-        return gV.getKernelGraph().edgeExists(i, j);
+        return gV.getMandNeighOf(i).contain(j);
     }
 
     public void waitFirstSolution(boolean b) {

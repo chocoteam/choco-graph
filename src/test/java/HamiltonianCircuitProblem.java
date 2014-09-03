@@ -40,9 +40,11 @@ import solver.cstrs.path.PropIntVarChanneling;
 import solver.exception.ContradictionException;
 import solver.search.GraphStrategyFactory;
 import solver.search.strategy.strategy.AbstractStrategy;
+import solver.variables.GraphVarFactory;
 import solver.variables.IntVar;
 import solver.variables.VariableFactory;
-import solver.variables.DirectedGraphVar;
+import solver.variables.IDirectedGraphVar;
+import util.objects.graphs.DirectedGraph;
 import util.objects.setDataStructures.SetType;
 
 /**
@@ -57,10 +59,9 @@ public class HamiltonianCircuitProblem extends AbstractProblem {
 	private static SetType gt;
 
 	private int n;
-	private DirectedGraphVar graph;
+	private IDirectedGraphVar graph;
 	private IntVar[] integers;
 	private boolean[][] adjacencyMatrix;
-//	private Constraint gc;
 	// model parameters
 	private long seed;
 	private boolean strongFilter;
@@ -89,21 +90,16 @@ public class HamiltonianCircuitProblem extends AbstractProblem {
 	@Override
 	public void buildModel() {
 		// create model
-		graph = new DirectedGraphVar("G", solver, n, gt, SetType.LINKED_LIST, true);
-		try {
-			graph.getKernelGraph().activateNode(n - 1);
-			for (int i = 0; i < n - 1; i++) {
-				graph.getKernelGraph().activateNode(i);
-				for (int j = 1; j < n; j++) {
-					if (adjacencyMatrix[i][j]) {
-						graph.getEnvelopGraph().addArc(i, j);
-					}
+		DirectedGraph GLB = new DirectedGraph(solver.getEnvironment(), n, SetType.LINKED_LIST, true);
+		DirectedGraph GUB = new DirectedGraph(solver.getEnvironment(), n, SetType.LINKED_LIST, true);
+		for (int i = 0; i < n - 1; i++) {
+			for (int j = 1; j < n; j++) {
+				if (adjacencyMatrix[i][j]) {
+					GUB.addArc(i, j);
 				}
 			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			System.exit(0);
 		}
+		graph = GraphVarFactory.directedGraph("G", GLB, GUB, solver);
 		solver.post(GraphConstraintFactory.hamiltonianPath(graph, 0, n - 1, strongFilter));
 		if (intAllDiff > 0) {
 			integerAllDiff();

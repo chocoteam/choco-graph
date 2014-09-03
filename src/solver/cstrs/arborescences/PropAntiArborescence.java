@@ -31,7 +31,7 @@ import solver.constraints.Propagator;
 import solver.constraints.PropagatorPriority;
 import solver.exception.ContradictionException;
 import solver.variables.EventType;
-import solver.variables.DirectedGraphVar;
+import solver.variables.IDirectedGraphVar;
 import util.ESat;
 import util.graphOperations.dominance.AbstractLengauerTarjanDominatorsFinder;
 import util.graphOperations.dominance.AlphaDominatorsFinder;
@@ -44,14 +44,14 @@ import util.objects.setDataStructures.ISet;
  * Uses simple LT algorithm which runs in O(m.log(n)) worst case time
  * but very efficient in practice
  */
-public class PropAntiArborescence extends Propagator<DirectedGraphVar> {
+public class PropAntiArborescence extends Propagator<IDirectedGraphVar> {
 
     //***********************************************************************************
     // VARIABLES
     //***********************************************************************************
 
     // flow graph
-    DirectedGraphVar g;
+	IDirectedGraphVar g;
     // source that reaches other nodes
     int sink;
     // number of nodes
@@ -69,10 +69,10 @@ public class PropAntiArborescence extends Propagator<DirectedGraphVar> {
      * <p/>
      * Ensures that graph is an antiarborescence rooted in node sink
      */
-    public PropAntiArborescence(DirectedGraphVar graph, int sink, boolean simple) {
-        super(new DirectedGraphVar[]{graph}, PropagatorPriority.QUADRATIC, true);
+    public PropAntiArborescence(IDirectedGraphVar graph, int sink, boolean simple) {
+        super(new IDirectedGraphVar[]{graph}, PropagatorPriority.QUADRATIC, true);
         g = vars[0];
-        n = g.getEnvelopGraph().getNbNodes();
+        n = g.getNbMaxNodes();
         this.sink = sink;
         if (simple) {
             domFinder = new SimpleDominatorsFinder(sink, g.getEnvelopGraph());
@@ -104,7 +104,7 @@ public class PropAntiArborescence extends Propagator<DirectedGraphVar> {
         if (domFinder.findPostDominators()) {
             ISet nei;
             for (int x = 0; x < n; x++) {
-                nei = g.getEnvelopGraph().getSuccessorsOf(x);
+                nei = g.getPotSuccOf(x);
                 for (int y = nei.getFirstElement(); y >= 0; y = nei.getNextElement()) {
                     //--- STANDART PRUNING
                     if (domFinder.isDomminatedBy(y, x)) {

@@ -33,7 +33,7 @@ import solver.cstrs.basic.PropKLoops;
 import solver.cstrs.degree.PropNodeDegree_AtLeast_Coarse;
 import solver.cstrs.degree.PropNodeDegree_AtMost_Incr;
 import solver.variables.IntVar;
-import solver.variables.DirectedGraphVar;
+import solver.variables.IDirectedGraphVar;
 import util.objects.graphs.Orientation;
 
 /**
@@ -58,7 +58,7 @@ public class NTree extends Constraint {
      * @param graph the graph variable (directed)
      * @param nTree the expected number of trees (IntVar)
      */
-    public NTree(DirectedGraphVar graph, IntVar nTree) {
+    public NTree(IDirectedGraphVar graph, IntVar nTree) {
         super("Graph_NTree",
                 new PropNodeDegree_AtLeast_Coarse(graph, Orientation.SUCCESSORS, 1),
                 new PropNodeDegree_AtMost_Incr(graph, Orientation.SUCCESSORS, 1),

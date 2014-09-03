@@ -31,7 +31,7 @@ import solver.constraints.Propagator;
 import solver.constraints.PropagatorPriority;
 import solver.exception.ContradictionException;
 import solver.variables.EventType;
-import solver.variables.UndirectedGraphVar;
+import solver.variables.IUndirectedGraphVar;
 import util.ESat;
 import util.objects.setDataStructures.ISet;
 
@@ -45,7 +45,7 @@ import java.util.BitSet;
  *
  * @author Jean-Guillaume Fages
  */
-public class PropLowDegrees extends Propagator<UndirectedGraphVar> {
+public class PropLowDegrees extends Propagator<IUndirectedGraphVar> {
 
 
     //***********************************************************************************
@@ -60,8 +60,8 @@ public class PropLowDegrees extends Propagator<UndirectedGraphVar> {
     // CONSTRUCTORS
     //***********************************************************************************
 
-    public PropLowDegrees(UndirectedGraphVar vars, int[] maxDegrees) {
-        super(new UndirectedGraphVar[]{vars}, PropagatorPriority.LINEAR, true);
+    public PropLowDegrees(IUndirectedGraphVar vars, int[] maxDegrees) {
+        super(new IUndirectedGraphVar[]{vars}, PropagatorPriority.LINEAR, true);
         n = maxDegrees.length;
         oneNode = new BitSet(n);
         counter = new int[n];
@@ -80,14 +80,14 @@ public class PropLowDegrees extends Propagator<UndirectedGraphVar> {
     @Override
     public void propagate(int evtmask) throws ContradictionException {
         preprocessOneNodes();
-        UndirectedGraphVar g = vars[0];
+		IUndirectedGraphVar g = vars[0];
         if (oneNode.cardinality() < n) {
             for (int i = 0; i < n; i++) {
-                ISet nei = g.getEnvelopGraph().getNeighborsOf(i);
+                ISet nei = g.getPotNeighOf(i);
                 if (oneNode.get(i)) {
                     for (int j = nei.getFirstElement(); j >= 0; j = nei.getNextElement()) {
                         if (oneNode.get(j)) {
-                            if (!g.getKernelGraph().edgeExists(i, j)) {
+                            if (!g.getMandNeighOf(i).contain(j)) {
                                 g.removeArc(i, j, this);
                             }
                         }
@@ -115,7 +115,7 @@ public class PropLowDegrees extends Propagator<UndirectedGraphVar> {
         for (int i = 0; i < n; i++) {
             counter[i] = 0;
         }
-        UndirectedGraphVar g = vars[0];
+		IUndirectedGraphVar g = vars[0];
         int[] maxDegree = dMax;
         if (list == null) {
             list = new int[n];
@@ -130,7 +130,7 @@ public class PropLowDegrees extends Propagator<UndirectedGraphVar> {
         }
         while (first < last) {
             int k = list[first++];
-            nei = g.getKernelGraph().getNeighborsOf(k);
+            nei = g.getMandNeighOf(k);
             for (int s = nei.getFirstElement(); s >= 0; s = nei.getNextElement()) {
                 if (!oneNode.get(s)) {
                     counter[s]++;

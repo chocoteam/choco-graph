@@ -44,8 +44,8 @@ import solver.cstrs.tsp.undirected.PropCycleNoSubtour;
 import solver.cstrs.tsp.undirected.lagrangianRelaxation.PropLagr_OneTree;
 import solver.variables.IntVar;
 import solver.variables.VF;
-import solver.variables.DirectedGraphVar;
-import solver.variables.UndirectedGraphVar;
+import solver.variables.IDirectedGraphVar;
+import solver.variables.IUndirectedGraphVar;
 import util.objects.graphs.Orientation;
 import util.tools.ArrayUtils;
 
@@ -67,7 +67,7 @@ public class GraphConstraintFactory {
      * @param NB_CLIQUES expected number of cliques
      * @return a constraint which partitions GRAPHVAR into NB_CLIQUES cliques
      */
-    public static Constraint nCliques(UndirectedGraphVar GRAPHVAR, IntVar NB_CLIQUES) {
+    public static Constraint nCliques(IUndirectedGraphVar GRAPHVAR, IntVar NB_CLIQUES) {
 		return new Constraint("NCliques",
 				new PropTransitivity(GRAPHVAR),
 				new PropKCliques(GRAPHVAR, NB_CLIQUES),
@@ -86,7 +86,7 @@ public class GraphConstraintFactory {
      *                   {0:noHK,1:HK,2:HK but wait a first solution before running it}
      * @return a tsp constraint
      */
-    public static Constraint tsp(UndirectedGraphVar GRAPHVAR, IntVar COSTVAR, int[][] EDGE_COSTS, int HELD_KARP) {
+    public static Constraint tsp(IUndirectedGraphVar GRAPHVAR, IntVar COSTVAR, int[][] EDGE_COSTS, int HELD_KARP) {
 		Propagator[] props = ArrayUtils.append(hamiltonianCycle(GRAPHVAR).getPropagators(),
 				new Propagator[]{new PropCycleEvalObj(GRAPHVAR, COSTVAR, EDGE_COSTS)});
         if (HELD_KARP > 0) {
@@ -106,11 +106,11 @@ public class GraphConstraintFactory {
      * @param GRAPHVAR graph variable representing a Hamiltonian cycle
      * @return a hamiltonian cycle constraint
      */
-    public static Constraint hamiltonianCycle(UndirectedGraphVar GRAPHVAR) {
+    public static Constraint hamiltonianCycle(IUndirectedGraphVar GRAPHVAR) {
 		int m = 0;
-		int n = GRAPHVAR.getEnvelopGraph().getNbNodes();
+		int n = GRAPHVAR.getNbMaxNodes();
 		for(int i=0;i<n;i++){
-			m += GRAPHVAR.getEnvelopGraph().getNeighborsOf(i).getSize();
+			m += GRAPHVAR.getPotNeighOf(i).getSize();
 		}
 		m /= 2;
 		if(m<20*n){
@@ -137,8 +137,8 @@ public class GraphConstraintFactory {
 	 * @param GRAPHVAR graph variable forming a tree
 	 * @return a constraint ensuring that GRAPHVAR is a spanning tree
 	 */
-	public static Constraint spanning_tree(UndirectedGraphVar GRAPHVAR) {
-		IntVar nbNodes = VF.fixed(GRAPHVAR.getEnvelopGraph().getNbNodes(),GRAPHVAR.getSolver());
+	public static Constraint spanning_tree(IUndirectedGraphVar GRAPHVAR) {
+		IntVar nbNodes = VF.fixed(GRAPHVAR.getNbMaxNodes(),GRAPHVAR.getSolver());
 		return new Constraint("Graph_SpanningTree",ArrayUtils.append(
 				tree(GRAPHVAR).getPropagators(),
 				new Propagator[]{new PropKNodes(GRAPHVAR, nbNodes)}
@@ -154,7 +154,7 @@ public class GraphConstraintFactory {
 	 * @param GRAPHVAR graph variable forming a tree
 	 * @return a constraint ensuring that GRAPHVAR is a tree
 	 */
-	public static Constraint tree(UndirectedGraphVar GRAPHVAR) {
+	public static Constraint tree(IUndirectedGraphVar GRAPHVAR) {
 		return new Constraint("Graph_Tree",
 				new PropNodeDegree_AtLeast_Coarse(GRAPHVAR, 1),
 				new PropTreeNoSubtour(GRAPHVAR),
@@ -181,8 +181,8 @@ public class GraphConstraintFactory {
      *                      be used on small-size.
      * @return a hamiltonian path constraint
      */
-    public static Constraint hamiltonianPath(DirectedGraphVar GRAPHVAR, int ORIGIN, int DESTINATION, boolean STRONG_FILTER) {
-        int n = GRAPHVAR.getEnvelopGraph().getNbNodes();
+    public static Constraint hamiltonianPath(IDirectedGraphVar GRAPHVAR, int ORIGIN, int DESTINATION, boolean STRONG_FILTER) {
+        int n = GRAPHVAR.getNbMaxNodes();
         int[] succs = new int[n];
         int[] preds = new int[n];
         for (int i = 0; i < n; i++) {
@@ -219,7 +219,7 @@ public class GraphConstraintFactory {
      * @param NB_TREE  number of anti arborescences
      * @return tree constraint
      */
-    public static Constraint nTrees(DirectedGraphVar GRAPHVAR, IntVar NB_TREE) {
+    public static Constraint nTrees(IDirectedGraphVar GRAPHVAR, IntVar NB_TREE) {
         return new NTree(GRAPHVAR, NB_TREE);
     }
 }

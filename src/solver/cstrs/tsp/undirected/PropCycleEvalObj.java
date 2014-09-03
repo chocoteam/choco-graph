@@ -33,7 +33,7 @@ import solver.exception.ContradictionException;
 import solver.variables.EventType;
 import solver.variables.IntVar;
 import solver.variables.Variable;
-import solver.variables.UndirectedGraphVar;
+import solver.variables.IUndirectedGraphVar;
 import util.ESat;
 import util.objects.setDataStructures.ISet;
 
@@ -48,7 +48,7 @@ public class PropCycleEvalObj extends Propagator {
     // VARIABLES
     //***********************************************************************************
 
-    protected UndirectedGraphVar g;
+    protected IUndirectedGraphVar g;
     protected int n;
     protected IntVar sum;
     protected int[][] distMatrix;
@@ -58,11 +58,11 @@ public class PropCycleEvalObj extends Propagator {
     // CONSTRUCTORS
     //***********************************************************************************
 
-    public PropCycleEvalObj(UndirectedGraphVar graph, IntVar obj, int[][] costMatrix) {
-        super(new Variable[]{graph, obj}, PropagatorPriority.LINEAR, true);
+    public PropCycleEvalObj(IUndirectedGraphVar graph, IntVar obj, int[][] costMatrix) {
+        super(new Variable[]{graph, obj}, PropagatorPriority.LINEAR, false);
         g = graph;
         sum = obj;
-        n = g.getEnvelopGraph().getNbNodes();
+        n = g.getNbMaxNodes();
         distMatrix = costMatrix;
         replacementCost = new int[n];
     }
@@ -70,11 +70,6 @@ public class PropCycleEvalObj extends Propagator {
     //***********************************************************************************
     // METHODS
     //***********************************************************************************
-
-    @Override
-    public void propagate(int idxVarInProp, int mask) throws ContradictionException {
-        propagate(0);
-    }
 
     @Override
     public int getPropagationConditions(int vIdx) {
@@ -86,8 +81,8 @@ public class PropCycleEvalObj extends Propagator {
         int minSum = 0;
         int maxSum = 0;
         for (int i = 0; i < n; i++) {
-            ISet env = g.getEnvelopGraph().getNeighborsOf(i);
-            ISet ker = g.getKernelGraph().getNeighborsOf(i);
+            ISet env = g.getPotNeighOf(i);
+            ISet ker = g.getMandNeighOf(i);
             for (int j = env.getFirstElement(); j >= 0; j = env.getNextElement()) {
                 if (i <= j) {
                     maxSum += distMatrix[i][j];
@@ -137,9 +132,9 @@ public class PropCycleEvalObj extends Propagator {
         ISet succs;
         int delta = sum.getUB() - minSum;
         for (int i = 0; i < n; i++) {
-            succs = g.getEnvelopGraph().getNeighborsOf(i);
+            succs = g.getPotNeighOf(i);
             for (int j = succs.getFirstElement(); j >= 0; j = succs.getNextElement()) {
-                if (i < j && !g.getKernelGraph().edgeExists(i, j)) {
+                if (i < j && !g.getMandNeighOf(i).contain(j)) {
                     if (replacementCost[i] == -1 || replacementCost[j] == -1) {
                         g.removeArc(i, j, aCause);
                     }
@@ -152,9 +147,9 @@ public class PropCycleEvalObj extends Propagator {
     }
 
     protected int findTwoBest(int i) throws ContradictionException {
-        int mc1 = g.getKernelGraph().getNeighborsOf(i).getFirstElement();
+        int mc1 = g.getMandNeighOf(i).getFirstElement();
         if (mc1 != -1) {
-            int mc2 = g.getKernelGraph().getNeighborsOf(i).getNextElement();
+            int mc2 = g.getMandNeighOf(i).getNextElement();
             if (mc2 != -1) {
                 replacementCost[i] = -1;
                 return distMatrix[i][mc1] + distMatrix[i][mc2];
@@ -170,7 +165,7 @@ public class PropCycleEvalObj extends Propagator {
     }
 
     protected int getBestNot(int i, int not) throws ContradictionException {
-        ISet nei = g.getEnvelopGraph().getNeighborsOf(i);
+        ISet nei = g.getPotNeighOf(i);
         int cost = -1;
         int idx = -1;
         for (int j = nei.getFirstElement(); j >= 0; j = nei.getNextElement()) {
@@ -186,9 +181,9 @@ public class PropCycleEvalObj extends Propagator {
     }
 
     protected int findTwoWorst(int i) throws ContradictionException {
-        int mc1 = g.getKernelGraph().getNeighborsOf(i).getFirstElement();
+        int mc1 = g.getMandNeighOf(i).getFirstElement();
         if (mc1 != -1) {
-            int mc2 = g.getKernelGraph().getNeighborsOf(i).getNextElement();
+            int mc2 = g.getMandNeighOf(i).getNextElement();
             if (mc2 != -1) {
                 return distMatrix[i][mc1] + distMatrix[i][mc2];
             }
@@ -199,7 +194,7 @@ public class PropCycleEvalObj extends Propagator {
     }
 
     protected int getWorstNot(int i, int not) throws ContradictionException {
-        ISet nei = g.getEnvelopGraph().getNeighborsOf(i);
+        ISet nei = g.getPotNeighOf(i);
         int cost = -1;
         int idx = -1;
         for (int j = nei.getFirstElement(); j >= 0; j = nei.getNextElement()) {

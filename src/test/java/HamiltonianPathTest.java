@@ -45,10 +45,12 @@ import solver.search.strategy.decision.fast.FastDecision;
 import solver.search.strategy.strategy.AbstractStrategy;
 import solver.search.strategy.ArcStrategy;
 import solver.search.strategy.GraphStrategy;
+import solver.variables.GraphVarFactory;
 import solver.variables.IntVar;
 import solver.variables.VF;
-import solver.variables.DirectedGraphVar;
+import solver.variables.IDirectedGraphVar;
 import util.PoolManager;
+import util.objects.graphs.DirectedGraph;
 import util.objects.setDataStructures.SetType;
 
 /**
@@ -93,20 +95,16 @@ public class HamiltonianPathTest {
 		Solver solver = new Solver();
 		int n = matrix.length;
 		// build model
-		DirectedGraphVar graph = new DirectedGraphVar("G", solver, n, SetType.LINKED_LIST, SetType.LINKED_LIST, false);
-		try {
-			graph.getKernelGraph().activateNode(n - 1);
-			for (int i = 0; i < n - 1; i++) {
-				graph.getKernelGraph().activateNode(i);
-				for (int j = 1; j < n; j++) {
-					if (matrix[i][j]) {
-						graph.getEnvelopGraph().addArc(i, j);
-					}
+		DirectedGraph GLB = new DirectedGraph(solver.getEnvironment(),n,SetType.LINKED_LIST,true);
+		DirectedGraph GUB = new DirectedGraph(solver.getEnvironment(),n,SetType.LINKED_LIST,true);
+		for (int i = 0; i < n - 1; i++) {
+			for (int j = 1; j < n; j++) {
+				if (matrix[i][j]) {
+					GUB.addArc(i, j);
 				}
 			}
-		} catch (Exception e) {
-			e.printStackTrace();
 		}
+		IDirectedGraphVar graph = GraphVarFactory.directedGraph("G", GLB, GUB, solver);
 		solver.post(GraphConstraintFactory.hamiltonianPath(graph, 0, n - 1, strongFilter));
 
 		// configure solver
@@ -177,32 +175,32 @@ public class HamiltonianPathTest {
 	}
 
 	// constructive heuristic, can be useful to debug
-	private static class ConstructorHeur extends ArcStrategy<DirectedGraphVar> {
+	private static class ConstructorHeur extends ArcStrategy<IDirectedGraphVar> {
 		int source, n;
 
-		public ConstructorHeur(DirectedGraphVar graphVar, int s) {
+		public ConstructorHeur(IDirectedGraphVar graphVar, int s) {
 			super(graphVar);
 			source = s;
-			n = graphVar.getEnvelopGraph().getNbNodes();
+			n = graphVar.getNbMaxNodes();
 		}
 
 		@Override
 		public boolean computeNextArc() {
 			int x = source;
-			int y = g.getKernelGraph().getSuccessorsOf(x).getFirstElement();
+			int y = g.getMandSuccOf(x).getFirstElement();
 			int nb = 1;
 			while (y != -1) {
 				x = y;
-				y = g.getKernelGraph().getSuccessorsOf(x).getFirstElement();
+				y = g.getMandSuccOf(x).getFirstElement();
 				nb++;
 			}
-			y = g.getEnvelopGraph().getSuccessorsOf(x).getFirstElement();
+			y = g.getPotSuccOf(x).getFirstElement();
 			if (y == -1) {
 				if (x != n - 1 || nb != n) {
 					for (int i = 0; i < n; i++) {
-						if (g.getEnvelopGraph().getSuccessorsOf(i).getSize() > 1) {
+						if (g.getPotSuccOf(i).getSize() > 1) {
 							this.from = i;
-							this.to = g.getEnvelopGraph().getSuccessorsOf(i).getFirstElement();
+							this.to = g.getPotSuccOf(i).getFirstElement();
 							return true;
 						}
 					}

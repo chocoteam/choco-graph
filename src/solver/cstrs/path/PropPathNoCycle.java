@@ -40,8 +40,8 @@ import solver.constraints.Propagator;
 import solver.constraints.PropagatorPriority;
 import solver.exception.ContradictionException;
 import solver.variables.EventType;
-import solver.variables.delta.GraphDeltaMonitor;
-import solver.variables.DirectedGraphVar;
+import solver.variables.delta.IGraphDeltaMonitor;
+import solver.variables.IDirectedGraphVar;
 import util.ESat;
 import util.objects.setDataStructures.ISet;
 import util.procedure.PairProcedure;
@@ -51,14 +51,14 @@ import util.procedure.PairProcedure;
  *
  * @author Jean-Guillaume Fages
  */
-public class PropPathNoCycle extends Propagator<DirectedGraphVar> {
+public class PropPathNoCycle extends Propagator<IDirectedGraphVar> {
 
     //***********************************************************************************
     // VARIABLES
     //***********************************************************************************
 
-    DirectedGraphVar g;
-    GraphDeltaMonitor gdm;
+    IDirectedGraphVar g;
+    IGraphDeltaMonitor gdm;
     int n;
     private PairProcedure arcEnforced;
     private IStateInt[] origin, end, size;
@@ -74,11 +74,11 @@ public class PropPathNoCycle extends Propagator<DirectedGraphVar> {
      *
      * @param graph
      */
-    public PropPathNoCycle(DirectedGraphVar graph, int source, int sink) {
-        super(new DirectedGraphVar[]{graph}, PropagatorPriority.LINEAR, true);
+    public PropPathNoCycle(IDirectedGraphVar graph, int source, int sink) {
+        super(new IDirectedGraphVar[]{graph}, PropagatorPriority.LINEAR, true);
         g = graph;
-        gdm = (GraphDeltaMonitor) g.monitorDelta(this);
-        this.n = g.getEnvelopGraph().getNbNodes();
+        gdm = g.monitorDelta(this);
+        this.n = g.getNbMaxNodes();
         arcEnforced = new EnfArc();
         origin = new IStateInt[n];
         size = new IStateInt[n];
@@ -106,7 +106,7 @@ public class PropPathNoCycle extends Propagator<DirectedGraphVar> {
             size[i].set(1);
         }
         for (int i = 0; i < n; i++) {
-            j = g.getKernelGraph().getSuccessorsOf(i).getFirstElement();
+            j = g.getMandSuccOf(i).getFirstElement();
             if (j != -1) {
                 enforce(i, j);
             }
@@ -138,14 +138,14 @@ public class PropPathNoCycle extends Propagator<DirectedGraphVar> {
         while (y != sink) {
             nb++;
             x = y;
-            nei = g.getEnvelopGraph().getSuccessorsOf(x);
+            nei = g.getPotSuccOf(x);
             y = nei.getFirstElement();
             if (nei.getSize() != 1 || y == x) {
                 return ESat.FALSE;
             }
         }
         nb++;
-        if (nb != g.getEnvelopOrder() || g.getEnvelopGraph().getSuccessorsOf(sink).getSize() > 0) {
+        if (nb != g.getPotentialNodes().getSize() || g.getPotSuccOf(sink).getSize() > 0) {
             return ESat.FALSE;
         }
         return ESat.TRUE;

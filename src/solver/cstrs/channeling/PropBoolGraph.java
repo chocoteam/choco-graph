@@ -31,7 +31,7 @@ import solver.constraints.Propagator;
 import solver.constraints.PropagatorPriority;
 import solver.exception.ContradictionException;
 import solver.variables.BoolVar;
-import solver.variables.GraphVar;
+import solver.variables.IGraphVar;
 import util.ESat;
 import util.tools.ArrayUtils;
 
@@ -46,7 +46,7 @@ public class PropBoolGraph extends Propagator<BoolVar> {
     // VARIABLES
     //***********************************************************************************
 
-    protected GraphVar graph;
+    protected IGraphVar graph;
     protected BoolVar[][] relations;
     protected int n;
 
@@ -54,7 +54,7 @@ public class PropBoolGraph extends Propagator<BoolVar> {
     // CONSTRUCTOR
     //***********************************************************************************
 
-    public PropBoolGraph(GraphVar graph, BoolVar[][] rel) {
+    public PropBoolGraph(IGraphVar graph, BoolVar[][] rel) {
         super(ArrayUtils.flatten(rel), PropagatorPriority.QUADRATIC, true);
         this.graph = graph;
         relations = rel;

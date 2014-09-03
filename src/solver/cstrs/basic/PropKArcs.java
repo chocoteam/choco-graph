@@ -33,10 +33,10 @@ import solver.constraints.Propagator;
 import solver.constraints.PropagatorPriority;
 import solver.exception.ContradictionException;
 import solver.variables.EventType;
+import solver.variables.IGraphVar;
 import solver.variables.IntVar;
 import solver.variables.Variable;
-import solver.variables.delta.GraphDeltaMonitor;
-import solver.variables.GraphVar;
+import solver.variables.delta.IGraphDeltaMonitor;
 import util.ESat;
 import util.objects.setDataStructures.ISet;
 import util.procedure.PairProcedure;
@@ -52,8 +52,8 @@ public class PropKArcs extends Propagator {
     // VARIABLES
     //***********************************************************************************
 
-    protected GraphVar g;
-    GraphDeltaMonitor gdm;
+    protected IGraphVar g;
+    IGraphDeltaMonitor gdm;
     protected IntVar k;
     protected IStateInt nbInKer, nbInEnv;
     protected PairProcedure arcEnforced, arcRemoved;
@@ -62,10 +62,10 @@ public class PropKArcs extends Propagator {
     // CONSTRUCTORS
     //***********************************************************************************
 
-    public PropKArcs(GraphVar graph, IntVar k) {
+    public PropKArcs(IGraphVar graph, IntVar k) {
         super(new Variable[]{graph, k}, PropagatorPriority.LINEAR, true);
-        g = (GraphVar) vars[0];
-        gdm = (GraphDeltaMonitor) g.monitorDelta(this);
+        g = (IGraphVar) vars[0];
+        gdm = g.monitorDelta(this);
         this.k = (IntVar) vars[1];
 		IEnvironment environment = solver.getEnvironment();
         nbInEnv = environment.makeInt();
@@ -82,10 +82,10 @@ public class PropKArcs extends Propagator {
     public void propagate(int evtmask) throws ContradictionException {
         int nbK = 0;
         int nbE = 0;
-        ISet env = g.getEnvelopGraph().getActiveNodes();
+        ISet env = g.getPotentialNodes();
         for (int i = env.getFirstElement(); i >= 0; i = env.getNextElement()) {
-            nbE += g.getEnvelopGraph().getSuccsOrNeigh(i).getSize();
-            nbK += g.getKernelGraph().getSuccsOrNeigh(i).getSize();
+            nbE += g.getPotSuccOrNeighOf(i).getSize();
+            nbK += g.getMandSuccOrNeighOf(i).getSize();
         }
         if (!g.isDirected()) {
             nbK /= 2;
@@ -117,7 +117,7 @@ public class PropKArcs extends Propagator {
         k.updateUpperBound(nbE, aCause);
         if (nbK != nbE && k.isInstantiated()) {
             ISet nei;
-            ISet env = g.getEnvelopGraph().getActiveNodes();
+            ISet env = g.getPotentialNodes();
             if (k.getValue() == nbE) {
                 for (int i = env.getFirstElement(); i >= 0; i = env.getNextElement()) {
                     nei = g.getEnvelopGraph().getSuccsOrNeigh(i);
@@ -157,7 +157,7 @@ public class PropKArcs extends Propagator {
     public ESat isEntailed() {
         int nbK = 0;
         int nbE = 0;
-        ISet env = g.getEnvelopGraph().getActiveNodes();
+        ISet env = g.getPotentialNodes();
         for (int i = env.getFirstElement(); i >= 0; i = env.getNextElement()) {
             nbE += g.getEnvelopGraph().getSuccsOrNeigh(i).getSize();
             nbK += g.getKernelGraph().getSuccsOrNeigh(i).getSize();

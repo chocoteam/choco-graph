@@ -31,10 +31,9 @@ import solver.constraints.Propagator;
 import solver.constraints.PropagatorPriority;
 import solver.exception.ContradictionException;
 import solver.variables.EventType;
-import solver.variables.delta.GraphDeltaMonitor;
-import solver.variables.GraphVar;
+import solver.variables.IGraphVar;
+import solver.variables.delta.IGraphDeltaMonitor;
 import util.ESat;
-import util.objects.graphs.IGraph;
 import util.objects.setDataStructures.ISet;
 import util.procedure.PairProcedure;
 
@@ -43,14 +42,14 @@ import util.procedure.PairProcedure;
  *
  * @author Jean-Guillaume Fages
  */
-public class PropTransitivity<V extends GraphVar> extends Propagator<V> {
+public class PropTransitivity<V extends IGraphVar> extends Propagator<V> {
 
     //***********************************************************************************
     // VARIABLES
     //***********************************************************************************
 
     private V g;
-    GraphDeltaMonitor gdm;
+    IGraphDeltaMonitor gdm;
     private PairProcedure arcEnforced;
     private PairProcedure arcRemoved;
 
@@ -59,9 +58,9 @@ public class PropTransitivity<V extends GraphVar> extends Propagator<V> {
     //***********************************************************************************
 
     public PropTransitivity(V graph) {
-        super((V[]) new GraphVar[]{graph}, PropagatorPriority.LINEAR, true);
+        super((V[]) new IGraphVar[]{graph}, PropagatorPriority.LINEAR, true);
         g = vars[0];
-        gdm = (GraphDeltaMonitor) g.monitorDelta(this);
+        gdm = g.monitorDelta(this);
         arcEnforced = new PairProcedure() {
             @Override
             public void execute(int from, int to) throws ContradictionException {
@@ -82,12 +81,12 @@ public class PropTransitivity<V extends GraphVar> extends Propagator<V> {
 
     @Override
     public void propagate(int evtmask) throws ContradictionException {
-        int n = g.getEnvelopGraph().getNbNodes();
+        int n = g.getNbMaxNodes();
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
-                if (g.getKernelGraph().isArcOrEdge(i, j)) {
+                if (g.getMandSuccOrNeighOf(i).contain(j)) {
                     enfArc(i, j);
-                } else if (!g.getEnvelopGraph().isArcOrEdge(i, j)) {
+                } else if (!g.getPotSuccOrNeighOf(i).contain(j)) {
                     remArc(i, j);
                 }
             }
@@ -118,14 +117,12 @@ public class PropTransitivity<V extends GraphVar> extends Propagator<V> {
 
     @Override
     public ESat isEntailed() {
-        IGraph env = g.getEnvelopGraph();
-        IGraph ker = g.getKernelGraph();
-        int n = env.getNbNodes();
+        int n = g.getNbMaxNodes();
         for (int i = 0; i < n; i++) {
-            ISet succ = ker.getSuccsOrNeigh(i);
+            ISet succ = g.getPotSuccOrNeighOf(i);
             for (int j = succ.getFirstElement(); j >= 0; j = succ.getNextElement()) {
                 for (int k = i + 1; k < n; k++) {
-                    if (ker.isArcOrEdge(j, k) && !ker.isArcOrEdge(i, k)) {
+                    if (g.getMandSuccOrNeighOf(j).contain(k) && !g.getMandSuccOrNeighOf(i).contain(k)) {
                         return ESat.FALSE;
                     }
                 }
@@ -143,27 +140,27 @@ public class PropTransitivity<V extends GraphVar> extends Propagator<V> {
     // --- Arc enforcings
     private void enfArc(int node, int succ) throws ContradictionException {
         if (node != succ) {
-            ISet ker = g.getKernelGraph().getPredsOrNeigh(node);
-            ISet env = g.getEnvelopGraph().getPredsOrNeigh(node);
+            ISet ker = g.getMandPredOrNeighOf(node);
+            ISet env = g.getPotPredOrNeighOf(node);
             for (int i = env.getFirstElement(); i >= 0; i = env.getNextElement()) {
                 if (ker.contain(i)) {
                     if (g.enforceArc(i, succ, aCause)) {
                         enfArc(i, succ);
                     }
-                } else if (!g.getEnvelopGraph().isArcOrEdge(i, succ)) {
+                } else if (!g.getPotSuccOrNeighOf(i).contain(succ)) {
                     if (g.removeArc(i, node, aCause)) {
                         remArc(i, node);
                     }
                 }
             }
-            ker = g.getKernelGraph().getSuccsOrNeigh(succ);
-            env = g.getEnvelopGraph().getSuccsOrNeigh(succ);
+            ker = g.getMandSuccOrNeighOf(succ);
+            env = g.getPotSuccOrNeighOf(succ);
             for (int i = env.getFirstElement(); i >= 0; i = env.getNextElement()) {
                 if (ker.contain(i)) {
                     if (g.enforceArc(node, i, aCause)) {
                         enfArc(node, i);
                     }
-                } else if (!g.getEnvelopGraph().isArcOrEdge(node, i)) {
+                } else if (!g.getPotSuccOrNeighOf(node).contain(i)) {
                     if (g.removeArc(succ, i, aCause)) {
                         remArc(succ, i);
                     }
@@ -175,13 +172,13 @@ public class PropTransitivity<V extends GraphVar> extends Propagator<V> {
     // --- Arc removals
     private void remArc(int from, int to) throws ContradictionException {
         if (from != to) {
-            ISet nei = g.getKernelGraph().getSuccsOrNeigh(from);
+            ISet nei = g.getMandSuccOrNeighOf(from);
             for (int i = nei.getFirstElement(); i >= 0; i = nei.getNextElement()) {
                 if (g.removeArc(i, to, aCause)) {
                     remArc(i, to);
                 }
             }
-            nei = g.getKernelGraph().getPredsOrNeigh(to);
+            nei = g.getMandPredOrNeighOf(to);
             for (int i = nei.getFirstElement(); i >= 0; i = nei.getNextElement()) {
                 if (g.removeArc(from, i, aCause)) {
                     remArc(from, i);

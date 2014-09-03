@@ -39,8 +39,8 @@ import solver.constraints.Propagator;
 import solver.constraints.PropagatorPriority;
 import solver.exception.ContradictionException;
 import solver.variables.EventType;
-import solver.variables.delta.GraphDeltaMonitor;
-import solver.variables.DirectedGraphVar;
+import solver.variables.delta.IGraphDeltaMonitor;
+import solver.variables.IDirectedGraphVar;
 import util.ESat;
 import util.objects.graphs.DirectedGraph;
 import util.objects.setDataStructures.ISet;
@@ -53,14 +53,14 @@ import java.util.BitSet;
  *
  * @author Jean-Guillaume Fages
  */
-public class PropSCCDoorsRules extends Propagator<DirectedGraphVar> {
+public class PropSCCDoorsRules extends Propagator<IDirectedGraphVar> {
 
     //***********************************************************************************
     // VARIABLES
     //***********************************************************************************
 
-    private DirectedGraphVar g;
-    GraphDeltaMonitor gdm;
+    private IDirectedGraphVar g;
+    private IGraphDeltaMonitor gdm;
     private int n;
     private PairProcedure arcRemoved;
     private BitSet sccComputed;
@@ -75,17 +75,17 @@ public class PropSCCDoorsRules extends Propagator<DirectedGraphVar> {
     // CONSTRUCTORS
     //***********************************************************************************
 
-    public PropSCCDoorsRules(DirectedGraphVar graph, PropReducedPath rp) {
+    public PropSCCDoorsRules(IDirectedGraphVar graph, PropReducedPath rp) {
         this(graph, rp.getNSCC(), rp.getSCCOF(), rp.getOutArcs(), rp.getReducedGraph());
     }
 
-    public PropSCCDoorsRules(DirectedGraphVar graph,
+    public PropSCCDoorsRules(IDirectedGraphVar graph,
                              IStateInt nR, IStateInt[] sccOf, ISet[] outArcs,
                              DirectedGraph rg) {
-        super(new DirectedGraphVar[]{graph}, PropagatorPriority.LINEAR, true);
+        super(new IDirectedGraphVar[]{graph}, PropagatorPriority.LINEAR, true);
         g = graph;
-        gdm = (GraphDeltaMonitor) g.monitorDelta(this);
-        this.n = g.getEnvelopGraph().getNbNodes();
+        gdm = g.monitorDelta(this);
+        this.n = g.getNbMaxNodes();
         arcRemoved = new RemArc();
         this.nR = nR;
         this.sccOf = sccOf;
@@ -94,7 +94,7 @@ public class PropSCCDoorsRules extends Propagator<DirectedGraphVar> {
         sccComputed = new BitSet(n);
     }
 
-    public PropSCCDoorsRules(DirectedGraphVar graph,
+    public PropSCCDoorsRules(IDirectedGraphVar graph,
                              IStateInt nR, IStateInt[] sccOf, ISet[] outArcs,
                              DirectedGraph rg, IStateInt[] sccFirst, IStateInt[] sccNext) {
         this(graph, nR, sccOf, outArcs, rg);
@@ -186,7 +186,7 @@ public class PropSCCDoorsRules extends Propagator<DirectedGraphVar> {
     }
 
     private void forceInDoor(int x) throws ContradictionException {
-        ISet pred = g.getEnvelopGraph().getPredecessorsOf(x);
+        ISet pred = g.getPotPredOf(x);
         int scc = sccOf[x].get();
         for (int i = pred.getFirstElement(); i >= 0; i = pred.getNextElement()) {
             if (sccOf[i].get() == scc) {
@@ -196,7 +196,7 @@ public class PropSCCDoorsRules extends Propagator<DirectedGraphVar> {
     }
 
     private void forceOutDoor(int x) throws ContradictionException {
-        ISet succ = g.getEnvelopGraph().getSuccessorsOf(x);
+        ISet succ = g.getPotSuccOf(x);
         int scc = sccOf[x].get();
         for (int i = succ.getFirstElement(); i >= 0; i = succ.getNextElement()) {
             if (sccOf[i].get() == scc) {

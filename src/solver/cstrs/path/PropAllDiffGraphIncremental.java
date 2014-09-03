@@ -32,8 +32,8 @@ import solver.constraints.Propagator;
 import solver.constraints.PropagatorPriority;
 import solver.exception.ContradictionException;
 import solver.variables.EventType;
-import solver.variables.delta.GraphDeltaMonitor;
-import solver.variables.DirectedGraphVar;
+import solver.variables.delta.IGraphDeltaMonitor;
+import solver.variables.IDirectedGraphVar;
 import util.ESat;
 import util.graphOperations.connectivity.StrongConnectivityFinder;
 import util.objects.graphs.DirectedGraph;
@@ -56,15 +56,15 @@ import java.util.BitSet;
  *
  * @author Jean-Guillaume Fages
  */
-public class PropAllDiffGraphIncremental extends Propagator<DirectedGraphVar> {
+public class PropAllDiffGraphIncremental extends Propagator<IDirectedGraphVar> {
 
     //***********************************************************************************
     // VARIABLES
     //***********************************************************************************
 
     private int n, n2;
-    private DirectedGraphVar g;
-    GraphDeltaMonitor gdm;
+    private IDirectedGraphVar g;
+    private IGraphDeltaMonitor gdm;
     private DirectedGraph digraph;
     private int[] matching;
     private int[] nodeSCC;
@@ -88,12 +88,12 @@ public class PropAllDiffGraphIncremental extends Propagator<DirectedGraphVar> {
      * @param graph
      * @param matchingCardinality
      */
-    public PropAllDiffGraphIncremental(DirectedGraphVar graph, int matchingCardinality) {
-        super(new DirectedGraphVar[]{graph}, PropagatorPriority.QUADRATIC, true);
-        n = graph.getEnvelopGraph().getNbNodes();
+    public PropAllDiffGraphIncremental(IDirectedGraphVar graph, int matchingCardinality) {
+        super(new IDirectedGraphVar[]{graph}, PropagatorPriority.QUADRATIC, true);
+        n = graph.getNbMaxNodes();
         n2 = 2 * n;
         g = graph;
-        gdm = (GraphDeltaMonitor) g.monitorDelta(this);
+        gdm = g.monitorDelta(this);
         this.matchingCardinality = matchingCardinality;
         matching = new int[n2];
         nodeSCC = new int[n2];
@@ -118,8 +118,8 @@ public class PropAllDiffGraphIncremental extends Propagator<DirectedGraphVar> {
      * @param sol
      * @param constraint
      */
-    public PropAllDiffGraphIncremental(DirectedGraphVar graph, Solver sol, Constraint constraint) {
-        this(graph, graph.getEnvelopGraph().getNbNodes());
+    public PropAllDiffGraphIncremental(IDirectedGraphVar graph, Solver sol, Constraint constraint) {
+        this(graph, graph.getNbMaxNodes());
     }
 
     //***********************************************************************************
@@ -131,7 +131,7 @@ public class PropAllDiffGraphIncremental extends Propagator<DirectedGraphVar> {
         int j;
         ISet nei;
         for (int i = 0; i < n; i++) {
-            nei = g.getEnvelopGraph().getSuccessorsOf(i);
+            nei = g.getPotSuccOf(i);
             for (j = nei.getFirstElement(); j >= 0; j = nei.getNextElement()) {
                 j += n;
                 if (free.get(i) && free.get(j)) {
@@ -216,7 +216,7 @@ public class PropAllDiffGraphIncremental extends Propagator<DirectedGraphVar> {
         ISet succ;
         int j;
         for (int node = 0; node < n; node++) {
-            succ = g.getEnvelopGraph().getSuccessorsOf(node);
+            succ = g.getPotSuccOf(node);
             for (j = succ.getFirstElement(); j >= 0; j = succ.getNextElement()) {
                 if (nodeSCC[node] != nodeSCC[j + n]) {
                     if (matching[node] == j + n && matching[j + n] == node) {
@@ -269,7 +269,7 @@ public class PropAllDiffGraphIncremental extends Propagator<DirectedGraphVar> {
         BitSet b = new BitSet(n);
         int next;
         for (int i = 0; i < n; i++) {
-            next = g.getEnvelopGraph().getSuccessorsOf(i).getFirstElement();
+            next = g.getPotSuccOf(i).getFirstElement();
             if (next != -1) {
                 if (b.get(next)) {
                     return ESat.FALSE;

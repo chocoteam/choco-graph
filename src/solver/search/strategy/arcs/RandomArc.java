@@ -28,17 +28,17 @@ package solver.search.strategy.arcs;
 
 import gnu.trove.list.array.TIntArrayList;
 import solver.search.strategy.ArcStrategy;
-import solver.variables.GraphVar;
+import solver.variables.IGraphVar;
 import util.objects.setDataStructures.ISet;
 
 import java.util.Random;
 
-public class RandomArc extends ArcStrategy<GraphVar> {
+public class RandomArc extends ArcStrategy<IGraphVar> {
 
     private Random rd;
     private TIntArrayList pFrom, pTo;
 
-    public RandomArc(GraphVar g, long seed) {
+    public RandomArc(IGraphVar g, long seed) {
         super(g);
         rd = new Random(seed);
         pFrom = new TIntArrayList();
@@ -51,8 +51,8 @@ public class RandomArc extends ArcStrategy<GraphVar> {
         pTo.clear();
         ISet envSuc, kerSuc;
         for (int i = envNodes.getFirstElement(); i >= 0; i = envNodes.getNextElement()) {
-            envSuc = g.getEnvelopGraph().getSuccsOrNeigh(i);
-            kerSuc = g.getKernelGraph().getSuccsOrNeigh(i);
+            envSuc = g.getPotSuccOrNeighOf(i);
+            kerSuc = g.getMandSuccOrNeighOf(i);
             if (envSuc.getSize() != kerSuc.getSize()) {
                 for (int j = envSuc.getFirstElement(); j >= 0; j = envSuc.getNextElement()) {
                     if (!kerSuc.contain(j)) {

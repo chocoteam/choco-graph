@@ -40,8 +40,8 @@ import solver.constraints.Propagator;
 import solver.constraints.PropagatorPriority;
 import solver.exception.ContradictionException;
 import solver.variables.EventType;
-import solver.variables.delta.GraphDeltaMonitor;
-import solver.variables.UndirectedGraphVar;
+import solver.variables.delta.IGraphDeltaMonitor;
+import solver.variables.IUndirectedGraphVar;
 import util.ESat;
 import util.objects.setDataStructures.ISet;
 import util.procedure.PairProcedure;
@@ -51,14 +51,14 @@ import java.util.BitSet;
 /**
  * Simple NoSubtour applied to (undirected) tree/forest
  */
-public class PropTreeNoSubtour extends Propagator<UndirectedGraphVar> {
+public class PropTreeNoSubtour extends Propagator<IUndirectedGraphVar> {
 
     //***********************************************************************************
     // VARIABLES
     //***********************************************************************************
 
-    UndirectedGraphVar g;
-    GraphDeltaMonitor gdm;
+    IUndirectedGraphVar g;
+    IGraphDeltaMonitor gdm;
     int n;
     private PairProcedure arcEnforced;
     private IStateInt[] color, size;
@@ -77,11 +77,11 @@ public class PropTreeNoSubtour extends Propagator<UndirectedGraphVar> {
      *
      * @param graph
      */
-    public PropTreeNoSubtour(UndirectedGraphVar graph) {
-        super(new UndirectedGraphVar[]{graph}, PropagatorPriority.LINEAR, true);
+    public PropTreeNoSubtour(IUndirectedGraphVar graph) {
+        super(new IUndirectedGraphVar[]{graph}, PropagatorPriority.LINEAR, true);
         g = graph;
-        gdm = (GraphDeltaMonitor) g.monitorDelta(this);
-        this.n = g.getEnvelopGraph().getNbNodes();
+        gdm = g.monitorDelta(this);
+        this.n = g.getNbMaxNodes();
         arcEnforced = new EnfArc();
         fifo = new int[n];
         mate = new int[n];
@@ -108,7 +108,7 @@ public class PropTreeNoSubtour extends Propagator<UndirectedGraphVar> {
         }
         ISet nei;
         for (int i = 0; i < n; i++) {
-            nei = g.getKernelGraph().getNeighborsOf(i);
+            nei = g.getMandNeighOf(i);
             for (int j = nei.getFirstElement(); j >= 0; j = nei.getNextElement()) {
                 if (i < j) {
                     enforce(i, j);
@@ -157,7 +157,7 @@ public class PropTreeNoSubtour extends Propagator<UndirectedGraphVar> {
         mate[i] = j;
         while (idxFirst < idxLast) {
             x = fifo[idxFirst++];
-            ISet nei = g.getEnvelopGraph().getNeighborsOf(x);
+            ISet nei = g.getPotNeighOf(x);
             for (int k = nei.getFirstElement(); k >= 0; k = nei.getNextElement()) {
                 if (k != mate[x]) {
                     ck = color[k].get();
