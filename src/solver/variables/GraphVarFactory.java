@@ -1,6 +1,9 @@
 package solver.variables;
 
 import solver.Solver;
+import solver.exception.ContradictionException;
+import solver.explanations.Deduction;
+import solver.explanations.Explanation;
 import util.objects.graphs.DirectedGraph;
 import util.objects.graphs.UndirectedGraph;
 

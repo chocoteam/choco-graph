@@ -35,7 +35,6 @@ import solver.cstrs.arborescences.PropArborescence;
 import solver.cstrs.degree.PropNodeDegree_AtLeast_Coarse;
 import solver.cstrs.degree.PropNodeDegree_AtMost_Incr;
 import solver.cstrs.path.PropPathNoCycle;
-import solver.cstrs.path.PropReducedPath;
 import solver.search.loop.monitors.SearchMonitorFactory;
 import solver.search.GraphStrategyFactory;
 import solver.search.strategy.strategy.AbstractStrategy;
@@ -81,9 +80,6 @@ public class PathTest {
 		}
 		if (arbo) {
 			props = ArrayUtils.append(props,new Propagator[]{new PropArborescence(g, 0, true)});
-		}
-		if (RG) {
-			props = ArrayUtils.append(props,new Propagator[]{new PropReducedPath(g)});
 		}
 		AbstractStrategy strategy = GraphStrategyFactory.graphLexico(g);
 		s.post(new Constraint("GTest",props));

@@ -35,14 +35,13 @@ import solver.variables.delta.IGraphDelta;
 import solver.variables.delta.IGraphDeltaMonitor;
 import util.objects.graphs.UndirectedGraph;
 import util.objects.setDataStructures.ISet;
-import util.objects.setDataStructures.SetType;
 
 /**
  * Created by IntelliJ IDEA.
  * User: chameau, Jean-Guillaume Fages
  * Date: 7 feb. 2011
  */
-public class UndirectedGraphVar extends ExplicitGraphVar<UndirectedGraph> implements IUndirectedGraphVar {
+public class UndirectedGraphVar extends GraphVar<UndirectedGraph> implements IUndirectedGraphVar {
 
 	//////////////////////////////// GRAPH PART /////////////////////////////////////////
 
@@ -107,48 +106,37 @@ public class UndirectedGraphVar extends ExplicitGraphVar<UndirectedGraph> implem
     }
 
 	@Override
-	public int getNbMaxNodes() {
-		return 0;
-	}
-
-	@Override
-	public ISet getMandatoryNodes() {
-		return null;
-	}
-
-	@Override
-	public ISet getPotentialNodes() {
-		return null;
-	}
-
-	@Override
 	public ISet getMandNeighOf(int idx) {
-		return null;
+		return getMandSuccOrNeighOf(idx);
 	}
 
 	@Override
 	public ISet getPotNeighOf(int idx) {
-		return null;
+		return getPotSuccOrNeighOf(idx);
 	}
 
 	@Override
 	public ISet getMandSuccOf(int idx) {
-		return null;
+		throw new UnsupportedOperationException("directed method should not " +
+				"be called on undirected graph var");
 	}
 
 	@Override
 	public ISet getPotSuccOf(int idx) {
-		return null;
+		throw new UnsupportedOperationException("directed method should not " +
+				"be called on undirected graph var");
 	}
 
 	@Override
 	public ISet getMandPredOf(int idx) {
-		return null;
+		throw new UnsupportedOperationException("directed method should not " +
+				"be called on undirected graph var");
 	}
 
 	@Override
 	public ISet getPotPredOf(int idx) {
-		return null;
+		throw new UnsupportedOperationException("directed method should not " +
+				"be called on undirected graph var");
 	}
 
 	//***********************************************************************************
@@ -163,27 +151,5 @@ public class UndirectedGraphVar extends ExplicitGraphVar<UndirectedGraph> implem
 	@Override
 	public IGraphDeltaMonitor monitorDelta(Propagator prop) {
 		return null;
-	}
-
-	/**
-	 * Checks whether or not the edge (u,v) may belong to a solution or not
-	 * (i.e. if it is present in the envelop graph)
-	 * @param u the id of a node
-	 * @param v the id of a node
-	 * @return true iff edge (u,v) belongs to the envelop graph
-	 */
-	public boolean isEdgePossible(int u, int v){
-		return envelop.edgeExists(u,v);
-	}
-
-	/**
-	 * Checks whether or not the edge (u,v) must belong to every solution or not
-	 * (i.e. if it is present in the kernel graph)
-	 * @param u the id of a node
-	 * @param v the id of a node
-	 * @return true iff edge (u,v) belongs to the kernel graph
-	 */
-	public boolean isEdgeMandatory(int u, int v){
-		return kernel.edgeExists(u,v);
 	}
 }

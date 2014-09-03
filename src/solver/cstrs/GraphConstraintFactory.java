@@ -36,8 +36,6 @@ import solver.cstrs.degree.PropNodeDegree_AtLeast_Incr;
 import solver.cstrs.degree.PropNodeDegree_AtMost_Incr;
 import solver.cstrs.path.PropAllDiffGraphIncremental;
 import solver.cstrs.path.PropPathNoCycle;
-import solver.cstrs.path.PropReducedPath;
-import solver.cstrs.path.PropSCCDoorsRules;
 import solver.cstrs.trees.PropTreeNoSubtour;
 import solver.cstrs.tsp.undirected.PropCycleEvalObj;
 import solver.cstrs.tsp.undirected.PropCycleNoSubtour;
@@ -197,12 +195,10 @@ public class GraphConstraintFactory {
 				new PropPathNoCycle(GRAPHVAR, ORIGIN, DESTINATION)
 		};
 		if (STRONG_FILTER) {
-			PropReducedPath red = new PropReducedPath(GRAPHVAR);
-			PropSCCDoorsRules rules = new PropSCCDoorsRules(GRAPHVAR, red);
 			PropArborescence arbo = new PropArborescence(GRAPHVAR, ORIGIN, true);
 			PropAntiArborescence aa = new PropAntiArborescence(GRAPHVAR, DESTINATION, true);
 			PropAllDiffGraphIncremental ad = new PropAllDiffGraphIncremental(GRAPHVAR, n - 1);
-			props = ArrayUtils.append(props,ArrayUtils.toArray(red, rules, arbo, aa, ad));
+			props = ArrayUtils.append(props,ArrayUtils.toArray(arbo, aa, ad));
 		}
         return new Constraint("Graph_HamiltonianPath",props);
     }

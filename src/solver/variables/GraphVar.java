@@ -27,7 +27,6 @@
 
 package solver.variables;
 
-import memory.IEnvironment;
 import solver.ICause;
 import solver.Solver;
 import solver.exception.ContradictionException;
@@ -46,7 +45,7 @@ import util.objects.setDataStructures.ISet;
  * User: chameau, Jean-Guillaume Fages
  * Date: 7 feb. 2011
  */
-public abstract class ExplicitGraphVar<E extends IGraph> extends AbstractVariable implements IGraphVar<E>{
+public abstract class GraphVar<E extends IGraph> extends AbstractVariable implements IGraphVar<E>{
 
     //////////////////////////////// GRAPH PART /////////////////////////////////////////
     //***********************************************************************************
@@ -55,6 +54,7 @@ public abstract class ExplicitGraphVar<E extends IGraph> extends AbstractVariabl
 
     protected E envelop, kernel;
     protected IGraphDelta delta;
+	protected int n;
     ///////////// Attributes related to Variable ////////////
     protected boolean reactOnModification;
 
@@ -67,10 +67,12 @@ public abstract class ExplicitGraphVar<E extends IGraph> extends AbstractVariabl
      *
      * @param solver
      */
-    public ExplicitGraphVar(String name, Solver solver, E LB, E UB) {
+    public GraphVar(String name, Solver solver, E LB, E UB) {
         super(name, solver);
 		this.kernel = LB;
 		this.envelop = UB;
+		this.n = UB.getNbNodes();
+		assert n == LB.getNbNodes();
     }
 
     //***********************************************************************************
@@ -102,7 +104,7 @@ public abstract class ExplicitGraphVar<E extends IGraph> extends AbstractVariabl
      */
     public boolean removeNode(int x, ICause cause) throws ContradictionException {
         assert cause != null;
-		assert (x>=0 && x<getEnvelopGraph().getNbNodes());
+		assert (x>=0 && x<n);
         if (kernel.getActiveNodes().contain(x)) {
             this.contradiction(cause, EventType.REMOVENODE, "remove mandatory node");
             return true;
@@ -137,7 +139,7 @@ public abstract class ExplicitGraphVar<E extends IGraph> extends AbstractVariabl
      */
     public boolean enforceNode(int x, ICause cause) throws ContradictionException {
         assert cause != null;
-		assert (x>=0 && x<getEnvelopGraph().getNbNodes());
+		assert (x>=0 && x<n);
         if (envelop.getActiveNodes().contain(x)) {
             if (kernel.activateNode(x)) {
                 if (reactOnModification) {
@@ -178,26 +180,6 @@ public abstract class ExplicitGraphVar<E extends IGraph> extends AbstractVariabl
     // ACCESSORS
     //***********************************************************************************
 
-	/**
-	 * Checks whether or not a node may belong to a solution or not
-	 * (i.e. if it is present in the envelop graph)
-	 * @param node the id of a node
-	 * @return true iff node belongs to the envelop graph
-	 */
-	public boolean isNodePossible(int node){
-		return envelop.getActiveNodes().contain(node);
-	}
-
-	/**
-	 * Checks whether or not a node must belong to every solution or not
-	 * (i.e. if it is present in the kernel graph)
-	 * @param node the id of a node
-	 * @return true iff node belongs to the kernel graph
-	 */
-	public boolean isNodeMandatory(int node){
-		return kernel.getActiveNodes().contain(node);
-	}
-
     /**
      * @return the graph representing the domain of the variable graph
      */
@@ -232,15 +214,25 @@ public abstract class ExplicitGraphVar<E extends IGraph> extends AbstractVariabl
 		return envelop.getPredsOrNeigh(idx);
 	}
 
+	@Override
+	public int getNbMaxNodes() {
+		return n;
+	}
+
+	@Override
+	public ISet getMandatoryNodes() {
+		return kernel.getActiveNodes();
+	}
+
+	@Override
+	public ISet getPotentialNodes() {
+		return envelop.getActiveNodes();
+	}
+
     /**
      * @return true iff the graph is directed
      */
     public abstract boolean isDirected();
-
-	@Override
-	public boolean isExplicit(){
-		return true;
-	}
 
     //***********************************************************************************
     // VARIABLE STUFF
@@ -267,7 +259,7 @@ public abstract class ExplicitGraphVar<E extends IGraph> extends AbstractVariabl
     }
 
     @Override
-    public ExplicitGraphVar duplicate() {
+    public GraphVar duplicate() {
         throw new UnsupportedOperationException("Cannot duplicate GraphVar");
     }
 

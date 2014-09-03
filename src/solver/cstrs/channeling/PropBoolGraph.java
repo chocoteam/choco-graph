@@ -89,7 +89,7 @@ public class PropBoolGraph extends Propagator<BoolVar> {
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
                 if (relations[i][j].isInstantiated()) {
-                    if (relations[i][j].getValue() == 1 && !graph.getEnvelopGraph().isArcOrEdge(i, j)) {
+                    if (relations[i][j].getValue() == 1 && !graph.getPotSuccOrNeighOf(i).contain(j)) {
                         return ESat.FALSE;
                     }
                 } else {

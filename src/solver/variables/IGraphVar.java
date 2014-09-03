@@ -110,25 +110,20 @@ public interface IGraphVar<E extends IGraph> extends Variable {
 
 	public ISet getPotPredOrNeighOf(int idx);
 
-//    /**
-//     * @return the graph representing the domain of the variable graph
-//     */
-//    public E getKernelGraph() ;
-//
-//    /**
-//     * @return the graph representing the instantiated values (nodes and edges) of the variable graph
-//     */
-//    public E getEnvelopGraph() ;
+    /**
+     * @return the graph representing the domain of the variable graph
+     */
+    public E getKernelGraph() ;
+
+    /**
+     * @return the graph representing the instantiated values (nodes and edges) of the variable graph
+     */
+    public E getEnvelopGraph() ;
 
 	/**
 	 * @return true iff the graph is directed
 	 */
 	public abstract boolean isDirected();
-
-	/**
-	 * @return true iff the graph variable domain is represented by graphs (otherwise it can be a view over set variables)
-	 */
-	public abstract boolean isExplicit();
 
 	//***********************************************************************************
 	// SOLUTIONS : STORE AND RESTORE

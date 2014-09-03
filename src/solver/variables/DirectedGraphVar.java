@@ -35,14 +35,13 @@ import solver.variables.delta.IGraphDelta;
 import solver.variables.delta.IGraphDeltaMonitor;
 import util.objects.graphs.DirectedGraph;
 import util.objects.setDataStructures.ISet;
-import util.objects.setDataStructures.SetType;
 
 /**
  * Created by IntelliJ IDEA.
  * User: chameau, Jean-Guillaume Fages
  * Date: 7 feb. 2011
  */
-public class DirectedGraphVar extends ExplicitGraphVar<DirectedGraph> implements IDirectedGraphVar{
+public class DirectedGraphVar extends GraphVar<DirectedGraph> implements IDirectedGraphVar{
 
 	////////////////////////////////// GRAPH PART ///////////////////////////////////////
 
@@ -107,48 +106,35 @@ public class DirectedGraphVar extends ExplicitGraphVar<DirectedGraph> implements
     }
 
 	@Override
-	public int getNbMaxNodes() {
-		return 0;
-	}
-
-	@Override
-	public ISet getMandatoryNodes() {
-		return null;
-	}
-
-	@Override
-	public ISet getPotentialNodes() {
-		return null;
-	}
-
-	@Override
-	public ISet getMandNeighOf(int idx) {
-		return null;
+	public ISet getMandNeighOf(int idx){
+		throw new UnsupportedOperationException("undirected method should not " +
+				"be called on directed graph var");
 	}
 
 	@Override
 	public ISet getPotNeighOf(int idx) {
-		return null;
+		throw new UnsupportedOperationException("undirected method should not " +
+				"be called on directed graph var");
 	}
 
 	@Override
 	public ISet getMandSuccOf(int idx) {
-		return null;
+		return getMandSuccOrNeighOf(idx);
 	}
 
 	@Override
 	public ISet getMandPredOf(int idx) {
-		return null;
+		return getMandPredOrNeighOf(idx);
 	}
 
 	@Override
 	public ISet getPotPredOf(int idx) {
-		return null;
+		return getPotPredOrNeighOf(idx);
 	}
 
 	@Override
 	public ISet getPotSuccOf(int idx) {
-		return null;
+		return getPotSuccOrNeighOf(idx);
 	}
 
 	//***********************************************************************************
@@ -163,27 +149,5 @@ public class DirectedGraphVar extends ExplicitGraphVar<DirectedGraph> implements
 	@Override
 	public IGraphDeltaMonitor monitorDelta(Propagator prop) {
 		return null;
-	}
-
-	/**
-	 * Checks whether or not the arc (from,to) may belong to a solution or not
-	 * (i.e. if it is present in the envelop graph)
-	 * @param from the id of a node
-	 * @param to the id of a node
-	 * @return true iff arc (from,to) belongs to the envelop graph
-	 */
-	public boolean isArcPossible(int from, int to){
-		return envelop.arcExists(from,to);
-	}
-
-	/**
-	 * Checks whether or not the arc (from,to) must belong to every solution or not
-	 * (i.e. if it is present in the kernel graph)
-	 * @param from the id of a node
-	 * @param to the id of a node
-	 * @return true iff arc (from,to) belongs to the kernel graph
-	 */
-	public boolean isArcMandatory(int from, int to){
-		return kernel.arcExists(from,to);
 	}
 }

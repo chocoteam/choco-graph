@@ -72,8 +72,8 @@ public class PropKCC extends Propagator {
 
     @Override
     public void propagate(int evtmask) throws ContradictionException {
-        int maxOrder = g.getEnvelopOrder();
-        if ((!g.isDirected()) && k.getUB() == 1 && maxOrder == g.getKernelOrder() && maxOrder > 1) {
+        int maxOrder = g.getPotentialNodes().getSize();
+        if ((!g.isDirected()) && k.getUB() == 1 && maxOrder == g.getMandatoryNodes().getSize() && maxOrder > 1) {
             if (!env_CC_finder.isConnectedAndFindIsthma()) {
                 contradiction(g, "");
             }
@@ -82,7 +82,7 @@ public class PropKCC extends Propagator {
                 g.enforceArc(env_CC_finder.isthmusFrom.get(i), env_CC_finder.isthmusTo.get(i), aCause);
             }
         }
-        if (maxOrder == g.getKernelOrder()) {
+        if (maxOrder == g.getMandatoryNodes().getSize()) {
             env_CC_finder.findAllCC();
             int ee = env_CC_finder.getNBCC();
             k.updateLowerBound(ee, aCause);
@@ -105,7 +105,7 @@ public class PropKCC extends Propagator {
             k.updateLowerBound(minCC, aCause);
             ker_CC_finder.findAllCC();
             int ke = ker_CC_finder.getNBCC();
-            k.updateUpperBound(ke + maxOrder - g.getKernelOrder(), aCause);
+            k.updateUpperBound(ke + maxOrder - g.getMandatoryNodes().getSize(), aCause);
         }
     }
 
