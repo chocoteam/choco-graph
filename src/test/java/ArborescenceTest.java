@@ -54,8 +54,8 @@ public class ArborescenceTest {
 
 	public static Solver model(int n, int seed, boolean naive, boolean simple, long nbMaxSols) {
 		Solver s = new Solver();
-		DirectedGraph GLB = new DirectedGraph(s.getEnvironment(),n,graphTypeKer,false);
-		DirectedGraph GUB = new DirectedGraph(s.getEnvironment(),n,graphTypeEnv,false);
+		DirectedGraph GLB = new DirectedGraph(s,n,graphTypeKer,false);
+		DirectedGraph GUB = new DirectedGraph(s,n,graphTypeEnv,false);
 		for (int i = 0; i < n; i++) {
 			for (int j = 1; j < n; j++) {
 				GUB.addArc(i, j);

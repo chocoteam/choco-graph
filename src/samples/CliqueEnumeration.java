@@ -72,8 +72,8 @@ public class CliqueEnumeration extends AbstractProblem {
 		link[1][4] = true;
 		link[3][4] = true;
 		// graph variable domain
-		UndirectedGraph GLB = new UndirectedGraph(solver.getEnvironment(),n, SetType.BITSET,false);
-		UndirectedGraph GUB = new UndirectedGraph(solver.getEnvironment(),n, SetType.BITSET,false);
+		UndirectedGraph GLB = new UndirectedGraph(solver,n, SetType.BITSET,false);
+		UndirectedGraph GUB = new UndirectedGraph(solver,n, SetType.BITSET,false);
 		for (int i = 0; i < n; i++) {
 			GUB.activateNode(i);			// potential node
 			GUB.addEdge(i, i);				// potential loop

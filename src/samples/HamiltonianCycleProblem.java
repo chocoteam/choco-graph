@@ -85,8 +85,8 @@ public class HamiltonianCycleProblem extends AbstractProblem {
 		boolean[][] matrix = HCP_Utils.parseTSPLIBInstance(instancePath);
 		int n = matrix.length;
 		// variables (use linked lists because the graph is sparse)
-		UndirectedGraph GLB = new UndirectedGraph(solver.getEnvironment(),n,SetType.LINKED_LIST,true);
-		UndirectedGraph GUB = new UndirectedGraph(solver.getEnvironment(),n,SetType.LINKED_LIST,true);
+		UndirectedGraph GLB = new UndirectedGraph(solver,n,SetType.LINKED_LIST,true);
+		UndirectedGraph GUB = new UndirectedGraph(solver,n,SetType.LINKED_LIST,true);
 		for (int i = 0; i < n; i++) {
 			for (int j = i + 1; j < n; j++) {
 				if (matrix[i][j]) {

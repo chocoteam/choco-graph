@@ -51,8 +51,8 @@ public class NTreeTest {
 
 	public static void model(int n, int tmin, int tmax, int seed) {
 		Solver s = new Solver();
-		DirectedGraph GLB = new DirectedGraph(s.getEnvironment(),n,graphTypeKer, true);
-		DirectedGraph GUB = new DirectedGraph(s.getEnvironment(),n,graphTypeEnv, true);
+		DirectedGraph GLB = new DirectedGraph(s,n,graphTypeKer, true);
+		DirectedGraph GUB = new DirectedGraph(s,n,graphTypeEnv, true);
 		for (int i = 0; i < n; i++) {
 			for (int j = 0; j < n; j++) {
 				GUB.addArc(i, j);

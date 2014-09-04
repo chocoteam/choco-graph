@@ -93,8 +93,8 @@ public class KnightTourProblem extends AbstractProblem {
         // variables
 		SetFactory.RECYCLE = false; //(optim)
 		int n = matrix.length;
-		UndirectedGraph GLB = new UndirectedGraph(solver.getEnvironment(),n,SetType.LINKED_LIST,true);
-		UndirectedGraph GUB = new UndirectedGraph(solver.getEnvironment(),n,SetType.LINKED_LIST,true);
+		UndirectedGraph GLB = new UndirectedGraph(solver,n,SetType.LINKED_LIST,true);
+		UndirectedGraph GUB = new UndirectedGraph(solver,n,SetType.LINKED_LIST,true);
 		for (int i = 0; i < n; i++) {
             for (int j = i + 1; j < n; j++) {
                 if (matrix[i][j]) {

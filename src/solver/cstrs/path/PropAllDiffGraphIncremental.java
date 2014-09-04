@@ -97,7 +97,7 @@ public class PropAllDiffGraphIncremental extends Propagator<IDirectedGraphVar> {
         this.matchingCardinality = matchingCardinality;
         matching = new int[n2];
         nodeSCC = new int[n2];
-        digraph = new DirectedGraph(solver.getEnvironment(), n2, SetType.LINKED_LIST, false);
+        digraph = new DirectedGraph(solver, n2, SetType.LINKED_LIST, false);
         free = new BitSet(n2);
         if (g.isDirected()) {
             remProc = new DirectedRemProc();

@@ -31,6 +31,10 @@ import solver.constraints.Propagator;
 import solver.cstrs.arborescences.PropAntiArborescence;
 import solver.cstrs.arborescences.PropArborescence;
 import solver.cstrs.basic.*;
+import solver.cstrs.channeling.edges.*;
+import solver.cstrs.channeling.nodes.PropNodeBoolChannel;
+import solver.cstrs.channeling.nodes.PropNodeBoolsChannel;
+import solver.cstrs.channeling.nodes.PropNodeSetChannel;
 import solver.cstrs.degree.PropNodeDegree_AtLeast_Coarse;
 import solver.cstrs.degree.PropNodeDegree_AtLeast_Incr;
 import solver.cstrs.degree.PropNodeDegree_AtMost_Incr;
@@ -40,10 +44,7 @@ import solver.cstrs.trees.PropTreeNoSubtour;
 import solver.cstrs.tsp.undirected.PropCycleEvalObj;
 import solver.cstrs.tsp.undirected.PropCycleNoSubtour;
 import solver.cstrs.tsp.undirected.lagrangianRelaxation.PropLagr_OneTree;
-import solver.variables.IntVar;
-import solver.variables.VF;
-import solver.variables.IDirectedGraphVar;
-import solver.variables.IUndirectedGraphVar;
+import solver.variables.*;
 import util.objects.graphs.Orientation;
 import util.tools.ArrayUtils;
 
@@ -54,57 +55,189 @@ import util.tools.ArrayUtils;
  */
 public class GraphConstraintFactory {
 
-    //***********************************************************************************
-    // UNDIRECTED GRAPHS
-    //***********************************************************************************
+	//***********************************************************************************
+	// CHANNELING CONSTRAINTS
+	//***********************************************************************************
 
-    /**
-     * partition a graph variable into nCliques cliques
-     *
-     * @param GRAPHVAR   graph variable partitioned into cliques
-     * @param NB_CLIQUES expected number of cliques
-     * @return a constraint which partitions GRAPHVAR into NB_CLIQUES cliques
-     */
-    public static Constraint nCliques(IUndirectedGraphVar GRAPHVAR, IntVar NB_CLIQUES) {
+	// Vertices
+
+	public static Constraint nodesChanneling(IGraphVar g, SetVar nodes){
+		return new Constraint("nodesSetChanneling",
+				new PropNodeSetChannel(nodes,g));
+	}
+
+	public static Constraint nodesChanneling(IGraphVar g, BoolVar[] nodes){
+		return new Constraint("nodesBoolsChanneling",
+				new PropNodeBoolsChannel(nodes,g));
+	}
+
+	public static Constraint nodeChanneling(IGraphVar g, BoolVar isIn, int vertex){
+		return new Constraint("nodesBoolChanneling",
+				new PropNodeBoolChannel(isIn,vertex,g));
+	}
+
+	// Arc
+
+	public static Constraint arcChanneling(IDirectedGraphVar g, BoolVar isArc, int from, int to){
+		return new Constraint("arcChanneling",
+				new PropArcBoolChannel(isArc,from,to,g));
+	}
+
+	// Edge
+
+	public static Constraint edgeChanneling(IUndirectedGraphVar g, BoolVar isEdge, int vertex1, int vertex2){
+		return new Constraint("arcChanneling",
+				new PropArcBoolChannel(isEdge,vertex1,vertex2,g));
+	}
+
+	// Neighbors
+
+	public static Constraint neighborsChanneling(IUndirectedGraphVar g, SetVar[] neighbors){
+		return new Constraint("neighSetsChanneling",
+				new PropNeighSetsChannel1(neighbors,g),new PropNeighSetsChannel2(neighbors,g));
+
+	}
+
+	public static Constraint neighborsChanneling(IUndirectedGraphVar g, BoolVar[][] neighbors){
+		return new Constraint("neighBoolsChanneling",
+				new PropNeighBoolsChannel1(neighbors,g),new PropNeighBoolsChannel2(neighbors,g));
+	}
+
+	public static Constraint neighborsChanneling(IUndirectedGraphVar g, SetVar neighborsOf, int node){
+		return new Constraint("neighSetChanneling",
+				new PropNeighSetChannel(neighborsOf,node,g,new IncidentSet.SuccOrNeighSet()));
+	}
+
+	public static Constraint neighborsChanneling(IUndirectedGraphVar g, BoolVar[] neighborsOf, int node){
+		return new Constraint("neighBoolChanneling",
+				new PropNeighBoolChannel(neighborsOf,node,g,new IncidentSet.SuccOrNeighSet()));
+	}
+
+	// Successors
+
+	public static Constraint successorsChanneling(IDirectedGraphVar g, SetVar[] successors){
+		return new Constraint("succSetsChanneling",
+				new PropNeighSetsChannel1(successors,g),new PropNeighSetsChannel2(successors,g));
+	}
+
+	public static Constraint successorsChanneling(IDirectedGraphVar g, BoolVar[][] successors){
+		return new Constraint("succBoolsChanneling",
+				new PropNeighBoolsChannel1(successors,g),new PropNeighBoolsChannel2(successors,g));
+	}
+
+	public static Constraint successorsChanneling(IDirectedGraphVar g, SetVar successorsOf, int node){
+		return new Constraint("succSetChanneling",
+				new PropNeighSetChannel(successorsOf,node,g,new IncidentSet.SuccOrNeighSet()));
+	}
+
+	public static Constraint successorsChanneling(IDirectedGraphVar g, BoolVar[] successorsOf, int node){
+		return new Constraint("succBoolChanneling",
+				new PropNeighBoolChannel(successorsOf,node,g,new IncidentSet.SuccOrNeighSet()));
+	}
+
+	// Predecessors
+
+	public static Constraint predecessorsChanneling(IDirectedGraphVar g, SetVar predecessorsOf, int node){
+		return new Constraint("predSetChanneling",
+				new PropNeighSetChannel(predecessorsOf,node,g,new IncidentSet.PredOrNeighSet()));
+	}
+
+	public static Constraint predecessorsChanneling(IDirectedGraphVar g, BoolVar[] predecessorsOf, int node){
+		return new Constraint("predBoolChanneling",
+				new PropNeighBoolChannel(predecessorsOf,node,g,new IncidentSet.PredOrNeighSet()));
+
+	}
+
+
+	//***********************************************************************************
+	// GRAPH CONSTRAINTS
+	//***********************************************************************************
+
+	/**
+	 * Channeling between a graph variable GRAPH and set variables SETS
+	 * representing either node neighbors or node successors
+	 * <p/> arc (i,j) in GRAPH <=> j in SETS[i]
+	 *
+	 * @param SETS  set variables representing nodes neighbors (or successors if directed) in GRAPH
+	 * @param GRAPH a graph variable
+	 * @return a constraint ensuring that arc (i,j) in GRAPH <=> j in SETS[i]
+	 */
+	public static Constraint set_channeling(SetVar[] SETS, GraphVar GRAPH) {
+		if (GRAPH.isDirected()) {
+			return new Constraint("SetUndirectedGraphChannel",new PropSymmetric(SETS, 0),new PropGraphChannel(SETS, GRAPH));
+		}else{
+			return new Constraint("SetDirectedGraphChannel",new PropGraphChannel(SETS, GRAPH));
+		}
+	}
+
+	/**
+	 * Channeling between a directed graph variable GRAPH and set variables SUCCESSORS and PREDECESSORS
+	 * representing node successors and predecessors:
+	 * <p/> arc (i,j) in GRAPH <=> j in SUCCESSORS[i] and i in PREDECESSORS[j]
+	 *
+	 * @param SUCCESSORS   set variables representing nodes' successors in GRAPH
+	 * @param PREDECESSORS set variables representing nodes' predecessors in GRAPH
+	 * @param GRAPH        a graph variable
+	 * @return a constraint ensuring that arc (i,j) in GRAPH <=> j in SUCCESSORS[i] and i in PREDECESSORS[j]
+	 */
+	public static Constraint graph_channel(SetVar[] SUCCESSORS, SetVar[] PREDECESSORS, DirectedGraphVar GRAPH) {
+		return new Constraint("SetPartition",ArrayUtils.append(
+				graph_channel(SUCCESSORS, GRAPH).getPropagators(),
+				new Propagator[]{new PropInverse(SUCCESSORS, PREDECESSORS, 0, 0)})
+		);
+	}
+
+	//***********************************************************************************
+	// UNDIRECTED GRAPHS
+	//***********************************************************************************
+
+	/**
+	 * partition a graph variable into nCliques cliques
+	 *
+	 * @param GRAPHVAR   graph variable partitioned into cliques
+	 * @param NB_CLIQUES expected number of cliques
+	 * @return a constraint which partitions GRAPHVAR into NB_CLIQUES cliques
+	 */
+	public static Constraint nCliques(IUndirectedGraphVar GRAPHVAR, IntVar NB_CLIQUES) {
 		return new Constraint("NCliques",
 				new PropTransitivity(GRAPHVAR),
 				new PropKCliques(GRAPHVAR, NB_CLIQUES),
 				new PropKCC(GRAPHVAR, NB_CLIQUES)
 		);
-    }
+	}
 
-    /**
-     * Constraint modeling the Traveling Salesman Problem
-     *
-     * @param GRAPHVAR   graph variable representing a Hamiltonian cycle
-     * @param COSTVAR    variable representing the cost of the cycle
-     * @param EDGE_COSTS cost matrix (should be symmetric)
-     * @param HELD_KARP  use the Lagrangian relaxation of the tsp
-     *                   described by Held and Karp
-     *                   {0:noHK,1:HK,2:HK but wait a first solution before running it}
-     * @return a tsp constraint
-     */
-    public static Constraint tsp(IUndirectedGraphVar GRAPHVAR, IntVar COSTVAR, int[][] EDGE_COSTS, int HELD_KARP) {
+	/**
+	 * Constraint modeling the Traveling Salesman Problem
+	 *
+	 * @param GRAPHVAR   graph variable representing a Hamiltonian cycle
+	 * @param COSTVAR    variable representing the cost of the cycle
+	 * @param EDGE_COSTS cost matrix (should be symmetric)
+	 * @param HELD_KARP  use the Lagrangian relaxation of the tsp
+	 *                   described by Held and Karp
+	 *                   {0:noHK,1:HK,2:HK but wait a first solution before running it}
+	 * @return a tsp constraint
+	 */
+	public static Constraint tsp(IUndirectedGraphVar GRAPHVAR, IntVar COSTVAR, int[][] EDGE_COSTS, int HELD_KARP) {
 		Propagator[] props = ArrayUtils.append(hamiltonianCycle(GRAPHVAR).getPropagators(),
 				new Propagator[]{new PropCycleEvalObj(GRAPHVAR, COSTVAR, EDGE_COSTS)});
-        if (HELD_KARP > 0) {
-            PropLagr_OneTree hk = new PropLagr_OneTree(GRAPHVAR, COSTVAR, EDGE_COSTS);
-            hk.waitFirstSolution(HELD_KARP == 2);
+		if (HELD_KARP > 0) {
+			PropLagr_OneTree hk = new PropLagr_OneTree(GRAPHVAR, COSTVAR, EDGE_COSTS);
+			hk.waitFirstSolution(HELD_KARP == 2);
 			props = ArrayUtils.append(props,new Propagator[]{hk});
-        }
-        return new Constraint("Graph_TSP",props);
-    }
+		}
+		return new Constraint("Graph_TSP",props);
+	}
 
-    /**
-     * GRAPHVAR must form a Hamiltonian cycle
-     * <p/> Filtering algorithms are incremental and run in O(1) per enforced/removed edge.
-     * <p/> Subtour elimination is an undirected adaptation of the
-     * nocycle constraint of Caseau & Laburthe in Solving small TSPs with Constraints.
-     *
-     * @param GRAPHVAR graph variable representing a Hamiltonian cycle
-     * @return a hamiltonian cycle constraint
-     */
-    public static Constraint hamiltonianCycle(IUndirectedGraphVar GRAPHVAR) {
+	/**
+	 * GRAPHVAR must form a Hamiltonian cycle
+	 * <p/> Filtering algorithms are incremental and run in O(1) per enforced/removed edge.
+	 * <p/> Subtour elimination is an undirected adaptation of the
+	 * nocycle constraint of Caseau & Laburthe in Solving small TSPs with Constraints.
+	 *
+	 * @param GRAPHVAR graph variable representing a Hamiltonian cycle
+	 * @return a hamiltonian cycle constraint
+	 */
+	public static Constraint hamiltonianCycle(IUndirectedGraphVar GRAPHVAR) {
 		int m = 0;
 		int n = GRAPHVAR.getNbMaxNodes();
 		for(int i=0;i<n;i++){
@@ -124,7 +257,7 @@ public class GraphConstraintFactory {
 					new PropCycleNoSubtour(GRAPHVAR)
 			);
 		}
-    }
+	}
 
 	/**
 	 * GRAPHVAR must form a spanning tree, i.e. an acyclic and connected undirected graph spanning every vertex
@@ -160,33 +293,33 @@ public class GraphConstraintFactory {
 		);
 	}
 
-    //***********************************************************************************
-    // DIRECTED GRAPHS
-    //***********************************************************************************
+	//***********************************************************************************
+	// DIRECTED GRAPHS
+	//***********************************************************************************
 
-    /**
-     * GRAPHVAR must form a Hamiltonian path from ORIGIN to DESTINATION.
-     * <p/> Basic filtering algorithms are incremental and run in O(1) per enforced/removed arc.
-     * <p/> Subtour elimination is the nocycle constraint of Caseau & Laburthe in Solving small TSPs with Constraints.
-     * <p/>
-     * <p/> Assumes that ORIGIN has no predecessor, DESTINATION has no successor and each node is mandatory.
-     *
-     * @param GRAPHVAR      variable representing a path
-     * @param ORIGIN        first node of the path
-     * @param DESTINATION   last node of the path
-     * @param STRONG_FILTER true iff it should be worth to spend time on advanced filtering algorithms (that runs
-     *                      in linear time). If so, then it uses dominator-based and SCCs-based filtering algorithms. This option should
-     *                      be used on small-size.
-     * @return a hamiltonian path constraint
-     */
-    public static Constraint hamiltonianPath(IDirectedGraphVar GRAPHVAR, int ORIGIN, int DESTINATION, boolean STRONG_FILTER) {
-        int n = GRAPHVAR.getNbMaxNodes();
-        int[] succs = new int[n];
-        int[] preds = new int[n];
-        for (int i = 0; i < n; i++) {
-            succs[i] = preds[i] = 1;
-        }
-        succs[DESTINATION] = preds[ORIGIN] = 0;
+	/**
+	 * GRAPHVAR must form a Hamiltonian path from ORIGIN to DESTINATION.
+	 * <p/> Basic filtering algorithms are incremental and run in O(1) per enforced/removed arc.
+	 * <p/> Subtour elimination is the nocycle constraint of Caseau & Laburthe in Solving small TSPs with Constraints.
+	 * <p/>
+	 * <p/> Assumes that ORIGIN has no predecessor, DESTINATION has no successor and each node is mandatory.
+	 *
+	 * @param GRAPHVAR      variable representing a path
+	 * @param ORIGIN        first node of the path
+	 * @param DESTINATION   last node of the path
+	 * @param STRONG_FILTER true iff it should be worth to spend time on advanced filtering algorithms (that runs
+	 *                      in linear time). If so, then it uses dominator-based and SCCs-based filtering algorithms. This option should
+	 *                      be used on small-size.
+	 * @return a hamiltonian path constraint
+	 */
+	public static Constraint hamiltonianPath(IDirectedGraphVar GRAPHVAR, int ORIGIN, int DESTINATION, boolean STRONG_FILTER) {
+		int n = GRAPHVAR.getNbMaxNodes();
+		int[] succs = new int[n];
+		int[] preds = new int[n];
+		for (int i = 0; i < n; i++) {
+			succs[i] = preds[i] = 1;
+		}
+		succs[DESTINATION] = preds[ORIGIN] = 0;
 		Propagator[] props = new Propagator[]{
 				new PropNodeDegree_AtLeast_Coarse(GRAPHVAR, Orientation.SUCCESSORS, succs),
 				new PropNodeDegree_AtMost_Incr(GRAPHVAR, Orientation.SUCCESSORS, succs),
@@ -200,22 +333,22 @@ public class GraphConstraintFactory {
 			PropAllDiffGraphIncremental ad = new PropAllDiffGraphIncremental(GRAPHVAR, n - 1);
 			props = ArrayUtils.append(props,ArrayUtils.toArray(arbo, aa, ad));
 		}
-        return new Constraint("Graph_HamiltonianPath",props);
-    }
+		return new Constraint("Graph_HamiltonianPath",props);
+	}
 
-    /**
-     * Anti arborescence partitioning constraint
-     * also known as tree constraint (CP'11)
-     * GAC in (almost) linear time : O(alpha.m)
-     * roots are identified by loops
-     * <p/>
-     * BEWARE this implementation supposes that every node is part of the solution graph
-     *
-     * @param GRAPHVAR
-     * @param NB_TREE  number of anti arborescences
-     * @return tree constraint
-     */
-    public static Constraint nTrees(IDirectedGraphVar GRAPHVAR, IntVar NB_TREE) {
-        return new NTree(GRAPHVAR, NB_TREE);
-    }
+	/**
+	 * Anti arborescence partitioning constraint
+	 * also known as tree constraint (CP'11)
+	 * GAC in (almost) linear time : O(alpha.m)
+	 * roots are identified by loops
+	 * <p/>
+	 * BEWARE this implementation supposes that every node is part of the solution graph
+	 *
+	 * @param GRAPHVAR
+	 * @param NB_TREE  number of anti arborescences
+	 * @return tree constraint
+	 */
+	public static Constraint nTrees(IDirectedGraphVar GRAPHVAR, IntVar NB_TREE) {
+		return new NTree(GRAPHVAR, NB_TREE);
+	}
 }

@@ -94,8 +94,8 @@ public class SubCircuitProblem extends AbstractProblem {
 	@Override
 	public void buildModel() {
 		// create model
-		DirectedGraph GLB = new DirectedGraph(solver.getEnvironment(), n, SetType.LINKED_LIST, false);
-		DirectedGraph GUB = new DirectedGraph(solver.getEnvironment(), n, gt, false);
+		DirectedGraph GLB = new DirectedGraph(solver, n, SetType.LINKED_LIST, false);
+		DirectedGraph GUB = new DirectedGraph(solver, n, gt, false);
 		for (int i = 0; i < n; i++) {
 			if(!adjacencyMatrix[i][i]){
 				GLB.activateNode(i);

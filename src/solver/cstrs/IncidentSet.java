@@ -32,20 +32,62 @@
  * Time: 22:08
  */
 
-package solver.cstrs.degree;
+package solver.cstrs;
 
 import solver.ICause;
 import solver.exception.ContradictionException;
 import solver.variables.IGraphVar;
 import util.objects.setDataStructures.ISet;
 
-interface IncidentSet {
+public interface IncidentSet {
 
 	ISet getPotSet(IGraphVar graph, int i);
 
 	ISet getMandSet(IGraphVar graph, int i);
 
-    void enforce(IGraphVar g, int from, int to, ICause cause) throws ContradictionException;
+	void enforce(IGraphVar g, int from, int to, ICause cause) throws ContradictionException;
 
-    void remove(IGraphVar g, int from, int to, ICause cause) throws ContradictionException;
+	void remove(IGraphVar g, int from, int to, ICause cause) throws ContradictionException;
+
+	public class SuccOrNeighSet implements IncidentSet {
+
+		@Override
+		public ISet getPotSet(IGraphVar graph, int i) {
+			return graph.getPotSuccOrNeighOf(i);
+		}
+
+		@Override
+		public ISet getMandSet(IGraphVar graph, int i) {
+			return graph.getMandSuccOrNeighOf(i);
+		}
+
+		@Override
+		public void enforce(IGraphVar g, int from, int to, ICause cause) throws ContradictionException {
+			g.enforceArc(from, to, cause);
+		}
+
+		@Override
+		public void remove(IGraphVar g, int from, int to, ICause cause) throws ContradictionException {
+			g.removeArc(from, to, cause);
+		}
+	}
+
+	public class PredOrNeighSet implements IncidentSet {
+		@Override
+		public ISet getPotSet(IGraphVar graph, int i) {
+			return graph.getPotPredOrNeighOf(i);
+		}
+		@Override
+		public ISet getMandSet(IGraphVar graph, int i) {
+			return graph.getMandPredOrNeighOf(i);
+		}
+		@Override
+		public void enforce(IGraphVar g, int from, int to, ICause cause) throws ContradictionException {
+			g.enforceArc(to, from, cause);
+		}
+		@Override
+		public void remove(IGraphVar g, int from, int to, ICause cause) throws ContradictionException {
+			g.removeArc(to, from, cause);
+		}
+	}
 }

@@ -95,8 +95,8 @@ public class HamiltonianPathTest {
 		Solver solver = new Solver();
 		int n = matrix.length;
 		// build model
-		DirectedGraph GLB = new DirectedGraph(solver.getEnvironment(),n,SetType.LINKED_LIST,true);
-		DirectedGraph GUB = new DirectedGraph(solver.getEnvironment(),n,SetType.LINKED_LIST,true);
+		DirectedGraph GLB = new DirectedGraph(solver,n,SetType.LINKED_LIST,true);
+		DirectedGraph GUB = new DirectedGraph(solver,n,SetType.LINKED_LIST,true);
 		for (int i = 0; i < n - 1; i++) {
 			for (int j = 1; j < n; j++) {
 				if (matrix[i][j]) {

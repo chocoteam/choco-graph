@@ -68,8 +68,8 @@ public class TransitiveClosure extends AbstractProblem{
 		// VARIABLE COUNTING THE NUMBER OF ARCS IN THE TC
 		nbArcs = VF.bounded("edgeCount", 0, n * n, solver);
 		// TRANSITIVE CLOSURE VARIABLE : initial domain
-		DirectedGraph GLB = new DirectedGraph(solver.getEnvironment(), n, SetType.BITSET, true);
-		DirectedGraph GUB = new DirectedGraph(solver.getEnvironment(), n, SetType.BITSET, true);
+		DirectedGraph GLB = new DirectedGraph(solver, n, SetType.BITSET, true);
+		DirectedGraph GUB = new DirectedGraph(solver, n, SetType.BITSET, true);
 		for (int i = 0; i < n; i++) {
 			GUB.addArc(i, i);			// potential loop
 			GLB.addArc(i, i);			// mandatory loop

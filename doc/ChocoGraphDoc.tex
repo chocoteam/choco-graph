@@ -1,0 +1,195 @@
+%*****************************************************************************************
+% STUFFS
+%*****************************************************************************************
+\documentclass{doc}
+\usepackage{times}
+\usepackage{latexsym}
+\usepackage{amsfonts}
+\usepackage{amsmath} 
+\usepackage{pifont}
+\usepackage{subfig}
+\usepackage[latin1]{inputenc} 													
+\usepackage[T1]{fontenc}     			 															
+\usepackage{graphicx}		
+\usepackage{amssymb}		
+\usepackage{textcomp}																						
+\usepackage{amsmath}		
+\usepackage{algorithm}
+\usepackage{cancel}
+\usepackage{algpseudocode}
+\usepackage{multirow}
+\usepackage{latexsym}
+\usepackage{listings}
+
+% Tikz
+\usepackage{pgfplots}
+\usepackage{tikz}
+\usetikzlibrary{calc}
+\tikzstyle{myLabel}=[minimum height=\myShiftHeight, anchor=south west]
+\tikzstyle{myLDashed}=[draw, loosely dashed]
+\tikzstyle{myDDashed}=[draw, densely dashed]
+\tikzstyle{myAxis}=[draw, ->]
+\tikzstyle{vertex}=[circle,draw,fill=black!25,minimum size=10pt,inner sep=0pt]
+\tikzstyle{selectedVertex}=[circle,fill=white,draw,thick,minimum size=15pt,inner sep=0pt]
+\tikzstyle{edge} = [draw,-]
+\tikzstyle{weight} = [font=\small]
+
+% --- 
+\begin{document}
+%*****************************************************************************************
+% TITLE
+%*****************************************************************************************
+\author{Jean-Guillaume Fages \and Charles Prud'homme \institute{ChocoTeam, \\ choco3-support@mines-nantes.fr, \\ TASC - Ecole des Mines de Nantes,  LINA, CNRS, INRIA}}                       
+\title{Choco-Graph : a module for graph variables in Choco}
+\maketitle
+
+\newcommand{\GV}{\ensuremath{\mathcal{G}}}
+\newcommand{\GLB}{\ensuremath{\underline{\mathcal{G}}}}
+\newcommand{\GUB}{\ensuremath{\overline{\mathcal{G}}}}
+
+\section{Overview}
+
+This Choco module allows you to search for a graph\footnote{Either directed or undirected, with at most one arc/edge between any two vertices. }, which may be subject to constraints. 
+%
+The domain of a graph variable \GV{} is a graph interval $[\GLB{},\GUB{}]$. \GLB{} is the graph representing vertices and edges which must belong to any single solution whereas \GUB{} is the graph representing vertices and edges which may belong to one solution. Therefore, any value $\GV{}^*$ must satisfy the graph inclusion $\GLB{} \subseteq \GV{}^* \subseteq \GUB{}$. One may see a strong connection with set variables.
+%
+A graph variable can be subject to graph constraints to ensure global graph properties (e.g. connectedness, acyclicity) and channeling constraints to link the graph variable with some other binary, integer or set variables. 
+%
+The solving process consists of removing nodes and edges from \GUB{} and adding some others to \GLB{} until having $\GLB{} = \GUB{}$, i.e. until \GV{} gets instantiated. These operations stem from both constraint propagation and search. 
+
+\section{Defining a graph variable}
+
+Graph variables can be created through \texttt{GraphVarFactory.java}:
+
+\lstset{language=Java} 
+
+\definecolor{javared}{rgb}{0.6,0,0} % for strings
+\definecolor{javagreen}{rgb}{0.25,0.5,0.35} % comments
+\definecolor{javapurple}{rgb}{0.5,0,0.35} % keywords
+\definecolor{javadocblue}{rgb}{0.25,0.35,0.75} % javadoc
+ 
+\lstset{language=Java,
+basicstyle=\scriptsize{},
+keywordstyle=\color{javapurple}\bfseries,
+stringstyle=\color{javared},
+commentstyle=\color{javagreen},
+morecomment=[s][\color{javadocblue}]{/**}{*/},
+numbers=left,
+numberstyle=\tiny\color{black},
+stepnumber=0,
+numbersep=10pt,
+tabsize=4,
+showspaces=false,
+showstringspaces=false}
+
+\begin{lstlisting}
+
+/**
+ * Create an undirected graph variable named NAME
+ * and whose domain is the graph interval [LB,UB]
+ * BEWARE: LB and UB graphs must be backtrackable 
+ * (use the solver as an argument in their constructor)!
+ *
+ * @param NAME		Name of the variable
+ * @param LB		Undirected graph representing mandatory nodes and edges
+ * @param UB		Undirected graph representing possible nodes and edges
+ * @param SOLVER	Solver of the variable
+ * @return	An undirected graph variable
+ */
+public static IUndirectedGraphVar undirectedGraph(String NAME, 
+										UndirectedGraph LB, 
+										UndirectedGraph UB, 
+										Solver SOLVER) {
+	return new UndirectedGraphVar(NAME, SOLVER, LB, UB);
+}
+
+/**
+ * Create a directed graph variable named NAME
+ * and whose domain is the graph interval [LB,UB]
+ * BEWARE: LB and UB graphs must be backtrackable 
+ * (use the solver as an argument in their constructor)!
+ *
+ * @param NAME		Name of the variable
+ * @param LB		Directed graph representing mandatory nodes and edges
+ * @param UB		Directed graph representing possible nodes and edges
+ * @param SOLVER	Solver of the variable
+ * @return	An undirected graph variable
+ */
+public static IDirectedGraphVar directedGraph(String NAME, 
+									DirectedGraph LB, 
+									DirectedGraph UB, 
+									Solver SOLVER) {
+	return new DirectedGraphVar(NAME, SOLVER, LB, UB);
+}
+\end{lstlisting}
+
+Note the the bound graphs must be able to restore their value upon backtracking. 
+Therefore, you should use the following signatures:
+\begin{lstlisting}
+new UndirectedGraph(Solver solver, int n, SetType type, boolean allNodes)
+new DirectedGraph(Solver solver, int n, SetType type, boolean allNodes)
+\end{lstlisting}
+
+The \texttt{Solver} provides a backtracking environment. The integer \texttt{n} denotes the maximum number of nodes. 
+This is necessary for memory allocation. \texttt{SetType type} indicates which kind of data structure to use. 
+Finally, the boolean \texttt{allNodes} indicates whether or not the node set is fixed. This parameter is very important. Whenever set to true, it means that the vertex set is $[0,n]$ and will not change during search. It is not necessary to add vertices explicitly. If set to false, it means that the vertex set must be a subset of $[0,n]$, and is initially EMPTY. Therefore, the user may have to add them explicitely (see the following example with \texttt{GUB.activateNode(i);}).
+
+Here is an example involving an undirected graph variable:
+
+\begin{lstlisting}
+// graph variable domain
+UndirectedGraph GLB = new UndirectedGraph(
+										solver,			// Restore value on backtrack
+										n,				// Maximal number of nodes
+										SetType.BITSET,	// data structure type
+										false			// fixed node set?
+									);
+UndirectedGraph GUB = new UndirectedGraph(
+										solver,			// Restore value on backtrack
+										n,				// Maximal number of nodes
+										SetType.BITSET,	// data structure type
+										false			// fixed node set?
+									);
+for (int i = 0; i < n; i++) {
+	GUB.activateNode(i);			// potential node
+	GUB.addEdge(i, i);				// potential loop
+	for (int j = i + 1; j < n; j++) {
+		if (link[i][j]) {
+			GUB.addEdge(i, j);		// potential edge
+		}
+	}
+}
+GLB.activateNode(1);				// 1 and 2 must belong to the solution
+GLB.activateNode(2);
+GLB.addEdge(1,2);					// 1 and 2 must belong to the same clique
+// graph variable
+graphvar = GraphVarFactory.undirectedGraph("G", GLB, GUB, solver);
+\end{lstlisting}
+
+In this example, we see that vertices $1$ and $2$ must belong to every solution, as well as the edge $(1,2)$. 
+Other potential vertices and edges are given by \texttt{GUB}.
+
+You should NOT use the signatures that do not have the solver in argument (they do not restore value upon backtracking):
+\begin{lstlisting}
+new UndirectedGraph(int n, SetType type, boolean allNodes)
+new DirectedGraph(int n, SetType type, boolean allNodes)
+\end{lstlisting}
+
+\section{Constraining a graph variable}
+
+A collection of constraints over a graph variable can be found in \texttt{GraphConstraintFactory.java}.
+
+\subsection{Graph constraints}
+
+\subsection{Channeling constraints}
+
+\subsubsection{Set channeling}
+
+\subsubsection{Boolean channeling}
+
+\subsubsection{Integer channeling}
+
+\section{Applications}
+
+
+\end{document}

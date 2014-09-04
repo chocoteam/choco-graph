@@ -27,16 +27,15 @@
 
 package solver.cstrs.degree;
 
-import solver.ICause;
 import solver.constraints.Propagator;
 import solver.constraints.PropagatorPriority;
+import solver.cstrs.IncidentSet;
 import solver.exception.ContradictionException;
 import solver.variables.EventType;
 import solver.variables.IDirectedGraphVar;
 import solver.variables.IGraphVar;
 import solver.variables.IUndirectedGraphVar;
 import util.ESat;
-import util.objects.graphs.IGraph;
 import util.objects.graphs.Orientation;
 import util.objects.setDataStructures.ISet;
 
@@ -69,10 +68,10 @@ public class PropNodeDegree_AtLeast_Coarse extends Propagator<IGraphVar> {
 		this.degrees = degrees;
         switch (setType) {
             case SUCCESSORS:
-                target = new SNIS();
+                target = new IncidentSet.SuccOrNeighSet();
                 break;
             case PREDECESSORS:
-                target = new PIS();
+                target = new IncidentSet.PredOrNeighSet();
                 break;
             default:
                 throw new UnsupportedOperationException();
@@ -85,7 +84,7 @@ public class PropNodeDegree_AtLeast_Coarse extends Propagator<IGraphVar> {
 
     public PropNodeDegree_AtLeast_Coarse(IUndirectedGraphVar graph, int[] degrees) {
         super(new IUndirectedGraphVar[]{graph}, PropagatorPriority.BINARY, false);
-        target = new SNIS();
+        target = new IncidentSet.SuccOrNeighSet();
         g = graph;
 		this.degrees = degrees;
     }
@@ -147,52 +146,6 @@ public class PropNodeDegree_AtLeast_Coarse extends Propagator<IGraphVar> {
             for (int s = nei.getFirstElement(); s >= 0; s = nei.getNextElement()) {
                 target.enforce(g, i, s, aCause);
             }
-        }
-    }
-
-    private class SNIS implements IncidentSet {
-
-		@Override
-		public ISet getPotSet(IGraphVar graph, int i) {
-			return graph.getPotSuccOrNeighOf(i);
-		}
-
-		@Override
-		public ISet getMandSet(IGraphVar graph, int i) {
-			return graph.getMandSuccOrNeighOf(i);
-		}
-
-        @Override
-        public void enforce(IGraphVar g, int from, int to, ICause cause) throws ContradictionException {
-            g.enforceArc(from, to, cause);
-        }
-
-        @Override
-        public void remove(IGraphVar g, int from, int to, ICause cause) throws ContradictionException {
-            g.removeArc(from, to, cause);
-        }
-    }
-
-    private class PIS implements IncidentSet {
-
-		@Override
-		public ISet getPotSet(IGraphVar graph, int i) {
-			return graph.getPotPredOrNeighOf(i);
-		}
-
-		@Override
-		public ISet getMandSet(IGraphVar graph, int i) {
-			return graph.getMandPredOrNeighOf(i);
-		}
-
-        @Override
-        public void enforce(IGraphVar g, int from, int to, ICause cause) throws ContradictionException {
-            g.enforceArc(to, from, cause);
-        }
-
-        @Override
-        public void remove(IGraphVar g, int from, int to, ICause cause) throws ContradictionException {
-            g.removeArc(to, from, cause);
         }
     }
 }

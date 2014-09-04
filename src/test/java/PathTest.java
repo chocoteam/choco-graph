@@ -55,8 +55,8 @@ public class PathTest {
 
 	public static Solver model(int n, int seed, boolean path, boolean arbo, boolean RG, long nbMaxSols) {
 		Solver s = new Solver();
-		DirectedGraph GLB = new DirectedGraph(s.getEnvironment(),n,graphTypeKer,true);
-		DirectedGraph GUB = new DirectedGraph(s.getEnvironment(),n,graphTypeEnv,true);
+		DirectedGraph GLB = new DirectedGraph(s,n,graphTypeKer,true);
+		DirectedGraph GUB = new DirectedGraph(s,n,graphTypeEnv,true);
 		for (int i = 0; i < n - 1; i++) {
 			for (int j = 1; j < n; j++) {
 				GUB.addArc(i, j);

@@ -10,3 +10,11 @@ lib/testng-6.8.8.jar
 *.ipr
 
 *.iml
+
+*.gz
+
+*.log
+
+*.aux
+
+doc/ChocoGraphDoc.pdf

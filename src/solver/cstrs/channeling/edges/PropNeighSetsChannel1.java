@@ -32,7 +32,7 @@
  * Time: 16:36
  */
 
-package solver.cstrs.channeling;
+package solver.cstrs.channeling.edges;
 
 import solver.constraints.Propagator;
 import solver.constraints.PropagatorPriority;
@@ -40,14 +40,10 @@ import solver.exception.ContradictionException;
 import solver.variables.EventType;
 import solver.variables.IGraphVar;
 import solver.variables.SetVar;
-import solver.variables.Variable;
 import solver.variables.delta.IGraphDeltaMonitor;
-import solver.variables.delta.ISetDeltaMonitor;
 import util.ESat;
 import util.objects.setDataStructures.ISet;
-import util.procedure.IntProcedure;
 import util.procedure.PairProcedure;
-import util.tools.ArrayUtils;
 
 /**
  * Channeling between a graph variable and set variables
@@ -55,18 +51,16 @@ import util.tools.ArrayUtils;
  *
  * @author Jean-Guillaume Fages
  */
-public class PropGraphChannel extends Propagator<Variable> {
+public class PropNeighSetsChannel1 extends Propagator<IGraphVar> {
 
     //***********************************************************************************
     // VARIABLES
     //***********************************************************************************
 
-    private int n, currentSet;
-    private ISetDeltaMonitor[] sdm;
+    private int n;
     private SetVar[] sets;
     private IGraphDeltaMonitor gdm;
     private IGraphVar g;
-    private IntProcedure elementForced, elementRemoved;
     private PairProcedure arcForced, arcRemoved;
 
     //***********************************************************************************
@@ -80,42 +74,32 @@ public class PropGraphChannel extends Propagator<Variable> {
      * @param setsV
      * @param gV
      */
-    public PropGraphChannel(SetVar[] setsV, IGraphVar gV) {
-        super(ArrayUtils.append(setsV, new Variable[]{gV}), PropagatorPriority.LINEAR, true);
+    public PropNeighSetsChannel1(SetVar[] setsV, IGraphVar gV) {
+        super(new IGraphVar[]{gV}, PropagatorPriority.LINEAR, true);
         this.sets = new SetVar[setsV.length];
         for (int i = 0; i < setsV.length; i++) {
             this.sets[i] = (SetVar) vars[i];
         }
         n = sets.length;
-        this.g = (IGraphVar) vars[n];
+        this.g = gV;
         assert (n == g.getNbMaxNodes());
-        sdm = new ISetDeltaMonitor[n];
-        for (int i = 0; i < n; i++) {
-            sdm[i] = sets[i].monitorDelta(this);
-        }
         gdm = g.monitorDelta(this);
-        elementForced = new IntProcedure() {
-            @Override
-            public void execute(int element) throws ContradictionException {
-                g.enforceArc(currentSet, element, aCause);
-            }
-        };
-        elementRemoved = new IntProcedure() {
-            @Override
-            public void execute(int element) throws ContradictionException {
-                g.removeArc(currentSet, element, aCause);
-            }
-        };
         arcForced = new PairProcedure() {
             @Override
             public void execute(int i, int j) throws ContradictionException {
                 sets[i].addToKernel(j, aCause);
+				if(!g.isDirected()){
+					sets[j].addToKernel(i,aCause);
+				}
             }
         };
         arcRemoved = new PairProcedure() {
             @Override
             public void execute(int i, int j) throws ContradictionException {
                 sets[i].removeFromEnvelope(j, aCause);
+				if(!g.isDirected()){
+					sets[j].removeFromEnvelope(i,aCause);
+				}
             }
         };
     }
@@ -125,56 +109,33 @@ public class PropGraphChannel extends Propagator<Variable> {
     //***********************************************************************************
 
     @Override
-    public int getPropagationConditions(int vIdx) {
-        if (vIdx < n) {
-            return EventType.ADD_TO_KER.mask + EventType.REMOVE_FROM_ENVELOPE.mask;
-        } else {
-            return EventType.ENFORCEARC.mask + EventType.REMOVEARC.mask;
-        }
-    }
-
-    @Override
     public void propagate(int evtmask) throws ContradictionException {
         for (int i = 0; i < n; i++) {
-            for (int j=sets[i].getKernelFirst(); j!=SetVar.END; j=sets[i].getKernelNext()) {
-                g.enforceArc(i, j, aCause);
-            }
-            ISet tmp = g.getPotSuccOrNeighOf(i);
+            ISet tmp = g.getMandSuccOrNeighOf(i);
             for (int j = tmp.getFirstElement(); j >= 0; j = tmp.getNextElement()) {
                 sets[i].addToKernel(j, aCause);
+				if(!g.isDirected()){
+					sets[j].addToKernel(i,aCause);
+				}
             }
             for (int j=sets[i].getEnvelopeFirst(); j!=SetVar.END; j=sets[i].getEnvelopeNext()) {
                 if (!g.getPotSuccOrNeighOf(i).contain(j)) {
                     sets[i].removeFromEnvelope(j, aCause);
+					if(!g.isDirected()){
+						sets[j].removeFromEnvelope(i,aCause);
+					}
                 }
             }
-            tmp = g.getPotSuccOrNeighOf(i);
-            for (int j = tmp.getFirstElement(); j >= 0; j = tmp.getNextElement()) {
-                if (!sets[i].envelopeContains(j)) {
-                    g.removeArc(i, j, aCause);
-                }
-            }
-        }
-        for (int i = 0; i < n; i++) {
-            sdm[i].unfreeze();
         }
         gdm.unfreeze();
     }
 
     @Override
     public void propagate(int idxVarInProp, int mask) throws ContradictionException {
-        if (idxVarInProp == n) {
-            gdm.freeze();
-            gdm.forEachArc(arcForced, EventType.ENFORCEARC);
-            gdm.forEachArc(arcRemoved, EventType.REMOVEARC);
-            gdm.unfreeze();
-        } else {
-            currentSet = idxVarInProp;
-            sdm[currentSet].freeze();
-            sdm[currentSet].forEach(elementForced, EventType.ADD_TO_KER);
-            sdm[currentSet].forEach(elementRemoved, EventType.REMOVE_FROM_ENVELOPE);
-            sdm[currentSet].unfreeze();
-        }
+		gdm.freeze();
+		gdm.forEachArc(arcForced, EventType.ENFORCEARC);
+		gdm.forEachArc(arcRemoved, EventType.REMOVEARC);
+		gdm.unfreeze();
     }
 
     @Override

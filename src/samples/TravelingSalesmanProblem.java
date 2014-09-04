@@ -102,8 +102,8 @@ public class TravelingSalesmanProblem extends AbstractProblem {
         // variables
         totalCost = VariableFactory.bounded("obj", 0, 9999999, solver);
         // creates a graph containing n nodes
-		UndirectedGraph GLB = new UndirectedGraph(solver.getEnvironment(), n, SetType.LINKED_LIST, true);
-		UndirectedGraph GUB = new UndirectedGraph(solver.getEnvironment(), n, SetType.SWAP_ARRAY, true);
+		UndirectedGraph GLB = new UndirectedGraph(solver, n, SetType.LINKED_LIST, true);
+		UndirectedGraph GUB = new UndirectedGraph(solver, n, SetType.SWAP_ARRAY, true);
         // adds potential edges
         for (int i = 0; i < n; i++) {
             for (int j = i + 1; j < n; j++) {
