@@ -28,12 +28,11 @@
 package samples;
 
 import solver.Solver;
+import solver.constraints.set.SCF;
 import solver.cstrs.GraphConstraintFactory;
 import solver.search.loop.monitors.IMonitorSolution;
 import solver.search.GraphStrategyFactory;
-import solver.variables.GraphVarFactory;
-import solver.variables.VariableFactory;
-import solver.variables.IUndirectedGraphVar;
+import solver.variables.*;
 import util.objects.graphs.UndirectedGraph;
 import util.objects.setDataStructures.SetType;
 
@@ -88,6 +87,11 @@ public class CliqueEnumeration extends AbstractProblem {
 		GLB.addEdge(1,2);					// 1 and 2 must belong to the same clique
 		// graph variable
 		graphvar = GraphVarFactory.undirectedGraph("G", GLB, GUB, solver);
+
+		SetVar vertices = GraphVarFactory.nodes_set(graphvar);
+		IntVar card = VF.fixed(3,solver);
+		solver.post(SCF.cardinality(vertices, card));
+
 		// constraint : the graph must be a clique
 		solver.post(GraphConstraintFactory.nCliques(graphvar, VariableFactory.fixed(1, solver)));
 	}

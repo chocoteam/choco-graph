@@ -183,11 +183,67 @@ A collection of constraints over a graph variable can be found in \texttt{GraphC
 
 \subsection{Channeling constraints}
 
-\subsubsection{Set channeling}
+A wide range of channeling constraints are provided in \texttt{GraphConstraintFactory.java} (or \texttt{GCF.java} for short). These constraints enables to link boolean of set variables to a graph variables. This enables to post some usual (e.g. cardinality) constraints over some vertex sets of some edge sets. 
 
-\subsubsection{Boolean channeling}
+Note that you do not have to create such channeling variables yourself : \texttt{GraphVarFactory.java} does it for you! 
+See for instance the static method \texttt{nodes\_set} which creates a set variables associates to the nodes of the graph variable given in parameter. 
+Here is an example showing how to constrain the number of vertices of a graph variable $g$: 
 
-\subsubsection{Integer channeling}
+\begin{lstlisting}
+SetVar vertices = GraphVarFactory.nodes_set(g);
+IntVar card = VF.fixed(3,solver);
+solver.post(SCF.cardinality(vertices, card));
+\end{lstlisting}
+
+In the same way, one can want to constraint outgoing (resp. ingoing) arcs of a vertex, by extracting such arcs in a set variable. 
+
+\subsubsection{Set channeling}~\\
+
+A set variable can be associated with: 
+\begin{itemize}
+\item Nodes of a graph variable
+\item Neighbors of one node of an undirected graph variable
+\item Successors of one node of a directed graph variable
+\item Predecessors of one node of a directed graph variable
+\end{itemize}
+
+An array of set variables can be associated with: 
+\begin{itemize}
+\item Neighbors of every node of an undirected graph variable
+\item Successors of every node of a directed graph variable
+\item Predecessors of every node of a directed graph variable
+\end{itemize}
+
+\subsubsection{Boolean channeling}~\\
+
+A boolean variable can be associated with: 
+\begin{itemize}
+\item a node of a graph variable
+\item An edge of an undirected graph variable
+\item An arc of one node of a directed graph variable
+\end{itemize}
+
+An array of boolean variables can be associated with: 
+\begin{itemize}
+\item Nodes of a graph variable
+\item Neighbors of a node of an undirected graph variable
+\item Successors of a node of a directed graph variable
+\item Predecessors of a node of a directed graph variable
+\end{itemize}
+
+A matrix of boolean variables can be associated with: 
+\begin{itemize}
+\item The adjacency matrix of a graph variables
+\end{itemize}
+
+\subsubsection{Integer channeling}~\\
+
+An array of integer variables can be associated with: 
+\begin{itemize}
+\item Successors of a directed graph variable for which each node belongs to the solution and has exactly one successor
+\end{itemize}
+
+\section{Search}
 
 \section{Applications}
 
