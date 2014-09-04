@@ -61,16 +61,35 @@ public class GraphConstraintFactory {
 
 	// Vertices
 
+	/**
+	 * Channeling constraint :
+	 * int i in nodes <=> vertex i in g
+	 * @param g
+	 * @param nodes
+	 */
 	public static Constraint nodesChanneling(IGraphVar g, SetVar nodes){
 		return new Constraint("nodesSetChanneling",
 				new PropNodeSetChannel(nodes,g));
 	}
 
+	/**
+	 * Channeling constraint :
+	 * nodes[i] = 1 <=> vertex i in g
+	 * @param g
+	 * @param nodes
+	 */
 	public static Constraint nodesChanneling(IGraphVar g, BoolVar[] nodes){
 		return new Constraint("nodesBoolsChanneling",
 				new PropNodeBoolsChannel(nodes,g));
 	}
 
+	/**
+	 * Channeling constraint :
+	 * isIn = 1 <=> vertex 'vertex' in g
+	 * @param g
+	 * @param isIn
+	 * @param vertex
+	 */
 	public static Constraint nodeChanneling(IGraphVar g, BoolVar isIn, int vertex){
 		return new Constraint("nodesBoolChanneling",
 				new PropNodeBoolChannel(isIn,vertex,g));
@@ -78,6 +97,14 @@ public class GraphConstraintFactory {
 
 	// Arc
 
+	/**
+	 * Channeling constraint :
+	 * isArc = 1 <=> arc (from,to) in g
+	 * @param g
+	 * @param isArc
+	 * @param from
+	 * @param to
+	 */
 	public static Constraint arcChanneling(IDirectedGraphVar g, BoolVar isArc, int from, int to){
 		return new Constraint("arcChanneling",
 				new PropArcBoolChannel(isArc,from,to,g));
@@ -85,29 +112,63 @@ public class GraphConstraintFactory {
 
 	// Edge
 
-	public static Constraint edgeChanneling(IUndirectedGraphVar g, BoolVar isEdge, int vertex1, int vertex2){
+	/**
+	 * Channeling constraint:
+	 * isEdge = 1 <=> edge (i,j) in g
+	 * @param g
+	 * @param isEdge
+	 * @param i
+	 * @param j
+	 */
+	public static Constraint edgeChanneling(IUndirectedGraphVar g, BoolVar isEdge, int i, int j){
 		return new Constraint("arcChanneling",
-				new PropArcBoolChannel(isEdge,vertex1,vertex2,g));
+				new PropArcBoolChannel(isEdge,i,j,g));
 	}
 
 	// Neighbors
 
+	/**
+	 * Channeling constraint:
+	 * int j in neighbors[i] <=> edge (i,j) in g
+	 * @param g
+	 * @param neighbors
+	 */
 	public static Constraint neighborsChanneling(IUndirectedGraphVar g, SetVar[] neighbors){
 		return new Constraint("neighSetsChanneling",
 				new PropNeighSetsChannel1(neighbors,g),new PropNeighSetsChannel2(neighbors,g));
 
 	}
 
+	/**
+	 * Channeling constraint:
+	 * neighbors[i][j] = 1 <=> edge (i,j) in g
+	 * @param g
+	 * @param neighbors
+	 */
 	public static Constraint neighborsChanneling(IUndirectedGraphVar g, BoolVar[][] neighbors){
 		return new Constraint("neighBoolsChanneling",
 				new PropNeighBoolsChannel1(neighbors,g),new PropNeighBoolsChannel2(neighbors,g));
 	}
 
+	/**
+	 * Channeling constraint:
+	 * int j in neighborsOf <=> edge (node,j) in g
+	 * @param g
+	 * @param neighborsOf
+	 * @param node
+	 */
 	public static Constraint neighborsChanneling(IUndirectedGraphVar g, SetVar neighborsOf, int node){
 		return new Constraint("neighSetChanneling",
 				new PropNeighSetChannel(neighborsOf,node,g,new IncidentSet.SuccOrNeighSet()));
 	}
 
+	/**
+	 * Channeling constraint:
+	 * neighborsOf[j] = 1 <=> edge (node,j) in g
+	 * @param g
+	 * @param neighborsOf
+	 * @param node
+	 */
 	public static Constraint neighborsChanneling(IUndirectedGraphVar g, BoolVar[] neighborsOf, int node){
 		return new Constraint("neighBoolChanneling",
 				new PropNeighBoolChannel(neighborsOf,node,g,new IncidentSet.SuccOrNeighSet()));
@@ -115,21 +176,58 @@ public class GraphConstraintFactory {
 
 	// Successors
 
+	/**
+	 * Channeling constraint:
+	 * successors[i] = j <=> arc (i,j) in g
+	 * @param g
+	 * @param successors
+	 */
+	public static Constraint successorsChanneling(IDirectedGraphVar g, IntVar[] successors){
+		return new Constraint("succIntsChanneling",
+				new PropSuccIntsChannel1(successors,g),new PropSuccIntsChannel2(successors,g));
+	}
+
+	/**
+	 * Channeling constraint:
+	 * int j in successors[i] <=> arc (i,j) in g
+	 * @param g
+	 * @param successors
+	 */
 	public static Constraint successorsChanneling(IDirectedGraphVar g, SetVar[] successors){
 		return new Constraint("succSetsChanneling",
 				new PropNeighSetsChannel1(successors,g),new PropNeighSetsChannel2(successors,g));
 	}
 
+	/**
+	 * Channeling constraint:
+	 * successors[i][j] <=> arc (i,j) in g
+	 * @param g
+	 * @param successors
+	 */
 	public static Constraint successorsChanneling(IDirectedGraphVar g, BoolVar[][] successors){
 		return new Constraint("succBoolsChanneling",
 				new PropNeighBoolsChannel1(successors,g),new PropNeighBoolsChannel2(successors,g));
 	}
 
+	/**
+	 * Channeling constraint:
+	 * int j in successorsOf <=> arc (node,j) in g
+	 * @param g
+	 * @param successorsOf
+	 * @param node
+	 */
 	public static Constraint successorsChanneling(IDirectedGraphVar g, SetVar successorsOf, int node){
 		return new Constraint("succSetChanneling",
 				new PropNeighSetChannel(successorsOf,node,g,new IncidentSet.SuccOrNeighSet()));
 	}
 
+	/**
+	 * Channeling constraint:
+	 * successorsOf[j] = 1 <=> arc (node,j) in g
+	 * @param g
+	 * @param successorsOf
+	 * @param node
+	 */
 	public static Constraint successorsChanneling(IDirectedGraphVar g, BoolVar[] successorsOf, int node){
 		return new Constraint("succBoolChanneling",
 				new PropNeighBoolChannel(successorsOf,node,g,new IncidentSet.SuccOrNeighSet()));
@@ -137,54 +235,29 @@ public class GraphConstraintFactory {
 
 	// Predecessors
 
+	/**
+	 * Channeling constraint:
+	 * int j in predecessorsOf <=> arc (j,node) in g
+	 * @param g
+	 * @param predecessorsOf
+	 * @param node
+	 */
 	public static Constraint predecessorsChanneling(IDirectedGraphVar g, SetVar predecessorsOf, int node){
 		return new Constraint("predSetChanneling",
 				new PropNeighSetChannel(predecessorsOf,node,g,new IncidentSet.PredOrNeighSet()));
 	}
 
+	/**
+	 * Channeling constraint:
+	 * predecessorsOf[j] = 1 <=> arc (j,node) in g
+	 * @param g
+	 * @param predecessorsOf
+	 * @param node
+	 */
 	public static Constraint predecessorsChanneling(IDirectedGraphVar g, BoolVar[] predecessorsOf, int node){
 		return new Constraint("predBoolChanneling",
 				new PropNeighBoolChannel(predecessorsOf,node,g,new IncidentSet.PredOrNeighSet()));
 
-	}
-
-
-	//***********************************************************************************
-	// GRAPH CONSTRAINTS
-	//***********************************************************************************
-
-	/**
-	 * Channeling between a graph variable GRAPH and set variables SETS
-	 * representing either node neighbors or node successors
-	 * <p/> arc (i,j) in GRAPH <=> j in SETS[i]
-	 *
-	 * @param SETS  set variables representing nodes neighbors (or successors if directed) in GRAPH
-	 * @param GRAPH a graph variable
-	 * @return a constraint ensuring that arc (i,j) in GRAPH <=> j in SETS[i]
-	 */
-	public static Constraint set_channeling(SetVar[] SETS, GraphVar GRAPH) {
-		if (GRAPH.isDirected()) {
-			return new Constraint("SetUndirectedGraphChannel",new PropSymmetric(SETS, 0),new PropGraphChannel(SETS, GRAPH));
-		}else{
-			return new Constraint("SetDirectedGraphChannel",new PropGraphChannel(SETS, GRAPH));
-		}
-	}
-
-	/**
-	 * Channeling between a directed graph variable GRAPH and set variables SUCCESSORS and PREDECESSORS
-	 * representing node successors and predecessors:
-	 * <p/> arc (i,j) in GRAPH <=> j in SUCCESSORS[i] and i in PREDECESSORS[j]
-	 *
-	 * @param SUCCESSORS   set variables representing nodes' successors in GRAPH
-	 * @param PREDECESSORS set variables representing nodes' predecessors in GRAPH
-	 * @param GRAPH        a graph variable
-	 * @return a constraint ensuring that arc (i,j) in GRAPH <=> j in SUCCESSORS[i] and i in PREDECESSORS[j]
-	 */
-	public static Constraint graph_channel(SetVar[] SUCCESSORS, SetVar[] PREDECESSORS, DirectedGraphVar GRAPH) {
-		return new Constraint("SetPartition",ArrayUtils.append(
-				graph_channel(SUCCESSORS, GRAPH).getPropagators(),
-				new Propagator[]{new PropInverse(SUCCESSORS, PREDECESSORS, 0, 0)})
-		);
 	}
 
 	//***********************************************************************************
