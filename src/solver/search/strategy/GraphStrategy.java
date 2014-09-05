@@ -73,7 +73,7 @@ public class GraphStrategy extends AbstractStrategy<IGraphVar> {
     }
 
     @Override
-    public Decision getDecision() {
+    public GraphDecision getDecision() {
         if (g.isInstantiated()) {
             return null;
         }

@@ -111,7 +111,7 @@ public class GraphStrategies extends GraphStrategy {
 	}
 
     @Override
-    public Decision getDecision() {
+    public GraphDecision getDecision() {
         if (g.isInstantiated()) {
             return null;
         }
