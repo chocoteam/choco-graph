@@ -36,7 +36,7 @@ import solver.Solver;
 import solver.constraints.Constraint;
 import solver.constraints.IntConstraintFactory;
 import solver.cstrs.GraphConstraintFactory;
-import solver.cstrs.path.PropIntVarChanneling;
+import solver.cstrs.toCheck.path.PropIntVarChanneling;
 import solver.exception.ContradictionException;
 import solver.search.GraphStrategyFactory;
 import solver.search.strategy.strategy.AbstractStrategy;
@@ -154,7 +154,7 @@ public class HamiltonianCircuitProblem extends AbstractProblem {
 	@Override
 	public void configureSearch() {
 		AbstractStrategy strategy;
-		strategy = GraphStrategyFactory.graphRandom(graph, seed);
+		strategy = GraphStrategyFactory.random(graph, seed);
 		solver.set(strategy);
 	}
 

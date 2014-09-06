@@ -109,7 +109,7 @@ public class HamiltonianPathTest {
 
 		// configure solver
 		if (rd) {
-			solver.set(GraphStrategyFactory.graphRandom(graph, s));
+			solver.set(GraphStrategyFactory.random(graph, s));
 		} else {
 			solver.set(GraphStrategyFactory.graphStrategy(graph, null, new ConstructorHeur(graph, 0), GraphStrategy.NodeArcPriority.ARCS));
 		}

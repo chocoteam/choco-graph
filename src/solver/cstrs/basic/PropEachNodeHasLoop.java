@@ -32,11 +32,8 @@ import solver.constraints.PropagatorPriority;
 import solver.exception.ContradictionException;
 import solver.variables.EventType;
 import solver.variables.IGraphVar;
-import solver.variables.delta.IGraphDeltaMonitor;
 import util.ESat;
 import util.objects.setDataStructures.ISet;
-import util.procedure.IntProcedure;
-import util.procedure.PairProcedure;
 
 /**
  * Propagator that ensures that each node of the given subset of nodes has a loop
@@ -50,9 +47,6 @@ public class PropEachNodeHasLoop extends Propagator<IGraphVar> {
     //***********************************************************************************
 
     private IGraphVar g;
-    private IGraphDeltaMonitor gdm;
-    private IntProcedure enfNode;
-    private PairProcedure remArc;
     private ISet concernedNodes;
 
     //***********************************************************************************
@@ -60,11 +54,8 @@ public class PropEachNodeHasLoop extends Propagator<IGraphVar> {
     //***********************************************************************************
 
     public PropEachNodeHasLoop(IGraphVar graph, ISet concernedNodes) {
-        super(new IGraphVar[]{graph}, PropagatorPriority.UNARY, true);
-        this.g = vars[0];
-        this.gdm = g.monitorDelta(this);
-        this.enfNode = new NodeEnf();
-        this.remArc = new ArcRem();
+        super(new IGraphVar[]{graph}, PropagatorPriority.LINEAR, false);
+        this.g = graph;
         this.concernedNodes = concernedNodes;
     }
 
@@ -78,31 +69,13 @@ public class PropEachNodeHasLoop extends Propagator<IGraphVar> {
 
     @Override
     public void propagate(int evtmask) throws ContradictionException {
-        ISet env = g.getPotentialNodes();
-        for (int i = env.getFirstElement(); i >= 0; i = env.getNextElement()) {
-            if (concernedNodes.contain(i)) {
-                if (g.getPotSuccOrNeighOf(i).contain(i)) {
-                    if (g.getMandatoryNodes().contain(i)) {
-                        g.enforceArc(i, i, aCause);
-                    }
-                } else {
-                    g.removeNode(i, aCause);
-                }
-            }
-        }
-        gdm.unfreeze();
-    }
-
-    @Override
-    public void propagate(int idxVarInProp, int mask) throws ContradictionException {
-        gdm.freeze();
-        if ((mask & EventType.REMOVEARC.mask) != 0) {
-            gdm.forEachArc(remArc, EventType.REMOVEARC);
-        }
-        if ((mask & EventType.ENFORCENODE.mask) != 0) {
-            gdm.forEachNode(enfNode, EventType.ENFORCENODE);
-        }
-        gdm.unfreeze();
+		for(int i=concernedNodes.getFirstElement();i>=0;i=concernedNodes.getNextElement()){
+			if(g.getMandatoryNodes().contain(i)){
+				g.enforceArc(i,i,aCause);
+			}else if(!g.getPotSuccOrNeighOf(i).contain(i)){
+				g.removeNode(i,aCause);
+			}
+		}
     }
 
     //***********************************************************************************
@@ -116,37 +89,17 @@ public class PropEachNodeHasLoop extends Propagator<IGraphVar> {
 
     @Override
     public ESat isEntailed() {
-        ISet ker = g.getMandatoryNodes();
-        for (int i = ker.getFirstElement(); i >= 0; i = ker.getNextElement()) {
-            if (concernedNodes.contain(i) && !g.getMandSuccOrNeighOf(i).contain(i)) {
-                return ESat.FALSE;
-            }
+		boolean sure = true;
+		for(int i=concernedNodes.getFirstElement();i>=0;i=concernedNodes.getNextElement()){
+			if(g.getMandatoryNodes().contain(i) && !g.getPotSuccOrNeighOf(i).contain(i)){
+				return ESat.FALSE;
+			}else if(g.getPotentialNodes().contain(i) && !g.getPotSuccOrNeighOf(i).contain(i)){
+				sure = false;
+			}
+		}
+        if (sure) {
+            return ESat.TRUE;
         }
-        if (g.getPotentialNodes().getSize() != g.getMandatoryNodes().getSize()) {
-            return ESat.UNDEFINED;
-        }
-        return ESat.TRUE;
-    }
-
-    //***********************************************************************************
-    // PROCEDURE
-    //***********************************************************************************
-
-    private class NodeEnf implements IntProcedure {
-        @Override
-        public void execute(int i) throws ContradictionException {
-            if (concernedNodes.contain(i)) {
-                g.enforceArc(i, i, aCause);
-            }
-        }
-    }
-
-    private class ArcRem implements PairProcedure {
-        @Override
-        public void execute(int from, int to) throws ContradictionException {
-            if (from == to && concernedNodes.contain(to)) {
-                g.removeNode(from, aCause);
-            }
-        }
+        return ESat.UNDEFINED;
     }
 }

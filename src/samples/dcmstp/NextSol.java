@@ -27,7 +27,7 @@
 
 package samples.dcmstp;
 
-import solver.cstrs.IGraphRelaxation;
+import solver.cstrs.toCheck.IGraphRelaxation;
 import solver.search.strategy.ArcStrategy;
 import solver.variables.IUndirectedGraphVar;
 import util.objects.setDataStructures.ISet;

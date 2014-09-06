@@ -27,8 +27,6 @@
 
 package solver.cstrs.basic;
 
-import memory.IEnvironment;
-import memory.IStateInt;
 import solver.constraints.Propagator;
 import solver.constraints.PropagatorPriority;
 import solver.exception.ContradictionException;
@@ -36,10 +34,8 @@ import solver.variables.EventType;
 import solver.variables.IGraphVar;
 import solver.variables.IntVar;
 import solver.variables.Variable;
-import solver.variables.delta.IGraphDeltaMonitor;
 import util.ESat;
 import util.objects.setDataStructures.ISet;
-import util.procedure.PairProcedure;
 
 /**
  * Propagator that ensures that K arcs/edges belong to the final graph
@@ -53,25 +49,16 @@ public class PropKArcs extends Propagator {
     //***********************************************************************************
 
     protected IGraphVar g;
-    IGraphDeltaMonitor gdm;
     protected IntVar k;
-    protected IStateInt nbInKer, nbInEnv;
-    protected PairProcedure arcEnforced, arcRemoved;
 
     //***********************************************************************************
     // CONSTRUCTORS
     //***********************************************************************************
 
     public PropKArcs(IGraphVar graph, IntVar k) {
-        super(new Variable[]{graph, k}, PropagatorPriority.LINEAR, true);
-        g = (IGraphVar) vars[0];
-        gdm = g.monitorDelta(this);
-        this.k = (IntVar) vars[1];
-		IEnvironment environment = solver.getEnvironment();
-        nbInEnv = environment.makeInt();
-        nbInKer = environment.makeInt();
-        arcEnforced = new EnfArc();
-        arcRemoved = new RemArc();
+        super(new Variable[]{graph, k}, PropagatorPriority.LINEAR, false);
+        this.g = graph;
+        this.k = k;
     }
 
     //***********************************************************************************
@@ -91,25 +78,7 @@ public class PropKArcs extends Propagator {
             nbK /= 2;
             nbE /= 2;
         }
-        nbInKer.set(nbK);
-        nbInEnv.set(nbE);
         filter(nbK, nbE);
-        gdm.unfreeze();
-    }
-
-    @Override
-    public void propagate(int idxVarInProp, int mask) throws ContradictionException {
-		if(idxVarInProp==0){
-			gdm.freeze();
-			if ((mask & EventType.ENFORCEARC.mask) != 0) {
-				gdm.forEachArc(arcEnforced, EventType.ENFORCEARC);
-			}
-			if ((mask & EventType.REMOVEARC.mask) != 0) {
-				gdm.forEachArc(arcRemoved, EventType.REMOVEARC);
-			}
-			gdm.unfreeze();
-		}
-        filter(nbInKer.get(), nbInEnv.get());
     }
 
     private void filter(int nbK, int nbE) throws ContradictionException {
@@ -125,7 +94,6 @@ public class PropKArcs extends Propagator {
                         g.enforceArc(i, j, aCause);
                     }
                 }
-                nbInKer.set(nbE);
             }
             if (k.getValue() == nbK) {
                 ISet neiKer;
@@ -138,7 +106,6 @@ public class PropKArcs extends Propagator {
                         }
                     }
                 }
-                nbInEnv.set(nbK);
             }
         }
     }
@@ -173,23 +140,5 @@ public class PropKArcs extends Propagator {
             return ESat.TRUE;
         }
         return ESat.UNDEFINED;
-    }
-
-    //***********************************************************************************
-    // PROCEDURES
-    //***********************************************************************************
-
-    private class EnfArc implements PairProcedure {
-        @Override
-        public void execute(int i, int j) throws ContradictionException {
-            nbInKer.add(1);
-        }
-    }
-
-    private class RemArc implements PairProcedure {
-        @Override
-        public void execute(int i, int j) throws ContradictionException {
-            nbInEnv.add(-1);
-        }
     }
 }

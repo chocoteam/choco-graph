@@ -30,11 +30,19 @@ package samples;
 import solver.Solver;
 import solver.constraints.set.SCF;
 import solver.cstrs.GraphConstraintFactory;
+import solver.exception.ContradictionException;
 import solver.search.loop.monitors.IMonitorSolution;
 import solver.search.GraphStrategyFactory;
+import solver.search.strategy.IntStrategyFactory;
+import solver.search.strategy.SetStrategyFactory;
+import solver.search.strategy.decision.Decision;
+import solver.search.strategy.strategy.AbstractStrategy;
 import solver.variables.*;
 import util.objects.graphs.UndirectedGraph;
 import util.objects.setDataStructures.SetType;
+
+import java.util.ArrayList;
+import java.util.Random;
 
 /**
  * This sample illustrates how to use a graph variable to
@@ -88,9 +96,43 @@ public class CliqueEnumeration extends AbstractProblem {
 		// graph variable
 		graphvar = GraphVarFactory.undirectedGraph("G", GLB, GUB, solver);
 
-		SetVar vertices = GraphVarFactory.nodes_set(graphvar);
-		IntVar card = VF.fixed(3,solver);
+		final SetVar vertices = GraphVarFactory.nodes_set(graphvar);
+		final IntVar card = VF.fixed(3,solver);
 		solver.post(SCF.cardinality(vertices, card));
+
+		final AbstractStrategy<SetVar> setSearch = SetStrategyFactory.force_first(vertices);
+		final AbstractStrategy<IntVar> intSearch = IntStrategyFactory.minDom_LB(card);
+		final AbstractStrategy<IUndirectedGraphVar> graphSearch = GraphStrategyFactory.lexico(graphvar);
+		AbstractStrategy<Variable> randomSelector = new AbstractStrategy(new Variable[]{vertices,card,graphvar}) {
+			Random rd;
+			AbstractStrategy[] strats;
+			ArrayList<Decision> choices;
+			@Override
+			public void init() throws ContradictionException {
+				rd = new Random();
+				strats = new AbstractStrategy[]{intSearch,setSearch,graphSearch};
+				choices = new ArrayList<>();
+				for(AbstractStrategy s:strats){
+					s.init();
+				}
+			}
+			@Override
+			public Decision getDecision() {
+				choices.clear();
+				for(AbstractStrategy s:strats){
+					Decision d = s.getDecision();
+					if (d!=null){
+						choices.add(d);
+					}
+				}
+				if(choices.isEmpty()){
+					return null; // all variables are instantiated
+				}else{
+					return choices.get(rd.nextInt(choices.size()));
+				}
+			}
+		};
+		solver.set(randomSelector);
 
 		// constraint : the graph must be a clique
 		solver.post(GraphConstraintFactory.nCliques(graphvar, VariableFactory.fixed(1, solver)));
@@ -99,7 +141,7 @@ public class CliqueEnumeration extends AbstractProblem {
 	@Override
 	public void configureSearch() {
 		// search strategy (lexicographic)
-		solver.set(GraphStrategyFactory.graphLexico(graphvar));
+		solver.set(GraphStrategyFactory.lexico(graphvar));
 		// log
 		solver.plugMonitor(new IMonitorSolution() {
 			public void onSolution() {

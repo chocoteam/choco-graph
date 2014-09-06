@@ -31,17 +31,17 @@ import solver.variables.IGraphVar;
 
 public class LexNode extends NodeStrategy<IGraphVar> {
 
-    public LexNode(IGraphVar g) {
-        super(g);
-    }
+	public LexNode(IGraphVar g) {
+		super(g);
+	}
 
-    @Override
-    public int nextNode() {
-        for (int i = envNodes.getFirstElement(); i >= 0; i = envNodes.getNextElement()) {
-            if (!kerNodes.contain(i)) {
-                return i;
-            }
-        }
-        return -1;
-    }
+	@Override
+	public int nextNode() {
+		for (int i = envNodes.getFirstElement(); i >= 0; i = envNodes.getNextElement()) {
+			if (!kerNodes.contain(i)) {
+				return i;
+			}
+		}
+		return -1;
+	}
 }

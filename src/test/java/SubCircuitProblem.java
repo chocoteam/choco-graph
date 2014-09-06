@@ -35,7 +35,7 @@ import solver.Cause;
 import solver.Solver;
 import solver.constraints.Constraint;
 import solver.constraints.IntConstraintFactory;
-import solver.cstrs.basic.PropKCC;
+import solver.cstrs.connectivity.PropKSCC;
 import solver.cstrs.basic.PropKNodes;
 import solver.cstrs.degree.PropNodeDegree_AtLeast_Coarse;
 import solver.cstrs.degree.PropNodeDegree_AtMost_Incr;
@@ -110,7 +110,7 @@ public class SubCircuitProblem extends AbstractProblem {
 		circuitLength = VariableFactory.bounded("length",0,n,solver);
 		solver.post(new Constraint("SubCircuit",
 				new PropKNodes(graph, circuitLength),
-				new PropKCC(graph,VariableFactory.fixed(1,solver)),
+				new PropKSCC(graph,VariableFactory.fixed(1,solver)),
 				new PropNodeDegree_AtLeast_Coarse(graph, Orientation.SUCCESSORS, 1),
 				new PropNodeDegree_AtLeast_Coarse(graph, Orientation.PREDECESSORS, 1),
 				new PropNodeDegree_AtMost_Incr(graph, Orientation.SUCCESSORS, 1),
@@ -128,8 +128,8 @@ public class SubCircuitProblem extends AbstractProblem {
 		AbstractStrategy arcs = GraphStrategyFactory.graphStrategy(graph,null,new RandomArc(graph,seed), GraphStrategy.NodeArcPriority.ARCS);
 		AbstractStrategy nodes = GraphStrategyFactory.graphStrategy(graph,new RandomNode(graph,seed), null, GraphStrategy.NodeArcPriority.NODES_THEN_ARCS);
 		solver.set(arcs,nodes);
-//		solver.set(GraphStrategyFactory.graphRandom(graph,seed));
-//		solver.set(GraphStrategyFactory.graphLexico(graph));
+//		solver.set(GraphStrategyFactory.random(graph,seed));
+//		solver.set(GraphStrategyFactory.lexico(graph));
 	}
 
 	@Override

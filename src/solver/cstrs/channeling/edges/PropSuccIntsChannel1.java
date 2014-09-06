@@ -45,90 +45,90 @@ import util.procedure.PairProcedure;
 
 public class PropSuccIntsChannel1 extends Propagator<IDirectedGraphVar> {
 
-    //***********************************************************************************
-    // VARIABLES
-    //***********************************************************************************
+	//***********************************************************************************
+	// VARIABLES
+	//***********************************************************************************
 
-    private int n;
-    private IntVar[] succs;
-    private IGraphDeltaMonitor gdm;
-    private IDirectedGraphVar g;
-    private PairProcedure arcForced, arcRemoved;
+	private int n;
+	private IntVar[] succs;
+	private IGraphDeltaMonitor gdm;
+	private IDirectedGraphVar g;
+	private PairProcedure arcForced, arcRemoved;
 
-    //***********************************************************************************
-    // CONSTRUCTORS
-    //***********************************************************************************
+	//***********************************************************************************
+	// CONSTRUCTORS
+	//***********************************************************************************
 
-    public PropSuccIntsChannel1(final IntVar[] succs, IDirectedGraphVar gV) {
-        super(new IDirectedGraphVar[]{gV}, PropagatorPriority.LINEAR, true);
-        this.succs = succs;
-        n = succs.length;
-        this.g = gV;
-        assert (n == g.getNbMaxNodes());
-        gdm = g.monitorDelta(this);
+	public PropSuccIntsChannel1(final IntVar[] succs, IDirectedGraphVar gV) {
+		super(new IDirectedGraphVar[]{gV}, PropagatorPriority.LINEAR, true);
+		this.succs = succs;
+		n = succs.length;
+		this.g = gV;
+		assert (n == g.getNbMaxNodes());
+		gdm = g.monitorDelta(this);
 		for(int i=0;i<n;i++){
 			assert succs[i].hasEnumeratedDomain():"channeling variables should be enumerated";
 		}
-        arcForced = new PairProcedure() {
-            @Override
-            public void execute(int i, int j) throws ContradictionException {
-                succs[i].instantiateTo(j, aCause);
-            }
-        };
-        arcRemoved = new PairProcedure() {
-            @Override
-            public void execute(int i, int j) throws ContradictionException {
-				succs[i].removeValue(j, aCause);
-            }
-        };
-    }
-
-    //***********************************************************************************
-    // METHODS
-    //***********************************************************************************
-
-    @Override
-    public void propagate(int evtmask) throws ContradictionException {
-        for (int i = 0; i < n; i++) {
-            ISet tmp = g.getMandSuccOrNeighOf(i);
-            for (int j = tmp.getFirstElement(); j >= 0; j = tmp.getNextElement()) {
+		arcForced = new PairProcedure() {
+			@Override
+			public void execute(int i, int j) throws ContradictionException {
 				succs[i].instantiateTo(j, aCause);
-            }
-            for (int j=succs[i].getLB(); j<=succs[i].getUB(); j=succs[i].nextValue(j)) {
-                if (!g.getPotSuccOrNeighOf(i).contain(j)) {
-					succs[i].removeValue(j, aCause);
-                }
-            }
-        }
-        gdm.unfreeze();
-    }
+			}
+		};
+		arcRemoved = new PairProcedure() {
+			@Override
+			public void execute(int i, int j) throws ContradictionException {
+				succs[i].removeValue(j, aCause);
+			}
+		};
+	}
 
-    @Override
-    public void propagate(int idxVarInProp, int mask) throws ContradictionException {
+	//***********************************************************************************
+	// METHODS
+	//***********************************************************************************
+
+	@Override
+	public void propagate(int evtmask) throws ContradictionException {
+		for (int i = 0; i < n; i++) {
+			ISet tmp = g.getMandSuccOrNeighOf(i);
+			for (int j = tmp.getFirstElement(); j >= 0; j = tmp.getNextElement()) {
+				succs[i].instantiateTo(j, aCause);
+			}
+			for (int j=succs[i].getLB(); j<=succs[i].getUB(); j=succs[i].nextValue(j)) {
+				if (!g.getPotSuccOrNeighOf(i).contain(j)) {
+					succs[i].removeValue(j, aCause);
+				}
+			}
+		}
+		gdm.unfreeze();
+	}
+
+	@Override
+	public void propagate(int idxVarInProp, int mask) throws ContradictionException {
 		gdm.freeze();
 		gdm.forEachArc(arcForced, EventType.ENFORCEARC);
 		gdm.forEachArc(arcRemoved, EventType.REMOVEARC);
 		gdm.unfreeze();
-    }
+	}
 
-    @Override
-    public ESat isEntailed() {
-        for (int i = 0; i < n; i++) {
+	@Override
+	public ESat isEntailed() {
+		for (int i = 0; i < n; i++) {
 			if(succs[i].isInstantiated()){
-                if (!g.getPotSuccOrNeighOf(i).contain(succs[i].getValue())) {
-                    return ESat.FALSE;
-                }
-            }
-            ISet tmp = g.getMandSuccOrNeighOf(i);
-            for (int j = tmp.getFirstElement(); j >= 0; j = tmp.getNextElement()) {
-                if (!succs[i].contains(j)) {
-                    return ESat.FALSE;
-                }
-            }
-        }
-        if (isCompletelyInstantiated()) {
-            return ESat.TRUE;
-        }
-        return ESat.UNDEFINED;
-    }
+				if (!g.getPotSuccOrNeighOf(i).contain(succs[i].getValue())) {
+					return ESat.FALSE;
+				}
+			}
+			ISet tmp = g.getMandSuccOrNeighOf(i);
+			for (int j = tmp.getFirstElement(); j >= 0; j = tmp.getNextElement()) {
+				if (!succs[i].contains(j)) {
+					return ESat.FALSE;
+				}
+			}
+		}
+		if (isCompletelyInstantiated()) {
+			return ESat.TRUE;
+		}
+		return ESat.UNDEFINED;
+	}
 }

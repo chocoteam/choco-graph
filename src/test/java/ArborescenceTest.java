@@ -31,8 +31,8 @@ import org.testng.annotations.Test;
 import solver.Solver;
 import solver.constraints.Constraint;
 import solver.constraints.Propagator;
-import solver.cstrs.arborescences.PropArborescence;
-import solver.cstrs.arborescences.PropArborescence_NaiveForm;
+import solver.cstrs.toCheck.arborescences.PropArborescence;
+import solver.cstrs.toCheck.arborescences.PropArborescence_NaiveForm;
 import solver.cstrs.degree.PropNodeDegree_AtLeast_Coarse;
 import solver.cstrs.degree.PropNodeDegree_AtMost_Incr;
 import solver.search.loop.monitors.SearchMonitorFactory;
@@ -76,7 +76,7 @@ public class ArborescenceTest {
 		} else {
 			props = ArrayUtils.append(props,new Propagator[]{new PropArborescence(g, 0, simple)});
 		}
-		AbstractStrategy strategy = GraphStrategyFactory.graphRandom(g, seed);
+		AbstractStrategy strategy = GraphStrategyFactory.random(g, seed);
 		s.post(new Constraint("GTest",props));
 		s.set(strategy);
 		if (nbMaxSols > 0) {

@@ -32,27 +32,27 @@ import util.objects.setDataStructures.ISet;
 
 public class LexArc extends ArcStrategy<IGraphVar> {
 
-    public LexArc(IGraphVar g) {
-        super(g);
-    }
+	public LexArc(IGraphVar g) {
+		super(g);
+	}
 
-    @Override
-    public boolean computeNextArc() {
-        ISet envSuc, kerSuc;
-        for (int i = envNodes.getFirstElement(); i >= 0; i = envNodes.getNextElement()) {
-            envSuc = g.getPotSuccOrNeighOf(i);
-            kerSuc = g.getMandSuccOrNeighOf(i);
-            if (envSuc.getSize() != kerSuc.getSize()) {
-                for (int j = envSuc.getFirstElement(); j >= 0; j = envSuc.getNextElement()) {
-                    if (!kerSuc.contain(j)) {
-                        this.from = i;
-                        this.to = j;
-                        return true;
-                    }
-                }
-            }
-        }
-        this.from = this.to = -1;
-        return false;
-    }
+	@Override
+	public boolean computeNextArc() {
+		ISet envSuc, kerSuc;
+		for (int i = envNodes.getFirstElement(); i >= 0; i = envNodes.getNextElement()) {
+			envSuc = g.getPotSuccOrNeighOf(i);
+			kerSuc = g.getMandSuccOrNeighOf(i);
+			if (envSuc.getSize() != kerSuc.getSize()) {
+				for (int j = envSuc.getFirstElement(); j >= 0; j = envSuc.getNextElement()) {
+					if (!kerSuc.contain(j)) {
+						this.from = i;
+						this.to = j;
+						return true;
+					}
+				}
+			}
+		}
+		this.from = this.to = -1;
+		return false;
+	}
 }

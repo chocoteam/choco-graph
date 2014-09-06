@@ -56,9 +56,9 @@ public class PropKNodes extends Propagator {
     //***********************************************************************************
 
     public PropKNodes(IGraphVar graph, IntVar k) {
-        super(new Variable[]{graph, k}, PropagatorPriority.LINEAR, true);
-        this.g = (IGraphVar) vars[0];
-        this.k = (IntVar) vars[1];
+        super(new Variable[]{graph, k}, PropagatorPriority.LINEAR, false);
+        this.g = graph;
+        this.k = k;
     }
 
     //***********************************************************************************
@@ -91,11 +91,6 @@ public class PropKNodes extends Propagator {
                 setPassive();
             }
         }
-    }
-
-    @Override
-    public void propagate(int idxVarInProp, int mask) throws ContradictionException {
-        propagate(0);
     }
 
     //***********************************************************************************

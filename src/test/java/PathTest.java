@@ -31,10 +31,10 @@ import org.testng.annotations.Test;
 import solver.Solver;
 import solver.constraints.Constraint;
 import solver.constraints.Propagator;
-import solver.cstrs.arborescences.PropArborescence;
+import solver.cstrs.toCheck.arborescences.PropArborescence;
 import solver.cstrs.degree.PropNodeDegree_AtLeast_Coarse;
 import solver.cstrs.degree.PropNodeDegree_AtMost_Incr;
-import solver.cstrs.path.PropPathNoCycle;
+import solver.cstrs.toCheck.path.PropPathNoCycle;
 import solver.search.loop.monitors.SearchMonitorFactory;
 import solver.search.GraphStrategyFactory;
 import solver.search.strategy.strategy.AbstractStrategy;
@@ -81,7 +81,7 @@ public class PathTest {
 		if (arbo) {
 			props = ArrayUtils.append(props,new Propagator[]{new PropArborescence(g, 0, true)});
 		}
-		AbstractStrategy strategy = GraphStrategyFactory.graphLexico(g);
+		AbstractStrategy strategy = GraphStrategyFactory.lexico(g);
 		s.post(new Constraint("GTest",props));
 		s.set(strategy);
 		if (nbMaxSols > 0) {

@@ -1,16 +1,8 @@
 package solver.variables;
 
 import solver.Solver;
-import solver.constraints.Constraint;
 import solver.cstrs.GCF;
-import solver.cstrs.IncidentSet;
-import solver.cstrs.channeling.edges.*;
-import solver.cstrs.channeling.nodes.PropNodeBoolChannel;
-import solver.cstrs.channeling.nodes.PropNodeBoolsChannel;
-import solver.cstrs.channeling.nodes.PropNodeSetChannel;
-import solver.exception.ContradictionException;
-import solver.explanations.Deduction;
-import solver.explanations.Explanation;
+import solver.cstrs.GraphConstraintFactory;
 import util.objects.graphs.DirectedGraph;
 import util.objects.graphs.UndirectedGraph;
 
@@ -77,6 +69,54 @@ public class GraphVarFactory {
 		return Arrays.copyOf(bvars, k);
 	}
 
+	//***********************************************************************************
+	// SIMPLE COUNTS
+	//***********************************************************************************
+
+	/**
+	 * Creates an integer variable representing the number of nodes in g
+	 * @param g	a graph variable
+	 * @return An integer variable representing the number of nodes in g
+	 */
+	public static IntVar nb_nodes(IGraphVar g){
+		IntVar nb = VF.bounded("nb_nodes",0,g.getNbMaxNodes(),g.getSolver());
+		g.getSolver().post(GraphConstraintFactory.nb_nodes(g, nb));
+		return nb;
+	}
+
+	/**
+	 * Creates an integer variable representing the number of nodes in g
+	 * @param g	a directed graph variable
+	 * @return An integer variable representing the number of nodes in g
+	 */
+	public static IntVar nb_arcs(IDirectedGraphVar g){
+		IntVar nb = VF.bounded("nb_arcs",0,g.getNbMaxNodes()*g.getNbMaxNodes(),g.getSolver());
+		g.getSolver().post(GraphConstraintFactory.nb_arcs(g, nb));
+		return nb;
+	}
+
+	/**
+	 * Creates an integer variable representing the number of nodes in g
+	 * @param g	an undirected graph variable
+	 * @return An integer variable representing the number of nodes in g
+	 */
+	public static IntVar nb_edges(IUndirectedGraphVar g){
+		IntVar nb = VF.bounded("nb_edges",0,g.getNbMaxNodes()*g.getNbMaxNodes(),g.getSolver());
+		g.getSolver().post(GraphConstraintFactory.nb_edges(g, nb));
+		return nb;
+	}
+
+	/**
+	 * Creates an integer variable representing the number of loops in g
+	 * IntVar = |(i,i) in g|
+	 * @param g	a graph variable
+	 * @return An integer variable representing the number of loops in g
+	 */
+	public static IntVar nb_loops(IGraphVar g){
+		IntVar nb = VF.bounded("nb_loops",0,g.getNbMaxNodes(),g.getSolver());
+		g.getSolver().post(GraphConstraintFactory.nb_loops(g,nb));
+		return nb;
+	}
 
 	//***********************************************************************************
 	// CHANNELING VARIABLES
@@ -92,7 +132,7 @@ public class GraphVarFactory {
 	public static SetVar nodes_set(IGraphVar g){
 		int n = g.getNbMaxNodes();
 		SetVar nodes = VF.set("nodes",0,n-1,g.getSolver());
-		g.getSolver().post(GCF.nodesChanneling(g,nodes));
+		g.getSolver().post(GCF.nodes_channeling(g, nodes));
 		return nodes;
 	}
 
@@ -103,7 +143,7 @@ public class GraphVarFactory {
 	 */
 	public static BoolVar[] nodes_bool_array(IGraphVar g){
 		BoolVar[] nodes = VF.boolArray("nodes",g.getNbMaxNodes(),g.getSolver());
-		g.getSolver().post(GCF.nodesChanneling(g,nodes));
+		g.getSolver().post(GCF.nodes_channeling(g, nodes));
 		return nodes;
 	}
 
@@ -115,7 +155,7 @@ public class GraphVarFactory {
 	 */
 	public static BoolVar node_bool(IGraphVar g, int vertex){
 		BoolVar node = VF.bool("nodes("+vertex+")",g.getSolver());
-		g.getSolver().post(GCF.nodeChanneling(g, node, vertex));
+		g.getSolver().post(GCF.node_channeling(g, node, vertex));
 		return node;
 	}
 
@@ -131,7 +171,7 @@ public class GraphVarFactory {
 	 */
 	public static BoolVar arc_bool(IDirectedGraphVar g, int from, int to){
 		BoolVar node = VF.bool("arc("+from+","+to+")",g.getSolver());
-		g.getSolver().post(GCF.arcChanneling(g, node, from,to));
+		g.getSolver().post(GCF.arc_channeling(g, node, from, to));
 		return node;
 	}
 
@@ -146,11 +186,26 @@ public class GraphVarFactory {
 	 */
 	public static BoolVar edge_bool(IUndirectedGraphVar g, int v1, int v2){
 		BoolVar node = VF.bool("edge("+v1+","+v2+")",g.getSolver());
-		g.getSolver().post(GCF.edgeChanneling(g, node, v1, v2));
+		g.getSolver().post(GCF.edge_channeling(g, node, v1, v2));
 		return node;
 	}
 
 	// Neighbors
+
+	/**
+	 * Creates an array of integer variables representing the unique successor of each vertex
+	 * This implicitly creates an orientation (even though the graph variable is undirected)
+	 * IntVar[i] = j OR IntVar[j] = i <=> (i,j) in g
+	 * @param g	an undirected graph variable having an orientation with exactly one successor per vertex
+	 *          and for which every vertex is mandatory
+	 * @return an array of integer variables representing the unique successor of each vertex
+	 */
+	public static IntVar[] neigh_int_array(IUndirectedGraphVar g){
+		int n = g.getNbMaxNodes();
+		IntVar[] successors = VF.enumeratedArray("neighOf",n,0,n-1,g.getSolver());
+		g.getSolver().post(GCF.neighbors_channeling(g, successors));
+		return successors;
+	}
 
 	/**
 	 * Creates an array of set variables representing the neighborhood of every vertex
@@ -164,7 +219,7 @@ public class GraphVarFactory {
 		for(int i=0;i<n;i++){
 			neighbors[i] = VF.set("neighOf("+i+")",0,n-1,g.getSolver());
 		}
-		g.getSolver().post(GCF.neighborsChanneling(g,neighbors));
+		g.getSolver().post(GCF.neighbors_channeling(g, neighbors));
 		return neighbors;
 	}
 
@@ -177,7 +232,7 @@ public class GraphVarFactory {
 	public static BoolVar[][] neigh_bool_matrix(IUndirectedGraphVar g){
 		int n = g.getNbMaxNodes();
 		BoolVar[][] neighbors = VF.boolMatrix("neighOf",n,n,g.getSolver());
-		g.getSolver().post(GCF.neighborsChanneling(g,neighbors));
+		g.getSolver().post(GCF.neighbors_channeling(g, neighbors));
 		return neighbors;
 	}
 
@@ -190,7 +245,7 @@ public class GraphVarFactory {
 	public static SetVar neighOf_set(IUndirectedGraphVar g, int node){
 		int n = g.getNbMaxNodes();
 		SetVar neighborsOf = VF.set("neighOf("+node+")",0,n-1,g.getSolver());
-		g.getSolver().post(GCF.neighborsChanneling(g,neighborsOf,node));
+		g.getSolver().post(GCF.neighbors_channeling(g, neighborsOf, node));
 		return neighborsOf;
 	}
 
@@ -202,7 +257,7 @@ public class GraphVarFactory {
 	 */
 	public static BoolVar[] neighborsChanneling(IUndirectedGraphVar g, int node){
 		BoolVar[] neighborsOf = VF.boolArray("neighOf("+node+")",g.getNbMaxNodes(),g.getSolver());
-		g.getSolver().post(GCF.neighborsChanneling(g,neighborsOf,node));
+		g.getSolver().post(GCF.neighbors_channeling(g, neighborsOf, node));
 		return neighborsOf;
 	}
 
@@ -218,7 +273,7 @@ public class GraphVarFactory {
 	public static IntVar[] succ_int_array(IDirectedGraphVar g){
 		int n = g.getNbMaxNodes();
 		IntVar[] successors = VF.enumeratedArray("succOf",n,0,n-1,g.getSolver());
-		g.getSolver().post(GCF.successorsChanneling(g,successors));
+		g.getSolver().post(GCF.successors_channeling(g, successors));
 		return successors;
 	}
 
@@ -234,7 +289,7 @@ public class GraphVarFactory {
 		for(int i=0;i<n;i++){
 			successors[i] = VF.set("succOf("+i+")",0,n-1,g.getSolver());
 		}
-		g.getSolver().post(GCF.successorsChanneling(g,successors));
+		g.getSolver().post(GCF.successors_channeling(g, successors));
 		return successors;
 	}
 
@@ -247,7 +302,7 @@ public class GraphVarFactory {
 	public static BoolVar[][] succ_bool_matrix(IDirectedGraphVar g){
 		int n = g.getNbMaxNodes();
 		BoolVar[][] successors = VF.boolMatrix("succOf",n,n,g.getSolver());
-		g.getSolver().post(GCF.successorsChanneling(g,successors));
+		g.getSolver().post(GCF.successors_channeling(g, successors));
 		return successors;
 	}
 
@@ -260,7 +315,7 @@ public class GraphVarFactory {
 	public static SetVar succOf_set(IDirectedGraphVar g, int node){
 		int n = g.getNbMaxNodes();
 		SetVar successorsOf = VF.set("succOf("+node+")",0,n-1,g.getSolver());
-		g.getSolver().post(GCF.successorsChanneling(g,successorsOf,node));
+		g.getSolver().post(GCF.successors_channeling(g, successorsOf, node));
 		return successorsOf;
 	}
 
@@ -272,7 +327,7 @@ public class GraphVarFactory {
 	 */
 	public static BoolVar[] successorsChanneling(IDirectedGraphVar g, int node){
 		BoolVar[] successorsOf = VF.boolArray("succOf("+node+")",g.getNbMaxNodes(),g.getSolver());
-		g.getSolver().post(GCF.successorsChanneling(g,successorsOf,node));
+		g.getSolver().post(GCF.successors_channeling(g, successorsOf, node));
 		return successorsOf;
 	}
 
@@ -287,7 +342,7 @@ public class GraphVarFactory {
 	public static SetVar predOf_set(IDirectedGraphVar g, int node){
 		int n = g.getNbMaxNodes();
 		SetVar predecessorsOf = VF.set("predOf("+node+")",0,n-1,g.getSolver());
-		g.getSolver().post(GCF.predecessorsChanneling(g,predecessorsOf,node));
+		g.getSolver().post(GCF.predecessors_channeling(g, predecessorsOf, node));
 		return predecessorsOf;
 	}
 
@@ -299,8 +354,51 @@ public class GraphVarFactory {
 	 */
 	public static BoolVar[] predecessorsChanneling(IDirectedGraphVar g, int node){
 		BoolVar[] predecessorsOf = VF.boolArray("predOf("+node+")",g.getNbMaxNodes(),g.getSolver());
-		g.getSolver().post(GCF.predecessorsChanneling(g,predecessorsOf,node));
+		g.getSolver().post(GCF.predecessors_channeling(g, predecessorsOf, node));
 		return predecessorsOf;
 
+	}
+
+	//***********************************************************************************
+	// DEGREE VARIABLES
+	//***********************************************************************************
+
+	/**
+	 * Creates an array of integer variables representing the degree of each node in g
+	 * IntVar[i] = k <=> |(i,j) in g| = k
+	 * @param g	an undirected graph variable
+	 * @return an array of integer variables representing the degree of each node in g
+	 */
+	public static IntVar[] degrees(IUndirectedGraphVar g){
+		int n = g.getNbMaxNodes();
+		IntVar[] degrees = VF.boundedArray("degree",n,0,n,g.getSolver());
+		g.getSolver().post(GCF.degrees(g,degrees));
+		return degrees;
+	}
+
+	/**
+	 * Creates an array of integer variables representing the in-degree of each node in g
+	 * IntVar[i] = k <=> |(i,j) in g| = k
+	 * @param g	a directed graph variable
+	 * @return an array of integer variables representing the in-degree of each node in g
+	 */
+	public static IntVar[] in_degrees(IDirectedGraphVar g){
+		int n = g.getNbMaxNodes();
+		IntVar[] degrees = VF.boundedArray("in_degree",n,0,n,g.getSolver());
+		g.getSolver().post(GCF.in_degrees(g,degrees));
+		return degrees;
+	}
+
+	/**
+	 * Creates an array of integer variables representing the out-degree of each node in g
+	 * IntVar[i] = k <=> |(j,i) in g| = k
+	 * @param g	a directed graph variable
+	 * @return an array of integer variables representing the out-degree of each node in g
+	 */
+	public static IntVar[] out_degrees(IDirectedGraphVar g){
+		int n = g.getNbMaxNodes();
+		IntVar[] degrees = VF.boundedArray("out_degree",n,0,n,g.getSolver());
+		g.getSolver().post(GCF.out_degrees(g,degrees));
+		return degrees;
 	}
 }

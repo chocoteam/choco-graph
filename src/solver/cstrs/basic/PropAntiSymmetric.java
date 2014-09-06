@@ -61,7 +61,7 @@ public class PropAntiSymmetric extends Propagator<IDirectedGraphVar> {
 
     public PropAntiSymmetric(IDirectedGraphVar graph) {
         super(new IDirectedGraphVar[]{graph}, PropagatorPriority.UNARY, true);
-        g = vars[0];
+        g = graph;
         gdm = g.monitorDelta(this);
         enf = new EnfProc();
         n = g.getNbMaxNodes();

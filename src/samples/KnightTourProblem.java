@@ -55,110 +55,113 @@ import util.objects.setDataStructures.SetType;
  */
 public class KnightTourProblem extends AbstractProblem {
 
-    //***********************************************************************************
-    // VARIABLES
-    //***********************************************************************************
+	//***********************************************************************************
+	// VARIABLES
+	//***********************************************************************************
 
-    @Option(name = "-tl", usage = "time limit.", required = false)
-    private long limit = 20000;
-    @Option(name = "-bl", usage = "Board length.", required = false)
-    private int boardLength = 8;
-    @Option(name = "-open", usage = "Open tour (path instead of cycle).", required = false)
-    private boolean closedTour = true;
+	@Option(name = "-tl", usage = "time limit.", required = false)
+	private long limit = 20000;
+	@Option(name = "-bl", usage = "Board length.", required = false)
+	private int boardLength = 8;
+	@Option(name = "-open", usage = "Open tour (path instead of cycle).", required = false)
+	private boolean closedTour = true;
 
-    private IUndirectedGraphVar graph;
+	private IUndirectedGraphVar graph;
 
-    //***********************************************************************************
-    // METHODS
-    //***********************************************************************************
+	//***********************************************************************************
+	// METHODS
+	//***********************************************************************************
 
-    public static void main(String[] args) {
-        new KnightTourProblem().execute(args);
-    }
+	public static void main(String[] args) {
+		new KnightTourProblem().execute(args);
+	}
 
-    @Override
-    public void createSolver() {
+	@Override
+	public void createSolver() {
 		level = Level.SILENT;
-        solver = new Solver("solving the knight's tour problem with graph variables");
-    }
+		solver = new Solver("solving the knight's tour problem with a graph variable");
+	}
 
-    @Override
-    public void buildModel() {
-        boolean[][] matrix;
-        if (closedTour) {
-            matrix = HCP_Utils.generateKingTourInstance(boardLength);
-        } else {
-            matrix = HCP_Utils.generateOpenKingTourInstance(boardLength);
-        }
-        // variables
+	@Override
+	public void buildModel() {
+		boolean[][] matrix;
+		if (closedTour) {
+			matrix = HCP_Utils.generateKingTourInstance(boardLength);
+		} else {
+			matrix = HCP_Utils.generateOpenKingTourInstance(boardLength);
+		}
+		// variables
 		SetFactory.RECYCLE = false; //(optim)
 		int n = matrix.length;
 		UndirectedGraph GLB = new UndirectedGraph(solver,n,SetType.LINKED_LIST,true);
 		UndirectedGraph GUB = new UndirectedGraph(solver,n,SetType.LINKED_LIST,true);
 		for (int i = 0; i < n; i++) {
-            for (int j = i + 1; j < n; j++) {
-                if (matrix[i][j]) {
-                    GUB.addEdge(i, j);
-                }
-            }
-        }
+			for (int j = i + 1; j < n; j++) {
+				if (matrix[i][j]) {
+					GUB.addEdge(i, j);
+				}
+			}
+		}
 		graph = GraphVarFactory.undirectedGraph("G", GLB, GUB, solver);
-        // constraints
-        solver.post(GraphConstraintFactory.hamiltonianCycle(graph));
-    }
+		// constraints
+		solver.post(GraphConstraintFactory.hamiltonianCycle(graph));
+	}
 
-    @Override
-    public void configureSearch() {
-        // basically branch on sparse areas of the graph
-        solver.set(GraphStrategyFactory.graphStrategy(graph, null, new MinNeigh(graph), GraphStrategy.NodeArcPriority.ARCS));
-        SearchMonitorFactory.limitTime(solver, limit);
+	@Override
+	public void configureSearch() {
+		// basically branch on sparse areas of the graph
+		solver.set(GraphStrategyFactory.graphStrategy(graph, null, new MinNeigh(graph), GraphStrategy.NodeArcPriority.ARCS));
+		SearchMonitorFactory.limitTime(solver, limit);
 		SearchMonitorFactory.log(solver,false,false);
-    }
+	}
 
-    @Override
-    public void solve() {
-        solver.findSolution();
-    }
+	@Override
+	public void solve() {
+		System.out.println(graph);
+		solver.findSolution();
+		System.out.println(graph);
+	}
 
-    @Override
-    public void prettyOut() {}
+	@Override
+	public void prettyOut() {
+	}
 
-    //***********************************************************************************
-    // HEURISTICS
-    //***********************************************************************************
+	//***********************************************************************************
+	// HEURISTICS
+	//***********************************************************************************
 
-    private static class MinNeigh extends ArcStrategy<IUndirectedGraphVar> {
-        int n;
+	private static class MinNeigh extends ArcStrategy<IUndirectedGraphVar> {
+		int n;
 
-        public MinNeigh(IUndirectedGraphVar graphVar) {
-            super(graphVar);
-            n = graphVar.getNbMaxNodes();
-        }
+		public MinNeigh(IUndirectedGraphVar graphVar) {
+			super(graphVar);
+			n = graphVar.getNbMaxNodes();
+		}
 
-        @Override
-        public boolean computeNextArc() {
-            ISet suc;
-            int size = n + 1;
-            int sizi;
+		@Override
+		public boolean computeNextArc() {
+			ISet suc;
+			int size = n + 1;
+			int sizi;
 			from = -1;
-            for (int i = 0; i < n; i++) {
-                sizi = g.getPotNeighOf(i).getSize() - g.getMandNeighOf(i).getSize();
-                if (sizi < size && sizi > 0) {
-                    from = i;
-                    size = sizi;
-                }
-            }
-            if (from == -1) {
-                return false;
-            }
-            suc = g.getPotNeighOf(from);
-            for (int j = suc.getFirstElement(); j >= 0; j = suc.getNextElement()) {
-                if (!g.getMandNeighOf(from).contain(j)) {
+			for (int i = 0; i < n; i++) {
+				sizi = g.getPotNeighOf(i).getSize() - g.getMandNeighOf(i).getSize();
+				if (sizi < size && sizi > 0) {
+					from = i;
+					size = sizi;
+				}
+			}
+			if (from == -1) {
+				return false;
+			}
+			suc = g.getPotNeighOf(from);
+			for (int j = suc.getFirstElement(); j >= 0; j = suc.getNextElement()) {
+				if (!g.getMandNeighOf(from).contain(j)) {
 					to = j;
 					return true;
-                }
-            }
+				}
+			}
 			throw new UnsupportedOperationException();
-        }
-    }
+		}
+	}
 }

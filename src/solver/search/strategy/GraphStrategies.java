@@ -34,10 +34,9 @@
 
 package solver.search.strategy;
 
-import solver.cstrs.IGraphRelaxation;
+import solver.cstrs.toCheck.IGraphRelaxation;
 import solver.search.GraphAssignment;
 import solver.search.GraphDecision;
-import solver.search.strategy.decision.Decision;
 import solver.variables.IGraphVar;
 import util.objects.setDataStructures.ISet;
 

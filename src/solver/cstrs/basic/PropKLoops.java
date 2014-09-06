@@ -53,9 +53,9 @@ public class PropKLoops extends Propagator {
     //***********************************************************************************
 
     public PropKLoops(IGraphVar graph, IntVar k) {
-        super(new Variable[]{graph, k}, PropagatorPriority.LINEAR, true);
-        this.g = (IGraphVar) vars[0];
-        this.k = (IntVar) vars[1];
+        super(new Variable[]{graph, k}, PropagatorPriority.LINEAR, false);
+        this.g = graph;
+        this.k = k;
     }
 
     //***********************************************************************************
@@ -87,8 +87,7 @@ public class PropKLoops extends Propagator {
                     }
                 }
                 setPassive();
-            }
-            if (k.getValue() == min) {
+            }else if (k.getValue() == min) {
                 for (int i = nodes.getFirstElement(); i >= 0; i = nodes.getNextElement()) {
                     if (!g.getMandSuccOrNeighOf(i).contain(i)) {
                         g.removeArc(i, i, aCause);
@@ -97,11 +96,6 @@ public class PropKLoops extends Propagator {
                 setPassive();
             }
         }
-    }
-
-    @Override
-    public void propagate(int idxVarInProp, int mask) throws ContradictionException {
-        propagate(0);
     }
 
     //***********************************************************************************

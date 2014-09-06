@@ -1,14 +1,14 @@
 %*****************************************************************************************
 % STUFFS
 %*****************************************************************************************
-\documentclass{doc}
+\documentclass{article}
 \usepackage{times}
 \usepackage{latexsym}
 \usepackage{amsfonts}
 \usepackage{amsmath} 
 \usepackage{pifont}
 \usepackage{subfig}
-\usepackage[latin1]{inputenc} 													
+\usepackage[utf8]{inputenc} 													
 \usepackage[T1]{fontenc}     			 															
 \usepackage{graphicx}		
 \usepackage{amssymb}		
@@ -39,9 +39,17 @@
 %*****************************************************************************************
 % TITLE
 %*****************************************************************************************
-\author{Jean-Guillaume Fages \and Charles Prud'homme \institute{ChocoTeam, \\ choco3-support@mines-nantes.fr, \\ TASC - Ecole des Mines de Nantes,  LINA, CNRS, INRIA}}                       
-\title{Choco-Graph : a module for graph variables in Choco}
+\author{Jean-Guillaume Fages \and Charles Prud'homme \thanks{ChocoTeam, choco3-support@mines-nantes.fr, TASC research team}}                       
+\title{Choco-Graph : a module for graph variables in the Choco CP solver}
 \maketitle
+
+\begin{abstract}
+This document describes the API  of Choco-Graph, a module of the Choco solver which enables to search for a graph subject to constraints.
+\end{abstract}
+
+\newpage{}
+\tableofcontents{}
+\newpage{}
 
 \newcommand{\GV}{\ensuremath{\mathcal{G}}}
 \newcommand{\GLB}{\ensuremath{\underline{\mathcal{G}}}}
@@ -55,8 +63,26 @@ The domain of a graph variable \GV{} is a graph interval $[\GLB{},\GUB{}]$. \GLB
 %
 A graph variable can be subject to graph constraints to ensure global graph properties (e.g. connectedness, acyclicity) and channeling constraints to link the graph variable with some other binary, integer or set variables. 
 %
-The solving process consists of removing nodes and edges from \GUB{} and adding some others to \GLB{} until having $\GLB{} = \GUB{}$, i.e. until \GV{} gets instantiated. These operations stem from both constraint propagation and search. 
+The solving process consists of removing nodes and edges from \GUB{} and adding some others to \GLB{} until having $\GLB{} = \GUB{}$, i.e. until \GV{} gets instantiated. These operations stem from both constraint propagation and search. You may wonder why using a graph variable. Here are the most important motivations to do so:
+\begin{itemize}
+\item Modeling convenience : 
+\begin{itemize}
+\item When solving a graph problem, the model gets closer to the original problem. 
+\item A graph variable is a consistent graph representation (e.g. a node which does not exist has no incident arcs), which simplifies the model. 
+\item Stating constraints as graph properties in a declarative way is nice. 
+\end{itemize}
+\item Implementation convenience : 
+\begin{itemize}
+\item Manipulating a domain which consists of two graphs (representing respectively mandatory and potential elements) makes easy the implementation of graph-based filtering algorithms. As the implementation becomes more natural, the risk of mistakes decreases.
+\end{itemize}
+\item Performance gains : 
+\begin{itemize}
+\item You can use optimized data structure for domains (e.g. bit sets, bipartite sets, linked lists...) which allow to reduce runtime of most algorithms and/or memory consumption. This brings significant improvement on large scale problems. 
+\item Having such a global variable instead of many smaller lighten the solver, bringing to performance improvements.
+\end{itemize}
+\end{itemize}
 
+\newpage{}
 \section{Defining a graph variable}
 
 Graph variables can be created through \texttt{GraphVarFactory.java}:
@@ -75,13 +101,13 @@ stringstyle=\color{javared},
 commentstyle=\color{javagreen},
 morecomment=[s][\color{javadocblue}]{/**}{*/},
 numbers=left,
+frame=single,
 numberstyle=\tiny\color{black},
 stepnumber=0,
 numbersep=10pt,
 tabsize=4,
 showspaces=false,
 showstringspaces=false}
-
 \begin{lstlisting}
 
 /**
@@ -175,15 +201,77 @@ new UndirectedGraph(int n, SetType type, boolean allNodes)
 new DirectedGraph(int n, SetType type, boolean allNodes)
 \end{lstlisting}
 
+\newpage{}
 \section{Constraining a graph variable}
 
-A collection of constraints over a graph variable can be found in \texttt{GraphConstraintFactory.java}.
+A collection of constraints over a graph variable can be found in \texttt{GraphConstraintFactory.java}. The name is a bit long to be explicit but you can either import it statically or use \texttt{GCF.java} as a shortcut. 
 
-\subsection{Graph constraints}
+\subsection{Usual graph constraints}
+
+\subsubsection{Node and edge counts}
+
+The factory contains several basic constraints, such as \texttt{k\_nodes}, which enables to constrain the number of nodes to be equal to a given integer variable. 
+To make things simpler, you can call the \texttt{GraphVarFactory.nb\_nodes(g)} function which will create and return an integer variable that is equal to the number of nodes (i.e. it posts the \texttt{k\_nodes} constraint). 
+In the same way, one can count the number of edge (resp. arc) of an undirected (resp. directed) graph variable as follows: 
+\begin{lstlisting}
+IntVar nbArcs = GraphVarFactory.nb_arcs(g);
+\end{lstlisting}  
+
+\subsubsection{Loops}
+
+Graph variables may contain loops, i.e. arcs of the from $(i,i)$. If you want the graph to contain no loops, then you should simply make sure the graph upper bound has initially no loop. Instead, if you wish every vertex to have a loop, then there are basically two options. If all vertices are mandatory, then you should simply make sure the graph lower bound has initially a loop on every node. Else, you can use the constraint \texttt{each\_no\_has\_loop(g)}. Finally, you can control the number of loops the graph variable has with an integer variable with the following : 
+\begin{lstlisting}
+IntVar nbLoops = GraphVarFactory.nb_loops(g);
+\end{lstlisting} 
+
+\subsubsection{Degrees}
+
+It is possible to constrain the minimum and the maximum degree each node of an undirected graph variable, by using respectively \texttt{min\_degrees} and \texttt{max\_degrees} constraints. 
+Such constraints only hold on vertices that belong to the solution. For instance, if vertex $a$ is constrained to have a degree greater than $5$ but has only $4$ potential neighbors, then vertex $a$ should be removed from the potential vertex set. Unless $a$ was a mandatory vertex, this does not trigger any failure. Here is an example imposing every vertex to have at most $5$ neighbors: 
+\begin{lstlisting}
+solver.post(GraphConstraintFactory.max_degrees(graph,5));
+\end{lstlisting}
+
+It is also possible to constrain the exact degree of every node with an integer variable, thanks to the \texttt{degrees} constraint. Instead of the above, this constraint holds on every vertex. Therefore, a vertex which does not belong to the potential vertex set should have its degree variable equal to $0$. You can create these degree variables simply as follows:
+\begin{lstlisting}
+IntVar[] degrees = GraphVarFactory.degrees(g);
+\end{lstlisting}
+
+In the same way, one can restrict the in-degree (number of predecessors) and out-degree (number of successors) of each node of a directed graph variable.  
+ 
+\subsubsection{Symmetry}
+
+You can force a directed graph variable to be either symmetric or antisymmetric, by respectively using the \texttt{GCF.symmetric(g)} or the \texttt{GCF.antisymmetric(g)} constraints. For instance, by posting the following constraint you make sure that for any arc $(i,j)\in g$, then $(j,i) \notin g$.
+\begin{lstlisting}
+solver.post(GCF.antisymmetric(g));
+\end{lstlisting}  
+
+\subsubsection{Acyclicity}
+
+You can prevent a directed (resp. undirected) graph from containing any circuit (resp. cycle) by posting the \texttt{no\_circuit} (resp. \texttt{no\_cycle}) constraint, as follows:
+\begin{lstlisting}
+solver.post(GraphConstraintFactory.no_circuit(g));
+\end{lstlisting}
+
+
+\subsubsection{Connectivity}
+
+It is possible to force an undirected (resp. directed) graph variable to be connected (resp. strongly connected) or even to control its number of connected (resp. strongly connected) components with an integer variable. The filtering of such constraint is quite weak but fast.
+
+Here is an example :
+\begin{lstlisting}
+IntVar nbSCC = VariableFactory.fixed(2,solver);
+solver.post(GraphConstraintFactory.nb_strongly_connected_components(g,nbSCC));
+\end{lstlisting}
+
+\subsubsection{Tree}
+\subsubsection{Graph inclusion}
+\subsubsection{Other constraints}
 
 \subsection{Channeling constraints}
 
-A wide range of channeling constraints are provided in \texttt{GraphConstraintFactory.java} (or \texttt{GCF.java} for short). These constraints enables to link boolean of set variables to a graph variables. This enables to post some usual (e.g. cardinality) constraints over some vertex sets of some edge sets. 
+A wide range of channeling constraints are provided to allows to link boolean, integer or set variables to a graph variables. 
+This enables to post some usual constraints over some vertex (sub)sets of some edge (sub)sets. 
 
 Note that you do not have to create such channeling variables yourself : \texttt{GraphVarFactory.java} does it for you! 
 See for instance the static method \texttt{nodes\_set} which creates a set variables associates to the nodes of the graph variable given in parameter. 
@@ -243,9 +331,629 @@ An array of integer variables can be associated with:
 \item Successors of a directed graph variable for which each node belongs to the solution and has exactly one successor
 \end{itemize}
 
+
+\subsection{Implementing your own constraint}
+\subsubsection{Not incremental propagators}
+\subsubsection{Incremental propagators}
+
+\newpage{}
 \section{Search}
 
-\section{Applications}
+\subsection{Variable selection}
 
+Search procedures are necessary to explore a search space when (and it is usual case) propagation is not sufficient to find a solution. 
+Therefore, at each node of a search tree, whenever propagation has terminated, a search procedure must compute a new decision (refutable hypothesis), which creates a new search node, in order to continue the solving process. A decision consists of selecting a variable and restricting its domain (e.g. $X=3$ or $X<3$). 
+
+In case the model includes one or many graph variables, then a search process must select one variable and change its domain. 
+For that, the user need to create a search procedure for each variable type and then create a composite search procedure which will decide, at each node, which one to apply (i.e. decide which variable type the solver should branch on). Note that in case your model has many graph variables, you should create one search strategy per such variable (or make your own search strategy), because built-in strategies only consider one graph variable. Here is a simple example which consists in applying successively \texttt{intSearch}, then \texttt{setSearch} and finally \texttt{graphSearch}:
+
+\begin{lstlisting}
+final AbstractStrategy<SetVar> setSearch = SetStrategyFactory.force_first(vertices);
+final AbstractStrategy<IntVar> intSearch = IntStrategyFactory.minDom_LB(card);
+final AbstractStrategy<IUndirectedGraphVar> graphSearch = GraphStrategyFactory.graphLexico(graphvar);
+solver.set(intSearch,setSearch,graphSearch); // this implicitly use a sequencer composite strategy
+\end{lstlisting}
+
+If you want to decide yourself which strategy to apply, you can build your own composite strategy as in the following example which performs a random selection:
+
+\begin{lstlisting}
+AbstractStrategy<Variable> randomSelector = new AbstractStrategy(new Variable[]{vertices,card,graphvar}) {
+	Random rd;
+	AbstractStrategy[] strats;
+	ArrayList<Decision> choices;
+	@Override
+	public void init() throws ContradictionException {
+		rd = new Random();
+		strats = new AbstractStrategy[]{intSearch,setSearch,graphSearch};
+		choices = new ArrayList<>();
+		for(AbstractStrategy s:strats){
+			s.init();
+		}
+	}
+	@Override
+	public Decision getDecision() {
+		choices.clear();
+		for(AbstractStrategy s:strats){
+			Decision d = s.getDecision();
+			if (d!=null){
+				choices.add(d);
+			}
+		}
+		if(choices.isEmpty()){
+			return null; // all variables are instantiated
+		}else{
+			return choices.get(rd.nextInt(choices.size()));
+		}
+	}
+};
+solver.set(randomSelector);
+\end{lstlisting}
+
+\subsection{Branching on a graph variable}
+
+Let us now investigate how to modify the domain of a graph variable in a search decision. 
+The \texttt{getDecision()} method of \texttt{AbstractStrategy<IGraphVar>} should return a \texttt{GraphDecision} object. Let call $dec$ this decision object. 
+There are basically four options:
+\begin{itemize} 
+\item Make a potential (but not mandatory) vertex $node$ become mandatory \\ 
+(e.g. \texttt{dec.setNode(g, node, GraphAssignment.graph\_enforcer);})
+\item Remove a potential (but not mandatory) vertex $node$ \\ 
+(e.g. \texttt{dec.setNode(g, node, GraphAssignment.graph\_remover);})
+\item Make a potential (but not mandatory) edge/arc $(from,to)$ become mandatory \\ 
+(e.g. \texttt{dec.setArc(g, from, to, GraphAssignment.graph\_enforcer);})
+\item Remove a potential (but not mandatory) edge/arc $(from,to)$ \\ 
+(e.g. \texttt{dec.setArc(g, from, to, GraphAssignment.graph\_remover);})
+\end{itemize}
+
+You can implement your own \texttt{AbstractStrategy<IGraphVar>} or use build-in strategies that you can find in \texttt{GraphStrategyFactory}. 
+Note that only \texttt{GraphAssignment.graph\_enforcer} is used by default. 
+
+\begin{itemize}
+\item  \texttt{GraphStrategyFactory.lexico} Selects nodes then edges according to their lexicographic ordering.
+\item  \texttt{GraphStrategyFactory.random} Selects nodes randomly and then edges randomly. 
+\end{itemize}
+
+You can also use the generic method:
+\begin{lstlisting}
+/**
+ * Dedicated graph branching strategy.
+ *
+ * @param GRAPHVAR   a graph variable to branch on
+ * @param NODE_STRAT strategy over nodes
+ * @param ARC_STRAT  strategy over arcs/edges
+ * @param PRIORITY   enables to mention if it should first branch on nodes
+ * @param <G>        either directed or undirected graph variable
+ * @return a dedicated strategy to instantiate GRAPHVAR
+ */
+public static <G extends IGraphVar> AbstractStrategy graphStrategy(G GRAPHVAR, 
+														NodeStrategy NODE_STRAT, 
+														ArcStrategy ARC_STRAT, 
+														GraphStrategy.NodeArcPriority PRIORITY) {
+	return new GraphStrategy(GRAPHVAR, NODE_STRAT, ARC_STRAT, PRIORITY);
+}
+\end{lstlisting}
+
+You can then implement your own \texttt{NodeStrategy}, which should select the next node to branch on, as the following which returns the first unfixed vertex or -1 if none exists: 
+\begin{lstlisting}
+public class LexNode extends NodeStrategy<IGraphVar> {
+
+	public LexNode(IGraphVar g) {
+		super(g);
+	}
+
+	@Override
+	public int nextNode() {
+		for (int i = envNodes.getFirstElement(); i >= 0; i = envNodes.getNextElement()) {
+			if (!kerNodes.contain(i)) {
+				return i;
+			}
+		}
+		return -1;
+	}
+}
+\end{lstlisting}
+
+You can also implement your own \texttt{ArcStrategy}, which should select the next arc to branch on, as the following which selects the first unfixed arc and returns true or false depending of whether such an arc exists or not. 
+Note that this time the arc is defined through instance variables called $from$ and $to$. 
+\begin{lstlisting}
+public class LexArc extends ArcStrategy<IGraphVar> {
+
+	public LexArc(IGraphVar g) {
+		super(g);
+	}
+
+	@Override
+	public boolean computeNextArc() {
+		ISet envSuc, kerSuc;
+		for (int i = envNodes.getFirstElement(); i >= 0; i = envNodes.getNextElement()) {
+			envSuc = g.getPotSuccOrNeighOf(i);
+			kerSuc = g.getMandSuccOrNeighOf(i);
+			if (envSuc.getSize() != kerSuc.getSize()) {
+				for (int j = envSuc.getFirstElement(); j >= 0; j = envSuc.getNextElement()) {
+					if (!kerSuc.contain(j)) {
+						this.from = i;
+						this.to = j;
+						return true;
+					}
+				}
+			}
+		}
+		this.from = this.to = -1;
+		return false;
+	}
+}
+\end{lstlisting}
+
+There are two options for \texttt{NodeArcPriority}:
+\begin{itemize}
+\item \texttt{NodeArcPriority.NODES\_THEN\_ARCS}: First fixes every node and then fixes every arc
+\item \texttt{NodeArcPriority.ARCS}: Fixes every arc (forcing an arc automatically forces its incident nodes). Note that potential nodes with no incident arcs may remain unfixed. 
+\end{itemize}
+
+\subsection{Large Neighborhood Search}
+
+Large Neighborhood Search (LNS) is most powerful technique to solve large scale optimization problems. It may not be able to prove optimality but is designed to provide very good solutions in a reasonable runtime. Another interesting motivation for setting up an LNS is that the output solution may not be easy to improve by hand. 
+
+\newpage{}
+\section{Practical examples}
+
+\subsection{Large scale Hamiltonian cycle : The Knight's Tour Problem}
+
+The Knight's Tour Problem (KTP) is defined over a chessboard and consists of making a chess knight visit every cell exactly once and reach back its original position, where possible moves are given by classical chess rules for the knight. This problem can be seen as a graph problem. Let us introduce an undirected graph for which every vertex is associated with a cell of the chessboard and there is an edge between two vertices if and only if the chess rules allow to travel between the two cells associated with the edge endpoints. The problem then consists of finding a Hamiltonian cycle in this graph. This can be addressed using \texttt{Choco-Graph}. Here is the graph-based CP model of this KTP (with a board length of $200$, which involves a $40,000$-vertex graph) : 
+\begin{lstlisting}
+public class KnightTourProblem extends AbstractProblem {
+
+	//***********************************************************************************
+	// VARIABLES
+	//***********************************************************************************
+
+	@Option(name = "-tl", usage = "time limit.", required = false)
+	private long limit = 20000; // 20 sec time limit
+	@Option(name = "-bl", usage = "Board length.", required = false)
+	private int boardLength = 200; // length = 200 => 40000 vertices
+
+	private IUndirectedGraphVar graph;
+
+	//***********************************************************************************
+	// METHODS
+	//***********************************************************************************
+
+	public static void main(String[] args) {
+		new KnightTourProblem().execute(args);
+	}
+
+	@Override
+	public void createSolver() {
+		level = Level.SILENT; // do not print the solution value (too big!)
+		solver = new Solver("solving the knight's tour problem with graph variables");
+	}
+
+	@Override
+	public void buildModel() {
+		// This generates the boolean incidence matrix of the chessboard graph
+		// It is responsible of the high memory consumption of this example 
+		// and could be replaced by lighter data structure (but it is simpler as it is)
+		boolean[][] matrix = HCP_Utils.generateKingTourInstance(boardLength);
+		// variables
+		SetFactory.RECYCLE = false; // (optimization for large instances involving few backtracks, not very important)
+		int n = matrix.length;
+		// graph representing mandatory nodes and edges 
+		// (linked list data structure as the expected solution is expected to be sparse, 
+		// every vertex in [0,n-1] is mandatory)
+		UndirectedGraph GLB = new UndirectedGraph(solver,n,SetType.LINKED_LIST,true);
+		// graph representing potential nodes and edges 
+		// (linked list data structure as its initial value is sparse, 
+		// every vertex in [0,n-1] belongs to the potential)
+		UndirectedGraph GUB = new UndirectedGraph(solver,n,SetType.LINKED_LIST,true);
+		for (int i = 0; i < n; i++) {
+			for (int j = i + 1; j < n; j++) {
+				if (matrix[i][j]) {
+					GUB.addEdge(i, j); // add possible edges to the domain
+				}
+			}
+		}
+		// build the graph variable 
+		graph = GraphVarFactory.undirectedGraph("G", GLB, GUB, solver);
+		// constraints (hamiltonian cycle)
+		solver.post(GraphConstraintFactory.hamiltonianCycle(graph));
+	}
+
+	@Override
+	public void configureSearch() {
+		// basically branch on sparse areas of the graph
+		solver.set(GraphStrategyFactory.graphStrategy(graph, 	// variable to branch on
+											null, 		// no need node selection heuristic (all are mandatory)
+											new MinNeigh(graph), // arc selection heuristic
+											GraphStrategy.NodeArcPriority.ARCS) // branch on arcs only
+											);
+		SearchMonitorFactory.limitTime(solver, limit);
+		SearchMonitorFactory.log(solver,false,false);
+	}
+
+	@Override
+	public void solve() {
+		solver.findSolution();
+	}
+
+	@Override
+	public void prettyOut() {}
+
+	//***********************************************************************************
+	// HEURISTICS
+	//***********************************************************************************
+
+	private static class MinNeigh extends ArcStrategy<IUndirectedGraphVar> {
+		int n;
+
+		public MinNeigh(IUndirectedGraphVar graphVar) {
+			super(graphVar);
+			n = graphVar.getNbMaxNodes();
+		}
+
+		@Override
+		public boolean computeNextArc() {
+			ISet suc;
+			int size = n + 1;
+			int sizi;
+			from = -1;
+			// find the lowest remaining degree vertex
+			for (int i = 0; i < n; i++) {
+				sizi = g.getPotNeighOf(i).getSize() - g.getMandNeighOf(i).getSize();
+				if (sizi < size && sizi > 0) {
+					from = i;
+					size = sizi;
+				}
+			}
+			if (from == -1) {
+				return false;
+			}
+			// find its lowest remaining degree neighbor
+			suc = g.getPotNeighOf(from);
+			for (int j = suc.getFirstElement(); j >= 0; j = suc.getNextElement()) {
+				if (!g.getMandNeighOf(from).contain(j)) {
+					to = j;
+					return true;
+				}
+			}
+			throw new UnsupportedOperationException("this should not happen!");
+		}
+	}
+}
+\end{lstlisting}
+
+The Hamiltonian cycle constraint involves basic filtering but which run incrementally in constant time for each edge removal/enforcing. 
+Note that having a undirected model is a key (a directed representation would bring symmetries and increase the search space). 
+This model provides the following output (obtained on a usual laptop):
+\begin{lstlisting}
+** Choco 3.2.1-SNAPSHOT (2014-05) : Constraint Programming Solver, Copyleft (c) 2010-2014
+** Solve : solving the knight's tour problem with a graph variable
+- Search statistics
+	Solutions: 1
+	Building time : 2,796s		// time to build the graph variable domain and propagators
+	Initialisation : 0,007s
+	Initial propagation : 0,039s	// initial propagation runtime
+	Resolution : 7,918s			// total solving time
+	Nodes: 39 507				// number of branching node is almost the number of nodes in the graph (40,000)
+	Backtracks: 1				// good filtering and good search! This model is good on the Hamiltonian cycle problem.
+	Fails: 1					
+	Restarts: 0
+	Max depth: 39 506
+	Propagations: 103 963 + 0	// number of incremental propagations + number of non-incremental propagations
+	Memory: -20mb			// memory usage of the model (while the input matrix takes >1gb)
+	Variables: 3				// graph + default solver constants (ZERO and ONE)
+	Constraints: 1				// Hamiltonian cycle constraint (which has 3 incremental propagators)
+\end{lstlisting}
+
+If we take a small instance, with a board length of $8$, whence $64$ vertices. 
+Here is the print of the graph variable initial domain : 
+\begin{lstlisting}
+
+graph_var G
+envelope: // upper bound graph (with potential nodes and edges)
+nodes : 
+[0,63]
+neighbors : 
+0 -> {17 10 }
+1 -> {18 16 11 }
+2 -> {19 17 12 8 }
+3 -> {20 18 13 9 }
+4 -> {21 19 14 10 }
+5 -> {22 20 15 11 }
+6 -> {23 21 12 }
+7 -> {22 13 }
+8 -> {25 18 2 }
+9 -> {26 24 19 3 }
+10 -> {27 25 20 16 4 0 }
+11 -> {28 26 21 17 5 1 }
+12 -> {29 27 22 18 6 2 }
+13 -> {30 28 23 19 7 3 }
+14 -> {31 29 20 4 }
+15 -> {30 21 5 }
+16 -> {33 26 10 1 }
+17 -> {34 32 27 11 2 0 }
+18 -> {35 33 28 24 12 8 3 1 }
+19 -> {36 34 29 25 13 9 4 2 }
+20 -> {37 35 30 26 14 10 5 3 }
+21 -> {38 36 31 27 15 11 6 4 }
+22 -> {39 37 28 12 7 5 }
+23 -> {38 29 13 6 }
+24 -> {41 34 18 9 }
+25 -> {42 40 35 19 10 8 }
+26 -> {43 41 36 32 20 16 11 9 }
+27 -> {44 42 37 33 21 17 12 10 }
+28 -> {45 43 38 34 22 18 13 11 }
+29 -> {46 44 39 35 23 19 14 12 }
+30 -> {47 45 36 20 15 13 }
+31 -> {46 37 21 14 }
+32 -> {49 42 26 17 }
+33 -> {50 48 43 27 18 16 }
+34 -> {51 49 44 40 28 24 19 17 }
+35 -> {52 50 45 41 29 25 20 18 }
+36 -> {53 51 46 42 30 26 21 19 }
+37 -> {54 52 47 43 31 27 22 20 }
+38 -> {55 53 44 28 23 21 }
+39 -> {54 45 29 22 }
+40 -> {57 50 34 25 }
+41 -> {58 56 51 35 26 24 }
+42 -> {59 57 52 48 36 32 27 25 }
+43 -> {60 58 53 49 37 33 28 26 }
+44 -> {61 59 54 50 38 34 29 27 }
+45 -> {62 60 55 51 39 35 30 28 }
+46 -> {63 61 52 36 31 29 }
+47 -> {62 53 37 30 }
+48 -> {58 42 33 }
+49 -> {59 43 34 32 }
+50 -> {60 56 44 40 35 33 }
+51 -> {61 57 45 41 36 34 }
+52 -> {62 58 46 42 37 35 }
+53 -> {63 59 47 43 38 36 }
+54 -> {60 44 39 37 }
+55 -> {61 45 38 }
+56 -> {50 41 }
+57 -> {51 42 40 }
+58 -> {52 48 43 41 }
+59 -> {53 49 44 42 }
+60 -> {54 50 45 43 }
+61 -> {55 51 46 44 }
+62 -> {52 47 45 }
+63 -> {53 46 }
+
+kernel: 
+nodes :		// lower bound graph (with mandatory nodes and edges)
+[0,63]		// all vertices are mandatory
+neighbors :	// no edge is mandatory
+0 -> {}
+1 -> {}
+2 -> {}
+3 -> {}
+4 -> {}
+5 -> {}
+6 -> {}
+7 -> {}
+8 -> {}
+9 -> {}
+10 -> {}
+11 -> {}
+12 -> {}
+13 -> {}
+14 -> {}
+15 -> {}
+16 -> {}
+17 -> {}
+18 -> {}
+19 -> {}
+20 -> {}
+21 -> {}
+22 -> {}
+23 -> {}
+24 -> {}
+25 -> {}
+26 -> {}
+27 -> {}
+28 -> {}
+29 -> {}
+30 -> {}
+31 -> {}
+32 -> {}
+33 -> {}
+34 -> {}
+35 -> {}
+36 -> {}
+37 -> {}
+38 -> {}
+39 -> {}
+40 -> {}
+41 -> {}
+42 -> {}
+43 -> {}
+44 -> {}
+45 -> {}
+46 -> {}
+47 -> {}
+48 -> {}
+49 -> {}
+50 -> {}
+51 -> {}
+52 -> {}
+53 -> {}
+54 -> {}
+55 -> {}
+56 -> {}
+57 -> {}
+58 -> {}
+59 -> {}
+60 -> {}
+61 -> {}
+62 -> {}
+63 -> {}
+\end{lstlisting}
+
+After solving the KTP, printing the (value of) the graph variable gives:
+\begin{lstlisting}
+graph_var G
+value: 		// the variable is instantiated
+nodes : 
+[0,63]		// All vertices belong to the solution graph
+neighbors : 
+0 -> {17 10 }	// The neighbors of node 0 are nodes 17 and 10
+1 -> {18 16 }	//... edges (1,18) and (1,16) belong to the solution graph
+2 -> {19 17 }	// ...
+3 -> {20 13 }
+4 -> {19 14 }
+5 -> {22 11 }
+6 -> {23 21 }
+7 -> {22 13 }
+8 -> {25 18 }
+9 -> {26 24 }
+10 -> {27 0 }
+11 -> {28 5 }
+12 -> {29 27 }
+13 -> {7 3 }
+14 -> {31 4 }
+15 -> {30 21 }
+16 -> {33 1 }
+17 -> {2 0 }
+18 -> {8 1 }
+19 -> {4 2 }
+20 -> {35 3 }
+21 -> {15 6 }
+22 -> {7 5 }
+23 -> {38 6 }
+24 -> {41 9 }
+25 -> {42 8 }
+26 -> {36 9 }
+27 -> {12 10 }
+28 -> {34 11 }
+29 -> {44 12 }
+30 -> {36 15 }
+31 -> {46 14 }
+32 -> {49 42 }
+33 -> {48 16 }
+34 -> {51 28 }
+35 -> {45 20 }
+36 -> {26 30 }
+37 -> {43 47 }
+38 -> {55 23 }
+39 -> {54 45 }
+40 -> {57 50 }
+41 -> {56 24 }
+42 -> {32 25 }
+43 -> {37 60 }
+44 -> {61 29 }
+45 -> {35 39 }
+46 -> {63 31 }
+47 -> {62 37 }
+48 -> {58 33 }
+49 -> {59 32 }
+50 -> {56 40 }
+51 -> {57 34 }
+52 -> {62 58 }
+53 -> {63 59 }
+54 -> {60 39 }
+55 -> {61 38 }
+56 -> {50 41 }
+57 -> {51 40 }
+58 -> {52 48 }
+59 -> {53 49 }
+60 -> {54 43 }
+61 -> {55 44 }
+62 -> {52 47 }
+63 -> {53 46 }
+\end{lstlisting}
+
+\subsection{Finding a Directed Acyclic (sub)Graph}
+
+We now consider the problem of finding a DAG comprised between two input graphs (initial domain) and such that the number of arcs is maximal. 
+This problem can be stated through the following program:
+\begin{lstlisting}
+public class DAGProblem extends AbstractProblem{
+
+	IDirectedGraphVar dag;
+	IntVar nbArcs;
+
+	@Override
+	public void createSolver() {
+		solver = new Solver("DAG sample");
+	}
+
+	@Override
+	public void buildModel() {
+		// input graph
+		int n = 5;
+
+		// VARIABLE COUNTING THE NUMBER OF ARCS 
+		nbArcs = VF.bounded("arcCount", 0, n * n, solver);
+		// GRAPH VARIABLE : initial domain (every node belongs to the solution)
+		DirectedGraph GLB = new DirectedGraph(solver, n, SetType.BITSET, true);
+		DirectedGraph GUB = new DirectedGraph(solver, n, SetType.BITSET, true);
+		GLB.addArc(0,1); // some arbitrary mandatory arcs
+		GLB.addArc(1,2);
+		GLB.addArc(3,1);
+		for (int i = 0; i < n; i++) {
+			for (int j = 0; j < n; j++) {
+				GUB.addArc(i, j);		// potential edge
+			}
+		}
+		dag = GraphVarFactory.directedGraph("dag", GLB, GUB, solver);
+
+		// CONSTRAINTS
+		solver.post(GraphConstraintFactory.no_circuit(dag));
+		solver.post(GraphConstraintFactory.nb_arcs(dag,nbArcs));
+	}
+
+	@Override
+	public void configureSearch() {
+		// tries to find the largest graph first
+		solver.set(GraphStrategyFactory.lexico(dag));
+	}
+
+	@Override
+	public void solve() {
+		solver.findOptimalSolution(ResolutionPolicy.MAXIMIZE,nbArcs);
+	}
+
+	@Override
+	public void prettyOut() {}
+
+	public static void main(String[] args){
+		new DAGProblem().execute(args);
+	}
+}
+\end{lstlisting}
+
+This provides the following output
+
+\begin{lstlisting}
+** Choco 3.2.1-SNAPSHOT (2014-05) : Constraint Programming Solver, Copyleft (c) 2010-2014
+** Solve : DAG sample
+- Solution #1 found. 1 Solutions, Maximize arcCount = 10, Resolution 0,007s, 8 Nodes, 0 Backtracks, 0 Fails, 0 Restarts 
+	graph_var dag
+value: 
+nodes : 
+[0,4]
+successors : 
+0 -> {1 2 3 4 }
+1 -> {2 4 }
+2 -> {4 }
+3 -> {1 2 4 }
+4 -> {}
+ .
+- Search statistics
+	Solutions: 1
+	Maximize arcCount = 10,
+	Building time : 0,058s
+	Initialisation : 0,004s
+	Initial propagation : 0,005s
+	Resolution : 0,013s
+	Nodes: 23
+	Backtracks: 45
+	Fails: 22
+	Restarts: 0
+	Max depth: 7
+	Propagations: 31 + 0
+	Memory: 0mb
+	Variables: 4
+	Constraints: 2
+\end{lstlisting}
 
 \end{document}

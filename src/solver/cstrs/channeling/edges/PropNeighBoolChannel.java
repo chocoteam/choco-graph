@@ -36,7 +36,7 @@ package solver.cstrs.channeling.edges;
 
 import solver.constraints.Propagator;
 import solver.constraints.PropagatorPriority;
-import solver.cstrs.IncidentSet;
+import solver.variables.IncidentSet;
 import solver.exception.ContradictionException;
 import solver.variables.*;
 import util.ESat;
