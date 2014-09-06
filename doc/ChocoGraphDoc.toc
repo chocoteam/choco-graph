@@ -5,19 +5,21 @@
 \contentsline {subsubsection}{\numberline {3.1.1}Node and edge counts}{6}
 \contentsline {subsubsection}{\numberline {3.1.2}Loops}{6}
 \contentsline {subsubsection}{\numberline {3.1.3}Degrees}{6}
-\contentsline {subsubsection}{\numberline {3.1.4}Symmetry}{7}
-\contentsline {subsubsection}{\numberline {3.1.5}Acyclicity}{7}
-\contentsline {subsubsection}{\numberline {3.1.6}Connectivity}{7}
-\contentsline {subsubsection}{\numberline {3.1.7}Tree}{7}
-\contentsline {subsubsection}{\numberline {3.1.8}Graph inclusion}{7}
-\contentsline {subsubsection}{\numberline {3.1.9}Other constraints}{7}
-\contentsline {subsection}{\numberline {3.2}Channeling constraints}{7}
-\contentsline {subsubsection}{\numberline {3.2.1}Set channeling}{8}
-\contentsline {subsubsection}{\numberline {3.2.2}Boolean channeling}{8}
-\contentsline {subsubsection}{\numberline {3.2.3}Integer channeling}{9}
-\contentsline {subsection}{\numberline {3.3}Implementing your own constraint}{9}
-\contentsline {subsubsection}{\numberline {3.3.1}Not incremental propagators}{9}
-\contentsline {subsubsection}{\numberline {3.3.2}Incremental propagators}{9}
+\contentsline {subsubsection}{\numberline {3.1.4}Graph inclusion}{7}
+\contentsline {subsubsection}{\numberline {3.1.5}Symmetry}{7}
+\contentsline {subsubsection}{\numberline {3.1.6}Transitivity}{7}
+\contentsline {subsubsection}{\numberline {3.1.7}Cycles}{7}
+\contentsline {subsubsection}{\numberline {3.1.8}Connectivity}{7}
+\contentsline {subsubsection}{\numberline {3.1.9}Tree}{8}
+\contentsline {subsubsection}{\numberline {3.1.10}Cliques}{8}
+\contentsline {subsection}{\numberline {3.2}Optimization constraints}{8}
+\contentsline {subsection}{\numberline {3.3}Channeling constraints}{8}
+\contentsline {subsubsection}{\numberline {3.3.1}Set channeling}{8}
+\contentsline {subsubsection}{\numberline {3.3.2}Boolean channeling}{9}
+\contentsline {subsubsection}{\numberline {3.3.3}Integer channeling}{9}
+\contentsline {subsection}{\numberline {3.4}Implementing your own constraint}{9}
+\contentsline {subsubsection}{\numberline {3.4.1}Not incremental propagators}{9}
+\contentsline {subsubsection}{\numberline {3.4.2}Incremental propagators}{9}
 \contentsline {section}{\numberline {4}Search}{10}
 \contentsline {subsection}{\numberline {4.1}Variable selection}{10}
 \contentsline {subsection}{\numberline {4.2}Branching on a graph variable}{11}

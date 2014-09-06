@@ -31,11 +31,9 @@ import solver.constraints.Propagator;
 import solver.constraints.PropagatorPriority;
 import solver.exception.ContradictionException;
 import solver.variables.IDirectedGraphVar;
-import solver.variables.IUndirectedGraphVar;
 import solver.variables.IntVar;
 import solver.variables.Variable;
 import util.ESat;
-import util.graphOperations.connectivity.ConnectivityFinder;
 import util.graphOperations.connectivity.StrongConnectivityFinder;
 import util.objects.setDataStructures.ISet;
 
@@ -64,8 +62,8 @@ public class PropKSCC extends Propagator {
 		super(new Variable[]{graph, k}, PropagatorPriority.LINEAR, false);
 		this.g = graph;
 		this.k = k;
-		env_CC_finder = new StrongConnectivityFinder(g.getEnvelopGraph());
-		ker_CC_finder = new StrongConnectivityFinder(g.getKernelGraph());
+		env_CC_finder = new StrongConnectivityFinder(g.getUB());
+		ker_CC_finder = new StrongConnectivityFinder(g.getLB());
 	}
 
 	//***********************************************************************************

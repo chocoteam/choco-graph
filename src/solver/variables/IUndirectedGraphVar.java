@@ -28,10 +28,23 @@
 package solver.variables;
 
 import util.objects.graphs.UndirectedGraph;
+import util.objects.setDataStructures.ISet;
 
-/**
- * Created by IntelliJ IDEA.
- * User: chameau, Jean-Guillaume Fages
- * Date: 7 feb. 2011
- */
-public interface IUndirectedGraphVar extends IGraphVar<UndirectedGraph> {}
+public interface IUndirectedGraphVar extends IGraphVar<UndirectedGraph> {
+
+	/**
+	 * Get the set of neighbors of vertex 'idx' in the lower bound graph
+	 * (mandatory incident edges)
+	 * @param idx	a vertex
+	 * @return The set of neighbors of 'idx' in LB
+	 */
+	public ISet getMandNeighOf(int idx);
+
+	/**
+	 * Get the set of neighbors of vertex 'idx' in the upper bound graph
+	 * (potential incident edges)
+	 * @param idx	a vertex
+	 * @return The set of neighbors of 'idx' in UB
+	 */
+	public ISet getPotNeighOf(int idx);
+}

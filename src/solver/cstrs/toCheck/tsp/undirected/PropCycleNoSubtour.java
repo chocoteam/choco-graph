@@ -131,7 +131,7 @@ public class PropCycleNoSubtour extends Propagator<IUndirectedGraphVar> {
                 return ESat.FALSE;
             }
         }
-//        ConnectivityFinder cf = new ConnectivityFinder(g.getEnvelopGraph());
+//        ConnectivityFinder cf = new ConnectivityFinder(g.getUB());
 //        if (!cf.isBiconnected()) {
 //            return ESat.FALSE;
 //        }

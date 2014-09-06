@@ -59,7 +59,7 @@ public class PropBiconnected extends Propagator<IUndirectedGraphVar> {
     public PropBiconnected(IUndirectedGraphVar graph) {
         super(new IUndirectedGraphVar[]{graph}, PropagatorPriority.LINEAR, true);
         this.g = vars[0];
-        env_CC_finder = new ConnectivityFinder(g.getEnvelopGraph());
+        env_CC_finder = new ConnectivityFinder(g.getUB());
     }
 
     //***********************************************************************************

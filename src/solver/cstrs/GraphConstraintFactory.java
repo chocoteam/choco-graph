@@ -29,23 +29,18 @@ package solver.cstrs;
 import solver.constraints.Constraint;
 import solver.constraints.Propagator;
 import solver.constraints.PropagatorPriority;
-import solver.cstrs.acyclicity.PropACyclic;
+import solver.cstrs.cycles.PropACyclic;
 import solver.cstrs.basic.*;
 import solver.cstrs.connectivity.PropConnected;
 import solver.cstrs.connectivity.PropKCC;
 import solver.cstrs.connectivity.PropKSCC;
-import solver.cstrs.toCheck.NTree;
-import solver.cstrs.toCheck.arborescences.PropAntiArborescence;
-import solver.cstrs.toCheck.arborescences.PropArborescence;
-import solver.cstrs.toCheck.basic.*;
+import solver.cstrs.inclusion.PropInclusion;
 import solver.cstrs.channeling.edges.*;
 import solver.cstrs.channeling.nodes.PropNodeBoolChannel;
 import solver.cstrs.channeling.nodes.PropNodeBoolsChannel;
 import solver.cstrs.channeling.nodes.PropNodeSetChannel;
 import solver.cstrs.degree.*;
-import solver.cstrs.toCheck.path.PropAllDiffGraphIncremental;
 import solver.cstrs.toCheck.path.PropPathNoCycle;
-import solver.cstrs.toCheck.trees.PropTreeNoSubtour;
 import solver.cstrs.toCheck.tsp.undirected.PropCycleEvalObj;
 import solver.cstrs.toCheck.tsp.undirected.PropCycleNoSubtour;
 import solver.cstrs.toCheck.tsp.undirected.lagrangianRelaxation.PropLagr_OneTree;
@@ -104,6 +99,35 @@ public class GraphConstraintFactory {
 		return new Constraint("nb_edges", new PropKArcs(g,nb));
 	}
 
+	// loops
+
+	/**
+	 * Create a constraint which makes sure every node has a loop
+	 * i.e. vertex i in g => arc (i,i) in g
+	 * @param g	a graph variable
+	 * @return A constraint which makes sure every node has a loop
+	 */
+	public static Constraint each_node_has_loop(IGraphVar g){
+		return new Constraint("each_node_has_loop", new PropEachNodeHasLoop(g));
+	}
+
+	/**
+	 * Create a constraint which ensures g has nb loops
+	 * |(i,i) in g| = nb
+	 * @param g	a graph variable
+	 * @param nb an integer variable counting the number of loops in g
+	 * @return A constraint which ensures g has nb loops
+	 */
+	public static Constraint nb_loops(IGraphVar g, IntVar nb){
+		return new Constraint("nb_loops", new PropKLoops(g,nb));
+	}
+
+
+	//***********************************************************************************
+	// SIMPLE PROPERTY CONSTRAINTS
+	//***********************************************************************************
+
+
 	// symmetry
 
 	/**
@@ -127,27 +151,62 @@ public class GraphConstraintFactory {
 		return new Constraint("antisymmetric", new PropAntiSymmetric(g));
 	}
 
-	// loops
+	// Transitivity
 
 	/**
-	 * Create a constraint which makes sure every node has a loop
-	 * i.e. vertex i in g => arc (i,i) in g
-	 * @param g	a graph variable
-	 * @return A constraint which makes sure every node has a loop
+	 * Create a transitivity constraint
+	 * (i,j) in g and (j,k) in g => (i,k) in g
+	 * Does not consider loops
+	 * Enables to make cliques
+	 * @param g An undirected graph variable
+	 * @return A transitivity constraint
 	 */
-	public static Constraint each_node_has_loop(IGraphVar g){
-		return new Constraint("each_node_has_loop", new PropEachNodeHasLoop(g));
+	public static Constraint transitivity(IUndirectedGraphVar g){
+		return new Constraint("transitivity",new PropTransitivity(g));
 	}
 
 	/**
-	 * Create a constraint which ensures g has nb loops
-	 * |(i,i) in g| = nb
-	 * @param g	a graph variable
-	 * @param nb an integer variable counting the number of loops in g
-	 * @return A constraint which ensures g has nb loops
+	 * Create a transitivity constraint
+	 * (i,j) in g and (j,k) in g => (i,k) in g
+	 * Does not consider loops
+	 * Enables to make cliques and transitive closures
+	 * @param g A directed graph variable
+	 * @return A transitivity constraint
 	 */
-	public static Constraint nb_loops(IGraphVar g, IntVar nb){
-		return new Constraint("nb_loops", new PropKLoops(g,nb));
+	public static Constraint transitivity(IDirectedGraphVar g){
+		return new Constraint("transitivity",new PropTransitivity(g));
+	}
+
+
+	//***********************************************************************************
+	// INCLUSION CONSTRAINTS
+	//***********************************************************************************
+
+
+	/**
+	 * Create an inclusion constraint between g1 and g2 such that
+	 * g1 is a subgraph of g2
+	 * Note that node are labelled with their indexes :
+	 * the vertex 0 in g1 corresponds to the vertex 0 in g2
+	 * @param g1 An undirected graph variable
+	 * @param g2 An undirected graph variable
+	 * @return a constraint which ensures that g1 is a subgraph of g2
+	 */
+	public static Constraint subgraph(IUndirectedGraphVar g1, IUndirectedGraphVar g2){
+		return new Constraint("subgraph",new PropInclusion(g1,g2));
+	}
+
+	/**
+	 * Create an inclusion constraint between g1 and g2 such that
+	 * g1 is a subgraph of g2
+	 * Note that node are labelled with their indexes :
+	 * the vertex 0 in g1 corresponds to the vertex 0 in g2
+	 * @param g1 A directed graph variable
+	 * @param g2 A directed graph variable
+	 * @return a constraint which ensures that g1 is a subgraph of g2
+	 */
+	public static Constraint subgraph(IDirectedGraphVar g1, IDirectedGraphVar g2){
+		return new Constraint("subgraph",new PropInclusion(g1,g2));
 	}
 
 
@@ -659,7 +718,7 @@ public class GraphConstraintFactory {
 	 * @return a tree constraint
 	 */
 	public static Constraint tree(IUndirectedGraphVar g){
-		return new Constraint("tree",new PropACyclic(g),new PropConnected(g));
+		return new Constraint("tree", new PropACyclic(g), new PropConnected(g));
 	}
 
 	/**
@@ -776,62 +835,75 @@ public class GraphConstraintFactory {
 	public static Constraint directed_forest(IDirectedGraphVar g){
 		return new Constraint("directed_forest",new PropArborescences(g));
 	}
-	// ---
 
 
 
 
 	//***********************************************************************************
-	// ACYCLICITY CONSTRAINTS
+	// CLIQUES
 	//***********************************************************************************
 
 
 
 
-	// ---
+	/**
+	 * partition a graph variable into nb cliques
+	 *
+	 * @param g   a graph variable
+	 * @param nb expected number of cliques in g
+	 * @return a constraint which partitions g into nb cliques
+	 */
+	public static Constraint nb_cliques(IUndirectedGraphVar g, IntVar nb) {
+		return new Constraint("NbCliques",
+				new PropTransitivity(g),
+				new PropKCC(g, nb),
+				new PropNbCliques(g, nb) // redundant propagator
+		);
+	}
 
 
 
 
 	//***********************************************************************************
-	// ACYCLICITY CONSTRAINTS
+	// CYCLES AND PATHS CONSTRAINTS
 	//***********************************************************************************
 
 
 
 
-	// ---
 
-
-
-
-	//***********************************************************************************
-	// ACYCLICITY CONSTRAINTS
-	//***********************************************************************************
-
-
-
-
+	/** TODO cycle no subtour
+	 * g must form a Hamiltonian cycle
+	 *
+	 * @param g graph variable representing a Hamiltonian cycle
+	 * @return a hamiltonian cycle constraint
+	 */
+	public static Constraint hamiltonianCycle(IUndirectedGraphVar g) {
+		int m = 0;
+		int n = g.getNbMaxNodes();
+		for(int i=0;i<n;i++){
+			m += g.getPotNeighOf(i).getSize();
+		}
+		m /= 2;
+		if(m<20*n){
+			return new Constraint("Graph_HamiltonianCycle",
+					new PropNodeDegree_AtLeast_Incr(g, 2),
+					new PropNodeDegree_AtMost_Incr(g, 2),
+					new PropCycleNoSubtour(g)
+			);
+		}else{
+			return new Constraint("Graph_HamiltonianCycle",
+					new PropNodeDegree_AtLeast_Coarse(g, 2),
+					new PropNodeDegree_AtMost_Incr(g, 2),
+					new PropCycleNoSubtour(g)
+			);
+		}
+	}
 	// ---
 
 
 
 	// ----
-
-	/**
-	 * partition a graph variable into nCliques cliques
-	 *
-	 * @param GRAPHVAR   graph variable partitioned into cliques
-	 * @param NB_CLIQUES expected number of cliques
-	 * @return a constraint which partitions GRAPHVAR into NB_CLIQUES cliques
-	 */
-	public static Constraint nCliques(IUndirectedGraphVar GRAPHVAR, IntVar NB_CLIQUES) {
-		return new Constraint("NCliques",
-				new PropTransitivity(GRAPHVAR),
-				new PropKCliques(GRAPHVAR, NB_CLIQUES),
-				new PropKCC(GRAPHVAR, NB_CLIQUES)
-		);
-	}
 
 	/**
 	 * Constraint modeling the Traveling Salesman Problem
@@ -853,71 +925,6 @@ public class GraphConstraintFactory {
 			props = ArrayUtils.append(props,new Propagator[]{hk});
 		}
 		return new Constraint("Graph_TSP",props);
-	}
-
-	/**
-	 * GRAPHVAR must form a Hamiltonian cycle
-	 * <p/> Filtering algorithms are incremental and run in O(1) per enforced/removed edge.
-	 * <p/> Subtour elimination is an undirected adaptation of the
-	 * nocycle constraint of Caseau & Laburthe in Solving small TSPs with Constraints.
-	 *
-	 * @param GRAPHVAR graph variable representing a Hamiltonian cycle
-	 * @return a hamiltonian cycle constraint
-	 */
-	public static Constraint hamiltonianCycle(IUndirectedGraphVar GRAPHVAR) {
-		int m = 0;
-		int n = GRAPHVAR.getNbMaxNodes();
-		for(int i=0;i<n;i++){
-			m += GRAPHVAR.getPotNeighOf(i).getSize();
-		}
-		m /= 2;
-		if(m<20*n){
-			return new Constraint("Graph_HamiltonianCycle",
-					new PropNodeDegree_AtLeast_Incr(GRAPHVAR, 2),
-					new PropNodeDegree_AtMost_Incr(GRAPHVAR, 2),
-					new PropCycleNoSubtour(GRAPHVAR)
-			);
-		}else{
-			return new Constraint("Graph_HamiltonianCycle",
-					new PropNodeDegree_AtLeast_Coarse(GRAPHVAR, 2),
-					new PropNodeDegree_AtMost_Incr(GRAPHVAR, 2),
-					new PropCycleNoSubtour(GRAPHVAR)
-			);
-		}
-	}
-
-	/**
-	 * GRAPHVAR must form a spanning tree, i.e. an acyclic and connected undirected graph spanning every vertex
-	 * <p/> Incremental degree constraint, runs in O(1) time per force/removed edge
-	 * <p/> Connectivity checker and bridge detection in O(n+m) time (Tarjan's algorithm)
-	 * <p/> Subtour elimination in O(n) worst case time per enforced edge
-	 *
-	 * @param GRAPHVAR graph variable forming a tree
-	 * @return a constraint ensuring that GRAPHVAR is a spanning tree
-	 */
-	public static Constraint spanning_tree(IUndirectedGraphVar GRAPHVAR) {
-		IntVar nbNodes = VF.fixed(GRAPHVAR.getNbMaxNodes(),GRAPHVAR.getSolver());
-		return new Constraint("Graph_SpanningTree",ArrayUtils.append(
-				tree(GRAPHVAR).getPropagators(),
-				new Propagator[]{new PropKNodes(GRAPHVAR, nbNodes)}
-		));
-	}
-
-	/**
-	 * GRAPHVAR must form a tree, i.e. an acyclic and connected undirected graph
-	 * <p/> Incremental degree constraint, runs in O(1) time per force/removed edge
-	 * <p/> Connectivity checker and bridge detection in O(n+m) time (Tarjan's algorithm)
-	 * <p/> Subtour elimination in O(n) worst case time per enforced edge
-	 *
-	 * @param GRAPHVAR graph variable forming a tree
-	 * @return a constraint ensuring that GRAPHVAR is a tree
-	 */
-	public static Constraint treeold(IUndirectedGraphVar GRAPHVAR) {
-		return new Constraint("Graph_Tree",
-				new PropNodeDegree_AtLeast_Coarse(GRAPHVAR, 1),
-				new PropTreeNoSubtour(GRAPHVAR),
-				new PropConnected(GRAPHVAR)
-		);
 	}
 
 	//***********************************************************************************
@@ -954,28 +961,12 @@ public class GraphConstraintFactory {
 				new PropNodeDegree_AtMost_Incr(GRAPHVAR, Orientation.PREDECESSORS, preds),
 				new PropPathNoCycle(GRAPHVAR, ORIGIN, DESTINATION)
 		};
-		if (STRONG_FILTER) {
-			PropArborescence arbo = new PropArborescence(GRAPHVAR, ORIGIN, true);
-			PropAntiArborescence aa = new PropAntiArborescence(GRAPHVAR, DESTINATION, true);
-			PropAllDiffGraphIncremental ad = new PropAllDiffGraphIncremental(GRAPHVAR, n - 1);
-			props = ArrayUtils.append(props,ArrayUtils.toArray(arbo, aa, ad));
-		}
+//		if (STRONG_FILTER) {
+//			PropArborescence arbo = new PropArborescence(GRAPHVAR, ORIGIN, true);
+//			PropAntiArborescence aa = new PropAntiArborescence(GRAPHVAR, DESTINATION, true);
+//			PropAllDiffGraphIncremental ad = new PropAllDiffGraphIncremental(GRAPHVAR, n - 1);
+//			props = ArrayUtils.append(props,ArrayUtils.toArray(arbo, aa, ad));
+//		}
 		return new Constraint("Graph_HamiltonianPath",props);
-	}
-
-	/**
-	 * Anti arborescence partitioning constraint
-	 * also known as tree constraint (CP'11)
-	 * GAC in (almost) linear time : O(alpha.m)
-	 * roots are identified by loops
-	 * <p/>
-	 * BEWARE this implementation supposes that every node is part of the solution graph
-	 *
-	 * @param GRAPHVAR
-	 * @param NB_TREE  number of anti arborescences
-	 * @return tree constraint
-	 */
-	public static Constraint nTrees(IDirectedGraphVar GRAPHVAR, IntVar NB_TREE) {
-		return new NTree(GRAPHVAR, NB_TREE);
 	}
 }

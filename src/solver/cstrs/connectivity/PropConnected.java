@@ -74,7 +74,7 @@ public class PropConnected extends Propagator<IUndirectedGraphVar> {
 		this.n = graph.getNbMaxNodes();
 		this.visited = new BitSet(n);
 		this.fifo = new int[n];
-		this.env_CC_finder = new ConnectivityFinder(g.getEnvelopGraph());
+		this.env_CC_finder = new ConnectivityFinder(g.getUB());
 		this.checkerOnly = checkerOnly;
 	}
 

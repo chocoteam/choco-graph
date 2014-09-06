@@ -31,7 +31,7 @@ import solver.ResolutionPolicy;
 import solver.Solver;
 import solver.constraints.Constraint;
 import solver.cstrs.basic.PropKArcs;
-import solver.cstrs.toCheck.basic.PropTransitivity;
+import solver.cstrs.basic.PropTransitivity;
 import solver.search.GraphStrategyFactory;
 import solver.search.strategy.ISF;
 import solver.variables.*;

@@ -31,7 +31,6 @@ import org.testng.annotations.Test;
 import solver.Solver;
 import solver.constraints.Constraint;
 import solver.constraints.Propagator;
-import solver.cstrs.toCheck.arborescences.PropArborescence;
 import solver.cstrs.degree.PropNodeDegree_AtLeast_Coarse;
 import solver.cstrs.degree.PropNodeDegree_AtMost_Incr;
 import solver.cstrs.toCheck.path.PropPathNoCycle;
@@ -78,9 +77,9 @@ public class PathTest {
 		if (path) {
 			props = ArrayUtils.append(props,new Propagator[]{new PropPathNoCycle(g, 0, n - 1)});
 		}
-		if (arbo) {
-			props = ArrayUtils.append(props,new Propagator[]{new PropArborescence(g, 0, true)});
-		}
+//		if (arbo) {
+//			props = ArrayUtils.append(props,new Propagator[]{new PropArborescence(g, 0, true)});
+//		}
 		AbstractStrategy strategy = GraphStrategyFactory.lexico(g);
 		s.post(new Constraint("GTest",props));
 		s.set(strategy);

@@ -31,16 +31,13 @@
  * @since 05/09/14
  * Created by IntelliJ IDEA.
  */
-package solver.cstrs.acyclicity;
+package solver.cstrs.cycles;
 
 import solver.constraints.Propagator;
 import solver.constraints.PropagatorPriority;
-import solver.cstrs.GCF;
 import solver.exception.ContradictionException;
 import solver.variables.EventType;
-import solver.variables.GraphVarFactory;
 import solver.variables.IGraphVar;
-import solver.variables.IntVar;
 import solver.variables.delta.IGraphDeltaMonitor;
 import util.ESat;
 import util.objects.setDataStructures.ISet;

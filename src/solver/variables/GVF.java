@@ -24,28 +24,18 @@
  *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  *  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package solver.variables.delta;
 
-import solver.exception.ContradictionException;
-import solver.variables.EventType;
-import util.procedure.IntProcedure;
-import util.procedure.PairProcedure;
 
-public interface IGraphDeltaMonitor extends IDeltaMonitor {
+/**
+ * @author Jean-Guillaume Fages
+ * @since 06/09/14
+ * Created by IntelliJ IDEA.
+ */
+package solver.variables;
 
-	/**
-	 * Applies proc to every vertex which has just been removed or enforced, depending on evt.
-	 * @param proc	an incremental procedure over vertices
-	 * @param evt	either ENFORCENODE or REMOVENODE
-	 * @throws ContradictionException
-	 */
-    void forEachNode(IntProcedure proc, EventType evt) throws ContradictionException;
-
-	/**
-	 * Applies proc to every arc which has just been removed or enforced, depending on evt.
-	 * @param proc	an incremental procedure over arcs
-	 * @param evt	either ENFORCEARC or REMOVEARC
-	 * @throws ContradictionException
-	 */
-    void forEachArc(PairProcedure proc, EventType evt) throws ContradictionException;
+/**
+ * Shortcut for {@code GraphVarFactory}
+ */
+public class GVF extends GraphVarFactory{
+    // SHOULD BE EMPTY, this is just syntactic sugar: avoiding long name in modeling step
 }

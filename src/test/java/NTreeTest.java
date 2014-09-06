@@ -58,10 +58,10 @@ public class NTreeTest {
 		}
 		IDirectedGraphVar g = GraphVarFactory.directedGraph("G", GLB, GUB, s);
 		IntVar nTree = VariableFactory.bounded("NTREE ", tmin, tmax, s);
-		Constraint gc = GraphConstraintFactory.nTrees(g, nTree);
+//		Constraint gc = GraphConstraintFactory.nTrees(g, nTree);
 		AbstractStrategy strategy = GraphStrategyFactory.random(g, seed);
 
-		s.post(gc);
+//		s.post(gc);
 		s.set(strategy);
 		s.findAllSolutions();
 

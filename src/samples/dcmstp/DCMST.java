@@ -154,7 +154,7 @@ public class DCMST extends AbstractProblem {
 		// graph var
 		graph = GraphVarFactory.undirectedGraph("G",GLB,GUB,solver);
 		// tree constraint
-		solver.post(new GraphConstraintFactory().spanning_tree(graph));
+		solver.post(GraphConstraintFactory.tree(graph));
 		// max degree constraint
 		solver.post(new Constraint("Graph_deg",
 						new PropNodeDegree_AtMost_Incr(graph, dMax),

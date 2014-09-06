@@ -156,6 +156,8 @@ new UndirectedGraph(Solver solver, int n, SetType type, boolean allNodes)
 new DirectedGraph(Solver solver, int n, SetType type, boolean allNodes)
 \end{lstlisting}
 
+The input maximum number of nodes should be the same for both the lower and the upper bound graphs. 
+
 The \texttt{Solver} provides a backtracking environment. The integer \texttt{n} denotes the maximum number of nodes. 
 This is necessary for memory allocation. \texttt{SetType type} indicates which kind of data structure to use. 
 Finally, the boolean \texttt{allNodes} indicates whether or not the node set is fixed. This parameter is very important. Whenever set to true, it means that the vertex set is $[0,n]$ and will not change during search. It is not necessary to add vertices explicitly. If set to false, it means that the vertex set must be a subset of $[0,n]$, and is initially EMPTY. Therefore, the user may have to add them explicitely (see the following example with \texttt{GUB.activateNode(i);}).
@@ -239,6 +241,10 @@ IntVar[] degrees = GraphVarFactory.degrees(g);
 
 In the same way, one can restrict the in-degree (number of predecessors) and out-degree (number of successors) of each node of a directed graph variable.  
  
+\subsubsection{Graph inclusion}
+
+The \texttt{subgraph(g1,g2)} constraint enables to state that $g1$ is a subgraph of $g2$, i.e. every vertex and edge in $g1$ is also in $g2$. It follows that $g1$ cannot be larger than $g2$. 
+
 \subsubsection{Symmetry}
 
 You can force a directed graph variable to be either symmetric or antisymmetric, by respectively using the \texttt{GCF.symmetric(g)} or the \texttt{GCF.antisymmetric(g)} constraints. For instance, by posting the following constraint you make sure that for any arc $(i,j)\in g$, then $(j,i) \notin g$.
@@ -246,7 +252,16 @@ You can force a directed graph variable to be either symmetric or antisymmetric,
 solver.post(GCF.antisymmetric(g));
 \end{lstlisting}  
 
-\subsubsection{Acyclicity}
+\subsubsection{Transitivity}
+
+Transitivity is a useful property which enables to compute transitive closures and cliques. 
+\begin{lstlisting}
+solver.post(GCF.transitivity(g));
+\end{lstlisting}  
+
+\subsubsection{Cycles}
+
+TODO (sub)cycle and (sub)circuit
 
 You can prevent a directed (resp. undirected) graph from containing any circuit (resp. cycle) by posting the \texttt{no\_circuit} (resp. \texttt{no\_cycle}) constraint, as follows:
 \begin{lstlisting}
@@ -265,8 +280,27 @@ solver.post(GraphConstraintFactory.nb_strongly_connected_components(g,nbSCC));
 \end{lstlisting}
 
 \subsubsection{Tree}
-\subsubsection{Graph inclusion}
-\subsubsection{Other constraints}
+
+You can force an undirected graph variable to form a tree (i.e. a connected acyclic graph) or a forest (i.e. an acyclic but potentially disconnected graph) by posting the respective constraints: 
+\begin{lstlisting}
+solver.post(GCF.tree(graphvar));
+solver.post(GCF.forest(graphvar));
+\end{lstlisting}
+
+In the case of directed graph variable, you can also have directed trees or directed forests (also called arborescences). 
+\begin{lstlisting}
+IntVar root = VF.enumerated("rootOfTree",0,n-1,solver);
+solver.post(GCF.directed_tree(graphvar,root));
+solver.post(GCF.directed_forest(graphvar));
+\end{lstlisting}
+
+Note that the \texttt{directed\_tree} constraint requires an integer variable denoting the root of the tree, i.e. the vertex which has no predecessor and from which all nodes can be reached. 
+
+\subsubsection{Cliques}
+
+It is possible to partition a graph into cliques by using the transitivity and connectivity constraints. Nevertheless, if the maximum number of cliques is small, a stronger filtering is provided by the \texttt{nb\_cliques(g,nb)} constraint. 
+
+\subsection{Optimization constraints}
 
 \subsection{Channeling constraints}
 
@@ -649,7 +683,7 @@ Here is the print of the graph variable initial domain :
 \begin{lstlisting}
 
 graph_var G
-envelope: // upper bound graph (with potential nodes and edges)
+upper bound: // (potential nodes and edges)
 nodes : 
 [0,63]
 neighbors : 
@@ -718,8 +752,8 @@ neighbors :
 62 -> {52 47 45 }
 63 -> {53 46 }
 
-kernel: 
-nodes :		// lower bound graph (with mandatory nodes and edges)
+lower bound:	// (mandatory nodes and edges)
+nodes :		
 [0,63]		// all vertices are mandatory
 neighbors :	// no edge is mandatory
 0 -> {}

@@ -62,8 +62,8 @@ public class PropKCC extends Propagator {
 		super(new Variable[]{graph, k}, PropagatorPriority.LINEAR, false);
 		this.g = graph;
 		this.k = k;
-		env_CC_finder = new ConnectivityFinder(g.getEnvelopGraph());
-		ker_CC_finder = new ConnectivityFinder(g.getKernelGraph());
+		env_CC_finder = new ConnectivityFinder(g.getUB());
+		ker_CC_finder = new ConnectivityFinder(g.getLB());
 	}
 
 	//***********************************************************************************

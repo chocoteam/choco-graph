@@ -29,8 +29,6 @@ package solver.variables.delta;
 import solver.ICause;
 import solver.exception.ContradictionException;
 import solver.variables.EventType;
-import solver.variables.delta.IGraphDelta;
-import solver.variables.delta.IGraphDeltaMonitor;
 import solver.search.loop.TimeStampedObject;
 import util.procedure.IntProcedure;
 import util.procedure.PairProcedure;

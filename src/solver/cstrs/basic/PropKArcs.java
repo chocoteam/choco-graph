@@ -89,7 +89,7 @@ public class PropKArcs extends Propagator {
             ISet env = g.getPotentialNodes();
             if (k.getValue() == nbE) {
                 for (int i = env.getFirstElement(); i >= 0; i = env.getNextElement()) {
-                    nei = g.getEnvelopGraph().getSuccsOrNeigh(i);
+                    nei = g.getUB().getSuccsOrNeigh(i);
                     for (int j = nei.getFirstElement(); j >= 0; j = nei.getNextElement()) {
                         g.enforceArc(i, j, aCause);
                     }
@@ -98,8 +98,8 @@ public class PropKArcs extends Propagator {
             if (k.getValue() == nbK) {
                 ISet neiKer;
                 for (int i = env.getFirstElement(); i >= 0; i = env.getNextElement()) {
-                    nei = g.getEnvelopGraph().getSuccsOrNeigh(i);
-                    neiKer = g.getKernelGraph().getSuccsOrNeigh(i);
+                    nei = g.getUB().getSuccsOrNeigh(i);
+                    neiKer = g.getLB().getSuccsOrNeigh(i);
                     for (int j = nei.getFirstElement(); j >= 0; j = nei.getNextElement()) {
                         if (!neiKer.contain(j)) {
                             g.removeArc(i, j, aCause);
@@ -126,8 +126,8 @@ public class PropKArcs extends Propagator {
         int nbE = 0;
         ISet env = g.getPotentialNodes();
         for (int i = env.getFirstElement(); i >= 0; i = env.getNextElement()) {
-            nbE += g.getEnvelopGraph().getSuccsOrNeigh(i).getSize();
-            nbK += g.getKernelGraph().getSuccsOrNeigh(i).getSize();
+            nbE += g.getUB().getSuccsOrNeigh(i).getSize();
+            nbK += g.getLB().getSuccsOrNeigh(i).getSize();
         }
         if (!g.isDirected()) {
             nbK /= 2;

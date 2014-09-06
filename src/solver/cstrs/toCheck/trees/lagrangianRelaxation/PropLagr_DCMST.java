@@ -144,7 +144,7 @@ public class PropLagr_DCMST extends Propagator implements GraphLagrangianRelaxat
             objUB = obj.getUB();
             convergeAndFilter();
             firstPropag = false;
-            g = gV.getEnvelopGraph();
+            g = gV.getUB();
         } else {
             fastRun(2);
         }

@@ -29,18 +29,11 @@ package solver.variables;
 
 import solver.ICause;
 import solver.Solver;
-import solver.constraints.Propagator;
 import solver.exception.ContradictionException;
 import solver.variables.delta.IGraphDelta;
-import solver.variables.delta.IGraphDeltaMonitor;
 import util.objects.graphs.DirectedGraph;
 import util.objects.setDataStructures.ISet;
 
-/**
- * Created by IntelliJ IDEA.
- * User: chameau, Jean-Guillaume Fages
- * Date: 7 feb. 2011
- */
 public class DirectedGraphVar extends GraphVar<DirectedGraph> implements IDirectedGraphVar{
 
 	////////////////////////////////// GRAPH PART ///////////////////////////////////////
@@ -68,11 +61,11 @@ public class DirectedGraphVar extends GraphVar<DirectedGraph> implements IDirect
     @Override
     public boolean removeArc(int x, int y, ICause cause) throws ContradictionException {
         assert cause != null;
-        if (kernel.arcExists(x, y)) {
+        if (LB.arcExists(x, y)) {
             this.contradiction(cause, EventType.REMOVEARC, "remove mandatory arc " + x + "->" + y);
             return false;
         }
-        if (envelop.removeArc(x, y)) {
+        if (UB.removeArc(x, y)) {
             if (reactOnModification) {
                 delta.add(x, IGraphDelta.AR_tail, cause);
                 delta.add(y, IGraphDelta.AR_head, cause);
@@ -89,8 +82,8 @@ public class DirectedGraphVar extends GraphVar<DirectedGraph> implements IDirect
         assert cause != null;
         enforceNode(x, cause);
         enforceNode(y, cause);
-        if (envelop.arcExists(x, y)) {
-            if (kernel.addArc(x, y)) {
+        if (UB.arcExists(x, y)) {
+            if (LB.addArc(x, y)) {
                 if (reactOnModification) {
                     delta.add(x, IGraphDelta.AE_tail, cause);
                     delta.add(y, IGraphDelta.AE_head, cause);
@@ -104,18 +97,6 @@ public class DirectedGraphVar extends GraphVar<DirectedGraph> implements IDirect
         this.contradiction(cause, EventType.ENFORCEARC, "enforce arc which is not in the domain");
         return false;
     }
-
-	@Override
-	public ISet getMandNeighOf(int idx){
-		throw new UnsupportedOperationException("undirected method should not " +
-				"be called on directed graph var");
-	}
-
-	@Override
-	public ISet getPotNeighOf(int idx) {
-		throw new UnsupportedOperationException("undirected method should not " +
-				"be called on directed graph var");
-	}
 
 	@Override
 	public ISet getMandSuccOf(int idx) {

@@ -28,10 +28,39 @@
 package solver.variables;
 
 import util.objects.graphs.DirectedGraph;
+import util.objects.setDataStructures.ISet;
 
-/**
- * Created by IntelliJ IDEA.
- * User: chameau, Jean-Guillaume Fages
- * Date: 7 feb. 2011
- */
-public interface IDirectedGraphVar extends IGraphVar<DirectedGraph> {}
+public interface IDirectedGraphVar extends IGraphVar<DirectedGraph> {
+
+	/**
+	 * Get the set of successors of vertex 'idx' in the lower bound graph
+	 * (mandatory outgoing arcs)
+	 * @param idx	a vertex
+	 * @return The set of successors of 'idx' in LB
+	 */
+	public ISet getMandSuccOf(int idx);
+
+	/**
+	 * Get the set of successors of vertex 'idx'
+	 * in the upper bound graph (potential outgoing arcs)
+	 * @param idx	a vertex
+	 * @return The set of successors of 'idx' in UB
+	 */
+	public ISet getPotSuccOf(int idx);
+
+	/**
+	 * Get the set of predecessors of vertex 'idx' in the lower bound graph
+	 * (mandatory ingoing arcs)
+	 * @param idx	a vertex
+	 * @return The set of predecessors of 'idx' in LB
+	 */
+	public ISet getMandPredOf(int idx);
+
+	/**
+	 * Get the set of predecessors of vertex 'idx'
+	 * in the upper bound graph (potential ingoing arcs)
+	 * @param idx	a vertex
+	 * @return The set of predecessors of 'idx' in UB
+	 */
+	public ISet getPotPredOf(int idx);
+}

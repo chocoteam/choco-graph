@@ -40,11 +40,6 @@ import solver.variables.impl.AbstractVariable;
 import util.objects.graphs.IGraph;
 import util.objects.setDataStructures.ISet;
 
-/**
- * Created by IntelliJ IDEA.
- * User: chameau, Jean-Guillaume Fages
- * Date: 7 feb. 2011
- */
 public abstract class GraphVar<E extends IGraph> extends AbstractVariable implements IGraphVar<E>{
 
     //////////////////////////////// GRAPH PART /////////////////////////////////////////
@@ -52,7 +47,7 @@ public abstract class GraphVar<E extends IGraph> extends AbstractVariable implem
     // VARIABLES
     //***********************************************************************************
 
-    protected E envelop, kernel;
+    protected E UB, LB;
     protected IGraphDelta delta;
 	protected int n;
     ///////////// Attributes related to Variable ////////////
@@ -69,8 +64,8 @@ public abstract class GraphVar<E extends IGraph> extends AbstractVariable implem
      */
     public GraphVar(String name, Solver solver, E LB, E UB) {
         super(name, solver);
-		this.kernel = LB;
-		this.envelop = UB;
+		this.LB = LB;
+		this.UB = UB;
 		this.n = UB.getNbNodes();
 		assert n == LB.getNbNodes();
     }
@@ -85,41 +80,35 @@ public abstract class GraphVar<E extends IGraph> extends AbstractVariable implem
             return false;
         }
         ISet suc;
-        ISet act = getEnvelopGraph().getActiveNodes();
+        ISet act = getUB().getActiveNodes();
         for (int i = act.getFirstElement(); i >= 0; i = act.getNextElement()) {
-            suc = envelop.getSuccsOrNeigh(i);
-            if (suc.getSize() != getKernelGraph().getSuccsOrNeigh(i).getSize()) {
+            suc = UB.getSuccsOrNeigh(i);
+            if (suc.getSize() != getLB().getSuccsOrNeigh(i).getSize()) {
                 return false;
             }
         }
         return true;
     }
 
-    /**
-     * Remove node x from the maximal partial subgraph
-     *
-     * @param x     node's index
-     * @param cause algorithm which is related to the removal
-     * @return true iff the removal has an effect
-     */
+	@Override
     public boolean removeNode(int x, ICause cause) throws ContradictionException {
         assert cause != null;
 		assert (x>=0 && x<n);
-        if (kernel.getActiveNodes().contain(x)) {
+        if (LB.getActiveNodes().contain(x)) {
             this.contradiction(cause, EventType.REMOVENODE, "remove mandatory node");
             return true;
-        } else if (!envelop.getActiveNodes().contain(x)) {
+        } else if (!UB.getActiveNodes().contain(x)) {
             return false;
         }
-        ISet nei = envelop.getSuccsOrNeigh(x);
+        ISet nei = UB.getSuccsOrNeigh(x);
         for (int i = nei.getFirstElement(); i >= 0; i = nei.getNextElement()) {
             removeArc(x, i, cause);
         }
-        nei = envelop.getPredsOrNeigh(x);
+        nei = UB.getPredsOrNeigh(x);
         for (int i = nei.getFirstElement(); i >= 0; i = nei.getNextElement()) {
             removeArc(i, x, cause);
         }
-        if (envelop.desactivateNode(x)) {
+        if (UB.desactivateNode(x)) {
             if (reactOnModification) {
                 delta.add(x, IGraphDelta.NR, cause);
             }
@@ -130,18 +119,12 @@ public abstract class GraphVar<E extends IGraph> extends AbstractVariable implem
         return false;
     }
 
-    /**
-     * Enforce the node x to belong to any partial subgraph
-     *
-     * @param x     node's index
-     * @param cause algorithm which is related to the modification
-     * @return true iff the node is effectively added to the mandatory structure
-     */
+	@Override
     public boolean enforceNode(int x, ICause cause) throws ContradictionException {
         assert cause != null;
 		assert (x>=0 && x<n);
-        if (envelop.getActiveNodes().contain(x)) {
-            if (kernel.activateNode(x)) {
+        if (UB.getActiveNodes().contain(x)) {
+            if (LB.activateNode(x)) {
                 if (reactOnModification) {
                     delta.add(x, IGraphDelta.NE, cause);
                 }
@@ -155,63 +138,44 @@ public abstract class GraphVar<E extends IGraph> extends AbstractVariable implem
         return true;
     }
 
-    /**
-     * Remove node y from the neighborhood of node x from the maximal partial subgraph
-     *
-     * @param x     node's index
-     * @param y     node's index
-     * @param cause algorithm which is related to the removal
-     * @return true iff the removal has an effect
-     * @throws ContradictionException
-     */
+	@Override
     public abstract boolean removeArc(int x, int y, ICause cause) throws ContradictionException;
 
-    /**
-     * Enforce the node y into the neighborhood of node x in any partial subgraph
-     *
-     * @param x     node's index
-     * @param y     node's index
-     * @param cause algorithm which is related to the removal
-     * @return true iff the node y is effectively added in the neighborhooh of node x
-     */
+	@Override
     public abstract boolean enforceArc(int x, int y, ICause cause) throws ContradictionException;
 
     //***********************************************************************************
     // ACCESSORS
     //***********************************************************************************
 
-    /**
-     * @return the graph representing the domain of the variable graph
-     */
-    public E getKernelGraph() {
-        return kernel;
+	@Override
+    public E getLB() {
+        return LB;
     }
 
-    /**
-     * @return the graph representing the instantiated values (nodes and edges) of the variable graph
-     */
-    public E getEnvelopGraph() {
-        return envelop;
+	@Override
+    public E getUB() {
+        return UB;
     }
 
 	@Override
 	public ISet getMandSuccOrNeighOf(int idx){
-		return kernel.getSuccsOrNeigh(idx);
+		return LB.getSuccsOrNeigh(idx);
 	}
 
 	@Override
 	public ISet getPotSuccOrNeighOf(int idx){
-		return envelop.getSuccsOrNeigh(idx);
+		return UB.getSuccsOrNeigh(idx);
 	}
 
 	@Override
 	public ISet getMandPredOrNeighOf(int idx){
-		return kernel.getPredsOrNeigh(idx);
+		return LB.getPredsOrNeigh(idx);
 	}
 
 	@Override
 	public ISet getPotPredOrNeighOf(int idx){
-		return envelop.getPredsOrNeigh(idx);
+		return UB.getPredsOrNeigh(idx);
 	}
 
 	@Override
@@ -221,17 +185,15 @@ public abstract class GraphVar<E extends IGraph> extends AbstractVariable implem
 
 	@Override
 	public ISet getMandatoryNodes() {
-		return kernel.getActiveNodes();
+		return LB.getActiveNodes();
 	}
 
 	@Override
 	public ISet getPotentialNodes() {
-		return envelop.getActiveNodes();
+		return UB.getActiveNodes();
 	}
 
-    /**
-     * @return true iff the graph is directed
-     */
+	@Override
     public abstract boolean isDirected();
 
     //***********************************************************************************
@@ -268,13 +230,13 @@ public abstract class GraphVar<E extends IGraph> extends AbstractVariable implem
         StringBuilder sb = new StringBuilder();
         sb.append("graph_var " + getName());
 		if(isInstantiated()){
-			sb.append("\nvalue: \n");
-			sb.append(envelop.toString());
+			sb.append("\nValue: \n");
+			sb.append(UB.toString());
 		}else{
-			sb.append("\nenvelope: \n");
-			sb.append(envelop.toString());
-			sb.append("\nkernel: \n");
-			sb.append(kernel.toString());
+			sb.append("\nUpper bound: \n");
+			sb.append(UB.toString());
+			sb.append("\nLower bound: \n");
+			sb.append(LB.toString());
 		}
         return sb.toString();
     }
@@ -310,18 +272,14 @@ public abstract class GraphVar<E extends IGraph> extends AbstractVariable implem
     // SOLUTIONS : STORE AND RESTORE
     //***********************************************************************************
 
-    /**
-     * @return the value of the graph variable represented through an adjacency matrix
-     *         plus a set of nodes (last line of value).
-     *         This method is not supposed to be used except for restoring solutions.
-     */
+	@Override
     public boolean[][] getValue() {
-        int n = getEnvelopGraph().getNbNodes();
+        int n = getUB().getNbNodes();
         boolean[][] vals = new boolean[n + 1][n];
-        ISet kerNodes = getKernelGraph().getActiveNodes();
+        ISet kerNodes = getLB().getActiveNodes();
         ISet kerSuccs;
         for (int i = kerNodes.getFirstElement(); i >= 0; i = kerNodes.getNextElement()) {
-            kerSuccs = getKernelGraph().getSuccsOrNeigh(i);
+            kerSuccs = getLB().getSuccsOrNeigh(i);
             for (int j = kerSuccs.getFirstElement(); j >= 0; j = kerSuccs.getNextElement()) {
                 vals[i][j] = true; // arc in
             }
@@ -330,15 +288,7 @@ public abstract class GraphVar<E extends IGraph> extends AbstractVariable implem
         return vals;
     }
 
-    /**
-     * Instantiates <code>this</code> to value which represents an adjacency
-     * matrix plus a set of nodes (last line of value).
-     * This method is not supposed to be used except for restoring solutions.
-     *
-     * @param value value of <code>this</code>
-     * @param cause
-     * @throws ContradictionException
-     */
+	@Override
     public void instantiateTo(boolean[][] value, ICause cause) throws ContradictionException {
         int n = value.length - 1;
         for (int i = 0; i < n; i++) {

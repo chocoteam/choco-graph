@@ -48,5 +48,4 @@ public interface IGraphDelta extends IDelta {
     public ICause getCause(int index, int type);
 
     public int getSize(int i);
-
 }

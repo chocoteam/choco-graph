@@ -88,7 +88,7 @@ public class PropLagr_OneTree extends Propagator implements GraphLagrangianRelax
 
     public PropLagr_OneTree(IUndirectedGraphVar graph, IntVar cost, int[][] costMatrix) {
         this(new Variable[]{graph, cost}, costMatrix);
-        g = graph.getEnvelopGraph();
+        g = graph.getUB();
 		gV = graph;
         obj = cost;
     }

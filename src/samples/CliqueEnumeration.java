@@ -100,10 +100,13 @@ public class CliqueEnumeration extends AbstractProblem {
 		final IntVar card = VF.fixed(3,solver);
 		solver.post(SCF.cardinality(vertices, card));
 
+		// constraint : the graph must be a clique
+		solver.post(GraphConstraintFactory.nb_cliques(graphvar, VariableFactory.fixed(1, solver)));
+
 		final AbstractStrategy<SetVar> setSearch = SetStrategyFactory.force_first(vertices);
 		final AbstractStrategy<IntVar> intSearch = IntStrategyFactory.minDom_LB(card);
 		final AbstractStrategy<IUndirectedGraphVar> graphSearch = GraphStrategyFactory.lexico(graphvar);
-		AbstractStrategy<Variable> randomSelector = new AbstractStrategy(new Variable[]{vertices,card,graphvar}) {
+		AbstractStrategy<Variable> randomSelector = new AbstractStrategy<Variable>(new Variable[]{vertices,card,graphvar}) {
 			Random rd;
 			AbstractStrategy[] strats;
 			ArrayList<Decision> choices;
@@ -133,9 +136,6 @@ public class CliqueEnumeration extends AbstractProblem {
 			}
 		};
 		solver.set(randomSelector);
-
-		// constraint : the graph must be a clique
-		solver.post(GraphConstraintFactory.nCliques(graphvar, VariableFactory.fixed(1, solver)));
 	}
 
 	@Override
