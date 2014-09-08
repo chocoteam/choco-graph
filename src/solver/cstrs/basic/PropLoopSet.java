@@ -30,32 +30,35 @@ package solver.cstrs.basic;
 import solver.constraints.Propagator;
 import solver.constraints.PropagatorPriority;
 import solver.exception.ContradictionException;
-import solver.variables.*;
+import solver.variables.EventType;
+import solver.variables.IGraphVar;
+import solver.variables.SetVar;
+import solver.variables.Variable;
 import util.ESat;
 import util.objects.setDataStructures.ISet;
 
 /**
- * Propagator that ensures that K loops belong to the final graph
+ * Propagator that ensures that each node of the given subset of nodes has a loop
  *
  * @author Jean-Guillaume Fages
  */
-public class PropKLoops extends Propagator {
+public class PropLoopSet extends Propagator<Variable> {
 
     //***********************************************************************************
     // VARIABLES
     //***********************************************************************************
 
     private IGraphVar g;
-    private IntVar k;
+    private SetVar loops;
 
     //***********************************************************************************
     // CONSTRUCTORS
     //***********************************************************************************
 
-    public PropKLoops(IGraphVar graph, IntVar k) {
-        super(new Variable[]{graph, k}, PropagatorPriority.LINEAR, false);
+    public PropLoopSet(IGraphVar graph, SetVar loops) {
+        super(new Variable[]{graph, loops}, PropagatorPriority.LINEAR, false);
         this.g = graph;
-        this.k = k;
+        this.loops = loops;
     }
 
     //***********************************************************************************
@@ -64,38 +67,24 @@ public class PropKLoops extends Propagator {
 
     @Override
     public void propagate(int evtmask) throws ContradictionException {
-        int min = 0;
-        int max = 0;
-        ISet nodes = g.getPotentialNodes();
-        for (int i = nodes.getFirstElement(); i >= 0; i = nodes.getNextElement()) {
-            if (g.getMandSuccOrNeighOf(i).contain(i)) {
-                min++;
-                max++;
-            } else if (g.getPotSuccOrNeighOf(i).contain(i)) {
-                max++;
-            }
-        }
-        k.updateLowerBound(min, aCause);
-        k.updateUpperBound(max, aCause);
-        if (min == max) {
-            setPassive();
-        } else if (k.isInstantiated()) {
-            if (k.getValue() == max) {
-                for (int i = nodes.getFirstElement(); i >= 0; i = nodes.getNextElement()) {
-                    if (g.getPotSuccOrNeighOf(i).contain(i)) {
-                        g.enforceArc(i, i, aCause);
-                    }
-                }
-                setPassive();
-            }else if (k.getValue() == min) {
-                for (int i = nodes.getFirstElement(); i >= 0; i = nodes.getNextElement()) {
-                    if (!g.getMandSuccOrNeighOf(i).contain(i)) {
-                        g.removeArc(i, i, aCause);
-                    }
-                }
-                setPassive();
-            }
-        }
+		ISet nodes = g.getPotentialNodes();
+		for(int i=nodes.getFirstElement();i>=0;i=nodes.getNextElement()){
+			if(g.getMandSuccOrNeighOf(i).contain(i)){ // mandatory loop detected
+				loops.addToKernel(i,aCause);
+			}else if(!g.getPotSuccOrNeighOf(i).contain(i)){ // no potential loop
+				loops.removeFromEnvelope(i,aCause);
+			}
+			else if(loops.kernelContains(i)){
+				g.enforceArc(i,i,aCause);
+			}else if(!loops.envelopeContains(i)){
+				g.removeArc(i,i,aCause);
+			}
+		}
+		for(int i=loops.getEnvelopeFirst();i>=0;i=loops.getEnvelopeNext()){
+			if(!nodes.contain(i)){
+				loops.removeFromEnvelope(i,aCause);
+			}
+		}
     }
 
     //***********************************************************************************
@@ -103,28 +92,18 @@ public class PropKLoops extends Propagator {
     //***********************************************************************************
 
     @Override
-    public int getPropagationConditions(int vIdx) {
-        return EventType.REMOVEARC.mask + EventType.ENFORCEARC.mask
-                + EventType.INCLOW.mask + EventType.DECUPP.mask + EventType.INSTANTIATE.mask;
-    }
-
-    @Override
     public ESat isEntailed() {
-        int min = 0;
-        int max = 0;
-        ISet env = g.getPotentialNodes();
-        for (int i = env.getFirstElement(); i >= 0; i = env.getNextElement()) {
-            if (g.getMandSuccOrNeighOf(i).contain(i)) {
-                min++;
-                max++;
-            } else if (g.getPotSuccOrNeighOf(i).contain(i)) {
-                max++;
-            }
-        }
-        if (k.getLB() > max || k.getUB() < min) {
-            return ESat.FALSE;
-        }
-        if (min == max) {
+		for(int i=loops.getKernelFirst();i>=0;i=loops.getKernelNext()){
+			if(!g.getPotSuccOrNeighOf(i).contain(i)){
+				return ESat.FALSE;
+			}
+		}
+		for(int i=g.getMandatoryNodes().getFirstElement();i>=0;i=g.getMandatoryNodes().getNextElement()){
+			if(g.getMandSuccOrNeighOf(i).contain(i) && !loops.envelopeContains(i)){
+				return ESat.FALSE;
+			}
+		}
+        if (isCompletelyInstantiated()) {
             return ESat.TRUE;
         }
         return ESat.UNDEFINED;

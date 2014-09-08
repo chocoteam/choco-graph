@@ -31,9 +31,9 @@ import org.testng.annotations.Test;
 import solver.Solver;
 import solver.constraints.Constraint;
 import solver.constraints.Propagator;
+import solver.cstrs.cycles.PropPathNoCircuit;
 import solver.cstrs.degree.PropNodeDegree_AtLeast_Coarse;
 import solver.cstrs.degree.PropNodeDegree_AtMost_Incr;
-import solver.cstrs.toCheck.path.PropPathNoCycle;
 import solver.search.loop.monitors.SearchMonitorFactory;
 import solver.search.GraphStrategyFactory;
 import solver.search.strategy.strategy.AbstractStrategy;
@@ -74,9 +74,9 @@ public class PathTest {
 				new PropNodeDegree_AtLeast_Coarse(g, Orientation.PREDECESSORS, preds),
 				new PropNodeDegree_AtMost_Incr(g, Orientation.PREDECESSORS, preds)
 		};
-		if (path) {
-			props = ArrayUtils.append(props,new Propagator[]{new PropPathNoCycle(g, 0, n - 1)});
-		}
+//		if (path) {
+//			props = ArrayUtils.append(props,new Propagator[]{new PropPathNoCircuit(g, 0, n - 1)});
+//		}
 //		if (arbo) {
 //			props = ArrayUtils.append(props,new Propagator[]{new PropArborescence(g, 0, true)});
 //		}

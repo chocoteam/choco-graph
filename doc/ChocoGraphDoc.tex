@@ -39,7 +39,7 @@
 %*****************************************************************************************
 % TITLE
 %*****************************************************************************************
-\author{Jean-Guillaume Fages \and Charles Prud'homme \thanks{ChocoTeam, choco3-support@mines-nantes.fr, TASC research team}}                       
+\author{Jean-Guillaume Fages \and Charles Prud'homme \and Xavier Lorca \thanks{ChocoTeam, choco3-support@mines-nantes.fr, TASC research team}}                       
 \title{Choco-Graph : a module for graph variables in the Choco CP solver}
 \maketitle
 
@@ -221,7 +221,13 @@ IntVar nbArcs = GraphVarFactory.nb_arcs(g);
 
 \subsubsection{Loops}
 
-Graph variables may contain loops, i.e. arcs of the from $(i,i)$. If you want the graph to contain no loops, then you should simply make sure the graph upper bound has initially no loop. Instead, if you wish every vertex to have a loop, then there are basically two options. If all vertices are mandatory, then you should simply make sure the graph lower bound has initially a loop on every node. Else, you can use the constraint \texttt{each\_no\_has\_loop(g)}. Finally, you can control the number of loops the graph variable has with an integer variable with the following : 
+Graph variables may contain loops, i.e. arcs of the from $(i,i)$. If you want the graph to contain no loops, then you should simply make sure the graph upper bound has initially no loop. Instead, if you wish some vertices to have a loop, then you can use the \texttt{loop\_set(g,l)} constraint which ensures that the set variable $l$ represents the nodes of $g$ that have a loop. You can also directly create that set variable using:
+\begin{lstlisting}
+SetVar loops = GraphVarFactory.loop_set(graphvar);
+\end{lstlisting} 
+
+%every vertex to have a loop, then there are basically two options. If all vertices are mandatory, then you should simply make sure the graph lower bound has initially a loop on every node. Else, you can use the constraint \texttt{each\_no\_has\_loop(g)}. 
+Finally, you can control the number of loops the graph variable has with an integer variable with the following : 
 \begin{lstlisting}
 IntVar nbLoops = GraphVarFactory.nb_loops(g);
 \end{lstlisting} 
@@ -261,7 +267,14 @@ solver.post(GCF.transitivity(g));
 
 \subsubsection{Cycles}
 
-TODO (sub)cycle and (sub)circuit
+To constrain an undirected graph variable to form a (Hamiltonian) cycle, then you can simply use the \texttt{cycle} (\texttt{hamiltonian\_cycle}) constraint: 
+\begin{lstlisting}
+solver.post(GraphConstraintFactory.cycle(g));
+\end{lstlisting} 
+In the same way, a directed graph variable can be forced to form a circuit.
+\begin{lstlisting}
+solver.post(GraphConstraintFactory.hamiltonian_circuit(g));
+\end{lstlisting} 
 
 You can prevent a directed (resp. undirected) graph from containing any circuit (resp. cycle) by posting the \texttt{no\_circuit} (resp. \texttt{no\_cycle}) constraint, as follows:
 \begin{lstlisting}
@@ -299,6 +312,10 @@ Note that the \texttt{directed\_tree} constraint requires an integer variable de
 \subsubsection{Cliques}
 
 It is possible to partition a graph into cliques by using the transitivity and connectivity constraints. Nevertheless, if the maximum number of cliques is small, a stronger filtering is provided by the \texttt{nb\_cliques(g,nb)} constraint. 
+
+\subsubsection{Diameter}
+
+You can impose the diameter of a graph variable to be equal to a given integer variable with the \texttt{diameter} constraint. This constraint also forces the graph variable to be connected (or strongly connected in case of a directed graph variable). As a recall, the diameter is the length (in number of arcs) of the largest shortest path between any pair of nodes. 
 
 \subsection{Optimization constraints}
 
@@ -367,8 +384,179 @@ An array of integer variables can be associated with:
 
 
 \subsection{Implementing your own constraint}
+
+In Choco-3, a constraint is nothing else but a String name and a set of propagators (filtering algorithm objects). Therefore, 
+to implement your own constraint, you need to create your own propagators. Let see an example with a simple constraint enforcing that a given directed graph should be antisymmetric, i.e. if an arc $(i,i)$ belong to the solution, then the arc $(j,i)$ is forbiden. This constraint can be created with the following line of code, where \texttt{PropAntiSymmetric} is a propagator:
+\begin{lstlisting}
+return new Constraint("antisymmetric", new PropAntiSymmetric(g));
+\end{lstlisting}
+
+Let us now investigate how to implement such a propagator. There are basically two ways : either use a non-incremental or an incremental propagator. 
+
 \subsubsection{Not incremental propagators}
+
+The simplest is the non-incremental approach, but it is also the slower. As we can see, every time the constraint is propagated, we perform an iteration over every mandatory arc (to remove its opposite if it has not been already done). 
+
+\begin{lstlisting}
+public class PropAntiSymmetric_coarse extends Propagator<IDirectedGraphVar> {
+
+    //***********************************************************************************
+    // VARIABLES
+    //***********************************************************************************
+
+	IDirectedGraphVar g;
+    int n;
+
+    //***********************************************************************************
+    // CONSTRUCTORS
+    //***********************************************************************************
+
+    public PropAntiSymmetric_coarse(IDirectedGraphVar graph) {
+        super(graph);
+        g = graph;
+        n = g.getNbMaxNodes();
+    }
+
+    //***********************************************************************************
+    // METHODS
+    //***********************************************************************************
+
+    @Override
+    public void propagate(int evtmask) throws ContradictionException {
+        ISet ker = g.getMandatoryNodes();
+        ISet succ;
+        // iterates over mandatory nodes
+        for (int i = ker.getFirstElement(); i >= 0; i = ker.getNextElement()) {
+            succ = g.getMandSuccOf(i);
+            // iterates over mandatory arcs
+            for (int j = succ.getFirstElement(); j >= 0; j = succ.getNextElement()) {
+                g.removeArc(j, i, aCause); // removes symmetric arcs
+            }
+        }
+    }
+
+    @Override
+    public int getPropagationConditions(int vIdx) {
+    	// propagation condition (facultative) : only propagate arc enforcing events
+        return EventType.ENFORCEARC.mask;
+    }
+
+    @Override // checker of partial instantiations, useful for reification
+    public ESat isEntailed() {
+        ISet ker = g.getMandatoryNodes();
+        ISet succ;
+        for (int i = ker.getFirstElement(); i >= 0; i = ker.getNextElement()) {
+            succ = g.getMandSuccOf(i);
+            for (int j = succ.getFirstElement(); j >= 0; j = succ.getNextElement()) {
+                if (g.getMandSuccOf(j).contain(i)) {
+                    return ESat.FALSE; // the constraint is violated
+                }
+            }
+        }
+        if (g.isInstantiated()) {
+            return ESat.TRUE; // the constraint is satisfied for sure
+        }
+        return ESat.UNDEFINED; // satisfiability is undefined 
+    }
+}
+\end{lstlisting}
+
 \subsubsection{Incremental propagators}
+
+In an incremental approach, then we can run in constant time per newly enforce arc, with the following implementation:
+\begin{lstlisting}
+public class PropAntiSymmetric extends Propagator<IDirectedGraphVar> {
+
+    //***********************************************************************************
+    // VARIABLES
+    //***********************************************************************************
+
+	IDirectedGraphVar g;
+    IGraphDeltaMonitor gdm; // object enabling to iterate over enforced/removed nodes/arcs
+    EnfProc enf; // procedure to apply to every enforced arc
+    int n;
+
+    //***********************************************************************************
+    // CONSTRUCTORS
+    //***********************************************************************************
+
+    public PropAntiSymmetric(IDirectedGraphVar graph) {
+        super(new IDirectedGraphVar[]{graph}, PropagatorPriority.UNARY, true);
+        g = graph;
+        gdm = g.monitorDelta(this);
+        enf = new EnfProc();
+        n = g.getNbMaxNodes();
+    }
+
+    //***********************************************************************************
+    // METHODS
+    //***********************************************************************************
+
+    @Override
+    public void propagate(int evtmask) throws ContradictionException {
+    // First propagation (not incremental)
+        ISet ker = g.getMandatoryNodes();
+        ISet succ;
+        for (int i = ker.getFirstElement(); i >= 0; i = ker.getNextElement()) {
+            succ = g.getMandSuccOf(i);
+            for (int j = succ.getFirstElement(); j >= 0; j = succ.getNextElement()) {
+                g.removeArc(j, i, aCause);
+            }
+        }
+        gdm.unfreeze(); // necessary call to setup incremental data-structures
+    }
+
+    @Override
+    public void propagate(int idxVarInProp, int mask) throws ContradictionException {
+    // incremental propagation over every enforced arc since the last call
+        gdm.freeze();
+        gdm.forEachArc(enf, EventType.ENFORCEARC);
+        gdm.unfreeze();
+    }
+
+    @Override
+    public int getPropagationConditions(int vIdx) {
+        return EventType.ENFORCEARC.mask;
+    }
+
+    @Override
+    public ESat isEntailed() {
+        ISet ker = g.getMandatoryNodes();
+        ISet succ;
+        for (int i = ker.getFirstElement(); i >= 0; i = ker.getNextElement()) {
+            succ = g.getMandSuccOf(i);
+            for (int j = succ.getFirstElement(); j >= 0; j = succ.getNextElement()) {
+                if (g.getMandSuccOf(j).contain(i)) {
+                    return ESat.FALSE;
+                }
+            }
+        }
+        if (g.isInstantiated()) {
+            return ESat.TRUE;
+        }
+        return ESat.UNDEFINED;
+    }
+
+    //***********************************************************************************
+    // PROCEDURES
+    //***********************************************************************************
+
+    /**
+     * Enable to remove the opposite arc
+     */
+    private class EnfProc implements PairProcedure {
+        @Override
+        public void execute(int from, int to) throws ContradictionException {
+            if (from != to) {
+                g.removeArc(to, from, aCause); // whenever (from,to) is enforced, (to,from) is removed
+            }
+        }
+    }
+}
+\end{lstlisting}
+
+Note that the super constructor is no longer the same : \texttt{super(new IDirectedGraphVar[]{graph}, PropagatorPriority.UNARY, true);}. 
+The first argument is the array of variables this propagator involves. The second one is an indicator of the runtime of the algorithm (here constant time). Finally, the last boolean argument states whether of not this propagator should be incremental or not. Therefore, it should be set to \texttt{true}.
 
 \newpage{}
 \section{Search}

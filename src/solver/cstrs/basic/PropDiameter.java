@@ -25,45 +25,44 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package solver.cstrs.connectivity;
+package solver.cstrs.basic;
 
+import gnu.trove.list.array.TIntArrayList;
 import solver.constraints.Propagator;
 import solver.constraints.PropagatorPriority;
 import solver.exception.ContradictionException;
-import solver.variables.IDirectedGraphVar;
+import solver.variables.IGraphVar;
 import solver.variables.IntVar;
-import solver.variables.Variable;
 import util.ESat;
-import util.graphOperations.connectivity.StrongConnectivityFinder;
 import util.objects.setDataStructures.ISet;
 
-/**
- * Propagator that ensures that the final graph consists in K Strongly Connected Components (SCC)
- * <p/>
- * simple checker and a bit of pruning (runs in linear time)
- *
- * @author Jean-Guillaume Fages
- */
-public class PropKSCC extends Propagator {
+import java.util.BitSet;
+
+public class PropDiameter extends Propagator<IGraphVar> {
 
 	//***********************************************************************************
 	// VARIABLES
 	//***********************************************************************************
 
-	private IDirectedGraphVar g;
-	private IntVar k;
-	private StrongConnectivityFinder env_CC_finder, ker_CC_finder;
+	private IGraphVar g;
+	private IntVar diameter;
+	private int n;
+	private BitSet visited;
+	private TIntArrayList set, nextSet;
+
 
 	//***********************************************************************************
 	// CONSTRUCTORS
 	//***********************************************************************************
 
-	public PropKSCC(IDirectedGraphVar graph, IntVar k) {
-		super(new Variable[]{graph, k}, PropagatorPriority.LINEAR, false);
+	public PropDiameter(IGraphVar graph, IntVar maxDiam) {
+		super(new IGraphVar[]{graph}, PropagatorPriority.LINEAR, false);
 		this.g = graph;
-		this.k = k;
-		env_CC_finder = new StrongConnectivityFinder(g.getUB());
-		ker_CC_finder = new StrongConnectivityFinder(g.getLB());
+		this.diameter = maxDiam;
+		n = g.getNbMaxNodes();
+		visited = new BitSet(n);
+		set = new TIntArrayList();
+		nextSet = new TIntArrayList();
 	}
 
 	//***********************************************************************************
@@ -72,65 +71,51 @@ public class PropKSCC extends Propagator {
 
 	@Override
 	public void propagate(int evtmask) throws ContradictionException {
-		// trivial case
-		k.updateLowerBound(0,aCause);
-		if(g.getPotentialNodes().getSize() == 0){
-			k.instantiateTo(0,aCause);
-			return;
-		}
-		if(k.getUB() == 0){
-			ISet nodes = g.getPotentialNodes();
-			for(int i = nodes.getFirstElement();i>=0;i=nodes.getNextElement()){
-				g.removeNode(i,aCause);
+		int max = -1;
+		for (int i = g.getPotentialNodes().getFirstElement(); i >= 0; i = g.getPotentialNodes().getNextElement()) {
+			if(g.getMandatoryNodes().contain(i)) {
+				diameter.updateLowerBound(BFS(i, true), aCause);
 			}
-			return;
+			max = Math.max(max,BFS(i,false));
 		}
-
-		// bound computation
-		int min = minCC();
-		int max = maxCC();
-		k.updateLowerBound(min, aCause);
-		k.updateUpperBound(max,aCause);
-
-		// A bit of pruning (removes unreachable nodes)
-		if(k.getUB() == min && min != max){
-			int ccs = env_CC_finder.getNbSCC();
-			boolean pot = true;
-			for (int cc = 0; cc < ccs; cc++) {
-				for (int i = env_CC_finder.getSCCFirstNode(cc); i >= 0 && pot; i = env_CC_finder.getNextNode(i)) {
-					if (g.getMandatoryNodes().contain(i)) {
-						pot = false;
-					}
-				}
-				if(pot){
-					for (int i = env_CC_finder.getSCCFirstNode(cc); i >= 0 && pot; i = env_CC_finder.getNextNode(i)) {
-						g.removeNode(i,aCause);
-					}
-				}
-			}
-		}
+		diameter.updateUpperBound(max,aCause);
 	}
 
-	public int minCC() {
-		env_CC_finder.findAllSCC();
-		int ccs = env_CC_finder.getNbSCC();
-		int minCC = 0;
-		for (int cc = 0; cc < ccs; cc++) {
-			for (int i = env_CC_finder.getSCCFirstNode(cc); i >= 0; i = env_CC_finder.getNextNode(i)) {
-				if (g.getMandatoryNodes().contain(i)) {
-					minCC++;
-					break;
+	private int BFS(int i, boolean min) {
+		nextSet.clear();
+		set.clear();
+		visited.clear();
+		set.add(i);
+		visited.set(i);
+		ISet nei;
+		int depth = 0;
+		int nbMand = g.getMandatoryNodes().getSize();
+		int count = 1;
+		while (!set.isEmpty()) {
+			for (i = set.size() - 1; i >= 0; i--) {
+				nei = g.getPotSuccOrNeighOf(set.get(i));
+				for (int j = nei.getFirstElement(); j >= 0; j = nei.getNextElement()) {
+					if (!visited.get(j)) {
+						visited.set(j);
+						nextSet.add(j);
+						if(min) {
+							if (g.getMandatoryNodes().contain(j)) {
+								count++;
+								if (count == nbMand) {
+									return depth + 1;
+								}
+							}
+						}
+					}
 				}
 			}
+			depth++;
+			TIntArrayList tmp = nextSet;
+			nextSet = set;
+			set = tmp;
+			nextSet.clear();
 		}
-		return minCC;
-	}
-
-	public int maxCC() {
-		ker_CC_finder.findAllSCC();
-		int nbK = ker_CC_finder.getNbSCC();
-		int delta = g.getPotentialNodes().getSize()-g.getMandatoryNodes().getSize();
-		return nbK+delta;
+		return depth;
 	}
 
 	//***********************************************************************************
@@ -139,12 +124,6 @@ public class PropKSCC extends Propagator {
 
 	@Override
 	public ESat isEntailed() {
-		if (k.getUB() < minCC() || k.getLB()>maxCC()) {
-			return ESat.FALSE;
-		}
-		if (isCompletelyInstantiated()) {
-			return ESat.TRUE;
-		}
-		return ESat.UNDEFINED;
+		throw new UnsupportedOperationException("isEntail() not implemented yet");
 	}
 }

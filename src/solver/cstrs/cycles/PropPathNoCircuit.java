@@ -32,7 +32,7 @@
  * Time: 19:56
  */
 
-package solver.cstrs.toCheck.tsp.undirected;
+package solver.cstrs.cycles;
 
 import memory.IEnvironment;
 import memory.IStateInt;
@@ -41,25 +41,26 @@ import solver.constraints.PropagatorPriority;
 import solver.exception.ContradictionException;
 import solver.variables.EventType;
 import solver.variables.delta.IGraphDeltaMonitor;
-import solver.variables.IUndirectedGraphVar;
+import solver.variables.IDirectedGraphVar;
 import util.ESat;
-import util.objects.setDataStructures.ISet;
 import util.procedure.PairProcedure;
 
 /**
- * Simple NoSubtour of Caseau-Laburthe adapted to the undirected case
+ * Simple nocircuit contraint (from noCycle of Caseaux/Laburthe)
+ *
+ * @author Jean-Guillaume Fages
  */
-public class PropCycleNoSubtour extends Propagator<IUndirectedGraphVar> {
+public class PropPathNoCircuit extends Propagator<IDirectedGraphVar> {
 
     //***********************************************************************************
     // VARIABLES
     //***********************************************************************************
 
-    private IUndirectedGraphVar g;
-    private IGraphDeltaMonitor gdm;
-    private int n;
+    IDirectedGraphVar g;
+    IGraphDeltaMonitor gdm;
+    int n;
     private PairProcedure arcEnforced;
-    private IStateInt[] e1, e2, size;
+    private IStateInt[] origin, end, size;
 
     //***********************************************************************************
     // CONSTRUCTORS
@@ -71,20 +72,20 @@ public class PropCycleNoSubtour extends Propagator<IUndirectedGraphVar> {
      *
      * @param graph
      */
-    public PropCycleNoSubtour(IUndirectedGraphVar graph) {
-        super(new IUndirectedGraphVar[]{graph}, PropagatorPriority.LINEAR, true);
+    public PropPathNoCircuit(IDirectedGraphVar graph) {
+        super(new IDirectedGraphVar[]{graph}, PropagatorPriority.LINEAR, true);
         g = graph;
         gdm = g.monitorDelta(this);
         this.n = g.getNbMaxNodes();
         arcEnforced = new EnfArc();
-        e1 = new IStateInt[n];
-        e2 = new IStateInt[n];
+        origin = new IStateInt[n];
         size = new IStateInt[n];
+        end = new IStateInt[n];
 		IEnvironment environment = solver.getEnvironment();
         for (int i = 0; i < n; i++) {
-            e1[i] = environment.makeInt(i);
-            e2[i] = environment.makeInt(i);
+            origin[i] = environment.makeInt(i);
             size[i] = environment.makeInt(1);
+            end[i] = environment.makeInt(i);
         }
     }
 
@@ -94,18 +95,16 @@ public class PropCycleNoSubtour extends Propagator<IUndirectedGraphVar> {
 
     @Override
     public void propagate(int evtmask) throws ContradictionException {
+        int j;
         for (int i = 0; i < n; i++) {
-            e1[i].set(i);
-            e2[i].set(i);
+            end[i].set(i);
+            origin[i].set(i);
             size[i].set(1);
         }
-        ISet nei;
         for (int i = 0; i < n; i++) {
-            nei = g.getMandNeighOf(i);
-            for (int j = nei.getFirstElement(); j >= 0; j = nei.getNextElement()) {
-                if (i < j) {
-                    enforce(i, j);
-                }
+            j = g.getMandSuccOf(i).getFirstElement();
+            if (j != -1) {
+                enforce(i, j);
             }
         }
         gdm.unfreeze();
@@ -125,55 +124,26 @@ public class PropCycleNoSubtour extends Propagator<IUndirectedGraphVar> {
 
     @Override
     public ESat isEntailed() {
-        ISet nodes = g.getMandatoryNodes();
-        for (int i = nodes.getFirstElement(); i >= 0; i = nodes.getNextElement()) {
-            if (g.getMandNeighOf(i).getSize() > 2 || g.getPotNeighOf(i).getSize() < 2) {
-                return ESat.FALSE;
-            }
-        }
-//        ConnectivityFinder cf = new ConnectivityFinder(g.getUB());
-//        if (!cf.isBiconnected()) {
-//            return ESat.FALSE;
-//        }
-        if (g.isInstantiated()) {
-            return ESat.TRUE;
-        }
-        return ESat.UNDEFINED;
+        throw new UnsupportedOperationException("isEntail() not implemented yet");
     }
 
     private void enforce(int i, int j) throws ContradictionException {
-        int ext1 = getExt(i);
-        int ext2 = getExt(j);
-        int t = size[ext1].get() + size[ext2].get();
-        setExt(ext1, ext2);
-        setExt(ext2, ext1);
-        size[ext1].set(t);
-        size[ext2].set(t);
-        if (t > 2 && t <= n)
-            if (t < n) {
-                g.removeArc(ext1, ext2, aCause);
-            } else if (t == n) {
-                g.enforceArc(ext1, ext2, aCause);
-            }
-    }
-
-    private int getExt(int i) {
-        return (e1[i].get() == i) ? e2[i].get() : e1[i].get();
-    }
-
-    private void setExt(int i, int ext) {
-        if (e1[i].get() == i) {
-            e2[i].set(ext);
-        } else {
-            e1[i].set(ext);
+        int last = end[j].get();
+        int start = origin[i].get();
+        if (origin[j].get() != j) {
+            contradiction(g, "");
         }
+        g.removeArc(last, start, aCause);
+        origin[last].set(start);
+        end[start].set(last);
+        size[start].add(size[j].get());
     }
 
     //***********************************************************************************
     // PROCEDURES
     //***********************************************************************************
 
-    protected class EnfArc implements PairProcedure {
+    private class EnfArc implements PairProcedure {
         @Override
         public void execute(int i, int j) throws ContradictionException {
             enforce(i, j);

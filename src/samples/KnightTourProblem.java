@@ -62,7 +62,7 @@ public class KnightTourProblem extends AbstractProblem {
 	@Option(name = "-tl", usage = "time limit.", required = false)
 	private long limit = 20000;
 	@Option(name = "-bl", usage = "Board length.", required = false)
-	private int boardLength = 8;
+	private int boardLength = 100;
 	@Option(name = "-open", usage = "Open tour (path instead of cycle).", required = false)
 	private boolean closedTour = true;
 
@@ -104,7 +104,7 @@ public class KnightTourProblem extends AbstractProblem {
 		}
 		graph = GraphVarFactory.undirectedGraph("G", GLB, GUB, solver);
 		// constraints
-		solver.post(GraphConstraintFactory.hamiltonianCycle(graph));
+		solver.post(GraphConstraintFactory.hamiltonian_cycle(graph));
 	}
 
 	@Override
@@ -117,9 +117,9 @@ public class KnightTourProblem extends AbstractProblem {
 
 	@Override
 	public void solve() {
-		System.out.println(graph);
+//		System.out.println(graph);
 		solver.findSolution();
-		System.out.println(graph);
+//		System.out.println(graph);
 	}
 
 	@Override

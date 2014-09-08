@@ -25,44 +25,33 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package solver.cstrs.toCheck.basic;
+package solver.cstrs.connectivity;
 
-import gnu.trove.list.array.TIntArrayList;
 import solver.constraints.Propagator;
 import solver.constraints.PropagatorPriority;
 import solver.exception.ContradictionException;
 import solver.variables.EventType;
 import solver.variables.IUndirectedGraphVar;
 import util.ESat;
-import util.objects.setDataStructures.ISet;
+import util.graphOperations.connectivity.ConnectivityFinder;
 
-import java.util.BitSet;
-
-public class PropMaxDiameterFromNode extends Propagator<IUndirectedGraphVar> {
+public class PropBiconnected extends Propagator<IUndirectedGraphVar> {
 
     //***********************************************************************************
     // VARIABLES
     //***********************************************************************************
 
     private IUndirectedGraphVar g;
-    private int maxDiam, node, n;
-    private BitSet visited;
-    private TIntArrayList set, nextSet;
-
+    private ConnectivityFinder env_CC_finder;
 
     //***********************************************************************************
     // CONSTRUCTORS
     //***********************************************************************************
 
-    public PropMaxDiameterFromNode(IUndirectedGraphVar graph, int maxDiam, int rootNode) {
-        super(new IUndirectedGraphVar[]{graph}, PropagatorPriority.LINEAR, true);
-        this.g = vars[0];
-        this.node = rootNode;
-        this.maxDiam = maxDiam;
-        this.n = g.getNbMaxNodes();
-        this.visited = new BitSet(n);
-        this.set = new TIntArrayList();
-        this.nextSet = new TIntArrayList();
+    public PropBiconnected(IUndirectedGraphVar graph) {
+        super(new IUndirectedGraphVar[]{graph}, PropagatorPriority.LINEAR, false);
+        this.g = graph;
+        env_CC_finder = new ConnectivityFinder(g.getUB());
     }
 
     //***********************************************************************************
@@ -71,45 +60,9 @@ public class PropMaxDiameterFromNode extends Propagator<IUndirectedGraphVar> {
 
     @Override
     public void propagate(int evtmask) throws ContradictionException {
-        g.enforceNode(node, aCause);
-        if (BFS() >= maxDiam) {
-            for (int i = visited.nextClearBit(0); i < n; i = visited.nextClearBit(i + 1)) {
-                g.removeNode(i, aCause);
-            }
+        if (g.getPotentialNodes().getSize() == g.getMandatoryNodes().getSize() && !env_CC_finder.isBiconnected()) {
+            contradiction(g, "");
         }
-    }
-
-    public int BFS() {
-        int i = node;
-        nextSet.clear();
-        set.clear();
-        visited.clear();
-        set.add(i);
-        visited.set(i);
-        ISet nei;
-        int depth = 0;
-        while (!set.isEmpty() && depth < maxDiam) {
-            for (i = set.size() - 1; i >= 0; i--) {
-                nei = g.getPotNeighOf(set.get(i));
-                for (int j = nei.getFirstElement(); j >= 0; j = nei.getNextElement()) {
-                    if (!visited.get(j)) {
-                        visited.set(j);
-                        nextSet.add(j);
-                    }
-                }
-            }
-            depth++;
-            TIntArrayList tmp = nextSet;
-            nextSet = set;
-            set = tmp;
-            nextSet.clear();
-        }
-        return depth;
-    }
-
-    @Override
-    public void propagate(int idxVarInProp, int mask) throws ContradictionException {
-        propagate(0);
     }
 
     //***********************************************************************************
@@ -118,22 +71,16 @@ public class PropMaxDiameterFromNode extends Propagator<IUndirectedGraphVar> {
 
     @Override
     public int getPropagationConditions(int vIdx) {
-        return EventType.REMOVEARC.mask + EventType.ENFORCENODE.mask;
+        return EventType.REMOVENODE.mask + EventType.REMOVEARC.mask + EventType.ENFORCENODE.mask;
     }
 
     @Override
     public ESat isEntailed() {
-        ISet nodes = g.getMandatoryNodes();
-        if (!nodes.contain(node)) {
+		if (g.getPotentialNodes().getSize() == g.getMandatoryNodes().getSize()){
+			return ESat.UNDEFINED;
+		}
+        if (!env_CC_finder.isBiconnected()) {
             return ESat.FALSE;
-        }
-        int k = BFS();
-        if (k >= maxDiam) {
-            for (int i = visited.nextClearBit(0); i < n; i = visited.nextClearBit(i + 1)) {
-                if (nodes.contain(i)) {
-                    return ESat.FALSE;
-                }
-            }
         }
         if (g.isInstantiated()) {
             return ESat.TRUE;

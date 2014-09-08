@@ -35,8 +35,8 @@ import solver.Cause;
 import solver.Solver;
 import solver.constraints.Constraint;
 import solver.constraints.IntConstraintFactory;
-import solver.cstrs.connectivity.PropKSCC;
-import solver.cstrs.basic.PropKNodes;
+import solver.cstrs.basic.PropNbNodes;
+import solver.cstrs.connectivity.PropNbSCC;
 import solver.cstrs.degree.PropNodeDegree_AtLeast_Coarse;
 import solver.cstrs.degree.PropNodeDegree_AtMost_Incr;
 import solver.exception.ContradictionException;
@@ -109,8 +109,8 @@ public class SubCircuitProblem extends AbstractProblem {
 		graph = GraphVarFactory.directedGraph("G", GLB, GUB, solver);
 		circuitLength = VariableFactory.bounded("length",0,n,solver);
 		solver.post(new Constraint("SubCircuit",
-				new PropKNodes(graph, circuitLength),
-				new PropKSCC(graph,VariableFactory.fixed(1,solver)),
+				new PropNbNodes(graph, circuitLength),
+				new PropNbSCC(graph,VariableFactory.fixed(1,solver)),
 				new PropNodeDegree_AtLeast_Coarse(graph, Orientation.SUCCESSORS, 1),
 				new PropNodeDegree_AtLeast_Coarse(graph, Orientation.PREDECESSORS, 1),
 				new PropNodeDegree_AtMost_Incr(graph, Orientation.SUCCESSORS, 1),

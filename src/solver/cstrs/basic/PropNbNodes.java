@@ -38,24 +38,24 @@ import util.ESat;
 import util.objects.setDataStructures.ISet;
 
 /**
- * Propagator that ensures that K arcs/edges belong to the final graph
+ * Propagator that ensures that K nodes belong to the final graph
  *
  * @author Jean-Guillaume Fages
  */
-public class PropKArcs extends Propagator {
+public class PropNbNodes extends Propagator {
 
     //***********************************************************************************
     // VARIABLES
     //***********************************************************************************
 
-    protected IGraphVar g;
-    protected IntVar k;
+    private IGraphVar g;
+    private IntVar k;
 
     //***********************************************************************************
     // CONSTRUCTORS
     //***********************************************************************************
 
-    public PropKArcs(IGraphVar graph, IntVar k) {
+    public PropNbNodes(IGraphVar graph, IntVar k) {
         super(new Variable[]{graph, k}, PropagatorPriority.LINEAR, false);
         this.g = graph;
         this.k = k;
@@ -67,45 +67,28 @@ public class PropKArcs extends Propagator {
 
     @Override
     public void propagate(int evtmask) throws ContradictionException {
-        int nbK = 0;
-        int nbE = 0;
-        ISet env = g.getPotentialNodes();
-        for (int i = env.getFirstElement(); i >= 0; i = env.getNextElement()) {
-            nbE += g.getPotSuccOrNeighOf(i).getSize();
-            nbK += g.getMandSuccOrNeighOf(i).getSize();
-        }
-        if (!g.isDirected()) {
-            nbK /= 2;
-            nbE /= 2;
-        }
-        filter(nbK, nbE);
-    }
-
-    private void filter(int nbK, int nbE) throws ContradictionException {
-        k.updateLowerBound(nbK, aCause);
-        k.updateUpperBound(nbE, aCause);
-        if (nbK != nbE && k.isInstantiated()) {
-            ISet nei;
-            ISet env = g.getPotentialNodes();
-            if (k.getValue() == nbE) {
-                for (int i = env.getFirstElement(); i >= 0; i = env.getNextElement()) {
-                    nei = g.getUB().getSuccsOrNeigh(i);
-                    for (int j = nei.getFirstElement(); j >= 0; j = nei.getNextElement()) {
-                        g.enforceArc(i, j, aCause);
+        int env = g.getPotentialNodes().getSize();
+        int ker = g.getMandatoryNodes().getSize();
+        k.updateLowerBound(ker, aCause);
+        k.updateUpperBound(env, aCause);
+        if (ker == env) {
+            setPassive();
+        } else if (k.isInstantiated()) {
+            int v = k.getValue();
+            ISet envNodes = g.getPotentialNodes();
+            if (v == env) {
+                for (int i = envNodes.getFirstElement(); i >= 0; i = envNodes.getNextElement()) {
+                    g.enforceNode(i, aCause);
+                }
+                setPassive();
+            } else if (v == ker) {
+                ISet kerNodes = g.getMandatoryNodes();
+                for (int i = envNodes.getFirstElement(); i >= 0; i = envNodes.getNextElement()) {
+                    if (!kerNodes.contain(i)) {
+                        g.removeNode(i, aCause);
                     }
                 }
-            }
-            if (k.getValue() == nbK) {
-                ISet neiKer;
-                for (int i = env.getFirstElement(); i >= 0; i = env.getNextElement()) {
-                    nei = g.getUB().getSuccsOrNeigh(i);
-                    neiKer = g.getLB().getSuccsOrNeigh(i);
-                    for (int j = nei.getFirstElement(); j >= 0; j = nei.getNextElement()) {
-                        if (!neiKer.contain(j)) {
-                            g.removeArc(i, j, aCause);
-                        }
-                    }
-                }
+                setPassive();
             }
         }
     }
@@ -116,27 +99,17 @@ public class PropKArcs extends Propagator {
 
     @Override
     public int getPropagationConditions(int vIdx) {
-        return EventType.REMOVEARC.mask + EventType.ENFORCEARC.mask
-                + EventType.INCLOW.mask + EventType.DECUPP.mask + EventType.INSTANTIATE.mask;
+        return EventType.REMOVENODE.mask + EventType.ENFORCENODE.mask + EventType.INSTANTIATE.mask + EventType.INCLOW.mask + EventType.DECUPP.mask;
     }
 
     @Override
     public ESat isEntailed() {
-        int nbK = 0;
-        int nbE = 0;
-        ISet env = g.getPotentialNodes();
-        for (int i = env.getFirstElement(); i >= 0; i = env.getNextElement()) {
-            nbE += g.getUB().getSuccsOrNeigh(i).getSize();
-            nbK += g.getLB().getSuccsOrNeigh(i).getSize();
-        }
-        if (!g.isDirected()) {
-            nbK /= 2;
-            nbE /= 2;
-        }
-        if (nbK > k.getUB() || nbE < k.getLB()) {
+        int env = g.getPotentialNodes().getSize();
+        int ker = g.getMandatoryNodes().getSize();
+        if (env < k.getLB() || ker > k.getUB()) {
             return ESat.FALSE;
         }
-        if (k.isInstantiated() && g.isInstantiated()) {
+        if (env == ker) {
             return ESat.TRUE;
         }
         return ESat.UNDEFINED;

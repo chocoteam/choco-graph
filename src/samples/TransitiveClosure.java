@@ -30,7 +30,7 @@ package samples;
 import solver.ResolutionPolicy;
 import solver.Solver;
 import solver.constraints.Constraint;
-import solver.cstrs.basic.PropKArcs;
+import solver.cstrs.basic.PropNbArcs;
 import solver.cstrs.basic.PropTransitivity;
 import solver.search.GraphStrategyFactory;
 import solver.search.strategy.ISF;
@@ -83,7 +83,7 @@ public class TransitiveClosure extends AbstractProblem{
 		tc = GraphVarFactory.directedGraph("transitive closure", GLB, GUB, solver);
 
 		// CONSTRAINTS
-		solver.post(new Constraint("Graph_TC",new PropTransitivity(tc),new PropKArcs(tc,nbArcs)));
+		solver.post(new Constraint("Graph_TC",new PropTransitivity(tc),new PropNbArcs(tc,nbArcs)));
 	}
 
 	@Override

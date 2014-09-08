@@ -30,19 +30,16 @@ package solver.cstrs.basic;
 import solver.constraints.Propagator;
 import solver.constraints.PropagatorPriority;
 import solver.exception.ContradictionException;
-import solver.variables.EventType;
-import solver.variables.IGraphVar;
-import solver.variables.IntVar;
-import solver.variables.Variable;
+import solver.variables.*;
 import util.ESat;
 import util.objects.setDataStructures.ISet;
 
 /**
- * Propagator that ensures that K nodes belong to the final graph
+ * Propagator that ensures that K loops belong to the final graph
  *
  * @author Jean-Guillaume Fages
  */
-public class PropKNodes extends Propagator {
+public class PropNbLoops extends Propagator {
 
     //***********************************************************************************
     // VARIABLES
@@ -55,7 +52,7 @@ public class PropKNodes extends Propagator {
     // CONSTRUCTORS
     //***********************************************************************************
 
-    public PropKNodes(IGraphVar graph, IntVar k) {
+    public PropNbLoops(IGraphVar graph, IntVar k) {
         super(new Variable[]{graph, k}, PropagatorPriority.LINEAR, false);
         this.g = graph;
         this.k = k;
@@ -67,25 +64,33 @@ public class PropKNodes extends Propagator {
 
     @Override
     public void propagate(int evtmask) throws ContradictionException {
-        int env = g.getPotentialNodes().getSize();
-        int ker = g.getMandatoryNodes().getSize();
-        k.updateLowerBound(ker, aCause);
-        k.updateUpperBound(env, aCause);
-        if (ker == env) {
+        int min = 0;
+        int max = 0;
+        ISet nodes = g.getPotentialNodes();
+        for (int i = nodes.getFirstElement(); i >= 0; i = nodes.getNextElement()) {
+            if (g.getMandSuccOrNeighOf(i).contain(i)) {
+                min++;
+                max++;
+            } else if (g.getPotSuccOrNeighOf(i).contain(i)) {
+                max++;
+            }
+        }
+        k.updateLowerBound(min, aCause);
+        k.updateUpperBound(max, aCause);
+        if (min == max) {
             setPassive();
         } else if (k.isInstantiated()) {
-            int v = k.getValue();
-            ISet envNodes = g.getPotentialNodes();
-            if (v == env) {
-                for (int i = envNodes.getFirstElement(); i >= 0; i = envNodes.getNextElement()) {
-                    g.enforceNode(i, aCause);
+            if (k.getValue() == max) {
+                for (int i = nodes.getFirstElement(); i >= 0; i = nodes.getNextElement()) {
+                    if (g.getPotSuccOrNeighOf(i).contain(i)) {
+                        g.enforceArc(i, i, aCause);
+                    }
                 }
                 setPassive();
-            } else if (v == ker) {
-                ISet kerNodes = g.getMandatoryNodes();
-                for (int i = envNodes.getFirstElement(); i >= 0; i = envNodes.getNextElement()) {
-                    if (!kerNodes.contain(i)) {
-                        g.removeNode(i, aCause);
+            }else if (k.getValue() == min) {
+                for (int i = nodes.getFirstElement(); i >= 0; i = nodes.getNextElement()) {
+                    if (!g.getMandSuccOrNeighOf(i).contain(i)) {
+                        g.removeArc(i, i, aCause);
                     }
                 }
                 setPassive();
@@ -99,17 +104,27 @@ public class PropKNodes extends Propagator {
 
     @Override
     public int getPropagationConditions(int vIdx) {
-        return EventType.REMOVENODE.mask + EventType.ENFORCENODE.mask + EventType.INSTANTIATE.mask + EventType.INCLOW.mask + EventType.DECUPP.mask;
+        return EventType.REMOVEARC.mask + EventType.ENFORCEARC.mask
+                + EventType.INCLOW.mask + EventType.DECUPP.mask + EventType.INSTANTIATE.mask;
     }
 
     @Override
     public ESat isEntailed() {
-        int env = g.getPotentialNodes().getSize();
-        int ker = g.getMandatoryNodes().getSize();
-        if (env < k.getLB() || ker > k.getUB()) {
+        int min = 0;
+        int max = 0;
+        ISet env = g.getPotentialNodes();
+        for (int i = env.getFirstElement(); i >= 0; i = env.getNextElement()) {
+            if (g.getMandSuccOrNeighOf(i).contain(i)) {
+                min++;
+                max++;
+            } else if (g.getPotSuccOrNeighOf(i).contain(i)) {
+                max++;
+            }
+        }
+        if (k.getLB() > max || k.getUB() < min) {
             return ESat.FALSE;
         }
-        if (env == ker) {
+        if (min == max) {
             return ESat.TRUE;
         }
         return ESat.UNDEFINED;

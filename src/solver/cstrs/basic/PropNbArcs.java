@@ -32,35 +32,33 @@ import solver.constraints.PropagatorPriority;
 import solver.exception.ContradictionException;
 import solver.variables.EventType;
 import solver.variables.IGraphVar;
+import solver.variables.IntVar;
+import solver.variables.Variable;
 import util.ESat;
 import util.objects.setDataStructures.ISet;
 
 /**
- * Propagator that ensures that each node of the given subset of nodes has a loop
+ * Propagator that ensures that K arcs/edges belong to the final graph
  *
  * @author Jean-Guillaume Fages
  */
-public class PropEachNodeHasLoop extends Propagator<IGraphVar> {
+public class PropNbArcs extends Propagator {
 
     //***********************************************************************************
     // VARIABLES
     //***********************************************************************************
 
-    private IGraphVar g;
-    private ISet concernedNodes;
+    protected IGraphVar g;
+    protected IntVar k;
 
     //***********************************************************************************
     // CONSTRUCTORS
     //***********************************************************************************
 
-    public PropEachNodeHasLoop(IGraphVar graph, ISet concernedNodes) {
-        super(new IGraphVar[]{graph}, PropagatorPriority.LINEAR, false);
+    public PropNbArcs(IGraphVar graph, IntVar k) {
+        super(new Variable[]{graph, k}, PropagatorPriority.LINEAR, false);
         this.g = graph;
-        this.concernedNodes = concernedNodes;
-    }
-
-    public PropEachNodeHasLoop(IGraphVar graph) {
-        this(graph, graph.getPotentialNodes());
+        this.k = k;
     }
 
     //***********************************************************************************
@@ -69,13 +67,47 @@ public class PropEachNodeHasLoop extends Propagator<IGraphVar> {
 
     @Override
     public void propagate(int evtmask) throws ContradictionException {
-		for(int i=concernedNodes.getFirstElement();i>=0;i=concernedNodes.getNextElement()){
-			if(g.getMandatoryNodes().contain(i)){
-				g.enforceArc(i,i,aCause);
-			}else if(!g.getPotSuccOrNeighOf(i).contain(i)){
-				g.removeNode(i,aCause);
-			}
-		}
+        int nbK = 0;
+        int nbE = 0;
+        ISet env = g.getPotentialNodes();
+        for (int i = env.getFirstElement(); i >= 0; i = env.getNextElement()) {
+            nbE += g.getPotSuccOrNeighOf(i).getSize();
+            nbK += g.getMandSuccOrNeighOf(i).getSize();
+        }
+        if (!g.isDirected()) {
+            nbK /= 2;
+            nbE /= 2;
+        }
+        filter(nbK, nbE);
+    }
+
+    private void filter(int nbK, int nbE) throws ContradictionException {
+        k.updateLowerBound(nbK, aCause);
+        k.updateUpperBound(nbE, aCause);
+        if (nbK != nbE && k.isInstantiated()) {
+            ISet nei;
+            ISet env = g.getPotentialNodes();
+            if (k.getValue() == nbE) {
+                for (int i = env.getFirstElement(); i >= 0; i = env.getNextElement()) {
+                    nei = g.getUB().getSuccsOrNeigh(i);
+                    for (int j = nei.getFirstElement(); j >= 0; j = nei.getNextElement()) {
+                        g.enforceArc(i, j, aCause);
+                    }
+                }
+            }
+            if (k.getValue() == nbK) {
+                ISet neiKer;
+                for (int i = env.getFirstElement(); i >= 0; i = env.getNextElement()) {
+                    nei = g.getUB().getSuccsOrNeigh(i);
+                    neiKer = g.getLB().getSuccsOrNeigh(i);
+                    for (int j = nei.getFirstElement(); j >= 0; j = nei.getNextElement()) {
+                        if (!neiKer.contain(j)) {
+                            g.removeArc(i, j, aCause);
+                        }
+                    }
+                }
+            }
+        }
     }
 
     //***********************************************************************************
@@ -84,20 +116,27 @@ public class PropEachNodeHasLoop extends Propagator<IGraphVar> {
 
     @Override
     public int getPropagationConditions(int vIdx) {
-        return EventType.ENFORCENODE.mask + EventType.REMOVEARC.mask;
+        return EventType.REMOVEARC.mask + EventType.ENFORCEARC.mask
+                + EventType.INCLOW.mask + EventType.DECUPP.mask + EventType.INSTANTIATE.mask;
     }
 
     @Override
     public ESat isEntailed() {
-		boolean sure = true;
-		for(int i=concernedNodes.getFirstElement();i>=0;i=concernedNodes.getNextElement()){
-			if(g.getMandatoryNodes().contain(i) && !g.getPotSuccOrNeighOf(i).contain(i)){
-				return ESat.FALSE;
-			}else if(g.getPotentialNodes().contain(i) && !g.getPotSuccOrNeighOf(i).contain(i)){
-				sure = false;
-			}
-		}
-        if (sure) {
+        int nbK = 0;
+        int nbE = 0;
+        ISet env = g.getPotentialNodes();
+        for (int i = env.getFirstElement(); i >= 0; i = env.getNextElement()) {
+            nbE += g.getUB().getSuccsOrNeigh(i).getSize();
+            nbK += g.getLB().getSuccsOrNeigh(i).getSize();
+        }
+        if (!g.isDirected()) {
+            nbK /= 2;
+            nbE /= 2;
+        }
+        if (nbK > k.getUB() || nbE < k.getLB()) {
+            return ESat.FALSE;
+        }
+        if (k.isInstantiated() && g.isInstantiated()) {
             return ESat.TRUE;
         }
         return ESat.UNDEFINED;

@@ -118,6 +118,18 @@ public class GraphVarFactory {
 		return nb;
 	}
 
+	/**
+	 * Creates a set variable representing nodes of g that have a loop,
+	 * i.e. nodes 'i' having an arc of the form (i,i)
+	 * @param g	a graph variable
+	 * @return a set variable representing nodes of g that have a loop
+	 */
+	public static SetVar loop_set(IGraphVar g){
+		SetVar l = VF.set("loops",0,g.getNbMaxNodes(),g.getSolver());
+		g.getSolver().post(GraphConstraintFactory.loop_set(g,l));
+		return l;
+	}
+
 	//***********************************************************************************
 	// CHANNELING VARIABLES
 	//***********************************************************************************

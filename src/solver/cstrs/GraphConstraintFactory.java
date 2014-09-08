@@ -27,22 +27,22 @@
 package solver.cstrs;
 
 import solver.constraints.Constraint;
+import solver.constraints.ICF;
 import solver.constraints.Propagator;
 import solver.constraints.PropagatorPriority;
-import solver.cstrs.cycles.PropACyclic;
+import solver.cstrs.connectivity.PropNbCC;
+import solver.cstrs.connectivity.PropNbSCC;
+import solver.cstrs.cycles.*;
 import solver.cstrs.basic.*;
 import solver.cstrs.connectivity.PropConnected;
-import solver.cstrs.connectivity.PropKCC;
-import solver.cstrs.connectivity.PropKSCC;
 import solver.cstrs.inclusion.PropInclusion;
 import solver.cstrs.channeling.edges.*;
 import solver.cstrs.channeling.nodes.PropNodeBoolChannel;
 import solver.cstrs.channeling.nodes.PropNodeBoolsChannel;
 import solver.cstrs.channeling.nodes.PropNodeSetChannel;
 import solver.cstrs.degree.*;
-import solver.cstrs.toCheck.path.PropPathNoCycle;
+import solver.cstrs.cycles.PropPathNoCircuit;
 import solver.cstrs.toCheck.tsp.undirected.PropCycleEvalObj;
-import solver.cstrs.toCheck.tsp.undirected.PropCycleNoSubtour;
 import solver.cstrs.toCheck.tsp.undirected.lagrangianRelaxation.PropLagr_OneTree;
 import solver.cstrs.tree.PropArborescences;
 import solver.exception.ContradictionException;
@@ -76,7 +76,7 @@ public class GraphConstraintFactory {
 	 * @return A constraint to force the number of nodes in g to be equal to nb
 	 */
 	public static Constraint nb_nodes(IGraphVar g, IntVar nb){
-		return new Constraint("nb_nodes", new PropKNodes(g,nb));
+		return new Constraint("nb_nodes", new PropNbNodes(g,nb));
 	}
 
 	/**
@@ -86,7 +86,7 @@ public class GraphConstraintFactory {
 	 * @return A constraint to force the number of arcs in g to be equal to nb
 	 */
 	public static Constraint nb_arcs(IDirectedGraphVar g, IntVar nb){
-		return new Constraint("nb_arcs", new PropKArcs(g,nb));
+		return new Constraint("nb_arcs", new PropNbArcs(g,nb));
 	}
 
 	/**
@@ -96,19 +96,20 @@ public class GraphConstraintFactory {
 	 * @return A constraint to force the number of edges in g to be equal to nb
 	 */
 	public static Constraint nb_edges(IUndirectedGraphVar g, IntVar nb){
-		return new Constraint("nb_edges", new PropKArcs(g,nb));
+		return new Constraint("nb_edges", new PropNbArcs(g,nb));
 	}
 
 	// loops
 
 	/**
-	 * Create a constraint which makes sure every node has a loop
+	 * Create a constraint which ensures that 'loops' denotes the set
+	 * of vertices in g which have a loop, i.e. an arc of the form f(i,i)
 	 * i.e. vertex i in g => arc (i,i) in g
 	 * @param g	a graph variable
 	 * @return A constraint which makes sure every node has a loop
 	 */
-	public static Constraint each_node_has_loop(IGraphVar g){
-		return new Constraint("each_node_has_loop", new PropEachNodeHasLoop(g));
+	public static Constraint loop_set(IGraphVar g, SetVar loops){
+		return new Constraint("loop_set", new PropLoopSet(g,loops));
 	}
 
 	/**
@@ -119,7 +120,7 @@ public class GraphConstraintFactory {
 	 * @return A constraint which ensures g has nb loops
 	 */
 	public static Constraint nb_loops(IGraphVar g, IntVar nb){
-		return new Constraint("nb_loops", new PropKLoops(g,nb));
+		return new Constraint("nb_loops", new PropNbLoops(g,nb));
 	}
 
 
@@ -626,22 +627,90 @@ public class GraphConstraintFactory {
 
 
 	//***********************************************************************************
-	// ACYCLICITY CONSTRAINTS
+	// CYCLE CONSTRAINTS
 	//***********************************************************************************
 
 
 
 
 	/**
-	 * Circuit elimination constraint
-	 * Prevent the graph from containing circuits
-	 * e.g. an arc set of the form {(i1,i2),(i2,i3),(i3,i1)}
-	 * However, it allows to have (i1,i2)(i2,i3)(i1,i3).
-	 * @param g	a directed graph variable
-	 * @return A circuit elimination constraint
+	 * g must form a Hamiltonian cycle
+	 * Implies that every vertex in [0,g.getNbMaxNodes()-1] is mandatory
+	 *
+	 * @param g an undirected graph variable
+	 * @return a hamiltonian cycle constraint
 	 */
-	public static Constraint no_circuit(IDirectedGraphVar g){
-		return new Constraint("no_circuit",new PropACyclic(g));
+	public static Constraint hamiltonian_cycle(IUndirectedGraphVar g) {
+		int m = 0;
+		int n = g.getNbMaxNodes();
+		for(int i=0;i<n;i++){
+			m += g.getPotNeighOf(i).getSize();
+		}
+		m /= 2;
+		Propagator pMaxDeg = (m<20*n)?new PropNodeDegree_AtMost_Incr(g, 2):new PropNodeDegree_AtMost_Incr(g, 2);
+		return new Constraint("hamiltonian_cycle",
+				new PropNodeDegree_AtLeast_Incr(g, 2),
+				pMaxDeg,
+				new PropHamiltonianCycle(g)
+		);
+	}
+
+	/**
+	 * g must form a cycle
+	 *
+	 * @param g an undirected graph variable
+	 * @return a cycle constraint
+	 */
+	public static Constraint cycle(IUndirectedGraphVar g) {
+		if(g.getMandatoryNodes().getSize() == g.getNbMaxNodes()){
+			return hamiltonian_cycle(g);
+		}
+		int m = 0;
+		int n = g.getNbMaxNodes();
+		for(int i=0;i<n;i++){
+			m += g.getPotNeighOf(i).getSize();
+		}
+		m /= 2;
+		Propagator pMaxDeg = (m<20*n)?new PropNodeDegree_AtMost_Incr(g, 2):new PropNodeDegree_AtMost_Incr(g, 2);
+		return new Constraint("cycle",
+				new PropNodeDegree_AtLeast_Incr(g, 2),
+				pMaxDeg,
+				new PropConnected(g),
+				new PropCycle(g)
+		);
+	}
+
+	/**
+	 * g must form a Hamiltonian circuit
+	 * Implies that every vertex in [0,g.getNbMaxNodes()-1] is mandatory
+	 * This constraint cannot be reified
+	 *
+	 * @param g a directed graph variable
+	 * @return a circuit constraint
+	 */
+	public static Constraint hamiltonian_circuit(IDirectedGraphVar g) {
+		IntVar[] gint = GVF.succ_int_array(g);
+		return ICF.circuit(gint,0);
+	}
+
+	/**
+	 * g must form a circuit
+	 *
+	 * @param g a directed graph variable
+	 * @return a circuit constraint
+	 */
+	public static Constraint circuit(IDirectedGraphVar g) {
+		if(g.getMandatoryNodes().getSize() == g.getNbMaxNodes()){
+			return hamiltonian_circuit(g);
+		}
+		return new Constraint("circuit",
+				new PropNodeDegree_AtLeast_Incr(g, Orientation.SUCCESSORS, 1),
+				new PropNodeDegree_AtLeast_Incr(g, Orientation.PREDECESSORS, 1),
+				new PropNodeDegree_AtMost_Incr(g, Orientation.SUCCESSORS, 1),
+				new PropNodeDegree_AtMost_Incr(g, Orientation.PREDECESSORS, 1),
+				new PropNbSCC(g,g.getSolver().ONE),
+				new PropCircuit(g)
+		);
 	}
 
 	/**
@@ -653,6 +722,18 @@ public class GraphConstraintFactory {
 	 */
 	public static Constraint no_cycle(IUndirectedGraphVar g){
 		return new Constraint("no_cycle",new PropACyclic(g));
+	}
+
+	/**
+	 * Circuit elimination constraint
+	 * Prevent the graph from containing circuits
+	 * e.g. an arc set of the form {(i1,i2),(i2,i3),(i3,i1)}
+	 * However, it allows to have (i1,i2)(i2,i3)(i1,i3).
+	 * @param g	a directed graph variable
+	 * @return A circuit elimination constraint
+	 */
+	public static Constraint no_circuit(IDirectedGraphVar g){
+		return new Constraint("no_circuit",new PropACyclic(g));
 	}
 
 
@@ -681,7 +762,7 @@ public class GraphConstraintFactory {
 	 * @return A connectedness constraint which ensures that g has nb connected components
 	 */
 	public static Constraint nb_connected_components(IUndirectedGraphVar g, IntVar nb){
-		return new Constraint("NbCC",new PropKCC(g,nb));
+		return new Constraint("NbCC",new PropNbCC(g,nb));
 	}
 	/**
 	 * Creates a strong connectedness constraint which ensures that g is strongly connected
@@ -699,7 +780,7 @@ public class GraphConstraintFactory {
 	 * @return A strong connectedness constraint which ensures that g has nb strongly connected components
 	 */
 	public static Constraint nb_strongly_connected_components(IDirectedGraphVar g, IntVar nb){
-		return new Constraint("NbSCC",new PropKSCC(g,nb));
+		return new Constraint("NbSCC",new PropNbSCC(g,nb));
 	}
 
 
@@ -738,92 +819,107 @@ public class GraphConstraintFactory {
 	 * @return a directed tree constraint
 	 */
 	public static Constraint directed_tree(IDirectedGraphVar g, IntVar root){
-		return new Constraint("directed_tree",
-				new PropArborescences(g),
-				new PropNodeDegree_AtMost_Coarse(g, Orientation.PREDECESSORS, 1),
-				// ad hoc propagator to get the root (naive filtering)
-				new Propagator<Variable>(new Variable[]{g,root}, PropagatorPriority.BINARY, false) {
-					@Override
-					public void propagate(int evtmask) throws ContradictionException {
-						IntVar root = (IntVar) vars[1];
-						IDirectedGraphVar g = (IDirectedGraphVar) vars[0];
-						int n = g.getNbMaxNodes();
-						root.updateLowerBound(0,aCause);
-						root.updateUpperBound(n-1,aCause);
-						int pos = -1; // identify impossible roots
-						for(int i=root.getLB();i<=root.getUB();i=root.nextValue(i)){
-							if(g.getMandPredOf(i).getSize() > 0
-									|| !g.getPotentialNodes().contain(i)){
-								root.removeValue(i,aCause);
-							}else{
-								if(pos == -1){
-									pos = i;
-								}else{
-									pos = -2;
-								}
-							}
-						}
-						if(pos>=0){ // unique root found
-							g.enforceNode(pos, aCause);
-							ISet preds = g.getPotPredOf(pos);
-							for(int p=preds.getFirstElement();p>=0;p=preds.getNextElement()){
-								g.removeArc(p,pos,aCause);
-							}
-						}
-						for(int i=g.getPotentialNodes().getFirstElement();i>=0;i=g.getPotentialNodes().getNextElement()){
-							ISet preds = g.getPotPredOf(i);
-							if(!root.contains(i)){
-								// non-root nodes must have exactly one predecessor
-								if(g.getMandatoryNodes().contain(i)){
-									if(preds.getSize()==1) {
-										g.enforceArc(preds.getFirstElement(), i, aCause);
-									}
-								}else if(preds.getSize() == 0){
-									g.removeNode(i,aCause);
-								}
-							}
-							if(preds.getSize() == 0 && g.getMandatoryNodes().contain(i)) {
-								root.instantiateTo(i, aCause);
-							}
-						}
-					}
+		if(root.isInstantiated()){
+			int n = g.getNbMaxNodes();
+			int[] nbPreds = new int[n];
+			for(int i=0;i<n;i++){
+				nbPreds[i] = 1;
+			}
+			nbPreds[root.getValue()] = 0;
 
-					@Override
-					public ESat isEntailed() {
-						IntVar root = (IntVar) vars[1];
-						IDirectedGraphVar g = (IDirectedGraphVar) vars[0];
-						int n = g.getNbMaxNodes();
-						if(root.getUB()<0 || root.getLB()>=n){
-							return ESat.FALSE;
-						}
-						int pos = -1; // identify impossible roots
-						for(int i=root.getLB();i<=root.getUB();i=root.nextValue(i)){
-							if(!(g.getMandPredOf(i).getSize() > 0
-									|| !g.getPotentialNodes().contain(i))){
-								pos = i;
+			return new Constraint("directed_tree",
+					new PropArborescences(g),
+					new PropNodeDegree_AtMost_Coarse(g, Orientation.PREDECESSORS, nbPreds),
+					new PropNodeDegree_AtLeast_Incr(g, Orientation.PREDECESSORS, nbPreds)
+			);
+		}else {
+			return new Constraint("directed_tree",
+					new PropArborescences(g),
+					new PropNodeDegree_AtMost_Coarse(g, Orientation.PREDECESSORS, 1),
+					// ad hoc propagator to get the root (naive filtering)
+					new Propagator<Variable>(new Variable[]{g, root}, PropagatorPriority.BINARY, false) {
+						@Override
+						public void propagate(int evtmask) throws ContradictionException {
+							IntVar root = (IntVar) vars[1];
+							IDirectedGraphVar g = (IDirectedGraphVar) vars[0];
+							int n = g.getNbMaxNodes();
+							root.updateLowerBound(0, aCause);
+							root.updateUpperBound(n - 1, aCause);
+							int pos = -1; // identify impossible roots
+							for (int i = root.getLB(); i <= root.getUB(); i = root.nextValue(i)) {
+								if (g.getMandPredOf(i).getSize() > 0
+										|| !g.getPotentialNodes().contain(i)) {
+									root.removeValue(i, aCause);
+								} else {
+									if (pos == -1) {
+										pos = i;
+									} else {
+										pos = -2;
+									}
+								}
 							}
-						}
-						if(pos == -1){
-							return ESat.FALSE;
-						}
-						pos = -1;
-						for(int i=g.getMandatoryNodes().getFirstElement();i>=0;i=g.getMandatoryNodes().getNextElement()){
-							ISet preds = g.getPotPredOf(i);
-							if(preds.getSize()==0){
-								if(pos == -1){
-									pos = i;
-								}else{
-									return ESat.FALSE; // two roots;
+							if (pos >= 0) { // unique root found
+								g.enforceNode(pos, aCause);
+								ISet preds = g.getPotPredOf(pos);
+								for (int p = preds.getFirstElement(); p >= 0; p = preds.getNextElement()) {
+									g.removeArc(p, pos, aCause);
+								}
+							}
+							for (int i = g.getPotentialNodes().getFirstElement(); i >= 0; i = g.getPotentialNodes().getNextElement()) {
+								ISet preds = g.getPotPredOf(i);
+								if (!root.contains(i)) {
+									// non-root nodes must have exactly one predecessor
+									if (g.getMandatoryNodes().contain(i)) {
+										if (preds.getSize() == 1) {
+											g.enforceArc(preds.getFirstElement(), i, aCause);
+										}
+									} else if (preds.getSize() == 0) {
+										g.removeNode(i, aCause);
+									}
+								}
+								if (preds.getSize() == 0 && g.getMandatoryNodes().contain(i)) {
+									root.instantiateTo(i, aCause);
 								}
 							}
 						}
-						if(isCompletelyInstantiated()){
-							return ESat.TRUE;
+
+						@Override
+						public ESat isEntailed() {
+							IntVar root = (IntVar) vars[1];
+							IDirectedGraphVar g = (IDirectedGraphVar) vars[0];
+							int n = g.getNbMaxNodes();
+							if (root.getUB() < 0 || root.getLB() >= n) {
+								return ESat.FALSE;
+							}
+							int pos = -1; // identify impossible roots
+							for (int i = root.getLB(); i <= root.getUB(); i = root.nextValue(i)) {
+								if (!(g.getMandPredOf(i).getSize() > 0
+										|| !g.getPotentialNodes().contain(i))) {
+									pos = i;
+								}
+							}
+							if (pos == -1) {
+								return ESat.FALSE;
+							}
+							pos = -1;
+							for (int i = g.getMandatoryNodes().getFirstElement(); i >= 0; i = g.getMandatoryNodes().getNextElement()) {
+								ISet preds = g.getPotPredOf(i);
+								if (preds.getSize() == 0) {
+									if (pos == -1) {
+										pos = i;
+									} else {
+										return ESat.FALSE; // two roots;
+									}
+								}
+							}
+							if (isCompletelyInstantiated()) {
+								return ESat.TRUE;
+							}
+							return ESat.UNDEFINED;
 						}
-						return ESat.UNDEFINED;
 					}
-				}
-		);
+			);
+		}
 	}
 
 	/**
@@ -834,6 +930,39 @@ public class GraphConstraintFactory {
 	 */
 	public static Constraint directed_forest(IDirectedGraphVar g){
 		return new Constraint("directed_forest",new PropArborescences(g));
+	}
+
+
+
+	//***********************************************************************************
+	// PATH and REACHABILITY
+	//***********************************************************************************
+
+	// directed path
+
+	/**
+	 * Creates a path constraint : g forms a path from node 'from' to node 'to'
+	 * @param g a directed graph variable
+	 * @param from an integer variable
+	 * @param to an integer variable
+	 * @return a path constraint
+	 */
+	public static Constraint path(IDirectedGraphVar g, int from, int to) {
+		int n = g.getNbMaxNodes();
+		int[] succs = new int[n];
+		int[] preds = new int[n];
+		for (int i = 0; i < n; i++) {
+			succs[i] = preds[i] = 1;
+		}
+		succs[from] = preds[to] = 0;
+		Propagator[] props = new Propagator[]{
+				new PropNodeDegree_AtLeast_Coarse(g, Orientation.SUCCESSORS, succs),
+				new PropNodeDegree_AtMost_Incr(g, Orientation.SUCCESSORS, succs),
+				new PropNodeDegree_AtLeast_Coarse(g, Orientation.PREDECESSORS, preds),
+				new PropNodeDegree_AtMost_Incr(g, Orientation.PREDECESSORS, preds),
+				new PropPathNoCircuit(g)
+		};
+		return new Constraint("path",props);
 	}
 
 
@@ -856,8 +985,53 @@ public class GraphConstraintFactory {
 	public static Constraint nb_cliques(IUndirectedGraphVar g, IntVar nb) {
 		return new Constraint("NbCliques",
 				new PropTransitivity(g),
-				new PropKCC(g, nb),
+				new PropNbCC(g, nb),
 				new PropNbCliques(g, nb) // redundant propagator
+		);
+	}
+
+
+
+
+	//***********************************************************************************
+	// DIAMETER
+	//***********************************************************************************
+
+
+
+
+	/**
+	 * Creates a constraint which states that d is the diameter of g
+	 * i.e. d is the length (number of edges) of the largest shortest path among any pair of nodes
+	 * This constraint implies that g is connected
+	 *
+	 * @param g an undirected graph variable
+	 * @param d	an integer variable
+	 * @return a constraint which states that d is the diameter of g
+	 */
+	public static Constraint diameter(IUndirectedGraphVar g, IntVar d) {
+		return new Constraint("NbCliques",
+				new PropConnected(g),
+				new PropDiameter(g, d)
+		);
+	}
+
+
+
+
+	/**
+	 * Creates a constraint which states that d is the diameter of g
+	 * i.e. d is the length (number of arcs) of the largest shortest path among any pair of nodes
+	 * This constraint implies that g is strongly connected
+	 *
+	 * @param g a directed graph variable
+	 * @param d	an integer variable
+	 * @return a constraint which states that d is the diameter of g
+	 */
+	public static Constraint diameter(IDirectedGraphVar g, IntVar d) {
+		return new Constraint("NbCliques",
+				new PropNbSCC(g,g.getSolver().ONE),
+				new PropDiameter(g, d)
 		);
 	}
 
@@ -869,37 +1043,6 @@ public class GraphConstraintFactory {
 	//***********************************************************************************
 
 
-
-
-
-	/** TODO cycle no subtour
-	 * g must form a Hamiltonian cycle
-	 *
-	 * @param g graph variable representing a Hamiltonian cycle
-	 * @return a hamiltonian cycle constraint
-	 */
-	public static Constraint hamiltonianCycle(IUndirectedGraphVar g) {
-		int m = 0;
-		int n = g.getNbMaxNodes();
-		for(int i=0;i<n;i++){
-			m += g.getPotNeighOf(i).getSize();
-		}
-		m /= 2;
-		if(m<20*n){
-			return new Constraint("Graph_HamiltonianCycle",
-					new PropNodeDegree_AtLeast_Incr(g, 2),
-					new PropNodeDegree_AtMost_Incr(g, 2),
-					new PropCycleNoSubtour(g)
-			);
-		}else{
-			return new Constraint("Graph_HamiltonianCycle",
-					new PropNodeDegree_AtLeast_Coarse(g, 2),
-					new PropNodeDegree_AtMost_Incr(g, 2),
-					new PropCycleNoSubtour(g)
-			);
-		}
-	}
-	// ---
 
 
 
@@ -917,7 +1060,7 @@ public class GraphConstraintFactory {
 	 * @return a tsp constraint
 	 */
 	public static Constraint tsp(IUndirectedGraphVar GRAPHVAR, IntVar COSTVAR, int[][] EDGE_COSTS, int HELD_KARP) {
-		Propagator[] props = ArrayUtils.append(hamiltonianCycle(GRAPHVAR).getPropagators(),
+		Propagator[] props = ArrayUtils.append(hamiltonian_cycle(GRAPHVAR).getPropagators(),
 				new Propagator[]{new PropCycleEvalObj(GRAPHVAR, COSTVAR, EDGE_COSTS)});
 		if (HELD_KARP > 0) {
 			PropLagr_OneTree hk = new PropLagr_OneTree(GRAPHVAR, COSTVAR, EDGE_COSTS);
@@ -925,48 +1068,5 @@ public class GraphConstraintFactory {
 			props = ArrayUtils.append(props,new Propagator[]{hk});
 		}
 		return new Constraint("Graph_TSP",props);
-	}
-
-	//***********************************************************************************
-	// DIRECTED GRAPHS
-	//***********************************************************************************
-
-	/**
-	 * GRAPHVAR must form a Hamiltonian path from ORIGIN to DESTINATION.
-	 * <p/> Basic filtering algorithms are incremental and run in O(1) per enforced/removed arc.
-	 * <p/> Subtour elimination is the nocycle constraint of Caseau & Laburthe in Solving small TSPs with Constraints.
-	 * <p/>
-	 * <p/> Assumes that ORIGIN has no predecessor, DESTINATION has no successor and each node is mandatory.
-	 *
-	 * @param GRAPHVAR      variable representing a path
-	 * @param ORIGIN        first node of the path
-	 * @param DESTINATION   last node of the path
-	 * @param STRONG_FILTER true iff it should be worth to spend time on advanced filtering algorithms (that runs
-	 *                      in linear time). If so, then it uses dominator-based and SCCs-based filtering algorithms. This option should
-	 *                      be used on small-size.
-	 * @return a hamiltonian path constraint
-	 */
-	public static Constraint hamiltonianPath(IDirectedGraphVar GRAPHVAR, int ORIGIN, int DESTINATION, boolean STRONG_FILTER) {
-		int n = GRAPHVAR.getNbMaxNodes();
-		int[] succs = new int[n];
-		int[] preds = new int[n];
-		for (int i = 0; i < n; i++) {
-			succs[i] = preds[i] = 1;
-		}
-		succs[DESTINATION] = preds[ORIGIN] = 0;
-		Propagator[] props = new Propagator[]{
-				new PropNodeDegree_AtLeast_Coarse(GRAPHVAR, Orientation.SUCCESSORS, succs),
-				new PropNodeDegree_AtMost_Incr(GRAPHVAR, Orientation.SUCCESSORS, succs),
-				new PropNodeDegree_AtLeast_Coarse(GRAPHVAR, Orientation.PREDECESSORS, preds),
-				new PropNodeDegree_AtMost_Incr(GRAPHVAR, Orientation.PREDECESSORS, preds),
-				new PropPathNoCycle(GRAPHVAR, ORIGIN, DESTINATION)
-		};
-//		if (STRONG_FILTER) {
-//			PropArborescence arbo = new PropArborescence(GRAPHVAR, ORIGIN, true);
-//			PropAntiArborescence aa = new PropAntiArborescence(GRAPHVAR, DESTINATION, true);
-//			PropAllDiffGraphIncremental ad = new PropAllDiffGraphIncremental(GRAPHVAR, n - 1);
-//			props = ArrayUtils.append(props,ArrayUtils.toArray(arbo, aa, ad));
-//		}
-		return new Constraint("Graph_HamiltonianPath",props);
 	}
 }

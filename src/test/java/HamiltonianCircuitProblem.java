@@ -36,7 +36,6 @@ import solver.Solver;
 import solver.constraints.Constraint;
 import solver.constraints.IntConstraintFactory;
 import solver.cstrs.GraphConstraintFactory;
-import solver.cstrs.toCheck.path.PropIntVarChanneling;
 import solver.exception.ContradictionException;
 import solver.search.GraphStrategyFactory;
 import solver.search.strategy.strategy.AbstractStrategy;
@@ -100,7 +99,7 @@ public class HamiltonianCircuitProblem extends AbstractProblem {
 			}
 		}
 		graph = GraphVarFactory.directedGraph("G", GLB, GUB, solver);
-		solver.post(GraphConstraintFactory.hamiltonianPath(graph, 0, n - 1, strongFilter));
+		solver.post(GraphConstraintFactory.path(graph, 0, n - 1));
 		if (intAllDiff > 0) {
 			integerAllDiff();
 		}
@@ -130,7 +129,6 @@ public class HamiltonianCircuitProblem extends AbstractProblem {
 			e.printStackTrace();
 			System.exit(0);
 		}
-		solver.post(new Constraint("Channel",new PropIntVarChanneling(integers, graph)));
 		String type = "AC";
 		if (intAllDiff == 2) {
 			type = "BC";

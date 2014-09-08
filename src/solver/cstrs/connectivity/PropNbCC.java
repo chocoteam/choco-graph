@@ -44,7 +44,7 @@ import util.objects.setDataStructures.ISet;
  *
  * @author Jean-Guillaume Fages
  */
-public class PropKCC extends Propagator {
+public class PropNbCC extends Propagator {
 
 	//***********************************************************************************
 	// VARIABLES
@@ -58,7 +58,7 @@ public class PropKCC extends Propagator {
 	// CONSTRUCTORS
 	//***********************************************************************************
 
-	public PropKCC(IUndirectedGraphVar graph, IntVar k) {
+	public PropNbCC(IUndirectedGraphVar graph, IntVar k) {
 		super(new Variable[]{graph, k}, PropagatorPriority.LINEAR, false);
 		this.g = graph;
 		this.k = k;
