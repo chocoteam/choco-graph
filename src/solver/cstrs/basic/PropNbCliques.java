@@ -1,5 +1,5 @@
 /**
- *  Copyright (c) 1999-2011, Ecole des Mines de Nantes
+ *  Copyright (c) 1999-2014, Ecole des Mines de Nantes
  *  All rights reserved.
  *  Redistribution and use in source and binary forms, with or without
  *  modification, are permitted provided that the following conditions are met:
@@ -25,12 +25,6 @@
  *  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-
-/**
- * @author Jean-Guillaume Fages
- * @since 06/09/14
- * Created by IntelliJ IDEA.
- */
 package solver.cstrs.basic;
 
 import solver.constraints.Propagator;
@@ -49,6 +43,11 @@ import util.objects.setDataStructures.SetType;
 
 import java.util.BitSet;
 
+/**
+ * Propagator for the number of cliques in a graph
+ *
+ * @author Jean-Guillaume Fages
+ */
 public class PropNbCliques extends Propagator<Variable> {
 
 	//***********************************************************************************

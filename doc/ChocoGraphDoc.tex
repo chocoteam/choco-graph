@@ -42,13 +42,14 @@
 \author{Jean-Guillaume Fages \and Charles Prud'homme \and Xavier Lorca \thanks{ChocoTeam, choco3-support@mines-nantes.fr, TASC research team}}                       
 \title{Choco-Graph : a module for graph variables in the Choco CP solver}
 \maketitle
+%
+%\begin{abstract}
+%This document describes the API  of Choco-Graph, a module of the Choco solver which enables to search for a graph subject to constraints. 
+%It explains how to create graph variables and uses available graph constraints and search procedures. It also describes how to build your own ones. Finally, a few examples are provided.
+%\end{abstract}
 
-\begin{abstract}
-This document describes the API  of Choco-Graph, a module of the Choco solver which enables to search for a graph subject to constraints.
-\end{abstract}
-
-\newpage{}
-\tableofcontents{}
+%\newpage{}
+{\scriptsize\tableofcontents{}}
 \newpage{}
 
 \newcommand{\GV}{\ensuremath{\mathcal{G}}}
@@ -318,6 +319,11 @@ It is possible to partition a graph into cliques by using the transitivity and c
 You can impose the diameter of a graph variable to be equal to a given integer variable with the \texttt{diameter} constraint. This constraint also forces the graph variable to be connected (or strongly connected in case of a directed graph variable). As a recall, the diameter is the length (in number of arcs) of the largest shortest path between any pair of nodes. 
 
 \subsection{Optimization constraints}
+
+Solving hard optimization problems to optimality often requires to embed cost-based reasonings into global constraints. 
+We have included two minimum spanning tree relaxations : the one-tree Lagrangian relaxation to solve the Traveling Salesman Problem and a minimum spanning tree subject to (dualized) degree constraints, to solve the more general Degree Constrained Minimum Spanning Tree Problem. 
+
+Such constraints introduce a significant overhead but they provide a very powerful filtering as well. Presumably, they should only be used once a good upper bound has been found (in case of a minimization problem), because the filtering depends on that value. For finding good but suboptimal solutions to large scale problems, it may not be worthwhile. 
 
 \subsection{Channeling constraints}
 

@@ -1,6 +1,6 @@
 package samples.dcmstp;
 /*
- * Copyright (c) 1999-2012, Ecole des Mines de Nantes
+ * Copyright (c) 1999-2014, Ecole des Mines de Nantes
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -34,12 +34,12 @@ import solver.Solver;
 import solver.constraints.Constraint;
 import solver.constraints.Propagator;
 import solver.cstrs.GraphConstraintFactory;
-import solver.cstrs.toCheck.IGraphRelaxation;
 import solver.cstrs.degree.PropNodeDegree_AtMost_Incr;
 import solver.cstrs.toCheck.trees.PropTreeCostScalar;
 import solver.cstrs.toCheck.trees.lagrangianRelaxation.PropLagr_DCMST;
 import solver.objective.ObjectiveStrategy;
 import solver.objective.OptimizationPolicy;
+import solver.search.loop.monitors.IMonitorSolution;
 import solver.search.loop.monitors.SearchMonitorFactory;
 import solver.search.GraphStrategyFactory;
 import solver.search.strategy.strategy.AbstractStrategy;
@@ -109,7 +109,6 @@ public class DCMST extends AbstractProblem {
 	// model
 	private IntVar totalCost;
 	private IUndirectedGraphVar graph;
-	private IGraphRelaxation relax;
 	// parameters
 	public static long TIMELIMIT = 60000;
 
@@ -160,23 +159,27 @@ public class DCMST extends AbstractProblem {
 						new PropNodeDegree_AtMost_Incr(graph, dMax),
 						new PropLowDegrees(graph, dMax))
 		);
-		// (redundant) lagrangian propagator
-		relax = new PropLagr_DCMST(graph, totalCost, dMax, dist, ub != optimum);
 		// cost constraint
 		solver.post(new Constraint("Graph_cost",
 						new PropTreeCostScalar(graph, totalCost, dist),
-						(Propagator) relax)
+						// (redundant) lagrangian propagator
+						new PropLagr_DCMST(graph, totalCost, dMax, dist, ub != optimum))
 		);
 	}
 
 	@Override
 	public void configureSearch() {
-		GraphStrategies firstSol = new GraphStrategies(graph, dist, relax);
-		firstSol.configure(GraphStrategies.MIN_COST, true);
-		AbstractStrategy<IGraphVar> nextSol = GraphStrategyFactory.graphStrategy(graph, null, new NextSol(graph, dMax, relax), GraphStrategy.NodeArcPriority.ARCS);
-		AbstractStrategy<IGraphVar> strat = new FindAndProve<>(new IGraphVar[]{graph}, firstSol, nextSol);
+		final GraphStrategies mainSearch = new GraphStrategies(graph, dist);
+		mainSearch.configure(GraphStrategies.MIN_COST, true);
+		solver.plugMonitor(new IMonitorSolution() {
+			@Override
+			public void onSolution() {
+				mainSearch.useLastConflict();
+				mainSearch.configure(GraphStrategies.MAX_COST, true);
+			}
+		});
 		// bottom-up optimization
-		solver.set(new ObjectiveStrategy(totalCost, OptimizationPolicy.BOTTOM_UP), strat);
+		solver.set(new ObjectiveStrategy(totalCost, OptimizationPolicy.BOTTOM_UP), mainSearch);
 		SearchMonitorFactory.limitSolution(solver, 2);
 		SearchMonitorFactory.limitTime(solver, TIMELIMIT);
 	}

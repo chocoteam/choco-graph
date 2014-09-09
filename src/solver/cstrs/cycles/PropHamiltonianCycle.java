@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1999-2012, Ecole des Mines de Nantes
+ * Copyright (c) 1999-2014, Ecole des Mines de Nantes
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -25,13 +25,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/**
- * Created by IntelliJ IDEA.
- * User: Jean-Guillaume Fages
- * Date: 03/10/11
- * Time: 19:56
- */
-
 package solver.cstrs.cycles;
 
 import memory.IEnvironment;
@@ -48,6 +41,8 @@ import util.procedure.PairProcedure;
 
 /**
  * Simple NoSubtour of Caseau-Laburthe adapted to the undirected case
+ *
+ * @author Jean-Guillaume Fages
  */
 public class PropHamiltonianCycle extends Propagator<IUndirectedGraphVar> {
 
@@ -147,12 +142,13 @@ public class PropHamiltonianCycle extends Propagator<IUndirectedGraphVar> {
 		setExt(ext2, ext1);
 		size[ext1].set(t);
 		size[ext2].set(t);
-		if (t > 2 && t <= n)
+		if (t > 2 && t <= n) {
 			if (t < n) {
 				g.removeArc(ext1, ext2, aCause);
 			} else if (t == n) {
 				g.enforceArc(ext1, ext2, aCause);
 			}
+		}
 	}
 
 	private int getExt(int i) {

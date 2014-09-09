@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1999-2012, Ecole des Mines de Nantes
+ * Copyright (c) 1999-2014, Ecole des Mines de Nantes
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -45,6 +45,7 @@ import util.objects.setDataStructures.SetType;
  * CONSIDERS THAT EACH NODE WITH NO PREDECESSOR IS A ROOT (needs at least one such node)
  * Uses simple LT algorithm which runs in O(m.log(n)) worst case time
  * but very efficient in practice
+ * @author Jean-Guillaume Fages
  */
 public class PropArborescences extends Propagator<IDirectedGraphVar> {
 

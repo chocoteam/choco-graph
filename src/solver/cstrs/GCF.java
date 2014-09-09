@@ -1,5 +1,5 @@
 /**
- *  Copyright (c) 1999-2011, Ecole des Mines de Nantes
+ *  Copyright (c) 1999-2014, Ecole des Mines de Nantes
  *  All rights reserved.
  *  Redistribution and use in source and binary forms, with or without
  *  modification, are permitted provided that the following conditions are met:
@@ -30,8 +30,7 @@ package solver.cstrs;
  * A short-named version of {@code GraphConstraintFactory}
  * <br/>
  *
- * @author Charles Prud'homme
- * @since 15/05/13
+ * @author Jean-Guillaume Fages
  */
 public final class GCF extends GraphConstraintFactory{
     // SHOULD BE EMPTY, this is just syntactic sugar: avoiding long name in modeling step

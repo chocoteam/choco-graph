@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1999-2012, Ecole des Mines de Nantes
+ * Copyright (c) 1999-2014, Ecole des Mines de Nantes
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -34,7 +34,6 @@
 
 package solver.search.strategy;
 
-import solver.cstrs.toCheck.IGraphRelaxation;
 import solver.search.GraphAssignment;
 import solver.search.GraphDecision;
 import solver.variables.IGraphVar;
@@ -57,18 +56,11 @@ public class GraphStrategies extends GraphStrategy {
     public static final int MAX_DELTA_DEGREE = 6;
     public static final int MIN_COST = 7;
     public static final int MAX_COST = 8;
-    public static final int IN_SUPPORT_LEX = 9;
-    public static final int OUT_SUPPORT_LEX = 10;
-    public static final int MIN_REDUCED_COST = 11;
-    public static final int MAX_REDUCED_COST = 12;
-    public static final int MIN_REPLACEMENT_COST = 13;
-    public static final int MAX_REPLACEMENT_COST = 14;
 
     // variables
     private int n;
     private int mode;
     private int[][] costs;
-    private IGraphRelaxation relax;
     private GraphAssignment decisionType;
     private int from, to;
     private int value;
@@ -80,12 +72,10 @@ public class GraphStrategies extends GraphStrategy {
      *
      * @param graphVar   varriable to branch on
      * @param costMatrix can be null
-     * @param relaxation can be null
      */
-    public GraphStrategies(IGraphVar graphVar, int[][] costMatrix, IGraphRelaxation relaxation) {
+    public GraphStrategies(IGraphVar graphVar, int[][] costMatrix) {
         super(graphVar, null, null, NodeArcPriority.ARCS);
         costs = costMatrix;
-        relax = relaxation;
         n = g.getNbMaxNodes();
     }
 
@@ -177,39 +167,13 @@ public class GraphStrategies extends GraphStrategy {
                     case MAX_COST:
                         v = costs[i][j];
                         break;
-                    case IN_SUPPORT_LEX:
-                        if (relax.contains(i, j)) {
-                            from = i;
-                            to = j;
-                            return true;
-                        }
-                        break;
-                    case OUT_SUPPORT_LEX:
-                        if (!relax.contains(i, j)) {
-                            from = i;
-                            to = j;
-                            return true;
-                        }
-                        break;
-                    case MIN_REDUCED_COST:
-                    case MAX_REDUCED_COST:
-                        v = (int) relax.getMarginalCost(i, j);
-                        break;
-                    case MIN_REPLACEMENT_COST:
-                    case MAX_REPLACEMENT_COST:
-                        v = (int) relax.getReplacementCost(i, j);
-                        break;
                     default:
                         throw new UnsupportedOperationException("mode " + mode + " does not exist");
                 }
                 if (select(v)) {
-                    if (mode < MIN_REDUCED_COST
-                            || (mode < MIN_REPLACEMENT_COST && !relax.contains(i, j))
-                            || relax.contains(i, j)) {
-                        value = v;
-                        from = i;
-                        to = j;
-                    }
+					value = v;
+					from = i;
+					to = j;
                 }
             }
         }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1999-2012, Ecole des Mines de Nantes
+ * Copyright (c) 1999-2014, Ecole des Mines de Nantes
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -68,7 +68,7 @@ public class TravelingSalesmanProblem extends AbstractProblem {
     @Option(name = "-inst", usage = "TSPLIB TSP Instance file path (see http://comopt.ifi.uni-heidelberg.de/software/TSPLIB95/).", required = true)
     private String instancePath;
     @Option(name = "-optPolicy", usage = "Optimization policy (0:top-down,1:bottom-up,2:dichotomic).", required = false)
-    private int policy = 2; // the lower bound of the Lagrangian relaxation is pretty good so Bottom-Up is a good choise
+    private int policy = 0; // the lower bound of the Lagrangian relaxation is pretty good so Bottom-Up is a good choise
 
 
 	public final static int MAX_SIZE = 200;
@@ -100,7 +100,7 @@ public class TravelingSalesmanProblem extends AbstractProblem {
         final int n = costMatrix.length;
         solver = new Solver();
         // variables
-        totalCost = VariableFactory.bounded("obj", 0, 9999999, solver);
+        totalCost = VariableFactory.bounded("obj", 0, TSP_Utils.getOptimum("gr96","/Users/jfages07/github/In4Ga/benchRousseau/bestSols.csv"), solver);
         // creates a graph containing n nodes
 		UndirectedGraph GLB = new UndirectedGraph(solver, n, SetType.LINKED_LIST, true);
 		UndirectedGraph GUB = new UndirectedGraph(solver, n, SetType.SWAP_ARRAY, true);
@@ -112,18 +112,19 @@ public class TravelingSalesmanProblem extends AbstractProblem {
         }
         graph = GraphVarFactory.undirectedGraph("G", GLB, GUB, solver);
         // constraints (TSP basic model + lagrangian relaxation)
-		solver.post(GraphConstraintFactory.tsp(graph, totalCost, costMatrix, 2));
+		solver.post(GraphConstraintFactory.tsp(graph, totalCost, costMatrix, 1));
     }
 
     @Override
     public void configureSearch() {
-		final GraphStrategies strategy = new GraphStrategies(graph, costMatrix, null);
+		final GraphStrategies strategy = new GraphStrategies(graph, costMatrix);
 		strategy.configure(GraphStrategies.MIN_COST, true);
 		solver.plugMonitor(new IMonitorSolution() {
 			@Override
 			public void onSolution() {
 				System.out.println("solution found, cost : "+totalCost.getValue());
 				strategy.configure(GraphStrategies.MIN_DELTA_DEGREE, true);
+				strategy.useLastConflict();
 			}
 		});
         switch (policy) {

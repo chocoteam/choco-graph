@@ -1,5 +1,5 @@
 /**
- *  Copyright (c) 1999-2011, Ecole des Mines de Nantes
+ *  Copyright (c) 1999-2014, Ecole des Mines de Nantes
  *  All rights reserved.
  *  Redistribution and use in source and binary forms, with or without
  *  modification, are permitted provided that the following conditions are met:
@@ -25,13 +25,6 @@
  *  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/**
- * Created by IntelliJ IDEA.
- * User: Jean-Guillaume Fages
- * Date: 14/01/13
- * Time: 16:36
- */
-
 package solver.cstrs.channeling.edges;
 
 import solver.constraints.Propagator;
@@ -42,6 +35,9 @@ import solver.variables.IntVar;
 import util.ESat;
 import util.objects.setDataStructures.ISet;
 
+/**
+ * @author Jean-Guillaume Fages
+ */
 public class PropNeighIntsChannel1 extends Propagator<IUndirectedGraphVar> {
 
 	//***********************************************************************************

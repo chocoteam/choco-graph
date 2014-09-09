@@ -18,3 +18,5 @@ lib/testng-6.8.8.jar
 *.aux
 
 doc/ChocoGraphDoc.pdf
+
+doc/ChocoGraphDoc.toc
