@@ -103,7 +103,7 @@ public class DCMST extends AbstractProblem {
 		totalCost = VariableFactory.bounded("obj", lb, ub, solver);
 		// graph var domain
 		UndirectedGraph GLB = new UndirectedGraph(solver,n,SetType.LINKED_LIST,true);
-		UndirectedGraph GUB = new UndirectedGraph(solver,n,SetType.SWAP_ARRAY,true);
+		UndirectedGraph GUB = new UndirectedGraph(solver,n,SetType.BIPARTITESET,true);
 		for (int i = 0; i < n; i++) {
 			for (int j = i + 1; j < n; j++) {
 				if (dist[i][j] != -1 && !(dMax[i] == 1 && dMax[j] == 1)) {

@@ -267,7 +267,7 @@ public class HamiltonianCircuitProblem extends AbstractProblem {
 //		System.out.println(nbSols + " sols expected");
 		boolean[][] matrix = transformMatrix(m);
 		boolean[] vls = new boolean[]{false, true};
-		gt = SetType.SWAP_ARRAY;
+		gt = SetType.BIPARTITESET;
 		for (int i = 0; i < 4; i++) {
 			for (boolean p : vls) {
 				HamiltonianCircuitProblem hcp = new HamiltonianCircuitProblem();

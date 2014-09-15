@@ -79,7 +79,7 @@ public class CliqueEnumeration extends AbstractProblem {
 		link[1][4] = true;
 		link[3][4] = true;
 		// graph variable domain
-		UndirectedGraph GLB = new UndirectedGraph(solver,n, SetType.SWAP_ARRAY,false);
+		UndirectedGraph GLB = new UndirectedGraph(solver,n, SetType.BIPARTITESET,false);
 		UndirectedGraph GUB = new UndirectedGraph(solver,n, SetType.BITSET,false);
 		GraphVarFactory.undirected_graph_var("G",42,solver);
 		for (int i = 0; i < n; i++) {

@@ -56,7 +56,7 @@ public class PropLagr_OneTree_IntVar extends PropLagr_OneTree {
 	public PropLagr_OneTree_IntVar(IntVar[] graph, IntVar cost, int[][] costMatrix, boolean waitFirstSol) {
 		super(ArrayUtils.append(graph,new IntVar[]{cost}), costMatrix);
 		this.succ = graph;
-		g = new UndirectedGraph(n, SetType.SWAP_ARRAY,true);
+		g = new UndirectedGraph(n, SetType.BIPARTITESET,true);
 		obj = cost;
 		this.waitFirstSol = waitFirstSol;
 		assert checkSymmetry(costMatrix) : "TSP matrix should be symmetric";

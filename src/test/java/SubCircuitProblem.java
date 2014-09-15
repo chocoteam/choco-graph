@@ -246,7 +246,7 @@ public class SubCircuitProblem extends AbstractProblem {
 		assert nbSols == referencemodel(m,12);
 //		System.out.println(nbSols + " sols expected");
 		boolean[] vls = new boolean[]{false, true};
-		gt = SetType.SWAP_ARRAY;
+		gt = SetType.BIPARTITESET;
 		for (int i = 0; i < 4; i++) {
 			for (boolean p : vls) {
 				SubCircuitProblem hcp = new SubCircuitProblem();
