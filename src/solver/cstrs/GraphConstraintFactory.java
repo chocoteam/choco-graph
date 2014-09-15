@@ -32,6 +32,10 @@ import solver.constraints.Propagator;
 import solver.constraints.PropagatorPriority;
 import solver.cstrs.connectivity.PropNbCC;
 import solver.cstrs.connectivity.PropNbSCC;
+import solver.cstrs.cost.trees.PropMaxDegTree;
+import solver.cstrs.cost.trees.PropTreeCostSimple;
+import solver.cstrs.cost.trees.lagrangianRelaxation.PropLagr_DCMST;
+import solver.cstrs.cost.tsp.PropCycleCostSimple;
 import solver.cstrs.cycles.*;
 import solver.cstrs.basic.*;
 import solver.cstrs.connectivity.PropConnected;
@@ -42,8 +46,7 @@ import solver.cstrs.channeling.nodes.PropNodeBoolsChannel;
 import solver.cstrs.channeling.nodes.PropNodeSetChannel;
 import solver.cstrs.degree.*;
 import solver.cstrs.cycles.PropPathNoCircuit;
-import solver.cstrs.toCheck.tsp.undirected.PropCycleEvalObj;
-import solver.cstrs.toCheck.tsp.undirected.lagrangianRelaxation.PropLagr_OneTree;
+import solver.cstrs.cost.tsp.lagrangianRelaxation.PropLagr_OneTree;
 import solver.cstrs.tree.PropArborescences;
 import solver.exception.ContradictionException;
 import solver.variables.*;
@@ -1039,14 +1042,9 @@ public class GraphConstraintFactory {
 
 
 	//***********************************************************************************
-	// CYCLES AND PATHS CONSTRAINTS
+	// OPTIMIZATION CONSTRAINTS
 	//***********************************************************************************
 
-
-
-
-
-	// ----
 
 	/**
 	 * Constraint modeling the Traveling Salesman Problem
@@ -1054,19 +1052,21 @@ public class GraphConstraintFactory {
 	 * @param GRAPHVAR   graph variable representing a Hamiltonian cycle
 	 * @param COSTVAR    variable representing the cost of the cycle
 	 * @param EDGE_COSTS cost matrix (should be symmetric)
-	 * @param HELD_KARP  use the Lagrangian relaxation of the tsp
+	 * @param LAGR_MODE  use the Lagrangian relaxation of the tsp
 	 *                   described by Held and Karp
-	 *                   {0:noHK,1:HK,2:HK but wait a first solution before running it}
+	 *                   {0:no Lagrangian relaxation,
+	 *                   1:Lagrangian relaxation (since root node),
+	 *                   2:Lagrangian relaxation but wait a first solution before running it}
 	 * @return a tsp constraint
 	 */
-	public static Constraint tsp(IUndirectedGraphVar GRAPHVAR, IntVar COSTVAR, int[][] EDGE_COSTS, int HELD_KARP) {
+	public static Constraint tsp(IUndirectedGraphVar GRAPHVAR, IntVar COSTVAR, int[][] EDGE_COSTS, int LAGR_MODE) {
 		Propagator[] props = ArrayUtils.append(hamiltonian_cycle(GRAPHVAR).getPropagators(),
-				new Propagator[]{new PropCycleEvalObj(GRAPHVAR, COSTVAR, EDGE_COSTS)});
-		if (HELD_KARP > 0) {
+				new Propagator[]{new PropCycleCostSimple(GRAPHVAR, COSTVAR, EDGE_COSTS)});
+		if (LAGR_MODE > 0) {
 			PropLagr_OneTree hk = new PropLagr_OneTree(GRAPHVAR, COSTVAR, EDGE_COSTS);
-			hk.waitFirstSolution(HELD_KARP == 2);
+			hk.waitFirstSolution(LAGR_MODE == 2);
 			props = ArrayUtils.append(props,new Propagator[]{hk});
 		}
-		return new Constraint("Graph_TSP",props);
+		return new Constraint("TSP",props);
 	}
 }

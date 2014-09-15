@@ -67,7 +67,7 @@ public class DAGProblem extends AbstractProblem{
 			}
 		}
 
-		dag = GraphVarFactory.directedGraph("dag", GLB, GUB, solver);
+		dag = GraphVarFactory.directed_graph_var("dag", GLB, GUB, solver);
 
 		// CONSTRAINTS
 		solver.post(GraphConstraintFactory.no_circuit(dag));

@@ -82,13 +82,13 @@ public class PropNbCliques extends Propagator<Variable> {
 	public void propagate(int evtmask) throws ContradictionException {
 		// reset
 		int n = g.getNbMaxNodes();
-		support.getActiveNodes().clear();
+		support.getNodes().clear();
 		for(int i=0;i<n;i++){
-			support.getNeighborsOf(i).clear();
+			support.getNeighOf(i).clear();
 		}
 		ISet nodes = g.getMandatoryNodes();
 		for(int i=nodes.getFirstElement();i>=0;i=nodes.getNextElement()){
-			support.activateNode(i);
+			support.addNode(i);
 		}
 		for(int i=nodes.getFirstElement();i>=0;i=nodes.getNextElement()){
 			ISet nei = g.getPotNeighOf(i);
@@ -118,7 +118,7 @@ public class PropNbCliques extends Propagator<Variable> {
 		@Override
 		public void filter(IntVar[] nbCliques, UndirectedGraph graph, F heur, Propagator aCause) throws ContradictionException{
 			assert nbCliques.length == 1;
-			int n = graph.getNbNodes();
+			int n = graph.getNbMaxNodes();
 			BitSet mis = heur.getMIS();
 			int LB = heur.getMIS().cardinality()-delta;
 			nbCliques[0].updateLowerBound(LB, aCause);
@@ -127,7 +127,7 @@ public class PropNbCliques extends Propagator<Variable> {
 				for (int i = mis.nextClearBit(0); i>=0 && i < n; i = mis.nextClearBit(i + 1)) {
 					int mate = -1;
 					int last = 0;
-					nei = graph.getNeighborsOf(i);
+					nei = graph.getNeighOf(i);
 					for (int j = nei.getFirstElement(); j >= 0; j = nei.getNextElement()) {
 						if (mis.get(j)) {
 							if (mate == -1) {

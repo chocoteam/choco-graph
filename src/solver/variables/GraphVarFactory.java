@@ -5,6 +5,7 @@ import solver.cstrs.GCF;
 import solver.cstrs.GraphConstraintFactory;
 import util.objects.graphs.DirectedGraph;
 import util.objects.graphs.UndirectedGraph;
+import util.objects.setDataStructures.SetType;
 
 import java.util.Arrays;
 
@@ -13,6 +14,39 @@ public class GraphVarFactory {
 	//*************************************************************************************
 	// GRAPH VARIABLES CREATION
 	//*************************************************************************************
+
+	/**
+	 * Creates a graph variable comprised between an empty graph and K_n (complete graph of n vertices)
+	 * @param NAME	Name of the variable
+	 * @param n		Maximum number of vertices
+	 * @param SOLVER	solver of the variable
+	 * @return a graph variable having n vertices
+	 */
+	public static IUndirectedGraphVar undirected_graph_var(String NAME, int n, Solver SOLVER) {
+		return undirected_graph_var(NAME,n,false,SOLVER);
+	}
+
+	/**
+	 * Creates a graph variable comprised between an empty graph and K_n (complete graph of n vertices)
+	 * @param NAME	Name of the variable
+	 * @param n		Maximum number of vertices
+	 * @param allNodes If true then every vertex in [0,n-1] belongs to every solution.
+	 * @param SOLVER	solver of the variable
+	 * @return a graph variable having n vertices
+	 */
+	public static IUndirectedGraphVar undirected_graph_var(String NAME, int n, boolean allNodes, Solver SOLVER) {
+		UndirectedGraph LB = new UndirectedGraph(SOLVER, n,SetType.BITSET,allNodes);
+		UndirectedGraph UB = new UndirectedGraph(SOLVER, n,SetType.BITSET,allNodes);
+		for(int i=0;i<n;i++){
+			if(!allNodes) {
+				UB.addNode(i);
+			}
+			for(int j=i;j<n;j++){
+				UB.addEdge(i,j);
+			}
+		}
+		return undirected_graph_var(NAME, LB, UB, SOLVER);
+	}
 
 	/**
 	 * Create an undirected graph variable named NAME
@@ -26,10 +60,42 @@ public class GraphVarFactory {
 	 * @param SOLVER	Solver of the variable
 	 * @return	An undirected graph variable
 	 */
-	public static IUndirectedGraphVar undirectedGraph(String NAME, UndirectedGraph LB, UndirectedGraph UB, Solver SOLVER) {
+	public static IUndirectedGraphVar undirected_graph_var(String NAME, UndirectedGraph LB, UndirectedGraph UB, Solver SOLVER) {
 		return new UndirectedGraphVar(NAME, SOLVER, LB, UB);
 	}
 
+	/**
+	 * Creates a directed graph variable comprised between an empty graph and K_n (complete graph of n vertices)
+	 * @param NAME	Name of the variable
+	 * @param n		Maximum number of vertices
+	 * @param SOLVER	solver of the variable
+	 * @return a directed graph variable having n vertices
+	 */
+	public static IDirectedGraphVar directed_graph_var(String NAME, int n, Solver SOLVER) {
+		return directed_graph_var(NAME,n,false,SOLVER);
+	}
+
+	/**
+	 * Creates a directed graph variable comprised between an empty graph and K_n (complete graph of n vertices)
+	 * @param NAME	Name of the variable
+	 * @param n		Maximum number of vertices
+	 * @param allNodes If true then every vertex in [0,n-1] belongs to every solution.
+	 * @param SOLVER	solver of the variable
+	 * @return a directed graph variable having n vertices
+	 */
+	public static IDirectedGraphVar directed_graph_var(String NAME, int n, boolean allNodes, Solver SOLVER) {
+		DirectedGraph LB = new DirectedGraph(SOLVER, n,SetType.BITSET,allNodes);
+		DirectedGraph UB = new DirectedGraph(SOLVER, n,SetType.BITSET,allNodes);
+		for(int i=0;i<n;i++){
+			if(!allNodes) {
+				UB.addNode(i);
+			}
+			for(int j=0;j<n;j++){
+				UB.addArc(i,j);
+			}
+		}
+		return directed_graph_var(NAME, LB, UB, SOLVER);
+	}
 
 	/**
 	 * Create a directed graph variable named NAME
@@ -43,7 +109,7 @@ public class GraphVarFactory {
 	 * @param SOLVER	Solver of the variable
 	 * @return	An undirected graph variable
 	 */
-	public static IDirectedGraphVar directedGraph(String NAME, DirectedGraph LB, DirectedGraph UB, Solver SOLVER) {
+	public static IDirectedGraphVar directed_graph_var(String NAME, DirectedGraph LB, DirectedGraph UB, Solver SOLVER) {
 		return new DirectedGraphVar(NAME, SOLVER, LB, UB);
 	}
 

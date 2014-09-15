@@ -25,45 +25,73 @@
  *  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package test.java;
+/**
+ * Created by IntelliJ IDEA.
+ * User: Jean-Guillaume Fages
+ * Date: 30/01/12
+ * Time: 17:09
+ */
 
-import org.testng.Assert;
-import org.testng.annotations.Test;
-import solver.Solver;
-import solver.variables.*;
+package solver.cstrs.cost.tsp.heap;
+
+import java.util.BitSet;
 
 /**
- * <br/>
+ * Trivial Heap (not that bad in practice)
+ * worst case running time for O(m) add/decrease key and O(n) pop = O(n*n+m)
  *
- * @author Charles Prud'homme
- * @since 23 juil. 2010
+ * @author Jean-Guillaume Fages
  */
-public class SolverTest {
+public class ArrayHeap implements ISimpleHeap {
 
-    @Test(groups = "1s")
-    public void testFH1() {
-        Solver solver = new Solver();
-        BoolVar b = VF.bool("b", solver);
-        IntVar i = VF.bounded("i", VF.MIN_INT_BOUND, VF.MAX_INT_BOUND, solver);
-        SetVar s = VF.set("s", 2, 3, solver);
-        RealVar r = VF.real("r", 1.0, 2.2, 0.01, solver);
-		IGraphVar g = GraphVarFactory.directed_graph_var("g", null, null, solver);
+    BitSet in;
+    double[] value;
+    int size;
 
-
-        BoolVar[] bvars = solver.retrieveBoolVars();
-        Assert.assertEquals(bvars, new BoolVar[]{solver.ZERO, solver.ONE, b});
-
-        IntVar[] ivars = solver.retrieveIntVars();
-        Assert.assertEquals(ivars, new IntVar[]{i});
-
-        SetVar[] svars = solver.retrieveSetVars();
-        Assert.assertEquals(svars, new SetVar[]{s});
-
-        RealVar[] rvars = solver.retrieveRealVars();
-        Assert.assertEquals(rvars, new RealVar[]{r});
-
-		IGraphVar[] gvars = GraphVarFactory.retrieveGraphVars(solver);
-        Assert.assertEquals(gvars, new IGraphVar[]{g});
+    public ArrayHeap(int n) {
+        in = new BitSet(n);
+        value = new double[n];
+        size = 0;
     }
 
+    @Override
+    public boolean addOrUpdateElement(int element, double element_key) {
+        if (!in.get(element)) {
+            in.set(element);
+            size++;
+            value[element] = element_key;
+            return true;
+        } else if (element_key < value[element]) {
+            value[element] = element_key;
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public int removeFirstElement() {
+        if (isEmpty()) {
+            throw new UnsupportedOperationException();
+        }
+        int min = in.nextSetBit(0);
+        for (int i = in.nextSetBit(0); i >= 0; i = in.nextSetBit(i + 1)) {
+            if (value[i] < value[min]) {
+                min = i;
+            }
+        }
+        in.clear(min);
+        size--;
+        return min;
+    }
+
+    @Override
+    public void clear() {
+        in.clear();
+        size = 0;
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return size == 0;
+    }
 }

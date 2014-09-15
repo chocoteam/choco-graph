@@ -25,45 +25,39 @@
  *  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package test.java;
-
-import org.testng.Assert;
-import org.testng.annotations.Test;
-import solver.Solver;
-import solver.variables.*;
+package solver.cstrs.cost.tsp.heap;
 
 /**
- * <br/>
+ * Simple heap interface with only a few services
  *
- * @author Charles Prud'homme
- * @since 23 juil. 2010
+ * @author Jean-Guillaume Fages
  */
-public class SolverTest {
-
-    @Test(groups = "1s")
-    public void testFH1() {
-        Solver solver = new Solver();
-        BoolVar b = VF.bool("b", solver);
-        IntVar i = VF.bounded("i", VF.MIN_INT_BOUND, VF.MAX_INT_BOUND, solver);
-        SetVar s = VF.set("s", 2, 3, solver);
-        RealVar r = VF.real("r", 1.0, 2.2, 0.01, solver);
-		IGraphVar g = GraphVarFactory.directed_graph_var("g", null, null, solver);
+public interface ISimpleHeap {
 
 
-        BoolVar[] bvars = solver.retrieveBoolVars();
-        Assert.assertEquals(bvars, new BoolVar[]{solver.ZERO, solver.ONE, b});
+    /**
+     * Get and remove the lowest element of the heap
+     *
+     * @return the first (lowest) element of the heap
+     */
+    public int removeFirstElement();
 
-        IntVar[] ivars = solver.retrieveIntVars();
-        Assert.assertEquals(ivars, new IntVar[]{i});
+    /**
+     * Add element in the heap or update its value in case it is already in
+     *
+     * @param element
+     * @param value
+     * @return true iff element was not already in the heap or if the new value is strictly lower than the previous one
+     */
+    public boolean addOrUpdateElement(int element, double value);
 
-        SetVar[] svars = solver.retrieveSetVars();
-        Assert.assertEquals(svars, new SetVar[]{s});
+    /**
+     * @return true iff the heap is empty
+     */
+    public boolean isEmpty();
 
-        RealVar[] rvars = solver.retrieveRealVars();
-        Assert.assertEquals(rvars, new RealVar[]{r});
-
-		IGraphVar[] gvars = GraphVarFactory.retrieveGraphVars(solver);
-        Assert.assertEquals(gvars, new IGraphVar[]{g});
-    }
-
+    /**
+     * Clear the heap (remove any remaining element)
+     */
+    public void clear();
 }

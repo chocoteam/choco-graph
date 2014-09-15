@@ -92,8 +92,8 @@ public class PropArborescences extends Propagator<IDirectedGraphVar> {
     public void propagate(int evtmask) throws ContradictionException {
         // reset data structure
 		for (int i = 0; i < n + 1; i++) {
-            connectedGraph.getSuccessorsOf(i).clear();
-            connectedGraph.getPredecessorsOf(i).clear();
+            connectedGraph.getSuccOf(i).clear();
+            connectedGraph.getPredOf(i).clear();
         }
         ISet nei;
         for (int i = 0; i < n; i++) {

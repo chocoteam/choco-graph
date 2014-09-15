@@ -25,45 +25,56 @@
  *  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package test.java;
+/**
+ * Created by IntelliJ IDEA.
+ * User: Jean-Guillaume Fages
+ * Date: 30/01/12
+ * Time: 17:10
+ */
 
-import org.testng.Assert;
-import org.testng.annotations.Test;
-import solver.Solver;
-import solver.variables.*;
+package solver.cstrs.cost.tsp.heap;
 
 /**
- * <br/>
- *
- * @author Charles Prud'homme
- * @since 23 juil. 2010
+ * Same worst case complexity but much better in practice
+ * Especially when several nodes have same -infinity value
  */
-public class SolverTest {
+public class FastArrayHeap extends ArrayHeap {
 
-    @Test(groups = "1s")
-    public void testFH1() {
-        Solver solver = new Solver();
-        BoolVar b = VF.bool("b", solver);
-        IntVar i = VF.bounded("i", VF.MIN_INT_BOUND, VF.MAX_INT_BOUND, solver);
-        SetVar s = VF.set("s", 2, 3, solver);
-        RealVar r = VF.real("r", 1.0, 2.2, 0.01, solver);
-		IGraphVar g = GraphVarFactory.directed_graph_var("g", null, null, solver);
+    int[] best;
+    int bestSize;
+    double bestVal;
 
-
-        BoolVar[] bvars = solver.retrieveBoolVars();
-        Assert.assertEquals(bvars, new BoolVar[]{solver.ZERO, solver.ONE, b});
-
-        IntVar[] ivars = solver.retrieveIntVars();
-        Assert.assertEquals(ivars, new IntVar[]{i});
-
-        SetVar[] svars = solver.retrieveSetVars();
-        Assert.assertEquals(svars, new SetVar[]{s});
-
-        RealVar[] rvars = solver.retrieveRealVars();
-        Assert.assertEquals(rvars, new RealVar[]{r});
-
-		IGraphVar[] gvars = GraphVarFactory.retrieveGraphVars(solver);
-        Assert.assertEquals(gvars, new IGraphVar[]{g});
+    public FastArrayHeap(int n) {
+        super(n);
+        best = new int[n];
     }
 
+    @Override
+    public boolean addOrUpdateElement(int element, double element_key) {
+        if (isEmpty() || element_key < bestVal) {
+            bestVal = element_key;
+            bestSize = 0;
+            best[bestSize++] = element;
+        } else if (element_key == bestVal && element_key < value[element]) {
+            best[bestSize++] = element;
+        }
+        return super.addOrUpdateElement(element, element_key);
+    }
+
+    @Override
+    public int removeFirstElement() {
+        if (bestSize > 0) {
+            int min = best[--bestSize];
+            in.clear(min);
+            size--;
+            return min;
+        }
+        return super.removeFirstElement();
+    }
+
+    @Override
+    public void clear() {
+        super.clear();
+        bestSize = 0;
+    }
 }

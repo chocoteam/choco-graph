@@ -1,5 +1,5 @@
 /**
- *  Copyright (c) 1999-2014, Ecole des Mines de Nantes
+ *  Copyright (c) 1999-2011, Ecole des Mines de Nantes
  *  All rights reserved.
  *  Redistribution and use in source and binary forms, with or without
  *  modification, are permitted provided that the following conditions are met:
@@ -25,45 +25,30 @@
  *  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package test.java;
-
-import org.testng.Assert;
-import org.testng.annotations.Test;
-import solver.Solver;
-import solver.variables.*;
 
 /**
- * <br/>
- *
- * @author Charles Prud'homme
- * @since 23 juil. 2010
+ * @author Jean-Guillaume Fages
+ * @since 09/09/14
+ * Created by IntelliJ IDEA.
  */
-public class SolverTest {
+package samples.tsp;
 
-    @Test(groups = "1s")
-    public void testFH1() {
-        Solver solver = new Solver();
-        BoolVar b = VF.bool("b", solver);
-        IntVar i = VF.bounded("i", VF.MIN_INT_BOUND, VF.MAX_INT_BOUND, solver);
-        SetVar s = VF.set("s", 2, 3, solver);
-        RealVar r = VF.real("r", 1.0, 2.2, 0.01, solver);
-		IGraphVar g = GraphVarFactory.directed_graph_var("g", null, null, solver);
+public class TSP_CP_Solver {
 
+	public final static String REPO = "src/samples/tsp";
+	public final static String INSTANCE = "bier127";
+	public final static int MAX_SIZE = 300;
 
-        BoolVar[] bvars = solver.retrieveBoolVars();
-        Assert.assertEquals(bvars, new BoolVar[]{solver.ZERO, solver.ONE, b});
-
-        IntVar[] ivars = solver.retrieveIntVars();
-        Assert.assertEquals(ivars, new IntVar[]{i});
-
-        SetVar[] svars = solver.retrieveSetVars();
-        Assert.assertEquals(svars, new SetVar[]{s});
-
-        RealVar[] rvars = solver.retrieveRealVars();
-        Assert.assertEquals(rvars, new RealVar[]{r});
-
-		IGraphVar[] gvars = GraphVarFactory.retrieveGraphVars(solver);
-        Assert.assertEquals(gvars, new IGraphVar[]{g});
-    }
-
+	public static void main(String[] args) {
+		int[][] data = TSP_Utils.parseInstance(REPO + "/" + INSTANCE + ".tsp", MAX_SIZE);
+		// presolve with LNS
+		TSP_lns lns = new TSP_lns(data);
+		lns.execute();
+		if(lns.getSolver().getMeasures().getTimeCount()>=TSP_lns.LIMIT) {
+			// optimality proof with Lagrangian relaxation
+			int bestSolutionCost = lns.getSolver().getMeasures().getBestSolutionValue().intValue();
+			TSP_exact proof = new TSP_exact(data, bestSolutionCost);
+			proof.execute();
+		}
+	}
 }

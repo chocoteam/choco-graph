@@ -29,8 +29,6 @@ package test.java;
 
 import org.testng.annotations.Test;
 import solver.Solver;
-import solver.constraints.Constraint;
-import solver.cstrs.GraphConstraintFactory;
 import solver.search.GraphStrategyFactory;
 import solver.search.strategy.strategy.AbstractStrategy;
 import solver.variables.GraphVarFactory;
@@ -56,7 +54,7 @@ public class NTreeTest {
 				GUB.addArc(i, j);
 			}
 		}
-		IDirectedGraphVar g = GraphVarFactory.directedGraph("G", GLB, GUB, s);
+		IDirectedGraphVar g = GraphVarFactory.directed_graph_var("G", GLB, GUB, s);
 		IntVar nTree = VariableFactory.bounded("NTREE ", tmin, tmax, s);
 //		Constraint gc = GraphConstraintFactory.nTrees(g, nTree);
 		AbstractStrategy strategy = GraphStrategyFactory.random(g, seed);

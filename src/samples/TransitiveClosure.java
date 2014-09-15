@@ -80,7 +80,7 @@ public class TransitiveClosure extends AbstractProblem{
 				}
 			}
 		}
-		tc = GraphVarFactory.directedGraph("transitive closure", GLB, GUB, solver);
+		tc = GraphVarFactory.directed_graph_var("transitive closure", GLB, GUB, solver);
 
 		// CONSTRAINTS
 		solver.post(new Constraint("Graph_TC",new PropTransitivity(tc),new PropNbArcs(tc,nbArcs)));

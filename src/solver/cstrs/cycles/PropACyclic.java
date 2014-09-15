@@ -92,9 +92,12 @@ public class PropACyclic extends Propagator<IGraphVar> {
 	public void propagate(int evtmask) throws ContradictionException {
 		for(int i=0;i<n;i++){
 			g.removeArc(i,i,aCause);
-			ISet nei = g.getMandSuccOrNeighOf(i);
-			for(int j=nei.getFirstElement();j>=0;j=nei.getNextElement()){
-				propagateIJ(i, j);
+			if(g.getMandSuccOrNeighOf(i).getSize()>0) {
+				for(int j=0;j<n;j++){
+					if(g.getMandSuccOrNeighOf(i).contain(j)) {
+						propagateIJ(i, j);
+					}
+				}
 			}
 		}
 		gdm.unfreeze();
@@ -154,7 +157,9 @@ public class PropACyclic extends Propagator<IGraphVar> {
 				ISet nei = g.getPotSuccOrNeighOf(i);
 				for (int j = nei.getFirstElement(); j >= 0; j = nei.getNextElement()) {
 					if (rfFrom.get(j)) {
-						g.removeArc(i,j,aCause);
+						if((i!=from || j!=to) && (i!=to || j!=from)) {
+							g.removeArc(i, j, aCause);
+						}
 					}
 				}
 			}
@@ -208,7 +213,9 @@ public class PropACyclic extends Propagator<IGraphVar> {
 						ISet nei = g.getMandSuccOrNeighOf(i);
 						for (int j = nei.getFirstElement(); j >= 0; j = nei.getNextElement()) {
 							if (rfFrom.get(j)) {
-								return ESat.FALSE;
+								if((i!=from || j!=to) && (i!=to || j!=from)) {
+									return ESat.FALSE;
+								}
 							}
 						}
 					}

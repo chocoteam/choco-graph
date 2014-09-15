@@ -31,7 +31,6 @@ import org.testng.annotations.Test;
 import solver.Solver;
 import solver.constraints.Constraint;
 import solver.constraints.Propagator;
-import solver.cstrs.cycles.PropPathNoCircuit;
 import solver.cstrs.degree.PropNodeDegree_AtLeast_Coarse;
 import solver.cstrs.degree.PropNodeDegree_AtMost_Incr;
 import solver.search.loop.monitors.SearchMonitorFactory;
@@ -42,7 +41,6 @@ import solver.variables.IDirectedGraphVar;
 import util.objects.graphs.DirectedGraph;
 import util.objects.graphs.Orientation;
 import util.objects.setDataStructures.SetType;
-import util.tools.ArrayUtils;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
@@ -61,7 +59,7 @@ public class PathTest {
 				GUB.addArc(i, j);
 			}
 		}
-		IDirectedGraphVar g = GraphVarFactory.directedGraph("G", GLB, GUB, s);
+		IDirectedGraphVar g = GraphVarFactory.directed_graph_var("G", GLB, GUB, s);
 		int[] succs = new int[n];
 		int[] preds = new int[n];
 		for (int i = 0; i < n; i++) {

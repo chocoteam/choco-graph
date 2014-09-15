@@ -68,7 +68,7 @@ The solving process consists of removing nodes and edges from \GUB{} and adding 
 \begin{itemize}
 \item Modeling convenience : 
 \begin{itemize}
-\item When solving a graph problem, the model gets closer to the original problem. 
+\item When solving a graph problem, the model is close to the original problem. 
 \item A graph variable is a consistent graph representation (e.g. a node which does not exist has no incident arcs), which simplifies the model. 
 \item Stating constraints as graph properties in a declarative way is nice. 
 \end{itemize}
@@ -79,14 +79,50 @@ The solving process consists of removing nodes and edges from \GUB{} and adding 
 \item Performance gains : 
 \begin{itemize}
 \item You can use optimized data structure for domains (e.g. bit sets, bipartite sets, linked lists...) which allow to reduce runtime of most algorithms and/or memory consumption. This brings significant improvement on large scale problems. 
-\item Having such a global variable instead of many smaller lighten the solver, bringing to performance improvements.
+\item Having such a global variable instead of many smaller ones makes the solver lighter, which brings performance improvement.
 \end{itemize}
 \end{itemize}
+
+This module can be seen as a CP framework for graph theory. In that sense, it is closer to Operations Research than Artificial Intelligence. With a minimum background in graph algorithms, this manual will help you to build your own models, constraints and search procedures so that you effectively solve your problems. 
+
+This module has been introduced in 2011 but it has been deeply refactored in September 2014. In case some bugs have been introduced during that step, please inform us. 
 
 \newpage{}
 \section{Defining a graph variable}
 
-Graph variables can be created through \texttt{GraphVarFactory.java}:
+Prior to introduce how to build graph variables, it is necessary to describe graph structures of the core Choco solver. These graphs are often used as internal data structures for propagators. In our case, it will serve to define the domain of graph variables. 
+
+\subsection{Graphs}
+
+There are basically two kind of graphs in Choco : directed (\texttt{DirectedGraph.java}) and undirected (\texttt{UndirectedGraph.java}) graphs. 
+Directed and undirected graphs have similar methods. The constructor of an undirected graph is the following: 
+\begin{lstlisting}
+public UndirectedGraph(int n, SetType type, boolean allNodes)
+\end{lstlisting}
+
+\begin{itemize}
+\item The integer \texttt{n} denotes the maximum number of nodes. This is necessary for memory allocation. The set of nodes is then a subset of $\{0,1,...,n-1\}$. Once the graph has been created, it is not possible to modify that value. 
+\item \texttt{SetType type} indicates which kind of data structure to use. If the graph is very sparse, a linked list (\texttt{SetType.LINKED\_LIST}) implementation would reduce the memory consumption. Otherwise, \texttt{SetType.BIPARTITESET} provides an optimal time complexity for every request, but has some hidden constants and a higher memory consumption. \texttt{SetType.BITSET} is a good default choice. 
+\item The boolean \texttt{allNodes} indicates whether or not the node set is fixed. This parameter is very important. Whenever set to true, it means that the vertex set is $[0,n-1]$ and will not change during search. It is not necessary to add vertices explicitly (all of them are present). If set to false, it means that the vertex set must be a subset of $[0,n-1]$, and is initially EMPTY. Therefore, the user may have to add them explicitly by using the \texttt{addNode(int i)} method.
+\end{itemize}
+
+Graph manipulations (iterations over nodes, edges, neighbors of a particular vertex...) rely on the choco \texttt{ISet} interface. 
+\begin{lstlisting}
+ISet nodes = graph.getNodes();
+for(int i=nodes.getFirstElement(); i>=0; i = nodes.getNextElement())
+\end{lstlisting}
+Note that for efficiency reason iteration of one \texttt{ISet} is not context safe, i.e. you cannot encapsulate two iteration loops of the same set (copy the set in an int[] for doing that).
+\subsection{Backtrackable graphs}
+
+As we wish to use graphs to represent the domain of a variable, such graphs must be backtrackable, i.e. the graph must restore its previous value upon backtracking. 
+To do so, one simply use a different constructor, having the solver in argument (to catch backtrack events):
+\begin{lstlisting}
+public UndirectedGraph(Solver solver, int n, SetType type, boolean allNodes)
+\end{lstlisting}
+
+\subsection{Graph variable}
+
+Graph variables can be created through \texttt{GraphVarFactory.java}. The domain of such a variable is defined by two graphs : the lower bound graph gives nodes and arcs that belong to every solution, whereas the upper bound graph gives nodes and arcs that may belong to a solution. 
 
 \lstset{language=Java} 
 
@@ -123,7 +159,7 @@ showstringspaces=false}
  * @param SOLVER	Solver of the variable
  * @return	An undirected graph variable
  */
-public static IUndirectedGraphVar undirectedGraph(String NAME, 
+public static IUndirectedGraphVar undirected_graph_var(String NAME, 
 										UndirectedGraph LB, 
 										UndirectedGraph UB, 
 										Solver SOLVER) {
@@ -142,7 +178,7 @@ public static IUndirectedGraphVar undirectedGraph(String NAME,
  * @param SOLVER	Solver of the variable
  * @return	An undirected graph variable
  */
-public static IDirectedGraphVar directedGraph(String NAME, 
+public static IDirectedGraphVar directed_graph_var(String NAME, 
 									DirectedGraph LB, 
 									DirectedGraph UB, 
 									Solver SOLVER) {
@@ -158,11 +194,9 @@ new DirectedGraph(Solver solver, int n, SetType type, boolean allNodes)
 \end{lstlisting}
 
 The input maximum number of nodes should be the same for both the lower and the upper bound graphs. 
-
-The \texttt{Solver} provides a backtracking environment. The integer \texttt{n} denotes the maximum number of nodes. 
-This is necessary for memory allocation. \texttt{SetType type} indicates which kind of data structure to use. 
-Finally, the boolean \texttt{allNodes} indicates whether or not the node set is fixed. This parameter is very important. Whenever set to true, it means that the vertex set is $[0,n]$ and will not change during search. It is not necessary to add vertices explicitly. If set to false, it means that the vertex set must be a subset of $[0,n]$, and is initially EMPTY. Therefore, the user may have to add them explicitely (see the following example with \texttt{GUB.activateNode(i);}).
-
+%
+%The \texttt{Solver} provides a backtracking environment. You should NOT use the signatures that do not have the solver in argument (they do not restore value upon backtracking). The integer \texttt{n} denotes the maximum number of nodes. This is necessary for memory allocation. \texttt{SetType type} indicates which kind of data structure to use. Finally, the boolean \texttt{allNodes} indicates whether or not the node set is fixed. This parameter is very important. Whenever set to true, it means that the vertex set is $[0,n]$ and will not change during search. It is not necessary to add vertices explicitly. If set to false, it means that the vertex set must be a subset of $[0,n]$, and is initially EMPTY. Therefore, the user may have to add them explicitly (see the following example with \texttt{GUB.addNode(i);}).
+%
 Here is an example involving an undirected graph variable:
 
 \begin{lstlisting}
@@ -180,41 +214,40 @@ UndirectedGraph GUB = new UndirectedGraph(
 										false			// fixed node set?
 									);
 for (int i = 0; i < n; i++) {
-	GUB.activateNode(i);			// potential node
-	GUB.addEdge(i, i);				// potential loop
-	for (int j = i + 1; j < n; j++) {
-		if (link[i][j]) {
+	GUB.addNode(i);			// potential node
+	for (int j = i; j < n; j++) {
+		if (link[i][j]) {       // some input data providing potential edges
 			GUB.addEdge(i, j);		// potential edge
 		}
 	}
 }
-GLB.activateNode(1);				// 1 and 2 must belong to the solution
-GLB.activateNode(2);
+GLB.addNode(1);				// 1 and 2 must belong to the solution
+GLB.addNode(2);
 GLB.addEdge(1,2);					// 1 and 2 must belong to the same clique
 // graph variable
-graphvar = GraphVarFactory.undirectedGraph("G", GLB, GUB, solver);
+graphvar = GraphVarFactory.undirected_graph_var("G", GLB, GUB, solver);
 \end{lstlisting}
 
 In this example, we see that vertices $1$ and $2$ must belong to every solution, as well as the edge $(1,2)$. 
-Other potential vertices and edges are given by \texttt{GUB}.
+Other potential vertices and edges are given by \texttt{GUB}. 
 
-You should NOT use the signatures that do not have the solver in argument (they do not restore value upon backtracking):
+For simplicity reasons, one may prefer to use the following method, which creates an empty lower bound graph and a complete upper bound graph with $42$ vertices:
 \begin{lstlisting}
-new UndirectedGraph(int n, SetType type, boolean allNodes)
-new DirectedGraph(int n, SetType type, boolean allNodes)
+GraphVarFactory.undirected_graph_var("G",42,solver);
 \end{lstlisting}
 
 \newpage{}
 \section{Constraining a graph variable}
 
-A collection of constraints over a graph variable can be found in \texttt{GraphConstraintFactory.java}. The name is a bit long to be explicit but you can either import it statically or use \texttt{GCF.java} as a shortcut. 
+A collection of constraints over a graph variable can be found in \texttt{GraphConstraintFactory.java}. 
+The name is explicit but a bit long. You can either import it statically or use \texttt{GCF.java} as a shortcut. 
 
 \subsection{Usual graph constraints}
 
 \subsubsection{Node and edge counts}
 
-The factory contains several basic constraints, such as \texttt{k\_nodes}, which enables to constrain the number of nodes to be equal to a given integer variable. 
-To make things simpler, you can call the \texttt{GraphVarFactory.nb\_nodes(g)} function which will create and return an integer variable that is equal to the number of nodes (i.e. it posts the \texttt{k\_nodes} constraint). 
+The factory contains several basic constraints, such as \texttt{nb\_nodes}, which enables to constrain the number of nodes to be equal to a given integer variable. 
+To make things simpler, you can call the \texttt{GraphVarFactory.nb\_nodes(g)} function which will create and return an integer variable that is equal to the number of nodes (i.e. it posts the \texttt{nb\_nodes} constraint). 
 In the same way, one can count the number of edge (resp. arc) of an undirected (resp. directed) graph variable as follows: 
 \begin{lstlisting}
 IntVar nbArcs = GraphVarFactory.nb_arcs(g);
@@ -318,16 +351,34 @@ It is possible to partition a graph into cliques by using the transitivity and c
 
 You can impose the diameter of a graph variable to be equal to a given integer variable with the \texttt{diameter} constraint. This constraint also forces the graph variable to be connected (or strongly connected in case of a directed graph variable). As a recall, the diameter is the length (in number of arcs) of the largest shortest path between any pair of nodes. 
 
-\subsection{Optimization constraints}
+\subsection{Some optimization constraints}
 
 Solving hard optimization problems to optimality often requires to embed cost-based reasonings into global constraints. 
-We have included two minimum spanning tree relaxations : the one-tree Lagrangian relaxation to solve the Traveling Salesman Problem and a minimum spanning tree subject to (dualized) degree constraints, to solve the more general Degree Constrained Minimum Spanning Tree Problem. 
+We have included two minimum spanning tree relaxations : the one-tree Lagrangian relaxation to solve the Traveling Salesman Problem and a minimum spanning tree subject to (dualized) degree constraints, to solve the more general Degree Constrained Minimum Spanning Tree Problem. Such constraints introduce a significant overhead but they provide a very powerful filtering as well. Presumably, they should only be used once a good upper bound has been found (in case of a minimization problem), because the filtering depends on that value. 
 
-Such constraints introduce a significant overhead but they provide a very powerful filtering as well. Presumably, they should only be used once a good upper bound has been found (in case of a minimization problem), because the filtering depends on that value. For finding good but suboptimal solutions to large scale problems, it may not be worthwhile. 
+\subsubsection{The TSP constraint}
+
+The TSP constraint enables to find a Hamiltonian cycle of minimum cost. It is built as follows:
+\begin{lstlisting}
+// constraints (TSP basic model + Lagrangian relaxation)
+solver.post(GraphConstraintFactory.tsp(graph, totalCost, costMatrix, 1));
+\end{lstlisting}
+
+The arguments of this methods are respectively : the undirected graph variable representing the cycle, the integer variable representing the cost of the cycle, the integer (symmetric) cost matrix and the Lagrangian mode. Three values are possible for that parameter : $0$ means the Lagrangian relaxation is not used; $1$ means that the Lagrangian relaxation is turned on after a first solution has been found; $2$ means the Lagrangian relaxation is used since root node.
+
+%\subsubsection{The DCMST constraint}
+%
+%The DCMST constraint enables to find a Minimum Spanning Tree subject to degree constraints. It is built as follows:
+%\begin{lstlisting}
+%// constraints (tree + degree constraint + Lagrangian relaxation)
+%solver.post(GraphConstraintFactory.dcmst(graph, degrees, totalCost, costMatrix, 1));
+%\end{lstlisting}
+%
+%The arguments of this methods are respectively : the undirected graph variable representing the spanning tree, the array of integer variables representing the degree of every node, the integer variable representing the cost of the tree, the integer (symmetric) cost matrix and the Lagrangian mode. Three values are possible for that parameter : $0$ means the Lagrangian relaxation is not used; $1$ means that the Lagrangian relaxation is turned on after a first solution has been found; $2$ means the Lagrangian relaxation is used since root node.
 
 \subsection{Channeling constraints}
 
-A wide range of channeling constraints are provided to allows to link boolean, integer or set variables to a graph variables. 
+A wide range of channeling constraints are provided to allow links between boolean, integer or set variables and a graph variables. 
 This enables to post some usual constraints over some vertex (sub)sets of some edge (sub)sets. 
 
 Note that you do not have to create such channeling variables yourself : \texttt{GraphVarFactory.java} does it for you! 
@@ -399,7 +450,7 @@ return new Constraint("antisymmetric", new PropAntiSymmetric(g));
 
 Let us now investigate how to implement such a propagator. There are basically two ways : either use a non-incremental or an incremental propagator. 
 
-\subsubsection{Not incremental propagators}
+\subsubsection{A simple and non-incremental propagators}
 
 The simplest is the non-incremental approach, but it is also the slower. As we can see, every time the constraint is propagated, we perform an iteration over every mandatory arc (to remove its opposite if it has not been already done). 
 
@@ -441,12 +492,6 @@ public class PropAntiSymmetric_coarse extends Propagator<IDirectedGraphVar> {
         }
     }
 
-    @Override
-    public int getPropagationConditions(int vIdx) {
-    	// propagation condition (facultative) : only propagate arc enforcing events
-        return EventType.ENFORCEARC.mask;
-    }
-
     @Override // checker of partial instantiations, useful for reification
     public ESat isEntailed() {
         ISet ker = g.getMandatoryNodes();
@@ -464,6 +509,16 @@ public class PropAntiSymmetric_coarse extends Propagator<IDirectedGraphVar> {
         }
         return ESat.UNDEFINED; // satisfiability is undefined 
     }
+}
+\end{lstlisting}
+
+In order to improve performances, you can inform the propagation engine that the propagator should be called only after one or many arc enforcing. It is useless to propagate it after a set of arc removals or node modifications. 
+To do so, you can override the \texttt{getPropagationConditions} method as follows:
+\begin{lstlisting}
+@Override
+public int getPropagationConditions(int vIdx) {
+	// propagation condition (facultative) : only propagate arc enforcing events
+	return EventType.ENFORCEARC.mask;
 }
 \end{lstlisting}
 
@@ -576,8 +631,8 @@ In case the model includes one or many graph variables, then a search process mu
 For that, the user need to create a search procedure for each variable type and then create a composite search procedure which will decide, at each node, which one to apply (i.e. decide which variable type the solver should branch on). Note that in case your model has many graph variables, you should create one search strategy per such variable (or make your own search strategy), because built-in strategies only consider one graph variable. Here is a simple example which consists in applying successively \texttt{intSearch}, then \texttt{setSearch} and finally \texttt{graphSearch}:
 
 \begin{lstlisting}
-final AbstractStrategy<SetVar> setSearch = SetStrategyFactory.force_first(vertices);
 final AbstractStrategy<IntVar> intSearch = IntStrategyFactory.minDom_LB(card);
+final AbstractStrategy<SetVar> setSearch = SetStrategyFactory.force_first(vertices);
 final AbstractStrategy<IUndirectedGraphVar> graphSearch = GraphStrategyFactory.graphLexico(graphvar);
 solver.set(intSearch,setSearch,graphSearch); // this implicitly use a sequencer composite strategy
 \end{lstlisting}
@@ -722,6 +777,88 @@ There are two options for \texttt{NodeArcPriority}:
 
 Large Neighborhood Search (LNS) is most powerful technique to solve large scale optimization problems. It may not be able to prove optimality but is designed to provide very good solutions in a reasonable runtime. Another interesting motivation for setting up an LNS is that the output solution may not be easy to improve by hand. 
 
+The sample \texttt{TSP\_lns.java} provides an illustration of how to implement a large neighborhood search to solve a tsp. 
+Setting up an LNS requires can be done as follows:
+\begin{lstlisting}
+// object describing which edges to freeze
+SubpathLNS LNS = new SubpathLNS(graph.getNbMaxNodes(),solver);
+// restarts every 30 fails (facultative)
+LNS.fastRestart(new FailCounter(30)); 
+// set up the lns (the last argument indicates whether to restart on every solution) 
+solver.plugMonitor(new LargeNeighborhoodSearch(solver,LNS,false))
+\end{lstlisting} 
+
+The only smart part relies in the implementation of \texttt{INeighbor}. We provide the following implementation
+\begin{lstlisting}
+/**
+ * Object describing which edges to freeze and which others to relax in the LNS
+ * Relaxes a (sub)path of the previous solution (freezes the rest)
+ */
+private class SubpathLNS extends ANeighbor{
+
+	Random rd = new Random(0);
+	int n, nbRL; // number of nodes, counter 
+	UndirectedGraph solution; // object to  store the current best solution
+	int nbFreeEdges = 15; // number of edges which should not be frozen
+
+	protected SubpathLNS(int n, Solver mSolver) {
+		super(mSolver);
+		this.n = n;
+		this.solution = new UndirectedGraph(n,SetType.LINKED_LIST,true);
+	}
+
+	@Override
+	public void recordSolution() {
+		// stores a solution in a graph object
+		for(int i=0;i<n;i++)solution.getNeighborsOf(i).clear();
+		for(int i=0;i<n;i++){
+			ISet nei = graph.getMandNeighOf(i);
+			for(int j=nei.getFirstElement();j>=0;j=nei.getNextElement()){
+				solution.addEdge(i,j);
+			}
+		}
+	}
+
+	@Override
+	public void fixSomeVariables(ICause cause) throws ContradictionException {
+		// relaxes a sub-path (a set of consecutive edges in a solution)
+		int i1 = rd.nextInt(n);
+		ISet nei = solution.getNeighborsOf(i1);
+		int i2 = nei.getFirstElement();
+		if(rd.nextBoolean()){
+			i2 = nei.getNextElement();
+		}
+		for(int k=0;k<n-nbFreeEdges;k++){
+			graph.enforceArc(i1,i2,cause);
+			int i3 = solution.getNeighborsOf(i2).getFirstElement();
+			if(i3==i1){
+				i3 = solution.getNeighborsOf(i2).getNextElement();
+			}
+			i1 = i2;
+			i2 = i3;
+		}
+	}
+
+	@Override
+	public void restrictLess() {
+		nbRL++;
+		// Eventually increases the size of the relaxes fragment (not necessary)
+		if(nbRL>nbFreeEdges){
+			nbRL = 0;
+			nbFreeEdges += (nbFreeEdges*3)/2;
+		}
+	}
+
+	@Override
+	public boolean isSearchComplete() {
+		return nbFreeEdges>=n;
+	}
+}
+\end{lstlisting}
+
+The main methods to implement are \texttt{recordSolution()} which requires to copy some part of the current solution in internal data structure in order to be able to freeze some edges later. 
+The method \texttt{fixSomeVariables} is called after a restart in order to freeze some variables (here some edges). The method \texttt{restrictLess} does not need to be implemented. It is called some times to suggest considering a larger neighborhood (variable neighborhood search). Finally, \texttt{isSearchComplete} asks whether the search is complete or not. The answer should be \texttt{false} in the general case, unless no variable has been frozen (which may occur in variable large neighborhood search). 
+
 \newpage{}
 \section{Practical examples}
 
@@ -781,7 +918,7 @@ public class KnightTourProblem extends AbstractProblem {
 			}
 		}
 		// build the graph variable 
-		graph = GraphVarFactory.undirectedGraph("G", GLB, GUB, solver);
+		graph = GraphVarFactory.undirected_graph_var("G", GLB, GUB, solver);
 		// constraints (hamiltonian cycle)
 		solver.post(GraphConstraintFactory.hamiltonianCycle(graph));
 	}
@@ -1089,6 +1226,89 @@ neighbors :
 63 -> {53 46 }
 \end{lstlisting}
 
+\subsection{Solving the Traveling Salesman Problem}
+
+The sample \texttt{TSP\_CP\_Solver} applies $30$ seconds of LNS and $30$ seconds of classical DFS of the CP model for solving the TSP. 
+The CP model for the TSP is the following:
+\begin{lstlisting}
+// variables
+totalCost = VariableFactory.bounded("obj", 0, 99999999, solver);
+// creates a graph containing n nodes
+UndirectedGraph GLB = new UndirectedGraph(solver, n, SetType.LINKED_LIST, true);
+UndirectedGraph GUB = new UndirectedGraph(solver, n, SetType.SWAP_ARRAY, true);
+// adds potential edges
+for (int i = 0; i < n; i++) {
+	for (int j = i + 1; j < n; j++) {
+		GUB.addEdge(i, j);
+	}
+}
+graph = GraphVarFactory.undirected_graph_var("G", GLB, GUB, solver);
+
+// constraints : TSP basic model + lagrangian relaxation (after a first solution has been found)
+solver.post(GraphConstraintFactory.tsp(graph, totalCost, costMatrix, 2));
+\end{lstlisting}
+
+Note that in the exact (DFS) model, the Lagrangian relaxation is triggered since root node (mode $=1$). 
+The search procedure varies from one model to the other (see the sample files). 
+The output on the \texttt{bier127} instance, involving a complete graph of $127$ vertices, is the following:
+
+\begin{lstlisting}
+** Choco 3.2.1-SNAPSHOT (2014-05) : Constraint Programming Solver, Copyleft (c) 2010-2014
+** Solve : TSP_lns
+solution found : obj = 141339
+solution found : obj = 138636
+solution found : obj = 137046
+solution found : obj = 136912
+solution found : obj = 136263
+...
+solution found : obj = 118528
+solution found : obj = 118502
+solution found : obj = 118442
+solution found : obj = 118386
+solution found : obj = 118374
+solution found : obj = 118326
+solution found : obj = 118282
+- Search statistics
+	Solutions: 165
+	Minimize obj = 118282,
+	Building time : 0,123s
+	Initialisation : 0,007s
+	Initial propagation : 0,333s
+	Resolution : 30,014s
+	Nodes: 2 348
+	Backtracks: 2 960
+	Fails: 1 498
+	Restarts: 137
+	Max depth: 126
+	Propagations: 19 981 + 0
+	Memory: -6mb
+	Variables: 4
+	Constraints: 1
+Best solution found : 118282 (but no optimality proof)
+** Choco 3.2.1-SNAPSHOT (2014-05) : Constraint Programming Solver, Copyleft (c) 2010-2014
+** Solve : TSP_exact
+solution found : obj = 118282
+- Search statistics
+	Solutions: 1
+	Minimize obj = 118282,
+	Building time : 0,003s
+	Initialisation : 0,000s
+	Initial propagation : 0,039s
+	Resolution : 1,077s
+	Nodes: 129
+	Backtracks: 257
+	Fails: 128
+	Restarts: 0
+	Max depth: 23
+	Propagations: 1 535 + 0
+	Memory: -1mb
+	Variables: 4
+	Constraints: 1
+Optimality proved with exact CP approach
+\end{lstlisting}
+
+As you can see, the LNS is a powerful tool to find very good (sometimes optimal) solutions, and we can then use a classical DFS approach to perform the optimality proof. 
+
 \subsection{Finding a Directed Acyclic (sub)Graph}
 
 We now consider the problem of finding a DAG comprised between two input graphs (initial domain) and such that the number of arcs is maximal. 
@@ -1149,7 +1369,7 @@ public class DAGProblem extends AbstractProblem{
 }
 \end{lstlisting}
 
-This provides the following output
+This provides the following output:
 
 \begin{lstlisting}
 ** Choco 3.2.1-SNAPSHOT (2014-05) : Constraint Programming Solver, Copyleft (c) 2010-2014
@@ -1183,5 +1403,18 @@ successors :
 	Variables: 4
 	Constraints: 2
 \end{lstlisting}
+
+\section{How to contribute?}
+
+You can contribute to this project in vert different ways. The first simple thing you can do is to just use it and send us some feedback about your experience. 
+We are interested in understanding what can be improved in the module and the kind of applications you are doing with it. 
+Feel also free to advertise around you.  
+
+You can also contribute to choco-graph with your work by sending us some code (models, tests, constraints...) in order to improve the library. 
+We have a GitHub repository at \texttt{https://github.com/chocoteam}.
+
+You can also fund us directly so that we develop some features you need for your application or research activities. 
+
+Last but not least, you can contact us for partnerships on industrial or academic projects. 
 
 \end{document}

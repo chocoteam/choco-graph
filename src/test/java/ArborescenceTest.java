@@ -41,7 +41,6 @@ import solver.variables.IDirectedGraphVar;
 import util.objects.graphs.DirectedGraph;
 import util.objects.graphs.Orientation;
 import util.objects.setDataStructures.SetType;
-import util.tools.ArrayUtils;
 
 import static org.testng.Assert.assertEquals;
 
@@ -59,7 +58,7 @@ public class ArborescenceTest {
 				GUB.addArc(i, j);
 			}
 		}
-		IDirectedGraphVar g = GraphVarFactory.directedGraph("G", GLB, GUB, s);
+		IDirectedGraphVar g = GraphVarFactory.directed_graph_var("G", GLB, GUB, s);
 		int[] preds = new int[n];
 		for (int i = 0; i < n; i++) {
 			preds[i] = 1;

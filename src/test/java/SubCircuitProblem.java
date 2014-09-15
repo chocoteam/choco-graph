@@ -98,7 +98,7 @@ public class SubCircuitProblem extends AbstractProblem {
 		DirectedGraph GUB = new DirectedGraph(solver, n, gt, false);
 		for (int i = 0; i < n; i++) {
 			if(!adjacencyMatrix[i][i]){
-				GLB.activateNode(i);
+				GLB.addNode(i);
 			}
 			for (int j = 0; j < n; j++) {
 				if (adjacencyMatrix[i][j]) {
@@ -106,7 +106,7 @@ public class SubCircuitProblem extends AbstractProblem {
 				}
 			}
 		}
-		graph = GraphVarFactory.directedGraph("G", GLB, GUB, solver);
+		graph = GraphVarFactory.directed_graph_var("G", GLB, GUB, solver);
 		circuitLength = VariableFactory.bounded("length",0,n,solver);
 		solver.post(new Constraint("SubCircuit",
 				new PropNbNodes(graph, circuitLength),

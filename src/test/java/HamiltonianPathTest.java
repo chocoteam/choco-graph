@@ -104,7 +104,7 @@ public class HamiltonianPathTest {
 				}
 			}
 		}
-		IDirectedGraphVar graph = GraphVarFactory.directedGraph("G", GLB, GUB, solver);
+		IDirectedGraphVar graph = GraphVarFactory.directed_graph_var("G", GLB, GUB, solver);
 		solver.post(GraphConstraintFactory.path(graph, 0, n - 1));
 
 		// configure solver

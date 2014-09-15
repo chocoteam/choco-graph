@@ -66,8 +66,8 @@ public abstract class GraphVar<E extends IGraph> extends AbstractVariable implem
         super(name, solver);
 		this.LB = LB;
 		this.UB = UB;
-		this.n = UB.getNbNodes();
-		assert n == LB.getNbNodes();
+		this.n = UB.getNbMaxNodes();
+		assert n == LB.getNbMaxNodes();
     }
 
     //***********************************************************************************
@@ -80,10 +80,10 @@ public abstract class GraphVar<E extends IGraph> extends AbstractVariable implem
             return false;
         }
         ISet suc;
-        ISet act = getUB().getActiveNodes();
+        ISet act = getUB().getNodes();
         for (int i = act.getFirstElement(); i >= 0; i = act.getNextElement()) {
-            suc = UB.getSuccsOrNeigh(i);
-            if (suc.getSize() != getLB().getSuccsOrNeigh(i).getSize()) {
+            suc = UB.getSuccOrNeighOf(i);
+            if (suc.getSize() != getLB().getSuccOrNeighOf(i).getSize()) {
                 return false;
             }
         }
@@ -94,21 +94,21 @@ public abstract class GraphVar<E extends IGraph> extends AbstractVariable implem
     public boolean removeNode(int x, ICause cause) throws ContradictionException {
         assert cause != null;
 		assert (x>=0 && x<n);
-        if (LB.getActiveNodes().contain(x)) {
+        if (LB.getNodes().contain(x)) {
             this.contradiction(cause, EventType.REMOVENODE, "remove mandatory node");
             return true;
-        } else if (!UB.getActiveNodes().contain(x)) {
+        } else if (!UB.getNodes().contain(x)) {
             return false;
         }
-        ISet nei = UB.getSuccsOrNeigh(x);
+        ISet nei = UB.getSuccOrNeighOf(x);
         for (int i = nei.getFirstElement(); i >= 0; i = nei.getNextElement()) {
             removeArc(x, i, cause);
         }
-        nei = UB.getPredsOrNeigh(x);
+        nei = UB.getPredOrNeighOf(x);
         for (int i = nei.getFirstElement(); i >= 0; i = nei.getNextElement()) {
             removeArc(i, x, cause);
         }
-        if (UB.desactivateNode(x)) {
+        if (UB.removeNode(x)) {
             if (reactOnModification) {
                 delta.add(x, IGraphDelta.NR, cause);
             }
@@ -123,8 +123,8 @@ public abstract class GraphVar<E extends IGraph> extends AbstractVariable implem
     public boolean enforceNode(int x, ICause cause) throws ContradictionException {
         assert cause != null;
 		assert (x>=0 && x<n);
-        if (UB.getActiveNodes().contain(x)) {
-            if (LB.activateNode(x)) {
+        if (UB.getNodes().contain(x)) {
+            if (LB.addNode(x)) {
                 if (reactOnModification) {
                     delta.add(x, IGraphDelta.NE, cause);
                 }
@@ -160,22 +160,22 @@ public abstract class GraphVar<E extends IGraph> extends AbstractVariable implem
 
 	@Override
 	public ISet getMandSuccOrNeighOf(int idx){
-		return LB.getSuccsOrNeigh(idx);
+		return LB.getSuccOrNeighOf(idx);
 	}
 
 	@Override
 	public ISet getPotSuccOrNeighOf(int idx){
-		return UB.getSuccsOrNeigh(idx);
+		return UB.getSuccOrNeighOf(idx);
 	}
 
 	@Override
 	public ISet getMandPredOrNeighOf(int idx){
-		return LB.getPredsOrNeigh(idx);
+		return LB.getPredOrNeighOf(idx);
 	}
 
 	@Override
 	public ISet getPotPredOrNeighOf(int idx){
-		return UB.getPredsOrNeigh(idx);
+		return UB.getPredOrNeighOf(idx);
 	}
 
 	@Override
@@ -185,12 +185,12 @@ public abstract class GraphVar<E extends IGraph> extends AbstractVariable implem
 
 	@Override
 	public ISet getMandatoryNodes() {
-		return LB.getActiveNodes();
+		return LB.getNodes();
 	}
 
 	@Override
 	public ISet getPotentialNodes() {
-		return UB.getActiveNodes();
+		return UB.getNodes();
 	}
 
 	@Override
@@ -274,12 +274,12 @@ public abstract class GraphVar<E extends IGraph> extends AbstractVariable implem
 
 	@Override
     public boolean[][] getValue() {
-        int n = getUB().getNbNodes();
+        int n = getUB().getNbMaxNodes();
         boolean[][] vals = new boolean[n + 1][n];
-        ISet kerNodes = getLB().getActiveNodes();
+        ISet kerNodes = getLB().getNodes();
         ISet kerSuccs;
         for (int i = kerNodes.getFirstElement(); i >= 0; i = kerNodes.getNextElement()) {
-            kerSuccs = getLB().getSuccsOrNeigh(i);
+            kerSuccs = getLB().getSuccOrNeighOf(i);
             for (int j = kerSuccs.getFirstElement(); j >= 0; j = kerSuccs.getNextElement()) {
                 vals[i][j] = true; // arc in
             }

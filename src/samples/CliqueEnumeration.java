@@ -79,10 +79,11 @@ public class CliqueEnumeration extends AbstractProblem {
 		link[1][4] = true;
 		link[3][4] = true;
 		// graph variable domain
-		UndirectedGraph GLB = new UndirectedGraph(solver,n, SetType.BITSET,false);
+		UndirectedGraph GLB = new UndirectedGraph(solver,n, SetType.SWAP_ARRAY,false);
 		UndirectedGraph GUB = new UndirectedGraph(solver,n, SetType.BITSET,false);
+		GraphVarFactory.undirected_graph_var("G",42,solver);
 		for (int i = 0; i < n; i++) {
-			GUB.activateNode(i);			// potential node
+			GUB.addNode(i);			// potential node
 			GUB.addEdge(i, i);				// potential loop
 			for (int j = i + 1; j < n; j++) {
 				if (link[i][j]) {
@@ -90,11 +91,11 @@ public class CliqueEnumeration extends AbstractProblem {
 				}
 			}
 		}
-		GLB.activateNode(1);				// 1 and 2 must belong to the solution
-		GLB.activateNode(2);
+		GLB.addNode(1);				// 1 and 2 must belong to the solution
+		GLB.addNode(2);
 		GLB.addEdge(1,2);					// 1 and 2 must belong to the same clique
 		// graph variable
-		graphvar = GraphVarFactory.undirectedGraph("G", GLB, GUB, solver);
+		graphvar = GraphVarFactory.undirected_graph_var("G", GLB, GUB, solver);
 
 		final SetVar vertices = GraphVarFactory.nodes_set(graphvar);
 		final IntVar card = VF.fixed(3,solver);

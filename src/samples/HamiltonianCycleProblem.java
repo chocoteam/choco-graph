@@ -94,7 +94,7 @@ public class HamiltonianCycleProblem extends AbstractProblem {
 				}
 			}
 		}
-		graph = GraphVarFactory.undirectedGraph("G", GLB, GUB, solver);
+		graph = GraphVarFactory.undirected_graph_var("G", GLB, GUB, solver);
 		// constraints
 		solver.post(GraphConstraintFactory.hamiltonian_cycle(graph));
 	}

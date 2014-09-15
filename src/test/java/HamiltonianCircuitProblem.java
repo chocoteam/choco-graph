@@ -33,7 +33,6 @@ import samples.AbstractProblem;
 import samples.input.GraphGenerator;
 import solver.Cause;
 import solver.Solver;
-import solver.constraints.Constraint;
 import solver.constraints.IntConstraintFactory;
 import solver.cstrs.GraphConstraintFactory;
 import solver.exception.ContradictionException;
@@ -98,7 +97,7 @@ public class HamiltonianCircuitProblem extends AbstractProblem {
 				}
 			}
 		}
-		graph = GraphVarFactory.directedGraph("G", GLB, GUB, solver);
+		graph = GraphVarFactory.directed_graph_var("G", GLB, GUB, solver);
 		solver.post(GraphConstraintFactory.path(graph, 0, n - 1));
 		if (intAllDiff > 0) {
 			integerAllDiff();
