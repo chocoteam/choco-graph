@@ -30,14 +30,9 @@ package solver.cstrs.channeling.nodes;
 import solver.constraints.Propagator;
 import solver.constraints.PropagatorPriority;
 import solver.exception.ContradictionException;
-import solver.variables.BoolVar;
-import solver.variables.EventType;
-import solver.variables.IGraphVar;
-import solver.variables.Variable;
-import solver.variables.delta.IGraphDeltaMonitor;
+import solver.variables.*;
+import solver.variables.events.IntEventType;
 import util.ESat;
-import util.procedure.IntProcedure;
-import util.tools.ArrayUtils;
 
 /**
  * Channeling between a graph variable and set variables
@@ -73,9 +68,9 @@ public class PropNodeBoolChannel extends Propagator<Variable> {
 	@Override
 	public int getPropagationConditions(int vIdx) {
 		if (vIdx == 1) {
-			return EventType.ENFORCENODE.mask + EventType.REMOVENODE.mask;
+			return GraphEventType.ADD_NODE.getMask() + GraphEventType.REMOVE_NODE.getMask();
 		}else{
-			return EventType.INT_ALL_MASK();
+			return IntEventType.INT_ALL_MASK();
 		}
 	}
 

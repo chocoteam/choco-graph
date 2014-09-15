@@ -25,15 +25,13 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package test.java;
+package test;
 
 import org.testng.annotations.Test;
 import solver.Solver;
+import solver.cstrs.GraphConstraintFactory;
 import solver.search.GraphStrategyFactory;
-import solver.search.strategy.strategy.AbstractStrategy;
 import solver.variables.GraphVarFactory;
-import solver.variables.IntVar;
-import solver.variables.VariableFactory;
 import solver.variables.IDirectedGraphVar;
 import util.objects.graphs.DirectedGraph;
 import util.objects.setDataStructures.SetType;
@@ -45,7 +43,7 @@ public class NTreeTest {
 	private static SetType graphTypeEnv = SetType.BOOL_ARRAY;
 	private static SetType graphTypeKer = SetType.BOOL_ARRAY;
 
-	public static void model(int n, int tmin, int tmax, int seed) {
+	public static void model(int n, int seed) {
 		Solver s = new Solver();
 		DirectedGraph GLB = new DirectedGraph(s,n,graphTypeKer, true);
 		DirectedGraph GUB = new DirectedGraph(s,n,graphTypeEnv, true);
@@ -55,12 +53,8 @@ public class NTreeTest {
 			}
 		}
 		IDirectedGraphVar g = GraphVarFactory.directed_graph_var("G", GLB, GUB, s);
-		IntVar nTree = VariableFactory.bounded("NTREE ", tmin, tmax, s);
-//		Constraint gc = GraphConstraintFactory.nTrees(g, nTree);
-		AbstractStrategy strategy = GraphStrategyFactory.random(g, seed);
-
-//		s.post(gc);
-		s.set(strategy);
+		s.post(GraphConstraintFactory.directed_forest(g));
+		s.set(GraphStrategyFactory.random(g, seed));
 		s.findAllSolutions();
 
 		assertTrue(s.getMeasures().getFailCount() == 0);
@@ -70,12 +64,8 @@ public class NTreeTest {
 	@Test(groups = "10s")
 	public static void debug() {
 		for (int n = 5; n < 7; n++) {
-			for (int t1 = 1; t1 < n; t1++) {
-				for (int t2 = t1; t2 < n; t2++) {
-//                    System.out.println("tree : n=" + n + " nbTrees = [" + t1 + "," + t2 + "]");
-					model(n, t1, t2, (int) System.currentTimeMillis());
-				}
-			}
+			System.out.println("tree : n=" + n);
+			model(n, (int) System.currentTimeMillis());
 		}
 	}
 
@@ -84,7 +74,7 @@ public class NTreeTest {
 		for (SetType ge : SetType.values()) {
 			graphTypeEnv = ge;
 			graphTypeKer = ge;
-//            System.out.println("env:" + ge + " ker :" + ge);
+            System.out.println("env:" + ge + " ker :" + ge);
 			debug();
 		}
 	}

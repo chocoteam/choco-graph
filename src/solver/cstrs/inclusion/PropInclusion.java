@@ -30,7 +30,7 @@ package solver.cstrs.inclusion;
 import solver.constraints.Propagator;
 import solver.constraints.PropagatorPriority;
 import solver.exception.ContradictionException;
-import solver.variables.EventType;
+import solver.variables.GraphEventType;
 import solver.variables.IGraphVar;
 import solver.variables.delta.IGraphDeltaMonitor;
 import util.ESat;
@@ -51,7 +51,7 @@ public class PropInclusion extends Propagator<IGraphVar> {
 	private IGraphDeltaMonitor[] gdm;
 	private IntProcedure[] prNode;
 	private PairProcedure[] prArc;
-	private EventType[] etNode,etArcs;
+	private GraphEventType[] etNode,etArcs;
 
 	//***********************************************************************************
 	// CONSTRUCTORS
@@ -89,8 +89,8 @@ public class PropInclusion extends Propagator<IGraphVar> {
 					}
 				}
 		};
-		etNode = new EventType[]{EventType.ENFORCENODE,EventType.REMOVENODE};
-		etArcs = new EventType[]{EventType.ENFORCEARC,EventType.REMOVEARC};
+		etNode = new GraphEventType[]{GraphEventType.ADD_NODE,GraphEventType.REMOVE_NODE};
+		etArcs = new GraphEventType[]{GraphEventType.ADD_ARC,GraphEventType.REMOVE_ARC};
 	}
 
 	//***********************************************************************************

@@ -518,7 +518,7 @@ To do so, you can override the \texttt{getPropagationConditions} method as follo
 @Override
 public int getPropagationConditions(int vIdx) {
 	// propagation condition (facultative) : only propagate arc enforcing events
-	return EventType.ENFORCEARC.mask;
+	return GraphEventType.ADD_ARC.getMask();
 }
 \end{lstlisting}
 
@@ -571,13 +571,13 @@ public class PropAntiSymmetric extends Propagator<IDirectedGraphVar> {
     public void propagate(int idxVarInProp, int mask) throws ContradictionException {
     // incremental propagation over every enforced arc since the last call
         gdm.freeze();
-        gdm.forEachArc(enf, EventType.ENFORCEARC);
+        gdm.forEachArc(enf, GraphEventType.ADD_ARC);
         gdm.unfreeze();
     }
 
     @Override
     public int getPropagationConditions(int vIdx) {
-        return EventType.ENFORCEARC.mask;
+        return GraphEventType.ADD_ARC.getMask();
     }
 
     @Override

@@ -30,7 +30,7 @@ package solver.cstrs.tree;
 import solver.constraints.Propagator;
 import solver.constraints.PropagatorPriority;
 import solver.exception.ContradictionException;
-import solver.variables.EventType;
+import solver.variables.GraphEventType;
 import solver.variables.IDirectedGraphVar;
 import util.ESat;
 import util.graphOperations.dominance.AbstractLengauerTarjanDominatorsFinder;
@@ -98,26 +98,30 @@ public class PropArborescences extends Propagator<IDirectedGraphVar> {
         ISet nei;
         for (int i = 0; i < n; i++) {
             nei = g.getPotPredOf(i);
-            if (nei.isEmpty()) {
-                connectedGraph.addArc(n, i);
-            } else {
-                for (int y = nei.getFirstElement(); y >= 0; y = nei.getNextElement()) {
-                    connectedGraph.addArc(y, i);
-                }
-            }
+			for (int y = nei.getFirstElement(); y >= 0; y = nei.getNextElement()) {
+				connectedGraph.addArc(y, i);
+			}
+			nei = g.getMandPredOf(i);
+			if (nei.isEmpty()) {
+				connectedGraph.addArc(n, i);
+			}
         }
 		// reach all nodes and filter from dominators
         if (domFinder.findDominators()) {
 			ISet potNodes = g.getPotentialNodes();
             for (int x = potNodes.getFirstElement(); x>=0; x=potNodes.getNextElement()) {
                 nei = g.getPotSuccOf(x);
+				if(g.getMandatoryNodes().contain(x) && g.getMandatoryNodes().getSize()!=g.getPotentialNodes().getSize()){
+					for(int y=0;y<n;y++){
+						if (domFinder.isDomminatedBy(x, y)){
+							g.enforceNode(y,aCause);
+						}
+					}
+				}
                 for (int y = nei.getFirstElement(); y >= 0; y = nei.getNextElement()) {
                     //--- STANDART PRUNING
                     if (domFinder.isDomminatedBy(x, y)) {
                         g.removeArc(x, y, aCause);
-						if(g.getMandatoryNodes().contain(x)){
-							g.enforceNode(y,aCause);
-						}
                     }
                 }
             }
@@ -128,7 +132,7 @@ public class PropArborescences extends Propagator<IDirectedGraphVar> {
 
     @Override
     public int getPropagationConditions(int vIdx) {
-        return EventType.REMOVEARC.mask+EventType.ENFORCENODE.mask;
+        return GraphEventType.REMOVE_ARC.getMask()+GraphEventType.ADD_NODE.getMask();
     }
 
     @Override

@@ -1,5 +1,5 @@
 /**
- *  Copyright (c) 1999-2014, Ecole des Mines de Nantes
+ *  Copyright (c) 1999-2011, Ecole des Mines de Nantes
  *  All rights reserved.
  *  Redistribution and use in source and binary forms, with or without
  *  modification, are permitted provided that the following conditions are met:
@@ -25,79 +25,65 @@
  *  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package solver.cstrs.channeling.edges;
 
-import solver.constraints.Propagator;
-import solver.constraints.PropagatorPriority;
-import solver.exception.ContradictionException;
-import solver.variables.*;
-import solver.variables.events.IntEventType;
-import util.ESat;
+package solver.variables;
+
+import solver.variables.events.IEventType;
 
 /**
- * @author Jean-Guillaume Fages
+ * Fine events for a graph variable
+ * @author Jean-Guillaume Fages, Charles Prud'homme
  */
-public class PropArcBoolChannel extends Propagator<Variable> {
+public enum GraphEventType implements IEventType {
+
+	VOID(0),
+	REMOVE_NODE(1),
+	ADD_NODE(2),
+	REMOVE_ARC(4),
+	ADD_ARC(8);
 
 	//***********************************************************************************
 	// VARIABLES
 	//***********************************************************************************
 
-	private BoolVar bool;
-	private int from,to;
-	private IGraphVar g;
+	private final int mask;
 
 	//***********************************************************************************
 	// CONSTRUCTORS
 	//***********************************************************************************
 
-	public PropArcBoolChannel(BoolVar isIn, int from, int to, IGraphVar gV) {
-		super(new Variable[]{isIn,gV}, PropagatorPriority.UNARY, false);
-		this.bool = isIn;
-		this.from = from;
-		this.to = to;
-		this.g = gV;
+	private GraphEventType(int mask){
+		this.mask = mask;
 	}
 
 	//***********************************************************************************
 	// METHODS
 	//***********************************************************************************
 
-	@Override
-	public int getPropagationConditions(int vIdx) {
-		if (vIdx == 1) {
-			return GraphEventType.ADD_ARC.getMask() + GraphEventType.REMOVE_ARC.getMask();
-		}else{
-			return IntEventType.INT_ALL_MASK();
-		}
+	public int getMask(){
+		return mask;
 	}
 
-	@Override
-	public void propagate(int evtmask) throws ContradictionException {
-		if(from<0 || to<0 || from>=g.getNbMaxNodes() || to>=g.getNbMaxNodes()
-				|| !g.getPotSuccOrNeighOf(from).contain(to)){
-			bool.setToFalse(aCause);
-		}else if(g.getMandSuccOrNeighOf(from).contain(to)){
-			bool.setToTrue(aCause);
-		}else if(bool.getLB()==1){
-			g.enforceArc(from,to,aCause);
-		}else if(bool.getUB()==0){
-			g.removeArc(from,to,aCause);
-		}
+	public int getStrengthenedMask(){
+		return getMask();
 	}
 
-	@Override
-	public ESat isEntailed() {
-		if((from<0 || from>=g.getNbMaxNodes() || to<0 || to>=g.getNbMaxNodes())
-				|| (bool.getLB()==1 && !g.getPotSuccOrNeighOf(from).contain(to))
-				|| (bool.getUB()==0 && g.getMandSuccOrNeighOf(from).contain(to))
-				){
-			return ESat.FALSE;
-		};
-		if(bool.isInstantiated()
-				&& g.getMandSuccOrNeighOf(from).contain(to)==g.getPotSuccOrNeighOf(from).contain(to)){
-			return ESat.TRUE;
-		}
-		return ESat.UNDEFINED;
+	//******************************************************************************************************************
+	//******************************************************************************************************************
+
+	public static boolean isAddNode(int mask) {
+		return (mask & ADD_NODE.mask) != 0;
+	}
+
+	public static boolean isAddArc(int mask) {
+		return (mask & ADD_ARC.mask) != 0;
+	}
+
+	public static boolean isRemNode(int mask) {
+		return (mask & REMOVE_NODE.mask) != 0;
+	}
+
+	public static boolean isRemArc(int mask) {
+		return (mask & REMOVE_ARC.mask) != 0;
 	}
 }

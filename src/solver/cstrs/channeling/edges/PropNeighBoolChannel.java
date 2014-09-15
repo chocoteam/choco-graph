@@ -29,9 +29,9 @@ package solver.cstrs.channeling.edges;
 
 import solver.constraints.Propagator;
 import solver.constraints.PropagatorPriority;
-import solver.variables.IncidentSet;
 import solver.exception.ContradictionException;
 import solver.variables.*;
+import solver.variables.events.IntEventType;
 import util.ESat;
 import util.tools.ArrayUtils;
 
@@ -68,9 +68,9 @@ public class PropNeighBoolChannel extends Propagator<Variable> {
 	@Override
 	public int getPropagationConditions(int vIdx) {
 		if (vIdx == bools.length) {
-			return EventType.ENFORCEARC.mask + EventType.REMOVEARC.mask;
+			return GraphEventType.ADD_ARC.getMask() + GraphEventType.REMOVE_ARC.getMask();
 		}else{
-			return EventType.INT_ALL_MASK();
+			return IntEventType.INT_ALL_MASK();
 		}
 	}
 

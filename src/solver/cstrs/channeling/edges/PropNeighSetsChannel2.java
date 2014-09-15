@@ -30,17 +30,13 @@ package solver.cstrs.channeling.edges;
 import solver.constraints.Propagator;
 import solver.constraints.PropagatorPriority;
 import solver.exception.ContradictionException;
-import solver.variables.EventType;
 import solver.variables.IGraphVar;
 import solver.variables.SetVar;
-import solver.variables.Variable;
-import solver.variables.delta.IGraphDeltaMonitor;
 import solver.variables.delta.ISetDeltaMonitor;
+import solver.variables.events.SetEventType;
 import util.ESat;
 import util.objects.setDataStructures.ISet;
 import util.procedure.IntProcedure;
-import util.procedure.PairProcedure;
-import util.tools.ArrayUtils;
 
 /**
  * @author Jean-Guillaume Fages
@@ -75,7 +71,7 @@ public class PropNeighSetsChannel2 extends Propagator<SetVar> {
             this.sets[i] = vars[i];
         }
         n = sets.length;
-        this.g = (IGraphVar) vars[n];
+        this.g = gV;
         assert (n == g.getNbMaxNodes());
         sdm = new ISetDeltaMonitor[n];
         for (int i = 0; i < n; i++) {
@@ -121,8 +117,8 @@ public class PropNeighSetsChannel2 extends Propagator<SetVar> {
     public void propagate(int idxVarInProp, int mask) throws ContradictionException {
 		currentSet = idxVarInProp;
 		sdm[currentSet].freeze();
-		sdm[currentSet].forEach(elementForced, EventType.ADD_TO_KER);
-		sdm[currentSet].forEach(elementRemoved, EventType.REMOVE_FROM_ENVELOPE);
+		sdm[currentSet].forEach(elementForced, SetEventType.ADD_TO_KER);
+		sdm[currentSet].forEach(elementRemoved, SetEventType.REMOVE_FROM_ENVELOPE);
 		sdm[currentSet].unfreeze();
     }
 

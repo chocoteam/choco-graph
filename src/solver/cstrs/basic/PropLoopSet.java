@@ -30,7 +30,6 @@ package solver.cstrs.basic;
 import solver.constraints.Propagator;
 import solver.constraints.PropagatorPriority;
 import solver.exception.ContradictionException;
-import solver.variables.EventType;
 import solver.variables.IGraphVar;
 import solver.variables.SetVar;
 import solver.variables.Variable;

@@ -31,7 +31,7 @@ import solver.constraints.Propagator;
 import solver.constraints.PropagatorPriority;
 import solver.exception.ContradictionException;
 import solver.variables.BoolVar;
-import solver.variables.EventType;
+import solver.variables.GraphEventType;
 import solver.variables.IGraphVar;
 import solver.variables.delta.IGraphDeltaMonitor;
 import util.ESat;
@@ -108,8 +108,8 @@ public class PropNeighBoolsChannel1 extends Propagator<IGraphVar> {
 	@Override
 	public void propagate(int idxVarInProp, int mask) throws ContradictionException {
 		gdm.freeze();
-		gdm.forEachArc(arcForced, EventType.ENFORCEARC);
-		gdm.forEachArc(arcRemoved, EventType.REMOVEARC);
+		gdm.forEachArc(arcForced, GraphEventType.ADD_ARC);
+		gdm.forEachArc(arcRemoved, GraphEventType.REMOVE_ARC);
 		gdm.unfreeze();
 	}
 

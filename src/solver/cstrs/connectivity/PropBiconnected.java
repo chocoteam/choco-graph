@@ -30,7 +30,7 @@ package solver.cstrs.connectivity;
 import solver.constraints.Propagator;
 import solver.constraints.PropagatorPriority;
 import solver.exception.ContradictionException;
-import solver.variables.EventType;
+import solver.variables.GraphEventType;
 import solver.variables.IUndirectedGraphVar;
 import util.ESat;
 import util.graphOperations.connectivity.ConnectivityFinder;
@@ -77,7 +77,7 @@ public class PropBiconnected extends Propagator<IUndirectedGraphVar> {
 
     @Override
     public int getPropagationConditions(int vIdx) {
-        return EventType.REMOVENODE.mask + EventType.REMOVEARC.mask + EventType.ENFORCENODE.mask;
+        return GraphEventType.REMOVE_NODE.getMask() + GraphEventType.REMOVE_ARC.getMask() + GraphEventType.ADD_NODE.getMask();
     }
 
     @Override

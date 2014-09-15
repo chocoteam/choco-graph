@@ -30,10 +30,11 @@ package solver.cstrs.cost.tsp;
 import solver.constraints.Propagator;
 import solver.constraints.PropagatorPriority;
 import solver.exception.ContradictionException;
-import solver.variables.EventType;
+import solver.variables.GraphEventType;
+import solver.variables.IUndirectedGraphVar;
 import solver.variables.IntVar;
 import solver.variables.Variable;
-import solver.variables.IUndirectedGraphVar;
+import solver.variables.events.IntEventType;
 import util.ESat;
 import util.objects.setDataStructures.ISet;
 
@@ -73,7 +74,7 @@ public class PropCycleCostSimple extends Propagator {
 
     @Override
     public int getPropagationConditions(int vIdx) {
-        return EventType.REMOVEARC.mask + EventType.ENFORCEARC.mask + EventType.DECUPP.mask;
+        return GraphEventType.REMOVE_ARC.getMask() + GraphEventType.ADD_ARC.getMask() + IntEventType.DECUPP.getMask();
     }
 
     @Override

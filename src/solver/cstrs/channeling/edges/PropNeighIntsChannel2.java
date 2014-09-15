@@ -30,10 +30,10 @@ package solver.cstrs.channeling.edges;
 import solver.constraints.Propagator;
 import solver.constraints.PropagatorPriority;
 import solver.exception.ContradictionException;
-import solver.variables.EventType;
 import solver.variables.IGraphVar;
 import solver.variables.IntVar;
 import solver.variables.delta.IIntDeltaMonitor;
+import solver.variables.events.IntEventType;
 import util.ESat;
 import util.objects.setDataStructures.ISet;
 import util.procedure.IntProcedure;
@@ -48,7 +48,7 @@ public class PropNeighIntsChannel2 extends Propagator<IntVar> {
     //***********************************************************************************
 
     private int n, currentSet;
-    private IIntDeltaMonitor[] sdm;
+    private IIntDeltaMonitor[] idm;
     private IntVar[] succs;
     private IGraphVar g;
     private IntProcedure elementRemoved;
@@ -61,11 +61,11 @@ public class PropNeighIntsChannel2 extends Propagator<IntVar> {
         super(succs, PropagatorPriority.LINEAR, true);
         this.succs = succs;
         n = succs.length;
-        this.g = (IGraphVar) vars[n];
+        g = gV;
         assert (n == g.getNbMaxNodes());
-        sdm = new IIntDeltaMonitor[n];
+		idm = new IIntDeltaMonitor[n];
         for (int i = 0; i < n; i++) {
-            sdm[i] = succs[i].monitorDelta(this);
+			idm[i] = succs[i].monitorDelta(this);
         }
         elementRemoved = new IntProcedure() {
             @Override
@@ -94,20 +94,20 @@ public class PropNeighIntsChannel2 extends Propagator<IntVar> {
             }
         }
         for (int i = 0; i < n; i++) {
-            sdm[i].unfreeze();
+			idm[i].unfreeze();
         }
     }
 
     @Override
     public void propagate(int idxVarInProp, int mask) throws ContradictionException {
 		currentSet = idxVarInProp;
-		sdm[currentSet].freeze();
+		idm[currentSet].freeze();
 		if(vars[idxVarInProp].isInstantiated()){
 			g.enforceArc(idxVarInProp,vars[idxVarInProp].getValue(),aCause);
 		}else {
-			sdm[currentSet].forEach(elementRemoved, EventType.REMOVE_FROM_ENVELOPE);
+			idm[currentSet].forEach(elementRemoved, IntEventType.REMOVE);
 		}
-		sdm[currentSet].unfreeze();
+		idm[currentSet].unfreeze();
     }
 
     @Override

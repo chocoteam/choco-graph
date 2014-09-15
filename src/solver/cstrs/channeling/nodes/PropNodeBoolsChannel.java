@@ -30,9 +30,12 @@ package solver.cstrs.channeling.nodes;
 import solver.constraints.Propagator;
 import solver.constraints.PropagatorPriority;
 import solver.exception.ContradictionException;
-import solver.variables.*;
+import solver.variables.BoolVar;
+import solver.variables.GraphEventType;
+import solver.variables.IGraphVar;
+import solver.variables.Variable;
 import solver.variables.delta.IGraphDeltaMonitor;
-import solver.variables.delta.ISetDeltaMonitor;
+import solver.variables.events.IntEventType;
 import util.ESat;
 import util.procedure.IntProcedure;
 import util.tools.ArrayUtils;
@@ -84,9 +87,9 @@ public class PropNodeBoolsChannel extends Propagator<Variable> {
 	@Override
 	public int getPropagationConditions(int vIdx) {
 		if (vIdx == bools.length) {
-			return EventType.ENFORCENODE.mask + EventType.REMOVENODE.mask;
+			return GraphEventType.ADD_NODE.getMask() + GraphEventType.REMOVE_NODE.getMask();
 		}else{
-			return EventType.INT_ALL_MASK();
+			return IntEventType.INT_ALL_MASK();
 		}
 	}
 
@@ -119,8 +122,8 @@ public class PropNodeBoolsChannel extends Propagator<Variable> {
 			}
 		} else {
 			gdm.freeze();
-			gdm.forEachNode(forceG, EventType.ENFORCENODE);
-			gdm.forEachNode(remG, EventType.REMOVENODE);
+			gdm.forEachNode(forceG, GraphEventType.ADD_NODE);
+			gdm.forEachNode(remG, GraphEventType.REMOVE_NODE);
 			gdm.unfreeze();
 		}
 	}

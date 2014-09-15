@@ -32,7 +32,7 @@ import memory.IStateInt;
 import solver.constraints.Propagator;
 import solver.constraints.PropagatorPriority;
 import solver.exception.ContradictionException;
-import solver.variables.EventType;
+import solver.variables.GraphEventType;
 import solver.variables.IDirectedGraphVar;
 import solver.variables.delta.IGraphDeltaMonitor;
 import util.ESat;
@@ -84,19 +84,17 @@ public class PropCircuit extends Propagator<IDirectedGraphVar> {
 
 	@Override
 	public void propagate(int evtmask) throws ContradictionException {
-		if((evtmask & EventType.FULL_PROPAGATION.mask)!=0) {
-			for (int i = 0; i < n; i++) {
-				e1[i].set(i);
-				e2[i].set(i);
-				size[i].set(1);
-			}
-			ISet nei;
-			for (int i = 0; i < n; i++) {
-				nei = g.getMandSuccOf(i);
-				for (int j = nei.getFirstElement(); j >= 0; j = nei.getNextElement()) {
-					if (i < j) {
-						enforce(i, j);
-					}
+		for (int i = 0; i < n; i++) {
+			e1[i].set(i);
+			e2[i].set(i);
+			size[i].set(1);
+		}
+		ISet nei;
+		for (int i = 0; i < n; i++) {
+			nei = g.getMandSuccOf(i);
+			for (int j = nei.getFirstElement(); j >= 0; j = nei.getNextElement()) {
+				if (i < j) {
+					enforce(i, j);
 				}
 			}
 		}
@@ -106,13 +104,13 @@ public class PropCircuit extends Propagator<IDirectedGraphVar> {
 	@Override
 	public void propagate(int idxVarInProp, int mask) throws ContradictionException {
 		gdm.freeze();
-		gdm.forEachArc(arcEnforced, EventType.ENFORCEARC);
+		gdm.forEachArc(arcEnforced, GraphEventType.ADD_ARC);
 		gdm.unfreeze();
 	}
 
 	@Override
 	public int getPropagationConditions(int vIdx) {
-		return EventType.ENFORCEARC.mask;
+		return GraphEventType.ADD_ARC.getMask();
 	}
 
 	@Override

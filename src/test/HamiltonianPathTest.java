@@ -25,7 +25,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package test.java;
+package test;
 
 import gnu.trove.list.array.TIntArrayList;
 import org.testng.Assert;

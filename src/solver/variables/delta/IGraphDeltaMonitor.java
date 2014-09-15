@@ -27,7 +27,7 @@
 package solver.variables.delta;
 
 import solver.exception.ContradictionException;
-import solver.variables.EventType;
+import solver.variables.GraphEventType;
 import util.procedure.IntProcedure;
 import util.procedure.PairProcedure;
 
@@ -35,17 +35,17 @@ public interface IGraphDeltaMonitor extends IDeltaMonitor {
 
 	/**
 	 * Applies proc to every vertex which has just been removed or enforced, depending on evt.
-	 * @param proc	an incremental procedure over vertices
-	 * @param evt	either ENFORCENODE or REMOVENODE
+	 * @param proc    an incremental procedure over vertices
+	 * @param evt    either ENFORCENODE or REMOVENODE
 	 * @throws ContradictionException
 	 */
-    void forEachNode(IntProcedure proc, EventType evt) throws ContradictionException;
+    void forEachNode(IntProcedure proc, GraphEventType evt) throws ContradictionException;
 
 	/**
 	 * Applies proc to every arc which has just been removed or enforced, depending on evt.
-	 * @param proc	an incremental procedure over arcs
-	 * @param evt	either ENFORCEARC or REMOVEARC
+	 * @param proc    an incremental procedure over arcs
+	 * @param evt    either ENFORCEARC or REMOVEARC
 	 * @throws ContradictionException
 	 */
-    void forEachArc(PairProcedure proc, EventType evt) throws ContradictionException;
+    void forEachArc(PairProcedure proc, GraphEventType evt) throws ContradictionException;
 }

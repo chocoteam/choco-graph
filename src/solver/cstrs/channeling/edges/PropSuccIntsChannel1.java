@@ -102,8 +102,8 @@ public class PropSuccIntsChannel1 extends Propagator<IDirectedGraphVar> {
 	@Override
 	public void propagate(int idxVarInProp, int mask) throws ContradictionException {
 		gdm.freeze();
-		gdm.forEachArc(arcForced, EventType.ENFORCEARC);
-		gdm.forEachArc(arcRemoved, EventType.REMOVEARC);
+		gdm.forEachArc(arcForced, GraphEventType.ADD_ARC);
+		gdm.forEachArc(arcRemoved, GraphEventType.REMOVE_ARC);
 		gdm.unfreeze();
 	}
 

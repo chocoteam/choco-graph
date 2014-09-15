@@ -29,13 +29,9 @@ package solver.cstrs.degree;
 
 import solver.constraints.Propagator;
 import solver.constraints.PropagatorPriority;
-import solver.variables.IncidentSet;
 import solver.exception.ContradictionException;
-import solver.variables.EventType;
-import solver.variables.IGraphVar;
+import solver.variables.*;
 import solver.variables.delta.IGraphDeltaMonitor;
-import solver.variables.IDirectedGraphVar;
-import solver.variables.IUndirectedGraphVar;
 import util.ESat;
 import util.objects.graphs.Orientation;
 import util.objects.setDataStructures.ISet;
@@ -135,7 +131,7 @@ public class PropNodeDegree_AtMost_Incr extends Propagator<IGraphVar> {
     @Override
     public void propagate(int idxVarInProp, int mask) throws ContradictionException {
         gdm.freeze();
-        gdm.forEachArc(enf_proc, EventType.ENFORCEARC);
+        gdm.forEachArc(enf_proc, GraphEventType.ADD_ARC);
         gdm.unfreeze();
     }
 
@@ -145,7 +141,7 @@ public class PropNodeDegree_AtMost_Incr extends Propagator<IGraphVar> {
 
     @Override
     public int getPropagationConditions(int vIdx) {
-        return EventType.ENFORCEARC.mask;
+        return GraphEventType.ADD_ARC.getMask();
     }
 
     @Override

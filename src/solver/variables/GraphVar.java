@@ -27,6 +27,7 @@
 
 package solver.variables;
 
+import gnu.trove.map.hash.THashMap;
 import solver.ICause;
 import solver.Solver;
 import solver.exception.ContradictionException;
@@ -36,6 +37,7 @@ import solver.variables.delta.GraphDelta;
 import solver.variables.delta.IGraphDelta;
 import solver.variables.delta.IGraphDeltaMonitor;
 import solver.variables.delta.GraphDeltaMonitor;
+import solver.variables.events.IEventType;
 import solver.variables.impl.AbstractVariable;
 import util.objects.graphs.IGraph;
 import util.objects.setDataStructures.ISet;
@@ -95,7 +97,7 @@ public abstract class GraphVar<E extends IGraph> extends AbstractVariable implem
         assert cause != null;
 		assert (x>=0 && x<n);
         if (LB.getNodes().contain(x)) {
-            this.contradiction(cause, EventType.REMOVENODE, "remove mandatory node");
+            this.contradiction(cause, GraphEventType.REMOVE_NODE, "remove mandatory node");
             return true;
         } else if (!UB.getNodes().contain(x)) {
             return false;
@@ -112,7 +114,7 @@ public abstract class GraphVar<E extends IGraph> extends AbstractVariable implem
             if (reactOnModification) {
                 delta.add(x, IGraphDelta.NR, cause);
             }
-            EventType e = EventType.REMOVENODE;
+			GraphEventType e = GraphEventType.REMOVE_NODE;
             notifyPropagators(e, cause);
             return true;
         }
@@ -128,13 +130,13 @@ public abstract class GraphVar<E extends IGraph> extends AbstractVariable implem
                 if (reactOnModification) {
                     delta.add(x, IGraphDelta.NE, cause);
                 }
-                EventType e = EventType.ENFORCENODE;
+				GraphEventType e = GraphEventType.ADD_NODE;
                 notifyPropagators(e, cause);
                 return true;
             }
             return false;
         }
-        this.contradiction(cause, EventType.ENFORCENODE, "enforce node which is not in the domain");
+        this.contradiction(cause, GraphEventType.ADD_NODE, "enforce node which is not in the domain");
         return true;
     }
 
@@ -225,6 +227,11 @@ public abstract class GraphVar<E extends IGraph> extends AbstractVariable implem
         throw new UnsupportedOperationException("Cannot duplicate GraphVar");
     }
 
+	@Override
+	public void duplicate(Solver solver, THashMap<Object, Object> objectObjectTHashMap) {
+		throw new UnsupportedOperationException("cannot duplicate graph var");
+	}
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -256,14 +263,14 @@ public abstract class GraphVar<E extends IGraph> extends AbstractVariable implem
     }
 
 	@Override
-    public void notifyMonitors(EventType event) throws ContradictionException {
+    public void notifyMonitors(IEventType event) throws ContradictionException {
         for (int i = mIdx - 1; i >= 0; i--) {
             monitors[i].onUpdate(this, event);
         }
     }
 
     @Override
-    public void contradiction(ICause cause, EventType event, String message) throws ContradictionException {
+    public void contradiction(ICause cause, IEventType event, String message) throws ContradictionException {
         assert cause != null;
         solver.getEngine().fails(cause, this, message);
     }

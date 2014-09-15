@@ -30,23 +30,19 @@ import solver.constraints.Constraint;
 import solver.constraints.ICF;
 import solver.constraints.Propagator;
 import solver.constraints.PropagatorPriority;
-import solver.cstrs.connectivity.PropNbCC;
-import solver.cstrs.connectivity.PropNbSCC;
-import solver.cstrs.cost.trees.PropMaxDegTree;
-import solver.cstrs.cost.trees.PropTreeCostSimple;
-import solver.cstrs.cost.trees.lagrangianRelaxation.PropLagr_DCMST;
-import solver.cstrs.cost.tsp.PropCycleCostSimple;
-import solver.cstrs.cycles.*;
 import solver.cstrs.basic.*;
-import solver.cstrs.connectivity.PropConnected;
-import solver.cstrs.inclusion.PropInclusion;
 import solver.cstrs.channeling.edges.*;
 import solver.cstrs.channeling.nodes.PropNodeBoolChannel;
 import solver.cstrs.channeling.nodes.PropNodeBoolsChannel;
 import solver.cstrs.channeling.nodes.PropNodeSetChannel;
-import solver.cstrs.degree.*;
-import solver.cstrs.cycles.PropPathNoCircuit;
+import solver.cstrs.connectivity.PropConnected;
+import solver.cstrs.connectivity.PropNbCC;
+import solver.cstrs.connectivity.PropNbSCC;
+import solver.cstrs.cost.tsp.PropCycleCostSimple;
 import solver.cstrs.cost.tsp.lagrangianRelaxation.PropLagr_OneTree;
+import solver.cstrs.cycles.*;
+import solver.cstrs.degree.*;
+import solver.cstrs.inclusion.PropInclusion;
 import solver.cstrs.tree.PropArborescences;
 import solver.exception.ContradictionException;
 import solver.variables.*;
@@ -932,7 +928,8 @@ public class GraphConstraintFactory {
 	 * @return a directed forest constraint
 	 */
 	public static Constraint directed_forest(IDirectedGraphVar g){
-		return new Constraint("directed_forest",new PropArborescences(g));
+		return new Constraint("directed_forest",new PropArborescences(g),
+		new PropNodeDegree_AtMost_Coarse(g, Orientation.PREDECESSORS, 1));
 	}
 
 

@@ -30,12 +30,13 @@ package solver.cstrs.channeling.nodes;
 import solver.constraints.Propagator;
 import solver.constraints.PropagatorPriority;
 import solver.exception.ContradictionException;
-import solver.variables.EventType;
+import solver.variables.GraphEventType;
 import solver.variables.IGraphVar;
 import solver.variables.SetVar;
 import solver.variables.Variable;
 import solver.variables.delta.IGraphDeltaMonitor;
 import solver.variables.delta.ISetDeltaMonitor;
+import solver.variables.events.SetEventType;
 import util.ESat;
 import util.procedure.IntProcedure;
 
@@ -100,9 +101,9 @@ public class PropNodeSetChannel extends Propagator<Variable> {
 	@Override
 	public int getPropagationConditions(int vIdx) {
 		if (vIdx == 0) {
-			return EventType.ADD_TO_KER.mask + EventType.REMOVE_FROM_ENVELOPE.mask;
+			return SetEventType.ADD_TO_KER.getMask() + SetEventType.REMOVE_FROM_ENVELOPE.getMask();
 		} else {
-			return EventType.ENFORCENODE.mask + EventType.REMOVENODE.mask;
+			return GraphEventType.ADD_NODE.getMask() + GraphEventType.REMOVE_NODE.getMask();
 		}
 	}
 
@@ -130,13 +131,13 @@ public class PropNodeSetChannel extends Propagator<Variable> {
 	public void propagate(int idxVarInProp, int mask) throws ContradictionException {
 		if (idxVarInProp == 0) {
 			sdm.freeze();
-			sdm.forEach(forceS, EventType.ADD_TO_KER);
-			sdm.forEach(remS, EventType.REMOVE_FROM_ENVELOPE);
+			sdm.forEach(forceS, SetEventType.ADD_TO_KER);
+			sdm.forEach(remS, SetEventType.REMOVE_FROM_ENVELOPE);
 			sdm.unfreeze();
 		} else {
 			gdm.freeze();
-			gdm.forEachNode(forceG, EventType.ENFORCENODE);
-			gdm.forEachNode(remG, EventType.REMOVENODE);
+			gdm.forEachNode(forceG, GraphEventType.ADD_NODE);
+			gdm.forEachNode(remG, GraphEventType.REMOVE_NODE);
 			gdm.unfreeze();
 		}
 	}

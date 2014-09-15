@@ -29,12 +29,8 @@ package solver.cstrs.degree;
 
 import solver.constraints.Propagator;
 import solver.constraints.PropagatorPriority;
-import solver.variables.IncidentSet;
 import solver.exception.ContradictionException;
-import solver.variables.EventType;
-import solver.variables.IDirectedGraphVar;
-import solver.variables.IGraphVar;
-import solver.variables.IUndirectedGraphVar;
+import solver.variables.*;
 import util.ESat;
 import util.objects.graphs.Orientation;
 import util.objects.setDataStructures.ISet;
@@ -115,7 +111,7 @@ public class PropNodeDegree_AtMost_Coarse extends Propagator<IGraphVar> {
 
     @Override
     public int getPropagationConditions(int vIdx) {
-        return EventType.ENFORCEARC.mask;
+        return GraphEventType.ADD_ARC.getMask();
     }
 
     @Override

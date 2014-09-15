@@ -25,7 +25,7 @@
  *  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package test.java;
+package test;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -35,35 +35,15 @@ import solver.variables.*;
 /**
  * <br/>
  *
- * @author Charles Prud'homme
- * @since 23 juil. 2010
+ * @author Jean-Guillaume Fages
  */
 public class SolverTest {
 
     @Test(groups = "1s")
     public void testFH1() {
         Solver solver = new Solver();
-        BoolVar b = VF.bool("b", solver);
-        IntVar i = VF.bounded("i", VF.MIN_INT_BOUND, VF.MAX_INT_BOUND, solver);
-        SetVar s = VF.set("s", 2, 3, solver);
-        RealVar r = VF.real("r", 1.0, 2.2, 0.01, solver);
-		IGraphVar g = GraphVarFactory.directed_graph_var("g", null, null, solver);
-
-
-        BoolVar[] bvars = solver.retrieveBoolVars();
-        Assert.assertEquals(bvars, new BoolVar[]{solver.ZERO, solver.ONE, b});
-
-        IntVar[] ivars = solver.retrieveIntVars();
-        Assert.assertEquals(ivars, new IntVar[]{i});
-
-        SetVar[] svars = solver.retrieveSetVars();
-        Assert.assertEquals(svars, new SetVar[]{s});
-
-        RealVar[] rvars = solver.retrieveRealVars();
-        Assert.assertEquals(rvars, new RealVar[]{r});
-
+		IGraphVar g = GraphVarFactory.directed_graph_var("g", 5, solver);
 		IGraphVar[] gvars = GraphVarFactory.retrieveGraphVars(solver);
         Assert.assertEquals(gvars, new IGraphVar[]{g});
     }
-
 }

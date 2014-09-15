@@ -31,7 +31,7 @@ package solver.cstrs.cycles;
 import solver.constraints.Propagator;
 import solver.constraints.PropagatorPriority;
 import solver.exception.ContradictionException;
-import solver.variables.EventType;
+import solver.variables.GraphEventType;
 import solver.variables.IGraphVar;
 import solver.variables.delta.IGraphDeltaMonitor;
 import util.ESat;
@@ -85,7 +85,7 @@ public class PropACyclic extends Propagator<IGraphVar> {
 
 	@Override
 	public int getPropagationConditions(int idx){
-		return EventType.ENFORCEARC.mask;
+		return GraphEventType.ADD_ARC.getMask();
 	}
 
 	@Override
@@ -106,7 +106,7 @@ public class PropACyclic extends Propagator<IGraphVar> {
 	@Override
 	public void propagate(int idx, int mask) throws ContradictionException {
 		gdm.freeze();
-		gdm.forEachArc(arcEnf, EventType.ENFORCEARC);
+		gdm.forEachArc(arcEnf, GraphEventType.ADD_ARC);
 		gdm.unfreeze();
 	}
 

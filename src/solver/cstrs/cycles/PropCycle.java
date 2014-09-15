@@ -32,11 +32,11 @@ import memory.IStateInt;
 import solver.constraints.Propagator;
 import solver.constraints.PropagatorPriority;
 import solver.exception.ContradictionException;
-import solver.variables.EventType;
+import solver.variables.GraphEventType;
 import solver.variables.IUndirectedGraphVar;
 import solver.variables.delta.IGraphDeltaMonitor;
+import solver.variables.events.PropagatorEventType;
 import util.ESat;
-import util.graphOperations.connectivity.ConnectivityFinder;
 import util.objects.setDataStructures.ISet;
 import util.procedure.PairProcedure;
 
@@ -85,7 +85,7 @@ public class PropCycle extends Propagator<IUndirectedGraphVar> {
 
 	@Override
 	public void propagate(int evtmask) throws ContradictionException {
-		if((evtmask & EventType.FULL_PROPAGATION.mask)!=0) {
+		if(PropagatorEventType.isFullPropagation(evtmask)) {
 			for (int i = 0; i < n; i++) {
 				e1[i].set(i);
 				e2[i].set(i);
@@ -107,13 +107,13 @@ public class PropCycle extends Propagator<IUndirectedGraphVar> {
 	@Override
 	public void propagate(int idxVarInProp, int mask) throws ContradictionException {
 		gdm.freeze();
-		gdm.forEachArc(arcEnforced, EventType.ENFORCEARC);
+		gdm.forEachArc(arcEnforced, GraphEventType.ADD_ARC);
 		gdm.unfreeze();
 	}
 
 	@Override
 	public int getPropagationConditions(int vIdx) {
-		return EventType.ENFORCEARC.mask;
+		return GraphEventType.ADD_ARC.getMask();
 	}
 
 	@Override

@@ -30,7 +30,7 @@ package solver.cstrs.basic;
 import solver.constraints.Propagator;
 import solver.constraints.PropagatorPriority;
 import solver.exception.ContradictionException;
-import solver.variables.EventType;
+import solver.variables.GraphEventType;
 import solver.variables.IDirectedGraphVar;
 import solver.variables.delta.IGraphDeltaMonitor;
 import util.ESat;
@@ -88,13 +88,13 @@ public class PropSymmetric extends Propagator<IDirectedGraphVar> {
     @Override
     public void propagate(int idxVarInProp, int mask) throws ContradictionException {
         gdm.freeze();
-        gdm.forEachArc(enf, EventType.ENFORCEARC);
+        gdm.forEachArc(enf, GraphEventType.ADD_ARC);
         gdm.unfreeze();
     }
 
     @Override
     public int getPropagationConditions(int vIdx) {
-        return EventType.ENFORCEARC.mask;
+        return GraphEventType.ADD_ARC.getMask();
     }
 
     @Override

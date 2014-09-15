@@ -32,10 +32,10 @@ import memory.IStateInt;
 import solver.constraints.Propagator;
 import solver.constraints.PropagatorPriority;
 import solver.exception.ContradictionException;
-import solver.variables.EventType;
+import solver.variables.GraphEventType;
+import solver.variables.IUndirectedGraphVar;
 import solver.variables.IntVar;
 import solver.variables.delta.IGraphDeltaMonitor;
-import solver.variables.IUndirectedGraphVar;
 import util.ESat;
 import util.objects.setDataStructures.ISet;
 import util.procedure.PairProcedure;
@@ -115,8 +115,8 @@ public class PropTreeCostSimple extends Propagator<IUndirectedGraphVar> {
     @Override
     public void propagate(int idxVarInProp, int mask) throws ContradictionException {
         gdm.freeze();
-        gdm.forEachArc(edgeEnf, EventType.ENFORCEARC);
-        gdm.forEachArc(edgeRem, EventType.REMOVEARC);
+        gdm.forEachArc(edgeEnf, GraphEventType.ADD_ARC);
+        gdm.forEachArc(edgeRem, GraphEventType.REMOVE_ARC);
         gdm.unfreeze();
         sum.updateLowerBound(minSum.get(), aCause);
         sum.updateUpperBound(maxSum.get(), aCause);
@@ -124,7 +124,7 @@ public class PropTreeCostSimple extends Propagator<IUndirectedGraphVar> {
 
     @Override
     public int getPropagationConditions(int vIdx) {
-        return EventType.REMOVEARC.mask + EventType.ENFORCEARC.mask;
+        return GraphEventType.REMOVE_ARC.getMask() + GraphEventType.ADD_ARC.getMask();
     }
 
     @Override

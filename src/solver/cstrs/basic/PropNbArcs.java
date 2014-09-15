@@ -30,10 +30,11 @@ package solver.cstrs.basic;
 import solver.constraints.Propagator;
 import solver.constraints.PropagatorPriority;
 import solver.exception.ContradictionException;
-import solver.variables.EventType;
+import solver.variables.GraphEventType;
 import solver.variables.IGraphVar;
 import solver.variables.IntVar;
 import solver.variables.Variable;
+import solver.variables.events.IntEventType;
 import util.ESat;
 import util.objects.setDataStructures.ISet;
 
@@ -116,8 +117,8 @@ public class PropNbArcs extends Propagator {
 
     @Override
     public int getPropagationConditions(int vIdx) {
-        return EventType.REMOVEARC.mask + EventType.ENFORCEARC.mask
-                + EventType.INCLOW.mask + EventType.DECUPP.mask + EventType.INSTANTIATE.mask;
+        return GraphEventType.REMOVE_ARC.getMask() + GraphEventType.ADD_ARC.getMask()
+                + IntEventType.INCLOW.getMask() + IntEventType.DECUPP.getMask() + IntEventType.INSTANTIATE.getMask();
     }
 
     @Override

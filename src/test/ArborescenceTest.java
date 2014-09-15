@@ -25,7 +25,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package test.java;
+package test;
 
 import org.testng.annotations.Test;
 import solver.Solver;
@@ -43,42 +43,37 @@ import util.objects.graphs.Orientation;
 import util.objects.setDataStructures.SetType;
 
 import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
 
-public class PathTest {
+public class ArborescenceTest {
 
 	private static SetType graphTypeEnv = SetType.BOOL_ARRAY;
 	private static SetType graphTypeKer = SetType.BOOL_ARRAY;
 
-	public static Solver model(int n, int seed, boolean path, boolean arbo, boolean RG, long nbMaxSols) {
+	public static Solver model(int n, int seed, boolean naive, boolean simple, long nbMaxSols) {
 		Solver s = new Solver();
-		DirectedGraph GLB = new DirectedGraph(s,n,graphTypeKer,true);
-		DirectedGraph GUB = new DirectedGraph(s,n,graphTypeEnv,true);
-		for (int i = 0; i < n - 1; i++) {
+		DirectedGraph GLB = new DirectedGraph(s,n,graphTypeKer,false);
+		DirectedGraph GUB = new DirectedGraph(s,n,graphTypeEnv,false);
+		for (int i = 0; i < n; i++) {
 			for (int j = 1; j < n; j++) {
 				GUB.addArc(i, j);
 			}
 		}
 		IDirectedGraphVar g = GraphVarFactory.directed_graph_var("G", GLB, GUB, s);
-		int[] succs = new int[n];
 		int[] preds = new int[n];
 		for (int i = 0; i < n; i++) {
-			succs[i] = preds[i] = 1;
+			preds[i] = 1;
 		}
-		succs[n - 1] = preds[0] = 0;
+		preds[0] = 0;
 		Propagator[] props = new Propagator[]{
-				new PropNodeDegree_AtLeast_Coarse(g, Orientation.SUCCESSORS, succs),
-				new PropNodeDegree_AtMost_Incr(g, Orientation.SUCCESSORS, succs),
 				new PropNodeDegree_AtLeast_Coarse(g, Orientation.PREDECESSORS, preds),
 				new PropNodeDegree_AtMost_Incr(g, Orientation.PREDECESSORS, preds)
 		};
-//		if (path) {
-//			props = ArrayUtils.append(props,new Propagator[]{new PropPathNoCircuit(g, 0, n - 1)});
+//		if (naive) {
+//			props = ArrayUtils.append(props,new Propagator[]{new PropArborescence_NaiveForm(g, 0)});
+//		} else {
+//			props = ArrayUtils.append(props,new Propagator[]{new PropArborescence(g, 0, simple)});
 //		}
-//		if (arbo) {
-//			props = ArrayUtils.append(props,new Propagator[]{new PropArborescence(g, 0, true)});
-//		}
-		AbstractStrategy strategy = GraphStrategyFactory.lexico(g);
+		AbstractStrategy strategy = GraphStrategyFactory.random(g, seed);
 		s.post(new Constraint("GTest",props));
 		s.set(strategy);
 		if (nbMaxSols > 0) {
@@ -88,52 +83,47 @@ public class PathTest {
 		return s;
 	}
 
-	public static void test(int s, int n, int nbMax) {
-//        System.out.println("Test n=" + n + ", with seed=" + s);
-		Solver path = model(n, s, true, false, false, nbMax);
-		Solver pathArbo = model(n, s, true, true, false, nbMax);
-		Solver pathArboRG = model(n, s, true, true, true, nbMax);
-		Solver arbo = model(n, s, false, true, false, nbMax);
-		Solver arboRG = model(n, s, false, true, true, nbMax);
-		// NbSolutions
-//        System.out.println("nbSols : " + path.getMeasures().getSolutionCount());
-		assertEquals(path.getMeasures().getSolutionCount(), arbo.getMeasures().getSolutionCount());
-		assertEquals(path.getMeasures().getSolutionCount(), pathArbo.getMeasures().getSolutionCount());
-		assertEquals(path.getMeasures().getSolutionCount(), arboRG.getMeasures().getSolutionCount());
-		assertEquals(path.getMeasures().getSolutionCount(), pathArboRG.getMeasures().getSolutionCount());
-		// NbFails
-		if (graphTypeEnv == SetType.BOOL_ARRAY) {
-			assertTrue(path.getMeasures().getFailCount() >= arbo.getMeasures().getFailCount());
-			assertTrue(arbo.getMeasures().getFailCount() >= arboRG.getMeasures().getFailCount());
-//			not true anymore because path has been upgraded to reinforce filtering
-//			assertEquals(pathArbo.getMeasures().getFailCount(), arbo.getMeasures().getFailCount());
-//			assertEquals(arboRG.getMeasures().getFailCount(), pathArboRG.getMeasures().getFailCount());
-		}
-	}
-
-	@Test(groups = "1s")
+	@Test(groups = "10s")
 	public static void smallTrees() {
 		for (int s = 0; s < 3; s++) {
 			for (int n = 3; n < 8; n++) {
-				test(s, n, -1);
-			}
-		}
-	}
-
-	@Test(groups = "1m")
-	public static void bigTrees() {
-		for (int s = 0; s < 3; s++) {
-			for (int n = 100; n < 400; n += 100) {
-				test(s, n, 1);
+//                System.out.println("Test n=" + n + ", with seed=" + s);
+				Solver naive = model(n, s, true, false, -1);
+				Solver efficientA = model(n, s, false, true, -1);
+				Solver efficientN = model(n, s, false, false, -1);
+//                System.out.println(naive.getMeasures().getSolutionCount() + " sols");
+				assertEquals(naive.getMeasures().getFailCount(), 0);
+				assertEquals(naive.getMeasures().getSolutionCount(), efficientA.getMeasures().getSolutionCount());
+				assertEquals(naive.getMeasures().getFailCount(), efficientA.getMeasures().getFailCount());
+				assertEquals(naive.getMeasures().getSolutionCount(), efficientN.getMeasures().getSolutionCount());
+				assertEquals(naive.getMeasures().getFailCount(), efficientN.getMeasures().getFailCount());
 			}
 		}
 	}
 
 	@Test(groups = "10s")
+	public static void bigTrees() {
+		for (int s = 0; s < 3; s++) {
+			int n = 60;
+//            System.out.println("Test n=" + n + ", with seed=" + s);
+			Solver naive = model(n, s, true, false, 10);
+			Solver efficientA = model(n, s, false, true, 10);
+			Solver efficientN = model(n, s, false, false, 10);
+//            System.out.println(naive.getMeasures().getSolutionCount() + " sols");
+			assertEquals(naive.getMeasures().getFailCount(), 0);
+			assertEquals(naive.getMeasures().getSolutionCount(), efficientA.getMeasures().getSolutionCount());
+			assertEquals(naive.getMeasures().getFailCount(), efficientA.getMeasures().getFailCount());
+			assertEquals(naive.getMeasures().getSolutionCount(), efficientN.getMeasures().getSolutionCount());
+			assertEquals(naive.getMeasures().getFailCount(), efficientN.getMeasures().getFailCount());
+		}
+	}
+
+	@Test(groups = "1m")
 	public static void testAllDataStructure() {
 		for (SetType ge : SetType.values()) {
 			graphTypeEnv = ge;
 			graphTypeKer = ge;
+//            System.out.println("env:" + ge + " ker :" + ge);
 			smallTrees();
 		}
 	}

@@ -30,7 +30,7 @@ package solver.cstrs.channeling.edges;
 import solver.constraints.Propagator;
 import solver.constraints.PropagatorPriority;
 import solver.exception.ContradictionException;
-import solver.variables.EventType;
+import solver.variables.GraphEventType;
 import solver.variables.IGraphVar;
 import solver.variables.SetVar;
 import solver.variables.delta.IGraphDeltaMonitor;
@@ -69,10 +69,7 @@ public class PropNeighSetsChannel1 extends Propagator<IGraphVar> {
      */
     public PropNeighSetsChannel1(SetVar[] setsV, IGraphVar gV) {
         super(new IGraphVar[]{gV}, PropagatorPriority.LINEAR, true);
-        this.sets = new SetVar[setsV.length];
-        for (int i = 0; i < setsV.length; i++) {
-            this.sets[i] = (SetVar) vars[i];
-        }
+        this.sets = setsV;
         n = sets.length;
         this.g = gV;
         assert (n == g.getNbMaxNodes());
@@ -126,8 +123,8 @@ public class PropNeighSetsChannel1 extends Propagator<IGraphVar> {
     @Override
     public void propagate(int idxVarInProp, int mask) throws ContradictionException {
 		gdm.freeze();
-		gdm.forEachArc(arcForced, EventType.ENFORCEARC);
-		gdm.forEachArc(arcRemoved, EventType.REMOVEARC);
+		gdm.forEachArc(arcForced, GraphEventType.ADD_ARC);
+		gdm.forEachArc(arcRemoved, GraphEventType.REMOVE_ARC);
 		gdm.unfreeze();
     }
 

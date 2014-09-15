@@ -62,7 +62,7 @@ public class UndirectedGraphVar extends GraphVar<UndirectedGraph> implements IUn
     public boolean removeArc(int x, int y, ICause cause) throws ContradictionException {
         assert cause != null;
         if (LB.edgeExists(x, y)) {
-            this.contradiction(cause, EventType.REMOVEARC, "remove mandatory arc");
+            this.contradiction(cause, GraphEventType.REMOVE_ARC, "remove mandatory arc");
             return false;
         }
         if (UB.removeEdge(x, y)) {
@@ -70,7 +70,7 @@ public class UndirectedGraphVar extends GraphVar<UndirectedGraph> implements IUn
                 delta.add(x, IGraphDelta.AR_tail, cause);
                 delta.add(y, IGraphDelta.AR_head, cause);
             }
-            EventType e = EventType.REMOVEARC;
+            GraphEventType e = GraphEventType.REMOVE_ARC;
             notifyPropagators(e, cause);
             return true;
         }
@@ -88,13 +88,13 @@ public class UndirectedGraphVar extends GraphVar<UndirectedGraph> implements IUn
                     delta.add(x, IGraphDelta.AE_tail, cause);
                     delta.add(y, IGraphDelta.AE_head, cause);
                 }
-                EventType e = EventType.ENFORCEARC;
+				GraphEventType e = GraphEventType.ADD_ARC;
                 notifyPropagators(e, cause);
                 return true;
             }
             return false;
         }
-        this.contradiction(cause, EventType.ENFORCEARC, "enforce arc which is not in the domain");
+        this.contradiction(cause, GraphEventType.ADD_ARC, "enforce arc which is not in the domain");
         return false;
     }
 

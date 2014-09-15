@@ -30,7 +30,7 @@ package solver.cstrs.cost.trees;
 import solver.constraints.Propagator;
 import solver.constraints.PropagatorPriority;
 import solver.exception.ContradictionException;
-import solver.variables.EventType;
+import solver.variables.GraphEventType;
 import solver.variables.IUndirectedGraphVar;
 import util.ESat;
 import util.objects.setDataStructures.ISet;
@@ -74,7 +74,7 @@ public class PropMaxDegTree extends Propagator<IUndirectedGraphVar> {
 
     @Override
     public int getPropagationConditions(int vIdx) {
-        return EventType.ENFORCEARC.mask;
+        return GraphEventType.ADD_ARC.getMask();
     }
 
     @Override

@@ -39,9 +39,9 @@ import memory.IStateInt;
 import solver.constraints.Propagator;
 import solver.constraints.PropagatorPriority;
 import solver.exception.ContradictionException;
-import solver.variables.EventType;
-import solver.variables.delta.IGraphDeltaMonitor;
+import solver.variables.GraphEventType;
 import solver.variables.IUndirectedGraphVar;
+import solver.variables.delta.IGraphDeltaMonitor;
 import util.ESat;
 import util.objects.setDataStructures.ISet;
 import util.procedure.PairProcedure;
@@ -121,13 +121,13 @@ public class PropTreeNoSubtour extends Propagator<IUndirectedGraphVar> {
     @Override
     public void propagate(int idxVarInProp, int mask) throws ContradictionException {
         gdm.freeze();
-        gdm.forEachArc(arcEnforced, EventType.ENFORCEARC);
+        gdm.forEachArc(arcEnforced, GraphEventType.ADD_ARC);
         gdm.unfreeze();
     }
 
     @Override
     public int getPropagationConditions(int vIdx) {
-        return EventType.ENFORCEARC.mask;
+        return GraphEventType.ADD_ARC.getMask();
     }
 
     @Override

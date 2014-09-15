@@ -31,7 +31,7 @@ import gnu.trove.list.array.TIntArrayList;
 import solver.constraints.Propagator;
 import solver.constraints.PropagatorPriority;
 import solver.exception.ContradictionException;
-import solver.variables.EventType;
+import solver.variables.GraphEventType;
 import solver.variables.IGraphVar;
 import solver.variables.delta.IGraphDeltaMonitor;
 import util.ESat;
@@ -105,8 +105,8 @@ public class PropTransitivity<V extends IGraphVar> extends Propagator<V> {
 	@Override
 	public void propagate(int idxVarInProp, int mask) throws ContradictionException {
 		gdm.freeze();
-		gdm.forEachArc(arcEnforced, EventType.ENFORCEARC);
-		gdm.forEachArc(arcRemoved, EventType.REMOVEARC);
+		gdm.forEachArc(arcEnforced, GraphEventType.ADD_ARC);
+		gdm.forEachArc(arcRemoved, GraphEventType.REMOVE_ARC);
 		filter();
 		gdm.unfreeze();
 	}
@@ -135,7 +135,7 @@ public class PropTransitivity<V extends IGraphVar> extends Propagator<V> {
 
 	@Override
 	public int getPropagationConditions(int vIdx) {
-		return EventType.REMOVEARC.mask + EventType.ENFORCEARC.mask;
+		return GraphEventType.REMOVE_ARC.getMask() + GraphEventType.ADD_ARC.getMask();
 	}
 
 	@Override

@@ -28,8 +28,8 @@ package solver.variables.delta;
 
 import solver.ICause;
 import solver.exception.ContradictionException;
-import solver.variables.EventType;
 import solver.search.loop.TimeStampedObject;
+import solver.variables.GraphEventType;
 import util.procedure.IntProcedure;
 import util.procedure.PairProcedure;
 
@@ -84,16 +84,16 @@ public class GraphDeltaMonitor extends TimeStampedObject implements IGraphDeltaM
     }
 
     @Override
-    public void forEachNode(IntProcedure proc, EventType evt) throws ContradictionException {
+    public void forEachNode(IntProcedure proc, GraphEventType evt) throws ContradictionException {
         int type;
-        if (evt == EventType.REMOVENODE) {
+        if (evt == GraphEventType.REMOVE_NODE) {
             type = IGraphDelta.NR;
             for (int i = frozenFirst[type]; i < frozenLast[type]; i++) {
                 if (delta.getCause(i, type) != propagator) {
                     proc.execute(delta.get(i, type));
                 }
             }
-        } else if (evt == EventType.ENFORCENODE) {
+        } else if (evt == GraphEventType.ADD_NODE) {
             type = IGraphDelta.NE;
             for (int i = frozenFirst[type]; i < frozenLast[type]; i++) {
                 if (delta.getCause(i, type) != propagator) {
@@ -106,14 +106,14 @@ public class GraphDeltaMonitor extends TimeStampedObject implements IGraphDeltaM
     }
 
     @Override
-    public void forEachArc(PairProcedure proc, EventType evt) throws ContradictionException {
-        if (evt == EventType.REMOVEARC) {
+    public void forEachArc(PairProcedure proc, GraphEventType evt) throws ContradictionException {
+        if (evt == GraphEventType.REMOVE_ARC) {
             for (int i = frozenFirst[2]; i < frozenLast[2]; i++) {
                 if (delta.getCause(i, IGraphDelta.AR_tail) != propagator) {
                     proc.execute(delta.get(i, IGraphDelta.AR_tail), delta.get(i, IGraphDelta.AR_head));
                 }
             }
-        } else if (evt == EventType.ENFORCEARC) {
+        } else if (evt == GraphEventType.ADD_ARC) {
             for (int i = frozenFirst[3]; i < frozenLast[3]; i++) {
                 if (delta.getCause(i, IGraphDelta.AE_tail) != propagator) {
                     proc.execute(delta.get(i, IGraphDelta.AE_tail), delta.get(i, IGraphDelta.AE_head));

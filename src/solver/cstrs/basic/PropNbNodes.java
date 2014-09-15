@@ -30,10 +30,11 @@ package solver.cstrs.basic;
 import solver.constraints.Propagator;
 import solver.constraints.PropagatorPriority;
 import solver.exception.ContradictionException;
-import solver.variables.EventType;
+import solver.variables.GraphEventType;
 import solver.variables.IGraphVar;
 import solver.variables.IntVar;
 import solver.variables.Variable;
+import solver.variables.events.IntEventType;
 import util.ESat;
 import util.objects.setDataStructures.ISet;
 
@@ -99,7 +100,7 @@ public class PropNbNodes extends Propagator {
 
     @Override
     public int getPropagationConditions(int vIdx) {
-        return EventType.REMOVENODE.mask + EventType.ENFORCENODE.mask + EventType.INSTANTIATE.mask + EventType.INCLOW.mask + EventType.DECUPP.mask;
+        return GraphEventType.REMOVE_NODE.getMask() + GraphEventType.ADD_NODE.getMask() + IntEventType.INSTANTIATE.getMask() + IntEventType.INCLOW.getMask() + IntEventType.DECUPP.getMask();
     }
 
     @Override

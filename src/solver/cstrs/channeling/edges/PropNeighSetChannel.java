@@ -29,13 +29,10 @@ package solver.cstrs.channeling.edges;
 
 import solver.constraints.Propagator;
 import solver.constraints.PropagatorPriority;
-import solver.variables.IncidentSet;
 import solver.exception.ContradictionException;
-import solver.variables.EventType;
-import solver.variables.IGraphVar;
-import solver.variables.SetVar;
-import solver.variables.Variable;
+import solver.variables.*;
 import solver.variables.delta.ISetDeltaMonitor;
+import solver.variables.events.SetEventType;
 import util.ESat;
 import util.procedure.IntProcedure;
 
@@ -87,9 +84,9 @@ public class PropNeighSetChannel extends Propagator<Variable> {
 	@Override
 	public int getPropagationConditions(int vIdx) {
 		if (vIdx == 0) {
-			return EventType.ADD_TO_KER.mask + EventType.REMOVE_FROM_ENVELOPE.mask;
+			return SetEventType.ADD_TO_KER.getMask() + SetEventType.REMOVE_FROM_ENVELOPE.getMask();
 		} else {
-			return EventType.ENFORCEARC.mask + EventType.REMOVEARC.mask;
+			return GraphEventType.ADD_ARC.getMask() + GraphEventType.REMOVE_ARC.getMask();
 		}
 	}
 
@@ -116,8 +113,8 @@ public class PropNeighSetChannel extends Propagator<Variable> {
 	public void propagate(int idxVarInProp, int mask) throws ContradictionException {
 		if (idxVarInProp == 0) {
 			sdm.freeze();
-			sdm.forEach(forceS, EventType.ADD_TO_KER);
-			sdm.forEach(remS, EventType.REMOVE_FROM_ENVELOPE);
+			sdm.forEach(forceS, SetEventType.ADD_TO_KER);
+			sdm.forEach(remS, SetEventType.REMOVE_FROM_ENVELOPE);
 			sdm.unfreeze();
 		} else {
 			for(int i=set.getEnvelopeFirst();i!=SetVar.END;i=set.getEnvelopeNext()){
