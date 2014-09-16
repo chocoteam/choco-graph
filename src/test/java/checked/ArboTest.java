@@ -25,7 +25,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package toCheck;
+package checked;
 
 import org.testng.annotations.Test;
 import solver.Solver;
@@ -38,15 +38,15 @@ import util.objects.setDataStructures.SetType;
 
 import static org.testng.Assert.assertTrue;
 
-public class NTreeTest {
+public class ArboTest {
 
 	private static SetType graphTypeEnv = SetType.BOOL_ARRAY;
 	private static SetType graphTypeKer = SetType.BOOL_ARRAY;
 
 	public static void model(int n, int seed) {
 		Solver s = new Solver();
-		DirectedGraph GLB = new DirectedGraph(s,n,graphTypeKer, true);
-		DirectedGraph GUB = new DirectedGraph(s,n,graphTypeEnv, true);
+		DirectedGraph GLB = new DirectedGraph(s,n,graphTypeKer, false);
+		DirectedGraph GUB = new DirectedGraph(s,n,graphTypeEnv, false);
 		for (int i = 0; i < n; i++) {
 			for (int j = 0; j < n; j++) {
 				GUB.addArc(i, j);

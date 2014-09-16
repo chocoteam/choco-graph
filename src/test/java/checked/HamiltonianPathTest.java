@@ -25,7 +25,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package toCheck;
+package checked;
 
 import gnu.trove.list.array.TIntArrayList;
 import org.testng.Assert;
@@ -54,9 +54,6 @@ import util.objects.graphs.DirectedGraph;
 import util.objects.setDataStructures.SetType;
 
 /**
- * Find a Hamiltonian path in a sparse graph with incremental algorithm
- * test the correctness of fine event recorders
- *
  * @author Jean-Guillaume Fages
  */
 public class HamiltonianPathTest {
@@ -72,9 +69,9 @@ public class HamiltonianPathTest {
 		long time = System.currentTimeMillis();
 		for (int n : sizes) {
 			for (int nb : nbVoisins) {
-				for (int ks = 0; ks < 50; ks++) {
+				for (int ks = 0; ks < 10; ks++) {
 					s = System.currentTimeMillis();
-//					System.out.println("n:" + n + " nbVoisins:" + nb + " s:" + s);
+					System.out.println("n:" + n + " nbVoisins:" + nb + " s:" + s);
 					GraphGenerator gg = new GraphGenerator(n, s, GraphGenerator.InitialProperty.HamiltonianCircuit);
 					matrix = transformMatrix(gg.neighborBasedGenerator(nb));
 					testProblem(matrix, s, true, false);
@@ -88,7 +85,7 @@ public class HamiltonianPathTest {
 				}
 			}
 		}
-//		System.out.println("it took "+(System.currentTimeMillis()-time)+" ms");
+		System.out.println("it took "+(System.currentTimeMillis()-time)+" ms");
 	}
 
 	private static void testProblem(boolean[][] matrix, long s, boolean rd, boolean strongFilter) {
@@ -96,7 +93,7 @@ public class HamiltonianPathTest {
 		int n = matrix.length;
 		// build model
 		DirectedGraph GLB = new DirectedGraph(solver,n,SetType.LINKED_LIST,true);
-		DirectedGraph GUB = new DirectedGraph(solver,n,SetType.LINKED_LIST,true);
+		DirectedGraph GUB = new DirectedGraph(solver,n,SetType.BITSET,true);
 		for (int i = 0; i < n - 1; i++) {
 			for (int j = 1; j < n; j++) {
 				if (matrix[i][j]) {
@@ -106,6 +103,10 @@ public class HamiltonianPathTest {
 		}
 		IDirectedGraphVar graph = GraphVarFactory.directed_graph_var("G", GLB, GUB, solver);
 		solver.post(GraphConstraintFactory.path(graph, 0, n - 1));
+		if(strongFilter){
+			// could add alldiff as well
+			solver.post(GraphConstraintFactory.reachability(graph,0));
+		}
 
 		// configure solver
 		if (rd) {

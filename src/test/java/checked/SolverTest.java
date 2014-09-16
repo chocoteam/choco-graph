@@ -33,8 +33,6 @@ import solver.Solver;
 import solver.variables.*;
 
 /**
- * <br/>
- *
  * @author Jean-Guillaume Fages
  */
 public class SolverTest {
