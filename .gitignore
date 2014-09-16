@@ -22,3 +22,5 @@ doc/ChocoGraphDoc.pdf
 doc/ChocoGraphDoc.toc
 
 dependency-reduced-pom.xml
+
+target/maven-archiver/pom.properties
