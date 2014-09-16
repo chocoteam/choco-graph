@@ -27,10 +27,12 @@
 
 package solver.cstrs.channeling.nodes;
 
+import com.sun.org.apache.xpath.internal.operations.Variable;
 import solver.constraints.Propagator;
 import solver.constraints.PropagatorPriority;
 import solver.exception.ContradictionException;
-import solver.variables.*;
+import solver.variables.GraphEventType;
+import solver.variables.IGraphVar;
 import solver.variables.events.IntEventType;
 import util.ESat;
 
@@ -70,7 +72,7 @@ public class PropNodeBoolChannel extends Propagator<Variable> {
 		if (vIdx == 1) {
 			return GraphEventType.ADD_NODE.getMask() + GraphEventType.REMOVE_NODE.getMask();
 		}else{
-			return IntEventType.INT_ALL_MASK();
+			return IntEventType.all();
 		}
 	}
 
