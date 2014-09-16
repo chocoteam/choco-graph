@@ -20,3 +20,5 @@ lib/testng-6.8.8.jar
 doc/ChocoGraphDoc.pdf
 
 doc/ChocoGraphDoc.toc
+
+dependency-reduced-pom.xml
