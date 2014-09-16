@@ -105,7 +105,7 @@ public class SubCircuitProblem extends AbstractProblem {
 			}
 		}
 		graph = GraphVarFactory.directed_graph_var("G", GLB, GUB, solver);
-		circuitLength = VariableFactory.bounded("length",0,n,solver);
+		circuitLength = VariableFactory.bounded("length",2,n,solver);
 		solver.post(GraphConstraintFactory.circuit(graph));
 		solver.post(new Constraint("SubCircuitLength",new PropNbNodes(graph, circuitLength)));
 	}
@@ -147,7 +147,6 @@ public class SubCircuitProblem extends AbstractProblem {
 					System.out.println("n:" + n + " d:" + d + " s:" + s);
 					GraphGenerator gg = new GraphGenerator(n, s, GraphGenerator.InitialProperty.HamiltonianCircuit);
 					matrix = gg.arcBasedGenerator(d);
-//					System.out.println("graph generated");
 					testModels(matrix, s);
 				}
 			}
@@ -239,16 +238,11 @@ public class SubCircuitProblem extends AbstractProblem {
 		}
 		assert nbSols == referencemodel(m,12);
 		System.out.println(nbSols + " sols expected");
-		boolean[] vls = new boolean[]{false, true};
-		gt = SetType.BIPARTITESET;
-		for (int i = 0; i < 4; i++) {
-			for (boolean p : vls) {
-				SubCircuitProblem hcp = new SubCircuitProblem();
-				hcp.set(m, seed);
-				hcp.execute();
-				Assert.assertEquals(nbSols, hcp.solver.getMeasures().getSolutionCount(), "nb sol incorrect " + i + " ; " + p + " ; " + gt);
-			}
-		}
+		gt = SetType.BITSET;
+		SubCircuitProblem hcp = new SubCircuitProblem();
+		hcp.set(m, seed);
+		hcp.execute();
+		Assert.assertEquals(nbSols, hcp.solver.getMeasures().getSolutionCount(), "nb sol incorrect ");
 		System.gc();
 		System.gc();
 		System.gc();
@@ -258,7 +252,7 @@ public class SubCircuitProblem extends AbstractProblem {
 		int n = matrix.length;
 		Solver solver = new Solver();
 		IntVar[] vars = VariableFactory.enumeratedArray("", n, offset, n - 1 + offset, solver);
-		IntVar length = VariableFactory.bounded("length",0,n,solver);
+		IntVar length = VariableFactory.bounded("length",2,n,solver);
 		try {
 			for (int i = 0; i < n; i++) {
 				for (int j = 0; j < n; j++) {
