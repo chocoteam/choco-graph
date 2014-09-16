@@ -41,6 +41,7 @@ import java.util.BitSet;
 
 /**
  * Propagator that ensures that a node has at most N successors/predecessors/neighbors
+ * ENSURES EVERY VERTEX i FOR WHICH DEGREE[i]>0 IS MANDATORY
  *
  * @author Jean-Guillaume Fages
  */
@@ -61,8 +62,7 @@ public class PropNodeDegree_Var extends Propagator<Variable> {
 	//***********************************************************************************
 
 	public PropNodeDegree_Var(IDirectedGraphVar graph, Orientation setType, IntVar[] degrees) {
-		super(ArrayUtils.append(degrees,new Variable[]{graph}), PropagatorPriority.BINARY, true);
-		this.target = new IncidentSet.SuccOrNeighSet();
+		super(ArrayUtils.append(degrees,new Variable[]{graph}), PropagatorPriority.BINARY, false);
 		this.g = graph;
 		this.n = g.getNbMaxNodes();
 		this.degrees = degrees;
@@ -74,7 +74,7 @@ public class PropNodeDegree_Var extends Propagator<Variable> {
 	}
 
 	public PropNodeDegree_Var(IUndirectedGraphVar graph, IntVar[] degrees) {
-		super(ArrayUtils.append(degrees,new Variable[]{graph}), PropagatorPriority.BINARY, true);
+		super(ArrayUtils.append(degrees,new Variable[]{graph}), PropagatorPriority.BINARY, false);
 		this.target = new IncidentSet.SuccOrNeighSet();
 		this.g = graph;
 		this.n = g.getNbMaxNodes();
@@ -94,9 +94,10 @@ public class PropNodeDegree_Var extends Propagator<Variable> {
 			propagateUndirected();
 		}
 	}
+
 	public void propagateDirected() throws ContradictionException {
 		for(int i=0;i<n;i++){
-			if(!g.getMandatoryNodes().contain(i)){
+			if(!g.getPotentialNodes().contain(i)){
 				degrees[i].instantiateTo(0,aCause);
 			}else if(degrees[i].getLB()>0){
 				g.enforceNode(i,aCause);
@@ -130,7 +131,7 @@ public class PropNodeDegree_Var extends Propagator<Variable> {
 		}
 		int i = toDo.nextSetBit(0);
 		do{
-			if(!g.getMandatoryNodes().contain(i)){
+			if(!g.getPotentialNodes().contain(i)){
 				degrees[i].instantiateTo(0,aCause);
 			}else if(degrees[i].getLB()>0){
 				g.enforceNode(i,aCause);
