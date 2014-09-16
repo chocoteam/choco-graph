@@ -30,7 +30,6 @@ package solver.cstrs.tree;
 import solver.constraints.Propagator;
 import solver.constraints.PropagatorPriority;
 import solver.exception.ContradictionException;
-import solver.variables.GraphEventType;
 import solver.variables.IDirectedGraphVar;
 import util.ESat;
 import util.graphOperations.dominance.AbstractLengauerTarjanDominatorsFinder;
@@ -174,11 +173,6 @@ public class PropArborescences extends Propagator<IDirectedGraphVar> {
 				}
 			}
 		}
-	}
-
-	@Override
-	public int getPropagationConditions(int vIdx) {
-		return GraphEventType.REMOVE_ARC.getMask()+GraphEventType.ADD_NODE.getMask();
 	}
 
 	@Override
