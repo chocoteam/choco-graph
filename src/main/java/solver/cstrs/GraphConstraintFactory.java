@@ -29,7 +29,6 @@ package solver.cstrs;
 import solver.constraints.Constraint;
 import solver.constraints.ICF;
 import solver.constraints.Propagator;
-import solver.constraints.PropagatorPriority;
 import solver.cstrs.basic.*;
 import solver.cstrs.channeling.edges.*;
 import solver.cstrs.channeling.nodes.PropNodeBoolChannel;
@@ -43,12 +42,11 @@ import solver.cstrs.cost.tsp.lagrangianRelaxation.PropLagr_OneTree;
 import solver.cstrs.cycles.*;
 import solver.cstrs.degree.*;
 import solver.cstrs.inclusion.PropInclusion;
+import solver.cstrs.tree.PropArborescence;
 import solver.cstrs.tree.PropArborescences;
-import solver.exception.ContradictionException;
+import solver.cstrs.tree.PropReachability;
 import solver.variables.*;
-import util.ESat;
 import util.objects.graphs.Orientation;
-import util.objects.setDataStructures.ISet;
 import util.tools.ArrayUtils;
 
 /**
@@ -490,6 +488,7 @@ public class GraphConstraintFactory {
 	 * Degree constraint
 	 * for any vertex i in g, |(i,j)| = degrees[i]
 	 * A vertex which has been removed has a degree equal to 0
+	 * ENSURES EVERY VERTEX i FOR WHICH DEGREE[i]>0 IS MANDATORY
 	 * @param g			undirected graph var
 	 * @param degrees	integer array giving the degree of each node
 	 * @return a degree constraint
@@ -552,6 +551,7 @@ public class GraphConstraintFactory {
 	 * Degree inner constraint
 	 * for any vertex i in g, |(j,i)| = degrees[i]
 	 * A vertex which has been removed has a degree equal to 0
+	 * ENSURES EVERY VERTEX i FOR WHICH DEGREE[i]>0 IS MANDATORY
 	 * @param g			directed graph var
 	 * @param degrees	integer array giving the degree of each node
 	 * @return a degree inner constraint
@@ -614,6 +614,7 @@ public class GraphConstraintFactory {
 	 * Outer degree constraint
 	 * for any vertex i in g, |(i,j)| = degrees[i]
 	 * A vertex which has been removed has a degree equal to 0
+	 * ENSURES EVERY VERTEX i FOR WHICH DEGREE[i]>0 IS MANDATORY
 	 * @param g			directed graph var
 	 * @param degrees	integer array giving the degree of each node
 	 * @return an outer degree constraint
@@ -815,110 +816,21 @@ public class GraphConstraintFactory {
 	 * g forms an arborescence rooted in vertex 'root'
 	 * i.e. g has no circuit and a path exists from the root to every node
 	 * @param g	a directed graph variable
+	 * @param root the (fixed) root of the tree
 	 * @return a directed tree constraint
 	 */
-	public static Constraint directed_tree(IDirectedGraphVar g, IntVar root){
-		if(root.isInstantiated()){
-			int n = g.getNbMaxNodes();
-			int[] nbPreds = new int[n];
-			for(int i=0;i<n;i++){
-				nbPreds[i] = 1;
-			}
-			nbPreds[root.getValue()] = 0;
-
-			return new Constraint("directed_tree",
-					new PropArborescences(g),
-					new PropNodeDegree_AtMost_Coarse(g, Orientation.PREDECESSORS, nbPreds),
-					new PropNodeDegree_AtLeast_Incr(g, Orientation.PREDECESSORS, nbPreds)
-			);
-		}else {
-			return new Constraint("directed_tree",
-					new PropArborescences(g),
-					new PropNodeDegree_AtMost_Coarse(g, Orientation.PREDECESSORS, 1),
-					// ad hoc propagator to get the root (naive filtering)
-					new Propagator<Variable>(new Variable[]{g, root}, PropagatorPriority.BINARY, false) {
-						@Override
-						public void propagate(int evtmask) throws ContradictionException {
-							IntVar root = (IntVar) vars[1];
-							IDirectedGraphVar g = (IDirectedGraphVar) vars[0];
-							int n = g.getNbMaxNodes();
-							root.updateLowerBound(0, aCause);
-							root.updateUpperBound(n - 1, aCause);
-							int pos = -1; // identify impossible roots
-							for (int i = root.getLB(); i <= root.getUB(); i = root.nextValue(i)) {
-								if (g.getMandPredOf(i).getSize() > 0
-										|| !g.getPotentialNodes().contain(i)) {
-									root.removeValue(i, aCause);
-								} else {
-									if (pos == -1) {
-										pos = i;
-									} else {
-										pos = -2;
-									}
-								}
-							}
-							if (pos >= 0) { // unique root found
-								g.enforceNode(pos, aCause);
-								ISet preds = g.getPotPredOf(pos);
-								for (int p = preds.getFirstElement(); p >= 0; p = preds.getNextElement()) {
-									g.removeArc(p, pos, aCause);
-								}
-							}
-							for (int i = g.getPotentialNodes().getFirstElement(); i >= 0; i = g.getPotentialNodes().getNextElement()) {
-								ISet preds = g.getPotPredOf(i);
-								if (!root.contains(i)) {
-									// non-root nodes must have exactly one predecessor
-									if (g.getMandatoryNodes().contain(i)) {
-										if (preds.getSize() == 1) {
-											g.enforceArc(preds.getFirstElement(), i, aCause);
-										}
-									} else if (preds.getSize() == 0) {
-										g.removeNode(i, aCause);
-									}
-								}
-								if (preds.getSize() == 0 && g.getMandatoryNodes().contain(i)) {
-									root.instantiateTo(i, aCause);
-								}
-							}
-						}
-
-						@Override
-						public ESat isEntailed() {
-							IntVar root = (IntVar) vars[1];
-							IDirectedGraphVar g = (IDirectedGraphVar) vars[0];
-							int n = g.getNbMaxNodes();
-							if (root.getUB() < 0 || root.getLB() >= n) {
-								return ESat.FALSE;
-							}
-							int pos = -1; // identify impossible roots
-							for (int i = root.getLB(); i <= root.getUB(); i = root.nextValue(i)) {
-								if (!(g.getMandPredOf(i).getSize() > 0
-										|| !g.getPotentialNodes().contain(i))) {
-									pos = i;
-								}
-							}
-							if (pos == -1) {
-								return ESat.FALSE;
-							}
-							pos = -1;
-							for (int i = g.getMandatoryNodes().getFirstElement(); i >= 0; i = g.getMandatoryNodes().getNextElement()) {
-								ISet preds = g.getPotPredOf(i);
-								if (preds.getSize() == 0) {
-									if (pos == -1) {
-										pos = i;
-									} else {
-										return ESat.FALSE; // two roots;
-									}
-								}
-							}
-							if (isCompletelyInstantiated()) {
-								return ESat.TRUE;
-							}
-							return ESat.UNDEFINED;
-						}
-					}
-			);
+	public static Constraint directed_tree(IDirectedGraphVar g, int root){
+		int n = g.getNbMaxNodes();
+		int[] nbPreds = new int[n];
+		for(int i=0;i<n;i++){
+			nbPreds[i] = 1;
 		}
+		nbPreds[root] = 0;
+		return new Constraint("directed_tree"
+				,new PropArborescence(g,root)
+				,new PropNodeDegree_AtMost_Coarse(g, Orientation.PREDECESSORS, nbPreds)
+				,new PropNodeDegree_AtLeast_Incr(g, Orientation.PREDECESSORS, nbPreds)
+		);
 	}
 
 	/**
@@ -937,6 +849,18 @@ public class GraphConstraintFactory {
 	//***********************************************************************************
 	// PATH and REACHABILITY
 	//***********************************************************************************
+
+	// reachability
+
+	/**
+	 * Creates a constraint which ensures that every vertex in g is reachable by a simple path from the root.
+	 * @param g	a directed graph variable
+	 * @param root	a vertex reaching every node
+	 * @return A constraint which ensures that every vertex in g is reachable by a simple path from the root
+	 */
+	public static Constraint reachability(IDirectedGraphVar g, int root){
+		return new Constraint("reachability_from_"+root,new PropReachability(g,root));
+	}
 
 	// directed path
 

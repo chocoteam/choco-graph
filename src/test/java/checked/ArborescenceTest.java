@@ -25,32 +25,29 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package test;
+package checked;
 
 import org.testng.annotations.Test;
 import solver.Solver;
-import solver.constraints.Constraint;
-import solver.constraints.Propagator;
-import solver.cstrs.degree.PropNodeDegree_AtLeast_Coarse;
-import solver.cstrs.degree.PropNodeDegree_AtMost_Incr;
-import solver.search.loop.monitors.SearchMonitorFactory;
+import solver.cstrs.GraphConstraintFactory;
 import solver.search.GraphStrategyFactory;
-import solver.search.strategy.strategy.AbstractStrategy;
+import solver.search.loop.monitors.SearchMonitorFactory;
 import solver.variables.GraphVarFactory;
 import solver.variables.IDirectedGraphVar;
+import solver.variables.VariableFactory;
 import util.objects.graphs.DirectedGraph;
-import util.objects.graphs.Orientation;
 import util.objects.setDataStructures.SetType;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 
 public class ArborescenceTest {
 
 	private static SetType graphTypeEnv = SetType.BOOL_ARRAY;
 	private static SetType graphTypeKer = SetType.BOOL_ARRAY;
 
-	public static Solver model(int n, int seed, boolean naive, boolean simple, long nbMaxSols) {
-		Solver s = new Solver();
+	public static Solver model(int n, int seed, boolean gac) {
+		final Solver s = new Solver();
 		DirectedGraph GLB = new DirectedGraph(s,n,graphTypeKer,false);
 		DirectedGraph GUB = new DirectedGraph(s,n,graphTypeEnv,false);
 		for (int i = 0; i < n; i++) {
@@ -58,27 +55,28 @@ public class ArborescenceTest {
 				GUB.addArc(i, j);
 			}
 		}
-		IDirectedGraphVar g = GraphVarFactory.directed_graph_var("G", GLB, GUB, s);
+		GLB.addNode(0);
+		final IDirectedGraphVar g = GraphVarFactory.directed_graph_var("G", GLB, GUB, s);
 		int[] preds = new int[n];
 		for (int i = 0; i < n; i++) {
 			preds[i] = 1;
 		}
 		preds[0] = 0;
-		Propagator[] props = new Propagator[]{
-				new PropNodeDegree_AtLeast_Coarse(g, Orientation.PREDECESSORS, preds),
-				new PropNodeDegree_AtMost_Incr(g, Orientation.PREDECESSORS, preds)
-		};
-//		if (naive) {
-//			props = ArrayUtils.append(props,new Propagator[]{new PropArborescence_NaiveForm(g, 0)});
-//		} else {
-//			props = ArrayUtils.append(props,new Propagator[]{new PropArborescence(g, 0, simple)});
-//		}
-		AbstractStrategy strategy = GraphStrategyFactory.random(g, seed);
-		s.post(new Constraint("GTest",props));
-		s.set(strategy);
-		if (nbMaxSols > 0) {
-			SearchMonitorFactory.limitSolution(s, nbMaxSols);
+		System.out.println("%%%%%%%%%");
+		if(gac) {
+			s.post(GraphConstraintFactory.directed_tree(g, 0));
+		}else{
+			s.post(GraphConstraintFactory.directed_forest(g));
+			int[] indeg = new int[n];
+			for(int i=0;i<n;i++) {
+				indeg[i] = 1;
+			}
+			indeg[0] = 0;
+			s.post(GraphConstraintFactory.min_in_degrees(g, indeg));
 		}
+		s.post(GraphConstraintFactory.nb_nodes(g, VariableFactory.bounded("nbNodes", n / 3, n, s)));
+		s.set(GraphStrategyFactory.random(g, seed));
+		SearchMonitorFactory.limitSolution(s, 1000);
 		s.findAllSolutions();
 		return s;
 	}
@@ -87,16 +85,12 @@ public class ArborescenceTest {
 	public static void smallTrees() {
 		for (int s = 0; s < 3; s++) {
 			for (int n = 3; n < 8; n++) {
-//                System.out.println("Test n=" + n + ", with seed=" + s);
-				Solver naive = model(n, s, true, false, -1);
-				Solver efficientA = model(n, s, false, true, -1);
-				Solver efficientN = model(n, s, false, false, -1);
-//                System.out.println(naive.getMeasures().getSolutionCount() + " sols");
-				assertEquals(naive.getMeasures().getFailCount(), 0);
-				assertEquals(naive.getMeasures().getSolutionCount(), efficientA.getMeasures().getSolutionCount());
-				assertEquals(naive.getMeasures().getFailCount(), efficientA.getMeasures().getFailCount());
-				assertEquals(naive.getMeasures().getSolutionCount(), efficientN.getMeasures().getSolutionCount());
-				assertEquals(naive.getMeasures().getFailCount(), efficientN.getMeasures().getFailCount());
+                System.out.println("Test n=" + n + ", with seed=" + s);
+				Solver good = model(n, s, true);
+				assertEquals(good.getMeasures().getFailCount(), 0);
+				assertTrue(good.getMeasures().getSolutionCount() > 0);
+				Solver slow = model(n, s, false);
+				assertEquals(good.getMeasures().getSolutionCount(), slow.getMeasures().getSolutionCount());
 			}
 		}
 	}
@@ -105,16 +99,12 @@ public class ArborescenceTest {
 	public static void bigTrees() {
 		for (int s = 0; s < 3; s++) {
 			int n = 60;
-//            System.out.println("Test n=" + n + ", with seed=" + s);
-			Solver naive = model(n, s, true, false, 10);
-			Solver efficientA = model(n, s, false, true, 10);
-			Solver efficientN = model(n, s, false, false, 10);
-//            System.out.println(naive.getMeasures().getSolutionCount() + " sols");
-			assertEquals(naive.getMeasures().getFailCount(), 0);
-			assertEquals(naive.getMeasures().getSolutionCount(), efficientA.getMeasures().getSolutionCount());
-			assertEquals(naive.getMeasures().getFailCount(), efficientA.getMeasures().getFailCount());
-			assertEquals(naive.getMeasures().getSolutionCount(), efficientN.getMeasures().getSolutionCount());
-			assertEquals(naive.getMeasures().getFailCount(), efficientN.getMeasures().getFailCount());
+            System.out.println("Test n=" + n + ", with seed=" + s);
+			Solver good = model(n, s, true);
+			assertEquals(good.getMeasures().getFailCount(), 0);
+			assertTrue(good.getMeasures().getSolutionCount()>0);
+			Solver slow = model(n, s, false);
+			assertEquals(good.getMeasures().getSolutionCount(), slow.getMeasures().getSolutionCount());
 		}
 	}
 
@@ -123,7 +113,7 @@ public class ArborescenceTest {
 		for (SetType ge : SetType.values()) {
 			graphTypeEnv = ge;
 			graphTypeKer = ge;
-//            System.out.println("env:" + ge + " ker :" + ge);
+            System.out.println("env:" + ge + " ker :" + ge);
 			smallTrees();
 		}
 	}
