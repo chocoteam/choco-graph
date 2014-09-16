@@ -840,8 +840,9 @@ public class GraphConstraintFactory {
 	 * @return a directed forest constraint
 	 */
 	public static Constraint directed_forest(IDirectedGraphVar g){
-		return new Constraint("directed_forest",new PropArborescences(g),
-		new PropNodeDegree_AtMost_Coarse(g, Orientation.PREDECESSORS, 1));
+		return new Constraint("directed_forest",new PropArborescences(g)
+				,new PropNodeDegree_AtMost_Coarse(g, Orientation.PREDECESSORS, 1)
+		);
 	}
 
 
@@ -866,6 +867,7 @@ public class GraphConstraintFactory {
 
 	/**
 	 * Creates a path constraint : g forms a path from node 'from' to node 'to'
+	 * Basic but fast propagation
 	 * @param g a directed graph variable
 	 * @param from an integer variable
 	 * @param to an integer variable
@@ -878,13 +880,13 @@ public class GraphConstraintFactory {
 		for (int i = 0; i < n; i++) {
 			succs[i] = preds[i] = 1;
 		}
-		succs[from] = preds[to] = 0;
+		succs[to] = preds[from] = 0;
 		Propagator[] props = new Propagator[]{
-				new PropNodeDegree_AtLeast_Coarse(g, Orientation.SUCCESSORS, succs),
-				new PropNodeDegree_AtMost_Incr(g, Orientation.SUCCESSORS, succs),
-				new PropNodeDegree_AtLeast_Coarse(g, Orientation.PREDECESSORS, preds),
-				new PropNodeDegree_AtMost_Incr(g, Orientation.PREDECESSORS, preds),
-				new PropPathNoCircuit(g)
+				new PropNodeDegree_AtLeast_Coarse(g, Orientation.SUCCESSORS, succs)
+				,new PropNodeDegree_AtMost_Incr(g, Orientation.SUCCESSORS, succs)
+				,new PropNodeDegree_AtLeast_Coarse(g, Orientation.PREDECESSORS, preds)
+				,new PropNodeDegree_AtMost_Incr(g, Orientation.PREDECESSORS, preds)
+				,new PropPathNoCircuit(g)
 		};
 		return new Constraint("path",props);
 	}
