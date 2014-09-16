@@ -101,7 +101,7 @@ public class PropNbNodes extends Propagator {
     @Override
     public int getPropagationConditions(int vIdx) {
 		if(vIdx==0) {
-			return GraphEventType.REMOVE_ARC.getMask() + GraphEventType.ADD_ARC.getMask();
+			return GraphEventType.REMOVE_NODE.getMask() + GraphEventType.ADD_NODE.getMask();
 		} else {
 			return IntEventType.boundAndInst();
 		}

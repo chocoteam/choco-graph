@@ -148,7 +148,7 @@ public class PropNodeDegree_AtLeast_Incr extends Propagator<IGraphVar> {
 	@Override
 	public void propagate(int idxVarInProp, int mask) throws ContradictionException {
 		gdm.freeze();
-		gdm.forEachNode(nodeProc, GraphEventType.REMOVE_NODE);
+		gdm.forEachNode(nodeProc, GraphEventType.ADD_NODE);
 		gdm.forEachArc(proc,GraphEventType.REMOVE_ARC);
 		gdm.unfreeze();
 	}
@@ -181,13 +181,13 @@ public class PropNodeDegree_AtLeast_Incr extends Propagator<IGraphVar> {
 	//***********************************************************************************
 
 	private void checkAtLeast(int i) throws ContradictionException {
-		ISet nei = target.getPotSet(g, i);
+		ISet pot = target.getPotSet(g, i);
 		ISet ker = target.getMandSet(g, i);
-		int size = nei.getSize();
-		if (size < degrees[i]) {
+		int potSize = pot.getSize();
+		if (potSize < degrees[i]) {
 			g.removeNode(i, aCause);
-		} else if (size == degrees[i] && g.getMandatoryNodes().contain(i) && ker.getSize() < size) {
-			for (int s = nei.getFirstElement(); s >= 0; s = nei.getNextElement()) {
+		} else if (potSize == degrees[i] && g.getMandatoryNodes().contain(i) && ker.getSize() < potSize) {
+			for (int s = pot.getFirstElement(); s >= 0; s = pot.getNextElement()) {
 				target.enforce(g, i, s, aCause);
 			}
 		}
