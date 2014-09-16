@@ -25,7 +25,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package test;
+package toCheck;
 
 import org.testng.annotations.Test;
 import solver.Solver;

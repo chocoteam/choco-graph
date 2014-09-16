@@ -25,7 +25,7 @@
  *  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package test;
+package checked;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
