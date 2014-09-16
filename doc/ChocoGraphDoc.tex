@@ -810,7 +810,7 @@ private class SubpathLNS extends ANeighbor{
 	@Override
 	public void recordSolution() {
 		// stores a solution in a graph object
-		for(int i=0;i<n;i++)solution.getNeighborsOf(i).clear();
+		for(int i=0;i<n;i++)solution.getNeighOf(i).clear();
 		for(int i=0;i<n;i++){
 			ISet nei = graph.getMandNeighOf(i);
 			for(int j=nei.getFirstElement();j>=0;j=nei.getNextElement()){
@@ -823,16 +823,16 @@ private class SubpathLNS extends ANeighbor{
 	public void fixSomeVariables(ICause cause) throws ContradictionException {
 		// relaxes a sub-path (a set of consecutive edges in a solution)
 		int i1 = rd.nextInt(n);
-		ISet nei = solution.getNeighborsOf(i1);
+		ISet nei = solution.getNeighOf(i1);
 		int i2 = nei.getFirstElement();
 		if(rd.nextBoolean()){
 			i2 = nei.getNextElement();
 		}
 		for(int k=0;k<n-nbFreeEdges;k++){
 			graph.enforceArc(i1,i2,cause);
-			int i3 = solution.getNeighborsOf(i2).getFirstElement();
+			int i3 = solution.getNeighOf(i2).getFirstElement();
 			if(i3==i1){
-				i3 = solution.getNeighborsOf(i2).getNextElement();
+				i3 = solution.getNeighOf(i2).getNextElement();
 			}
 			i1 = i2;
 			i2 = i3;
