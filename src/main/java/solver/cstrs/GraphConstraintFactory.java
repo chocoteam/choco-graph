@@ -37,6 +37,9 @@ import solver.cstrs.channeling.nodes.PropNodeSetChannel;
 import solver.cstrs.connectivity.PropConnected;
 import solver.cstrs.connectivity.PropNbCC;
 import solver.cstrs.connectivity.PropNbSCC;
+import solver.cstrs.cost.trees.PropMaxDegVarTree;
+import solver.cstrs.cost.trees.PropTreeCostSimple;
+import solver.cstrs.cost.trees.lagrangianRelaxation.PropLagr_DCMST_generic;
 import solver.cstrs.cost.tsp.PropCycleCostSimple;
 import solver.cstrs.cost.tsp.lagrangianRelaxation.PropLagr_OneTree;
 import solver.cstrs.cycles.*;
@@ -991,5 +994,38 @@ public class GraphConstraintFactory {
 			props = ArrayUtils.append(props,new Propagator[]{hk});
 		}
 		return new Constraint("TSP",props);
+	}
+
+	/**
+	 * Creates a degree-constrained minimum spanning tree constraint :
+	 * GRAPH is a spanning tree of cost COSTVAR and each vertex degree is constrained
+	 *
+	 * BEWARE : assumes the channeling between GRAPH and DEGREES is already done
+	 *
+	 * @param GRAPH		an undirected graph variable
+	 * @param DEGREES	the degree of every vertex
+	 * @param COSTVAR    variable representing the cost of the mst
+	 * @param EDGE_COSTS cost matrix (should be symmetric)
+	 * @param LAGR_MODE  use the Lagrangian relaxation of the dcmst
+	 *                   {0:no Lagrangian relaxation,
+	 *                   1:Lagrangian relaxation (since root node),
+	 *                   2:Lagrangian relaxation but wait a first solution before running it}
+	 * @return a degree-constrained minimum spanning tree constraint
+	 */
+	public static Constraint dcmst(IUndirectedGraphVar GRAPH, IntVar[] DEGREES,
+													 IntVar COSTVAR, int[][] EDGE_COSTS,
+													 int LAGR_MODE){
+		Propagator[] props = ArrayUtils.append(
+				tree(GRAPH).getPropagators()
+				,new Propagator[]{
+						new PropTreeCostSimple(GRAPH, COSTVAR, EDGE_COSTS)
+						,new PropMaxDegVarTree(GRAPH, DEGREES)
+				}
+		);
+		if (LAGR_MODE > 0) {
+			PropLagr_DCMST_generic hk = new PropLagr_DCMST_generic(GRAPH, COSTVAR, DEGREES, EDGE_COSTS, LAGR_MODE == 2);
+			props = ArrayUtils.append(props,new Propagator[]{hk});
+		}
+		return new Constraint("dcmst",props);
 	}
 }

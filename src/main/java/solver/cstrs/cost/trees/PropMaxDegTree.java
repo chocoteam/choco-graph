@@ -48,95 +48,96 @@ import java.util.BitSet;
 public class PropMaxDegTree extends Propagator<IUndirectedGraphVar> {
 
 
-    //***********************************************************************************
-    // VARIABLES
-    //***********************************************************************************
+	//***********************************************************************************
+	// VARIABLES
+	//***********************************************************************************
 
-    private int n;
-    private int[] counter, dMax;
-    private BitSet oneNode;
+	protected int n;
+	protected int[] dMax;
+	private int[] counter;
+	private BitSet oneNode;
+	private int[] list;
 
-    //***********************************************************************************
-    // CONSTRUCTORS
-    //***********************************************************************************
+	//***********************************************************************************
+	// CONSTRUCTORS
+	//***********************************************************************************
 
-    public PropMaxDegTree(IUndirectedGraphVar vars, int[] maxDegrees) {
-        super(new IUndirectedGraphVar[]{vars}, PropagatorPriority.LINEAR, false);
-        n = maxDegrees.length;
-        oneNode = new BitSet(n);
-        counter = new int[n];
-        dMax = maxDegrees;
-    }
+	public PropMaxDegTree(IUndirectedGraphVar g, int[] maxDegrees) {
+		super(new IUndirectedGraphVar[]{g}, PropagatorPriority.LINEAR, false);
+		n = maxDegrees.length;
+		oneNode = new BitSet(n);
+		counter = new int[n];
+		dMax = maxDegrees;
+	}
 
-    //***********************************************************************************
-    // METHODS
-    //***********************************************************************************
+	//***********************************************************************************
+	// METHODS
+	//***********************************************************************************
 
-    @Override
-    public int getPropagationConditions(int vIdx) {
-        return GraphEventType.ADD_ARC.getMask();
-    }
+	@Override
+	public int getPropagationConditions(int vIdx) {
+		return GraphEventType.ADD_ARC.getMask();
+	}
 
-    @Override
-    public void propagate(int evtmask) throws ContradictionException {
-        preprocessOneNodes();
+	@Override
+	public void propagate(int evtmask) throws ContradictionException {
+		preprocessOneNodes();
 		IUndirectedGraphVar g = vars[0];
-        if (oneNode.cardinality() < n) {
-            for (int i = 0; i < n; i++) {
-                ISet nei = g.getPotNeighOf(i);
-                if (oneNode.get(i)) {
-                    for (int j = nei.getFirstElement(); j >= 0; j = nei.getNextElement()) {
-                        if (oneNode.get(j)) {
-                            if (!g.getMandNeighOf(i).contain(j)) {
-                                g.removeArc(i, j, this);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
+		if (oneNode.cardinality() < n) {
+			for (int i = 0; i < n; i++) {
+				ISet nei = g.getPotNeighOf(i);
+				if (oneNode.get(i)) {
+					for (int j = nei.getFirstElement(); j >= 0; j = nei.getNextElement()) {
+						if (oneNode.get(j)) {
+							if (!g.getMandNeighOf(i).contain(j)) {
+								g.removeArc(i, j, this);
+							}
+						}
+					}
+				}
+			}
+		}
+	}
 
-    @Override // redundant propagator
-    public ESat isEntailed() {
-        return ESat.TRUE;
-    }
-
-    int[] list;
-
-    private void preprocessOneNodes() throws ContradictionException {
-        ISet nei;
-        oneNode.clear();
-        for (int i = 0; i < n; i++) {
-            counter[i] = 0;
-        }
+	private void preprocessOneNodes() throws ContradictionException {
+		ISet nei;
+		oneNode.clear();
+		for (int i = 0; i < n; i++) {
+			counter[i] = 0;
+		}
 		IUndirectedGraphVar g = vars[0];
-        int[] maxDegree = dMax;
-        if (list == null) {
-            list = new int[n];
-        }
-        int first = 0;
-        int last = 0;
-        for (int i = 0; i < n; i++) {
-            if (maxDegree[i] == 1) {
-                list[last++] = i;
-                oneNode.set(i);
-            }
-        }
-        while (first < last) {
-            int k = list[first++];
-            nei = g.getMandNeighOf(k);
-            for (int s = nei.getFirstElement(); s >= 0; s = nei.getNextElement()) {
-                if (!oneNode.get(s)) {
-                    counter[s]++;
-                    if (counter[s] > maxDegree[s]) {
-                        contradiction(vars[0], "");
-                    } else if (counter[s] == maxDegree[s] - 1) {
-                        oneNode.set(s);
-                        list[last++] = s;
-                    }
-                }
-            }
-        }
-    }
+		int[] maxDegree = dMax;
+		if (list == null) {
+			list = new int[n];
+		}
+		int first = 0;
+		int last = 0;
+		for (int i = 0; i < n; i++) {
+			if (maxDegree[i] == 1) {
+				list[last++] = i;
+				oneNode.set(i);
+			}
+		}
+		while (first < last) {
+			int k = list[first++];
+			nei = g.getMandNeighOf(k);
+			for (int s = nei.getFirstElement(); s >= 0; s = nei.getNextElement()) {
+				if (!oneNode.get(s)) {
+					counter[s]++;
+					if (counter[s] > maxDegree[s]) {
+						contradiction(vars[0], "");
+					} else if (counter[s] == maxDegree[s] - 1) {
+						oneNode.set(s);
+						list[last++] = s;
+					}
+				}
+			}
+		}
+	}
+
+
+	@Override // redundant propagator
+	public ESat isEntailed() {
+		return ESat.TRUE;
+	}
 }
