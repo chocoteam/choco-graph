@@ -131,6 +131,7 @@ public class PropNodeDegree_Var extends Propagator<Variable> {
 		}
 		int i = toDo.nextSetBit(0);
 		do{
+			toDo.clear(i);
 			if(!g.getPotentialNodes().contain(i)){
 				degrees[i].instantiateTo(0,aCause);
 			}else if(degrees[i].getLB()>0){
