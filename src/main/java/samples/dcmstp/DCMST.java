@@ -59,26 +59,12 @@ public class DCMST extends AbstractProblem {
 	//***********************************************************************************
 
 	public static void main(String[] args) {
-		bench();
-//		String dir = "src/main/java/samples/dcmstp";
-//		String inst = "r123_300_1";
-//		new DCMST_generic(dir, inst).execute();
+		String dir = "src/main/java/samples/dcmstp";
+		String inst = "r123_300_1";
+		new DCMST(dir, inst).execute();
 	}
 
-	private static final String OUT_PUT_FILE = "DE.csv";
-
-	public static void bench(){
-		write("instance;sols;bestValue;nodes;fails;time;\n",OUT_PUT_FILE,true);
-		String dir = "/Users/jfages07/github/In4Ga/DCMST-Inst/DE";
-		File repo = new File(dir);
-		for(String inst:repo.list()){
-//			if(inst.contains("400") || inst.contains("500")){
-//			if(inst.contains("t2000_5"))
-			if(inst.contains("00") && (!inst.contains("0000"))){
-				new DCMST(dir,inst).execute();
-			}
-		}
-	}
+	private static final String OUT_PUT_FILE = "DR.csv";
 
 	//***********************************************************************************
 	// VARIABLES

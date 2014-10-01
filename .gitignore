@@ -17,8 +17,6 @@ lib/testng-6.8.8.jar
 
 *.aux
 
-doc/ChocoGraphDoc.pdf
-
 doc/ChocoGraphDoc.toc
 
 dependency-reduced-pom.xml
@@ -26,3 +24,7 @@ dependency-reduced-pom.xml
 target/maven-archiver/pom.properties
 
 *.csv
+
+src/main/java/META-INF/MANIFEST.MF
+
+out/production/choco-graph/META-INF/MANIFEST.MF
