@@ -66,12 +66,7 @@ public class PropNeighIntsChannel2 extends Propagator<IntVar> {
         for (int i = 0; i < n; i++) {
 			idm[i] = succs[i].monitorDelta(this);
         }
-        elementRemoved = new IntProcedure() {
-            @Override
-            public void execute(int element) throws ContradictionException {
-                g.removeArc(currentSet, element, aCause);
-            }
-        };
+        elementRemoved = element -> g.removeArc(currentSet, element, aCause);
     }
 
     //***********************************************************************************

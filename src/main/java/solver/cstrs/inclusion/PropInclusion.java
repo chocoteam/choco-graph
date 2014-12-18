@@ -62,32 +62,12 @@ public class PropInclusion extends Propagator<IGraphVar> {
 		g = new IGraphVar[]{g1,g2};
 		gdm = new IGraphDeltaMonitor[]{g1.monitorDelta(this),g2.monitorDelta(this)};
 		prNode = new IntProcedure[]{
-				new IntProcedure() {
-					@Override
-					public void execute(int i) throws ContradictionException {
-						g[1].enforceNode(i,aCause);
-					}
-				},
-				new IntProcedure() {
-					@Override
-					public void execute(int i) throws ContradictionException {
-						g[0].removeNode(i,aCause);
-					}
-				}
+				i -> g[1].enforceNode(i,aCause),
+				i -> g[0].removeNode(i,aCause)
 		};
 		prArc = new PairProcedure[]{
-				new PairProcedure() {
-					@Override
-					public void execute(int i, int j) throws ContradictionException {
-						g[1].enforceArc(i,j,aCause);
-					}
-				},
-				new PairProcedure() {
-					@Override
-					public void execute(int i, int j) throws ContradictionException {
-						g[0].removeArc(i,j,aCause);
-					}
-				}
+				(i, j) -> g[1].enforceArc(i,j,aCause),
+				(i, j) -> g[0].removeArc(i,j,aCause)
 		};
 		etNode = new GraphEventType[]{GraphEventType.ADD_NODE,GraphEventType.REMOVE_NODE};
 		etArcs = new GraphEventType[]{GraphEventType.ADD_ARC,GraphEventType.REMOVE_ARC};

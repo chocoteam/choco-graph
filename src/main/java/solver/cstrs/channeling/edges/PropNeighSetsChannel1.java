@@ -74,22 +74,16 @@ public class PropNeighSetsChannel1 extends Propagator<IGraphVar> {
         this.g = gV;
         assert (n == g.getNbMaxNodes());
         gdm = g.monitorDelta(this);
-        arcForced = new PairProcedure() {
-            @Override
-            public void execute(int i, int j) throws ContradictionException {
-                sets[i].addToKernel(j, aCause);
-				if(!g.isDirected()){
-					sets[j].addToKernel(i,aCause);
-				}
+        arcForced = (i, j) -> {
+            sets[i].addToKernel(j, aCause);
+            if(!g.isDirected()){
+                sets[j].addToKernel(i,aCause);
             }
         };
-        arcRemoved = new PairProcedure() {
-            @Override
-            public void execute(int i, int j) throws ContradictionException {
-                sets[i].removeFromEnvelope(j, aCause);
-				if(!g.isDirected()){
-					sets[j].removeFromEnvelope(i,aCause);
-				}
+        arcRemoved = (i, j) -> {
+            sets[i].removeFromEnvelope(j, aCause);
+            if(!g.isDirected()){
+                sets[j].removeFromEnvelope(i,aCause);
             }
         };
     }

@@ -67,18 +67,8 @@ public class PropTransitivity<V extends IGraphVar> extends Propagator<V> {
 		eT = new TIntArrayList(n);
 		rF = new TIntArrayList(n);
 		rT = new TIntArrayList(n);
-		arcEnforced = new PairProcedure() {
-			@Override
-			public void execute(int from, int to) throws ContradictionException {
-				_enfArc(from, to);
-			}
-		};
-		arcRemoved = new PairProcedure() {
-			@Override
-			public void execute(int from, int to) throws ContradictionException {
-				_remArc(from, to);
-			}
-		};
+		arcEnforced = this::_enfArc;
+		arcRemoved = this::_remArc;
 	}
 
 	//***********************************************************************************

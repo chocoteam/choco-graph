@@ -63,18 +63,8 @@ public class PropNeighSetChannel extends Propagator<Variable> {
 		this.g = gV;
 		this.inc = incSet;
 		sdm = set.monitorDelta(this);
-		forceS = new IntProcedure() {
-			@Override
-			public void execute(int element) throws ContradictionException {
-				inc.enforce(g,vertex,element,aCause);
-			}
-		};
-		remS = new IntProcedure() {
-			@Override
-			public void execute(int element) throws ContradictionException {
-				inc.remove(g,vertex,element, aCause);
-			}
-		};
+		forceS = element -> inc.enforce(g,vertex,element,aCause);
+		remS = element -> inc.remove(g,vertex,element, aCause);
 	}
 
 	//***********************************************************************************

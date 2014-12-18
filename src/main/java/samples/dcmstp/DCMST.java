@@ -131,14 +131,11 @@ public class DCMST extends AbstractProblem {
 		// find the first solution by selecting cheap edges
 		mainSearch.configure(GraphStrategies.MIN_COST, true);
 		// then select the most expensive ones (fail first principle, with last conflict)
-		solver.plugMonitor(new IMonitorSolution() {
-			@Override
-			public void onSolution() {
-				mainSearch.useLastConflict();
-				mainSearch.configure(GraphStrategies.MIN_P_DEGREE, true);
-				System.out.println("Solution found : "+totalCost);
-			}
-		});
+		solver.plugMonitor((IMonitorSolution) () -> {
+            mainSearch.useLastConflict();
+            mainSearch.configure(GraphStrategies.MIN_P_DEGREE, true);
+            System.out.println("Solution found : "+totalCost);
+        });
 		// bottom-up optimization : find a first solution then reach the global minimum from below
 		solver.set(new ObjectiveStrategy(totalCost, OptimizationPolicy.BOTTOM_UP), mainSearch);
 		SearchMonitorFactory.limitSolution(solver, 2); // therefore there is at most two solutions

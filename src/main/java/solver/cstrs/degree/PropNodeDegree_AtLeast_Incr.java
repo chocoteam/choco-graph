@@ -71,31 +71,16 @@ public class PropNodeDegree_AtLeast_Incr extends Propagator<IGraphVar> {
 		switch (setType) {
 			case SUCCESSORS:
 				target = new IncidentSet.SuccOrNeighSet();
-				proc = new PairProcedure() {
-					@Override
-					public void execute(int i, int j) throws ContradictionException {
-						checkAtLeast(i);
-					}
-				};
+				proc = (i, j) -> checkAtLeast(i);
 				break;
 			case PREDECESSORS:
 				target = new IncidentSet.PredOrNeighSet();
-				proc = new PairProcedure() {
-					@Override
-					public void execute(int i, int j) throws ContradictionException {
-						checkAtLeast(j);
-					}
-				};
+				proc = (i, j) -> checkAtLeast(j);
 				break;
 			default:
 				throw new UnsupportedOperationException();
 		}
-		nodeProc = new IntProcedure() {
-			@Override
-			public void execute(int i) throws ContradictionException {
-				checkAtLeast(i);
-			}
-		};
+		nodeProc = this::checkAtLeast;
 		gdm = g.monitorDelta(this);
 	}
 
@@ -109,19 +94,11 @@ public class PropNodeDegree_AtLeast_Incr extends Propagator<IGraphVar> {
 		g = graph;
 		this.degrees = degrees;
 		gdm = g.monitorDelta(this);
-		proc = new PairProcedure() {
-			@Override
-			public void execute(int i, int j) throws ContradictionException {
-				checkAtLeast(i);
-				checkAtLeast(j);
-			}
-		};
-		nodeProc = new IntProcedure() {
-			@Override
-			public void execute(int i) throws ContradictionException {
-				checkAtLeast(i);
-			}
-		};
+		proc = (i, j) -> {
+            checkAtLeast(i);
+            checkAtLeast(j);
+        };
+		nodeProc = this::checkAtLeast;
 	}
 
 	private static int[] buildArray(int degree, int n) {

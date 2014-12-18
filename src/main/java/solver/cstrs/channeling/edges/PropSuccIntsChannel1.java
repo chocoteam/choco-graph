@@ -65,18 +65,8 @@ public class PropSuccIntsChannel1 extends Propagator<IDirectedGraphVar> {
 		for(int i=0;i<n;i++){
 			assert succs[i].hasEnumeratedDomain():"channeling variables should be enumerated";
 		}
-		arcForced = new PairProcedure() {
-			@Override
-			public void execute(int i, int j) throws ContradictionException {
-				succs[i].instantiateTo(j, aCause);
-			}
-		};
-		arcRemoved = new PairProcedure() {
-			@Override
-			public void execute(int i, int j) throws ContradictionException {
-				succs[i].removeValue(j, aCause);
-			}
-		};
+		arcForced = (i, j) -> succs[i].instantiateTo(j, aCause);
+		arcRemoved = (i, j) -> succs[i].removeValue(j, aCause);
 	}
 
 	//***********************************************************************************

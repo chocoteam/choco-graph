@@ -70,19 +70,11 @@ public class PropNodeDegree_AtMost_Incr extends Propagator<IGraphVar> {
         switch (setType) {
             case SUCCESSORS:
                 target = new IncidentSet.SuccOrNeighSet();
-                enf_proc = new PairProcedure() {
-                    public void execute(int i, int j) throws ContradictionException {
-                        checkAtMost(i);
-                    }
-                };
+                enf_proc = (i, j) -> checkAtMost(i);
                 break;
             case PREDECESSORS:
                 target = new IncidentSet.PredOrNeighSet();
-                enf_proc = new PairProcedure() {
-                    public void execute(int i, int j) throws ContradictionException {
-                        checkAtMost(j);
-                    }
-                };
+                enf_proc = (i, j) -> checkAtMost(j);
                 break;
             default:
                 throw new UnsupportedOperationException("wrong parameter: use either PREDECESSORS or SUCCESSORS");
@@ -99,11 +91,9 @@ public class PropNodeDegree_AtMost_Incr extends Propagator<IGraphVar> {
         g = graph;
         gdm = g.monitorDelta(this);
         this.degrees = degrees;
-        enf_proc = new PairProcedure() {
-            public void execute(int i, int j) throws ContradictionException {
-                checkAtMost(i);
-                checkAtMost(j);
-            }
+        enf_proc = (i, j) -> {
+            checkAtMost(i);
+            checkAtMost(j);
         };
     }
 

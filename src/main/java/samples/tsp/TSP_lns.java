@@ -138,13 +138,10 @@ public class TSP_lns extends AbstractProblem {
 		solver.plugMonitor(new LargeNeighborhoodSearch(solver,LNS,false));
 
 		// log
-		solver.plugMonitor(new IMonitorSolution() {
-			@Override
-			public void onSolution() {
-				search.configure(GraphStrategies.MIN_DELTA_DEGREE, true);
-				System.out.println("solution found : " + totalCost);
-			}
-		});
+		solver.plugMonitor((IMonitorSolution) () -> {
+            search.configure(GraphStrategies.MIN_DELTA_DEGREE, true);
+            System.out.println("solution found : " + totalCost);
+        });
 	}
 
 	@Override

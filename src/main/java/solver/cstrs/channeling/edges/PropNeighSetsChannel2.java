@@ -77,18 +77,8 @@ public class PropNeighSetsChannel2 extends Propagator<SetVar> {
         for (int i = 0; i < n; i++) {
             sdm[i] = sets[i].monitorDelta(this);
         }
-        elementForced = new IntProcedure() {
-            @Override
-            public void execute(int element) throws ContradictionException {
-                g.enforceArc(currentSet, element, aCause);
-            }
-        };
-        elementRemoved = new IntProcedure() {
-            @Override
-            public void execute(int element) throws ContradictionException {
-                g.removeArc(currentSet, element, aCause);
-            }
-        };
+        elementForced = element -> g.enforceArc(currentSet, element, aCause);
+        elementRemoved = element -> g.removeArc(currentSet, element, aCause);
     }
 
     //***********************************************************************************

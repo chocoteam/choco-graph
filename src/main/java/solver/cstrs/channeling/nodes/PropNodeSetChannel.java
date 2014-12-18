@@ -68,30 +68,10 @@ public class PropNodeSetChannel extends Propagator<Variable> {
 		this.g = gV;
 		sdm = set.monitorDelta(this);
 		gdm = g.monitorDelta(this);
-		forceS = new IntProcedure() {
-			@Override
-			public void execute(int element) throws ContradictionException {
-				g.enforceNode(element, aCause);
-			}
-		};
-		remS = new IntProcedure() {
-			@Override
-			public void execute(int element) throws ContradictionException {
-				g.removeNode(element, aCause);
-			}
-		};
-		forceG = new IntProcedure() {
-			@Override
-			public void execute(int element) throws ContradictionException {
-				set.addToKernel(element, aCause);
-			}
-		};
-		remG = new IntProcedure() {
-			@Override
-			public void execute(int element) throws ContradictionException {
-				set.removeFromEnvelope(element, aCause);
-			}
-		};
+		forceS = element -> g.enforceNode(element, aCause);
+		remS = element -> g.removeNode(element, aCause);
+		forceG = element -> set.addToKernel(element, aCause);
+		remG = element -> set.removeFromEnvelope(element, aCause);
 	}
 
 	//***********************************************************************************

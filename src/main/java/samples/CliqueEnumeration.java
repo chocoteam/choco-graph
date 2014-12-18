@@ -144,11 +144,7 @@ public class CliqueEnumeration extends AbstractProblem {
 		// search strategy (lexicographic)
 		solver.set(GraphStrategyFactory.lexico(graphvar));
 		// log
-		solver.plugMonitor(new IMonitorSolution() {
-			public void onSolution() {
-				System.out.println("solution found : " + graphvar.getPotNeighOf(1));
-			}
-		});
+		solver.plugMonitor((IMonitorSolution) () -> System.out.println("solution found : " + graphvar.getPotNeighOf(1)));
 	}
 
 	@Override

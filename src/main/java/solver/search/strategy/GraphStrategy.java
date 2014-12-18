@@ -61,7 +61,7 @@ public class GraphStrategy extends AbstractStrategy<IGraphVar> {
         this.nodeStrategy = ns;
         this.arcStrategy = as;
         this.priority = priority;
-        pool = new PoolManager<GraphDecision>();
+        pool = new PoolManager<>();
     }
 
     public GraphStrategy(IGraphVar g) {

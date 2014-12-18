@@ -94,16 +94,13 @@ public class KruskalMST_GAC extends AbstractTreeFinder {
 		fifo = new int[n];
 		//sort
 		sorter = new ArraySort(n*n,false,true);
-		comparator = new IntComparator() {
-			@Override
-			public int compare(int i1, int i2) {
-				if (costs[i1] < costs[i2])
-					return -1;
-				else if (costs[i1] > costs[i2])
-					return 1;
-				else return 0;
-			}
-		};
+		comparator = (i1, i2) -> {
+            if (costs[i1] < costs[i2])
+                return -1;
+            else if (costs[i1] > costs[i2])
+                return 1;
+            else return 0;
+        };
     }
 
     protected void sortArcs(double[][] costMatrix) {

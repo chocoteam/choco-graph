@@ -66,18 +66,8 @@ public class PropNodeBoolsChannel extends Propagator<Variable> {
 		this.bools = vertices;
 		this.g = gV;
 		gdm = g.monitorDelta(this);
-		forceG = new IntProcedure() {
-			@Override
-			public void execute(int element) throws ContradictionException {
-				bools[element].setToTrue(aCause);
-			}
-		};
-		remG = new IntProcedure() {
-			@Override
-			public void execute(int element) throws ContradictionException {
-				bools[element].setToFalse(aCause);
-			}
-		};
+		forceG = element -> bools[element].setToTrue(aCause);
+		remG = element -> bools[element].setToFalse(aCause);
 	}
 
 	//***********************************************************************************

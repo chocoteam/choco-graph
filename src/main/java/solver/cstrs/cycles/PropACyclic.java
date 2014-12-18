@@ -71,12 +71,7 @@ public class PropACyclic extends Propagator<IGraphVar> {
 		this.rfFrom = new BitSet(n);
 		this.rfTo = new BitSet(n);
 		this.gdm = g.monitorDelta(this);
-		this.arcEnf = new PairProcedure() {
-			@Override
-			public void execute(int i, int j) throws ContradictionException {
-				propagateIJ(i,j);
-			}
-		};
+		this.arcEnf = this::propagateIJ;
 	}
 
 	//***********************************************************************************

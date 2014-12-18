@@ -72,18 +72,8 @@ public class PropTreeCostSimple extends Propagator<IUndirectedGraphVar> {
         minSum = environment.makeInt(0);
         maxSum = environment.makeInt(0);
         gdm = g.monitorDelta(this);
-        edgeEnf = new PairProcedure() {
-            @Override
-            public void execute(int i, int j) throws ContradictionException {
-                minSum.add(distMatrix[i][j]);
-            }
-        };
-        edgeRem = new PairProcedure() {
-            @Override
-            public void execute(int i, int j) throws ContradictionException {
-                maxSum.add(-distMatrix[i][j]);
-            }
-        };
+        edgeEnf = (i, j) -> minSum.add(distMatrix[i][j]);
+        edgeRem = (i, j) -> maxSum.add(-distMatrix[i][j]);
     }
 
     //***********************************************************************************

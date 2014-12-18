@@ -75,13 +75,7 @@ public class Test {
 				ISF.lexico_LB(solver.retrieveIntVars()),
 				ISF.lexico_LB(solver.retrieveBoolVars()));
 
-		solver.plugMonitor(new IMonitorSolution() {
-			@Override
-			public void onSolution() {
-				System.out.println("SOLUTION FOUND " + sum);
-//				System.out.println(solver.getStrategy());
-			}
-		});
+		solver.plugMonitor((IMonitorSolution) () -> System.out.println("SOLUTION FOUND " + sum));
 
 		solver.findOptimalSolution(ResolutionPolicy.MAXIMIZE, sum);
 

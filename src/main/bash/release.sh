@@ -10,16 +10,11 @@ function guess() {
     echo "${v%.*}.$((${v##*.}+1))-SNAPSHOT"
 }
 
-<<<<<<< HEAD
-=======
-
->>>>>>> a5b73eedbb1aeacc9f4bbf73751998ae6ac32d78
 VERSION=$(getVersionToRelease)
 NEXT=$(guess $VERSION)
 TAG="choco-graph-${VERSION}"
 
 git fetch
-<<<<<<< HEAD
 git checkout -b release || exit 1
 
 mvn -q dependency:purge-local-repository
@@ -75,37 +70,6 @@ git branch --delete release ||quit "Unable to delete release"
 
 git checkout $TAG
 mvn clean install -DskipTests
-=======
-git checkout -b release
 
-mvn versions:set -DnewVersion=${VERSION} -DgenerateBackupPoms=false
-git commit -m "initiate release ${VERSION}" -a
-
-COMMIT=$(git rev-parse HEAD)
-
-git ls-remote --exit-code --tags origin ${TAG}
-
-## MASTER
-git checkout master
-git merge --no-ff ${COMMIT}
-git tag ${TAG}
-git push --tags
-git pull origin master
-git push origin master
-
-## DEVELOP
-git checkout develop
-git merge --no-ff ${TAG}
-mvn versions:set -DnewVersion=${NEXT} -DgenerateBackupPoms=false
-git commit -m "Prepare the code for the next version" -a
-git push origin develop
-git push --all && git push --tags
-git push origin --delete release
-
-git checkout $TAG
-mkdir ${TAG}
-mvn clean install -DskipTests
 mv ./target/choco-graph-${VERSION}.jar ./$TAG/
 mv ./doc/ChocoGraphDoc.pdf ./$TAG/
->>>>>>> a5b73eedbb1aeacc9f4bbf73751998ae6ac32d78
-git checkout develop

@@ -129,12 +129,7 @@ public class TSP_exact extends AbstractProblem {
 		strategy.useLastConflict();
 		solver.set(strategy);
         SearchMonitorFactory.limitTime(solver, LIMIT+"s");
-		solver.plugMonitor(new IMonitorSolution() {
-			@Override
-			public void onSolution() {
-				System.out.println("solution found : " + totalCost);
-			}
-		});
+		solver.plugMonitor((IMonitorSolution) () -> System.out.println("solution found : " + totalCost));
     }
 
     @Override
