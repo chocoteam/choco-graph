@@ -71,5 +71,7 @@ git branch --delete release ||quit "Unable to delete release"
 git checkout $TAG
 mvn clean install -DskipTests
 
-mv ./target/choco-graph-${VERSION}.jar ./$TAG/
-mv ./doc/ChocoGraphDoc.pdf ./$TAG/
+mkdir ./$TAG
+cp ./target/choco-graph-${VERSION}.jar ./$TAG/
+cp ./doc/ChocoGraphDoc.pdf ./$TAG/
+zip hoco-graph-${VERSION}.zip ./$TAG/*
