@@ -134,7 +134,7 @@ public class PropConnected extends Propagator<IUndirectedGraphVar> {
 		if(g.getMandatoryNodes().getSize()<=1){
 			return; // empty or singleton graph
 		}
-		int i = g.getPotentialNodes().getFirstElement();
+		int i = g.getMandatoryNodes().getFirstElement();
 		fifo[last++] = i;
 		visited.set(i);
 		while (first < last) {

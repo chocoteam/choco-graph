@@ -31,7 +31,7 @@
     
     <groupId>choco</groupId>
     <artifactId>choco-graph</artifactId>
-    <version>3.2.1</version>
+    <version>3.2.2-SNPASHOT</version>
     <packaging>jar</packaging>
     <name>A graph module for Choco3</name>
     
@@ -59,7 +59,7 @@
         <dependency>
             <groupId>choco</groupId>
             <artifactId>choco-solver</artifactId>
-            <version>3.2.1</version>
+            <version>3.2.2</version>
         </dependency>
     </dependencies>
     
@@ -141,21 +141,6 @@
                                     <exclude>ch.qos.logback:logback-classic</exclude>
                                 </excludes>
                             </artifactSet>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.antlr</groupId>
-                <artifactId>antlr4-maven-plugin</artifactId>
-                <version>4.2</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>antlr4</goal>
-                        </goals>
-                        <configuration>
-                            <outputDirectory>src/main/java</outputDirectory>
                         </configuration>
                     </execution>
                 </executions>

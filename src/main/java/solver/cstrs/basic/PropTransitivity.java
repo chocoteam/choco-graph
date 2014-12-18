@@ -70,13 +70,13 @@ public class PropTransitivity<V extends IGraphVar> extends Propagator<V> {
 		arcEnforced = new PairProcedure() {
 			@Override
 			public void execute(int from, int to) throws ContradictionException {
-				enfArc(from, to);
+				_enfArc(from, to);
 			}
 		};
 		arcRemoved = new PairProcedure() {
 			@Override
 			public void execute(int from, int to) throws ContradictionException {
-				remArc(from, to);
+				_remArc(from, to);
 			}
 		};
 	}
@@ -105,6 +105,7 @@ public class PropTransitivity<V extends IGraphVar> extends Propagator<V> {
 	@Override
 	public void propagate(int idxVarInProp, int mask) throws ContradictionException {
 		gdm.freeze();
+		rT.clear();rF.clear();eT.clear();eF.clear();
 		gdm.forEachArc(arcEnforced, GraphEventType.ADD_ARC);
 		gdm.forEachArc(arcRemoved, GraphEventType.REMOVE_ARC);
 		filter();
