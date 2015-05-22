@@ -124,6 +124,9 @@ public class PropConnected extends Propagator<IUndirectedGraphVar> {
 		if (!g.isInstantiated()) {
 			return ESat.UNDEFINED;
 		}
+		if(g.isInstantiated() && g.getMandatoryNodes().getSize() == 0){
+			return ESat.FALSE;
+		}
 		return ESat.TRUE;
 	}
 
@@ -131,8 +134,8 @@ public class PropConnected extends Propagator<IUndirectedGraphVar> {
 		visited.clear();
 		int first = 0;
 		int last = 0;
-		if(g.getMandatoryNodes().getSize()<=1){
-			return; // empty or singleton graph
+		if(g.getMandatoryNodes().getSize()<=0){
+			return; // empty graph
 		}
 		int i = g.getMandatoryNodes().getFirstElement();
 		fifo[last++] = i;
