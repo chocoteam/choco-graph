@@ -2,6 +2,7 @@ package org.chocosolver.checked;
 
 import org.chocosolver.solver.cstrs.GCF;
 import org.chocosolver.solver.variables.IUndirectedGraphVar;
+import org.chocosolver.util.ESat;
 import org.chocosolver.util.objects.graphs.UndirectedGraph;
 import org.testng.annotations.Test;
 import org.chocosolver.solver.Solver;
@@ -11,6 +12,8 @@ import org.chocosolver.solver.variables.GraphVarFactory;
 import org.chocosolver.solver.variables.IDirectedGraphVar;
 import org.chocosolver.util.objects.graphs.DirectedGraph;
 import org.chocosolver.util.objects.setDataStructures.SetType;
+
+import static org.testng.Assert.assertEquals;
 
 /**
  * Created by ezulkosk on 5/22/15.
@@ -36,13 +39,16 @@ public class ConnectedTest {
         IUndirectedGraphVar graph = GraphVarFactory.undirected_graph_var("G", GLB, GUB, solver);
         GCF.connected(graph).reif();
 
-        System.out.println("TEST (should return UNDEFINED): " + GCF.connected(graph).getPropagator(0).isEntailed());
+        assertEquals(GCF.connected(graph).getPropagator(0).isEntailed(), ESat.UNDEFINED);
 
         solver.post(GraphConstraintFactory.connected(graph));
         solver.set(GraphStrategyFactory.lexico(graph));
 
         if (solver.findSolution()) {
-            System.out.println(solver.isSatisfied());
+            System.out.println("Solution: " + solver.nextSolution());
+        }
+        else{
+            System.out.println("No solutions.");
         }
 
     }
@@ -54,16 +60,20 @@ public class ConnectedTest {
         UndirectedGraph GLB = new UndirectedGraph(solver,2, SetType.BITSET,false);
         UndirectedGraph GUB = new UndirectedGraph(solver,2,SetType.BITSET,false);
 
+        //empty graphs are traditionally *not* connected.
         IUndirectedGraphVar graph = GraphVarFactory.undirected_graph_var("G", GLB, GUB, solver);
         GCF.connected(graph).reif();
 
-        System.out.println("TEST (should return UNDEFINED): " + GCF.connected(graph).getPropagator(0).isEntailed());
+        assertEquals(GCF.connected(graph).getPropagator(0).isEntailed(), ESat.FALSE);
 
-        solver.post(GraphConstraintFactory.connected(graph));
+        solver.post(GraphConstraintFactory.connected(graph).getOpposite());
         solver.set(GraphStrategyFactory.lexico(graph));
 
         if (solver.findSolution()) {
-            System.out.println(solver.isSatisfied());
+            System.out.println("Solution: " + solver.nextSolution());
+        }
+        else{
+            System.out.println("No solutions.");
         }
 
     }

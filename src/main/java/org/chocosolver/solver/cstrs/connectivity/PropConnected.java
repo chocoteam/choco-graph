@@ -112,8 +112,12 @@ public class PropConnected extends Propagator<IUndirectedGraphVar> {
 
 	@Override
 	public ESat isEntailed() {
-		if(g.getPotentialNodes().getSize()<=1){
+		if(g.getPotentialNodes().getSize()==1){
 			return ESat.TRUE;
+		}
+		//Graphs with zero nodes are not connected.
+		if(g.getMandatoryNodes().getSize() == 0){
+			return ESat.FALSE;
 		}
 		explore();
 		for(int i=g.getMandatoryNodes().getFirstElement();i>=0;i=g.getMandatoryNodes().getNextElement()){
@@ -124,9 +128,7 @@ public class PropConnected extends Propagator<IUndirectedGraphVar> {
 		if (!g.isInstantiated()) {
 			return ESat.UNDEFINED;
 		}
-		if(g.isInstantiated() && g.getMandatoryNodes().getSize() == 0){
-			return ESat.FALSE;
-		}
+
 		return ESat.TRUE;
 	}
 
