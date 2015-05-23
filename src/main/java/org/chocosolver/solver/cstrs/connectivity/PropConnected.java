@@ -89,6 +89,9 @@ public class PropConnected extends Propagator<IUndirectedGraphVar> {
 
 	@Override
 	public void propagate(int evtmask) throws ContradictionException {
+		if (g.getPotentialNodes().getSize() == 0) {
+			contradiction(g, "");
+		}
 		if(g.getMandatoryNodes().getSize()>1) {
 			// explore the graph from the first mandatory node
 			explore();

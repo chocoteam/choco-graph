@@ -1,6 +1,7 @@
 package org.chocosolver.checked;
 
 import org.chocosolver.solver.cstrs.GCF;
+import org.chocosolver.solver.variables.GVF;
 import org.chocosolver.solver.variables.IUndirectedGraphVar;
 import org.chocosolver.util.ESat;
 import org.chocosolver.util.objects.graphs.UndirectedGraph;
@@ -64,7 +65,7 @@ public class ConnectedTest {
         IUndirectedGraphVar graph = GraphVarFactory.undirected_graph_var("G", GLB, GUB, solver);
         GCF.connected(graph).reif();
 
-        assertEquals(GCF.connected(graph).getPropagator(0).isEntailed(), ESat.FALSE);
+            assertEquals(GCF.connected(graph).getPropagator(0).isEntailed(), ESat.FALSE);
 
         solver.post(GraphConstraintFactory.connected(graph).getOpposite());
         solver.set(GraphStrategyFactory.lexico(graph));
@@ -76,5 +77,26 @@ public class ConnectedTest {
             System.out.println("No solutions.");
         }
 
+    }
+
+    @Test(groups = "10s")
+    public void testChocoConnected3() {
+        Solver s = new Solver();
+        UndirectedGraph LB = new UndirectedGraph(s, 2, SetType.BITSET, false);
+        UndirectedGraph UB = new UndirectedGraph(s, 2, SetType.BITSET, false);
+        UB.addNode(0);
+        UB.addNode(1);
+        UB.addEdge(0, 1);
+        IUndirectedGraphVar g = GVF.undirected_graph_var("g", LB, UB, s);
+
+        s.post(GCF.connected(g));
+        s.set(GraphStrategyFactory.lexico(g));
+
+        if (s.findSolution()) {
+            do {
+                System.out.println(s.isSatisfied());
+                System.out.println(g);
+            } while (s.nextSolution());
+        }
     }
 }
