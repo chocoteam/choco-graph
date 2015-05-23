@@ -89,6 +89,9 @@ public class PropConnected extends Propagator<IUndirectedGraphVar> {
 
 	@Override
 	public void propagate(int evtmask) throws ContradictionException {
+		if (g.getPotentialNodes().getSize() == 0) {
+			contradiction(g, "");
+		}
 		if(g.getMandatoryNodes().getSize()>1) {
 			// explore the graph from the first mandatory node
 			explore();
@@ -112,8 +115,12 @@ public class PropConnected extends Propagator<IUndirectedGraphVar> {
 
 	@Override
 	public ESat isEntailed() {
-		if(g.getPotentialNodes().getSize()<=1){
+		if(g.getPotentialNodes().getSize()==1){
 			return ESat.TRUE;
+		}
+		//Graphs with zero nodes are not connected.
+		if(g.getMandatoryNodes().getSize() == 0){
+			return ESat.FALSE;
 		}
 		explore();
 		for(int i=g.getMandatoryNodes().getFirstElement();i>=0;i=g.getMandatoryNodes().getNextElement()){
@@ -124,6 +131,7 @@ public class PropConnected extends Propagator<IUndirectedGraphVar> {
 		if (!g.isInstantiated()) {
 			return ESat.UNDEFINED;
 		}
+
 		return ESat.TRUE;
 	}
 
@@ -131,8 +139,8 @@ public class PropConnected extends Propagator<IUndirectedGraphVar> {
 		visited.clear();
 		int first = 0;
 		int last = 0;
-		if(g.getMandatoryNodes().getSize()<=1){
-			return; // empty or singleton graph
+		if(g.getMandatoryNodes().getSize()<=0){
+			return; // empty graph
 		}
 		int i = g.getMandatoryNodes().getFirstElement();
 		fifo[last++] = i;
