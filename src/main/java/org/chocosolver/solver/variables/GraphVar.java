@@ -31,19 +31,18 @@ import gnu.trove.map.hash.THashMap;
 import org.chocosolver.solver.ICause;
 import org.chocosolver.solver.Solver;
 import org.chocosolver.solver.exception.ContradictionException;
-import org.chocosolver.solver.explanations.Explanation;
-import org.chocosolver.solver.explanations.ExplanationEngine;
-import org.chocosolver.solver.explanations.VariableState;
 import org.chocosolver.solver.variables.delta.GraphDelta;
+import org.chocosolver.solver.variables.delta.GraphDeltaMonitor;
 import org.chocosolver.solver.variables.delta.IGraphDelta;
 import org.chocosolver.solver.variables.delta.IGraphDeltaMonitor;
-import org.chocosolver.solver.variables.delta.GraphDeltaMonitor;
 import org.chocosolver.solver.variables.events.IEventType;
 import org.chocosolver.solver.variables.impl.AbstractVariable;
 import org.chocosolver.util.objects.graphs.IGraph;
 import org.chocosolver.util.objects.setDataStructures.ISet;
 
-public abstract class GraphVar<E extends IGraph> extends AbstractVariable implements IGraphVar<E>{
+public abstract class GraphVar<E extends IGraph> extends AbstractVariable implements IGraphVar<E> {
+
+    public static final int GRAPH = 1 << 7; // beware, this relies on choco-solver
 
     //////////////////////////////// GRAPH PART /////////////////////////////////////////
     //***********************************************************************************
@@ -52,7 +51,7 @@ public abstract class GraphVar<E extends IGraph> extends AbstractVariable implem
 
     protected E UB, LB;
     protected IGraphDelta delta;
-	protected int n;
+    protected int n;
     ///////////// Attributes related to Variable ////////////
     protected boolean reactOnModification;
 
@@ -67,10 +66,10 @@ public abstract class GraphVar<E extends IGraph> extends AbstractVariable implem
      */
     public GraphVar(String name, Solver solver, E LB, E UB) {
         super(name, solver);
-		this.LB = LB;
-		this.UB = UB;
-		this.n = UB.getNbMaxNodes();
-		assert n == LB.getNbMaxNodes();
+        this.LB = LB;
+        this.UB = UB;
+        this.n = UB.getNbMaxNodes();
+        assert n == LB.getNbMaxNodes();
     }
 
     //***********************************************************************************
@@ -93,10 +92,10 @@ public abstract class GraphVar<E extends IGraph> extends AbstractVariable implem
         return true;
     }
 
-	@Override
+    @Override
     public boolean removeNode(int x, ICause cause) throws ContradictionException {
         assert cause != null;
-		assert (x>=0 && x<n);
+        assert (x >= 0 && x < n);
         if (LB.getNodes().contain(x)) {
             this.contradiction(cause, GraphEventType.REMOVE_NODE, "remove mandatory node");
             return true;
@@ -115,23 +114,23 @@ public abstract class GraphVar<E extends IGraph> extends AbstractVariable implem
             if (reactOnModification) {
                 delta.add(x, IGraphDelta.NR, cause);
             }
-			GraphEventType e = GraphEventType.REMOVE_NODE;
+            GraphEventType e = GraphEventType.REMOVE_NODE;
             notifyPropagators(e, cause);
             return true;
         }
         return false;
     }
 
-	@Override
+    @Override
     public boolean enforceNode(int x, ICause cause) throws ContradictionException {
         assert cause != null;
-		assert (x>=0 && x<n);
+        assert (x >= 0 && x < n);
         if (UB.getNodes().contain(x)) {
             if (LB.addNode(x)) {
                 if (reactOnModification) {
                     delta.add(x, IGraphDelta.NE, cause);
                 }
-				GraphEventType e = GraphEventType.ADD_NODE;
+                GraphEventType e = GraphEventType.ADD_NODE;
                 notifyPropagators(e, cause);
                 return true;
             }
@@ -141,77 +140,68 @@ public abstract class GraphVar<E extends IGraph> extends AbstractVariable implem
         return true;
     }
 
-	@Override
+    @Override
     public abstract boolean removeArc(int x, int y, ICause cause) throws ContradictionException;
 
-	@Override
+    @Override
     public abstract boolean enforceArc(int x, int y, ICause cause) throws ContradictionException;
 
     //***********************************************************************************
     // ACCESSORS
     //***********************************************************************************
 
-	@Override
+    @Override
     public E getLB() {
         return LB;
     }
 
-	@Override
+    @Override
     public E getUB() {
         return UB;
     }
 
-	@Override
-	public ISet getMandSuccOrNeighOf(int idx){
-		return LB.getSuccOrNeighOf(idx);
-	}
+    @Override
+    public ISet getMandSuccOrNeighOf(int idx) {
+        return LB.getSuccOrNeighOf(idx);
+    }
 
-	@Override
-	public ISet getPotSuccOrNeighOf(int idx){
-		return UB.getSuccOrNeighOf(idx);
-	}
+    @Override
+    public ISet getPotSuccOrNeighOf(int idx) {
+        return UB.getSuccOrNeighOf(idx);
+    }
 
-	@Override
-	public ISet getMandPredOrNeighOf(int idx){
-		return LB.getPredOrNeighOf(idx);
-	}
+    @Override
+    public ISet getMandPredOrNeighOf(int idx) {
+        return LB.getPredOrNeighOf(idx);
+    }
 
-	@Override
-	public ISet getPotPredOrNeighOf(int idx){
-		return UB.getPredOrNeighOf(idx);
-	}
+    @Override
+    public ISet getPotPredOrNeighOf(int idx) {
+        return UB.getPredOrNeighOf(idx);
+    }
 
-	@Override
-	public int getNbMaxNodes() {
-		return n;
-	}
+    @Override
+    public int getNbMaxNodes() {
+        return n;
+    }
 
-	@Override
-	public ISet getMandatoryNodes() {
-		return LB.getNodes();
-	}
+    @Override
+    public ISet getMandatoryNodes() {
+        return LB.getNodes();
+    }
 
-	@Override
-	public ISet getPotentialNodes() {
-		return UB.getNodes();
-	}
+    @Override
+    public ISet getPotentialNodes() {
+        return UB.getNodes();
+    }
 
-	@Override
+    @Override
     public abstract boolean isDirected();
 
     //***********************************************************************************
     // VARIABLE STUFF
     //***********************************************************************************
 
-    @Override
-    public void explain(ExplanationEngine xengine, VariableState what, Explanation to) {
-        throw new UnsupportedOperationException("GraphVar does not (yet) implement method explain(...)");
-    }
-
-    @Override
-    public void explain(ExplanationEngine xengine, VariableState what, int val, Explanation to) {
-        throw new UnsupportedOperationException("GraphVar does not (yet) implement method explain(...)");
-    }
 
     @Override
     public IGraphDelta getDelta() {
@@ -228,24 +218,24 @@ public abstract class GraphVar<E extends IGraph> extends AbstractVariable implem
         throw new UnsupportedOperationException("Cannot duplicate GraphVar");
     }
 
-	@Override
-	public void duplicate(Solver solver, THashMap<Object, Object> objectObjectTHashMap) {
-		throw new UnsupportedOperationException("cannot duplicate graph var");
-	}
+    @Override
+    public void duplicate(Solver solver, THashMap<Object, Object> objectObjectTHashMap) {
+        throw new UnsupportedOperationException("cannot duplicate graph var");
+    }
 
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("graph_var ").append(getName());
-		if(isInstantiated()){
-			sb.append("\nValue: \n");
-			sb.append(UB.toString());
-		}else{
-			sb.append("\nUpper bound: \n");
-			sb.append(UB.toString());
-			sb.append("\nLower bound: \n");
-			sb.append(LB.toString());
-		}
+        if (isInstantiated()) {
+            sb.append("\nValue: \n");
+            sb.append(UB.toString());
+        } else {
+            sb.append("\nUpper bound: \n");
+            sb.append(UB.toString());
+            sb.append("\nLower bound: \n");
+            sb.append(LB.toString());
+        }
         return sb.toString();
     }
 
@@ -253,17 +243,17 @@ public abstract class GraphVar<E extends IGraph> extends AbstractVariable implem
     public void createDelta() {
         if (!reactOnModification) {
             reactOnModification = true;
-            delta = new GraphDelta(solver.getSearchLoop());
+            delta = new GraphDelta(solver.getEnvironment());
         }
     }
 
-	@Override
+    @Override
     public IGraphDeltaMonitor monitorDelta(ICause propagator) {
         createDelta();
         return new GraphDeltaMonitor(delta, propagator);
     }
 
-	@Override
+    @Override
     public void notifyMonitors(IEventType event) throws ContradictionException {
         for (int i = mIdx - 1; i >= 0; i--) {
             monitors[i].onUpdate(this, event);
@@ -280,7 +270,7 @@ public abstract class GraphVar<E extends IGraph> extends AbstractVariable implem
     // SOLUTIONS : STORE AND RESTORE
     //***********************************************************************************
 
-	@Override
+    @Override
     public boolean[][] getValue() {
         int n = getUB().getNbMaxNodes();
         boolean[][] vals = new boolean[n + 1][n];
@@ -296,7 +286,7 @@ public abstract class GraphVar<E extends IGraph> extends AbstractVariable implem
         return vals;
     }
 
-	@Override
+    @Override
     public void instantiateTo(boolean[][] value, ICause cause) throws ContradictionException {
         int n = value.length - 1;
         for (int i = 0; i < n; i++) {

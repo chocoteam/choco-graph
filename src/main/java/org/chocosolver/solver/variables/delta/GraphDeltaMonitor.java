@@ -48,7 +48,7 @@ public class GraphDeltaMonitor extends TimeStampedObject implements IGraphDeltaM
     protected ICause propagator;
 
     public GraphDeltaMonitor(IGraphDelta delta, ICause propagator) {
-		super(delta.getSearchLoop());
+		super(delta.getEnvironment());
         this.delta = delta;
         this.first = new int[4];
         this.last = new int[4];
