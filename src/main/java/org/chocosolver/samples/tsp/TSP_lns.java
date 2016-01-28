@@ -34,12 +34,13 @@ import org.chocosolver.solver.Solver;
 import org.chocosolver.solver.cstrs.GraphConstraintFactory;
 import org.chocosolver.solver.exception.ContradictionException;
 import org.chocosolver.solver.search.limits.FailCounter;
-import org.chocosolver.solver.search.loop.lns.LargeNeighborhoodSearch;
-import org.chocosolver.solver.search.loop.lns.neighbors.ANeighbor;
+import org.chocosolver.solver.search.loop.SearchLoopFactory;
+import org.chocosolver.solver.search.loop.lns.LNSFactory;
 import org.chocosolver.solver.search.loop.lns.neighbors.INeighbor;
 import org.chocosolver.solver.search.loop.monitors.IMonitorSolution;
 import org.chocosolver.solver.search.loop.monitors.SearchMonitorFactory;
 import org.chocosolver.solver.search.strategy.GraphStrategies;
+import org.chocosolver.solver.search.strategy.decision.Decision;
 import org.chocosolver.solver.variables.GraphVarFactory;
 import org.chocosolver.solver.variables.IUndirectedGraphVar;
 import org.chocosolver.solver.variables.IntVar;
@@ -134,8 +135,7 @@ public class TSP_lns extends AbstractProblem {
 
 		// LNS (relaxes consecutive edges)
 		INeighbor LNS = new SubpathLNS(graph.getNbMaxNodes(),solver);
-		LNS.fastRestart(new FailCounter(30)); // restarts every 30 fails
-		solver.plugMonitor(new LargeNeighborhoodSearch(solver,LNS,false));
+		SearchLoopFactory.lns(solver,LNS,new FailCounter(solver,30));
 
 		// log
 		solver.plugMonitor((IMonitorSolution) () -> {
@@ -170,7 +170,7 @@ public class TSP_lns extends AbstractProblem {
 	 * Object describing which edges to freeze and which others to relax in the LNS
 	 * Relaxes a (sub)path of the previous solution (freezes the rest)
 	 */
-	private class SubpathLNS extends ANeighbor{
+	private class SubpathLNS implements INeighbor{
 
 		Random rd = new Random(0);
 		int n, nbRL;
@@ -178,9 +178,13 @@ public class TSP_lns extends AbstractProblem {
 		int nbFreeEdges = 15;
 
 		protected SubpathLNS(int n, Solver mSolver) {
-			super(mSolver);
 			this.n = n;
 			this.solution = new UndirectedGraph(n,SetType.LINKED_LIST,true);
+		}
+
+		@Override
+		public void init() {
+
 		}
 
 		@Override
@@ -196,7 +200,7 @@ public class TSP_lns extends AbstractProblem {
 		}
 
 		@Override
-		public void fixSomeVariables(ICause cause) throws ContradictionException {
+		public Decision fixSomeVariables() {
 			// relaxes a sub-path (a set of consecutive edges in a solution)
 			int i1 = rd.nextInt(n);
 			ISet nei = solution.getNeighOf(i1);
@@ -205,7 +209,7 @@ public class TSP_lns extends AbstractProblem {
 				i2 = nei.getNextElement();
 			}
 			for(int k=0;k<n-nbFreeEdges;k++){
-				graph.enforceArc(i1,i2,cause);
+//				graph.enforceArc(i1,i2,cause);
 				int i3 = solution.getNeighOf(i2).getFirstElement();
 				if(i3==i1){
 					i3 = solution.getNeighOf(i2).getNextElement();
@@ -213,6 +217,7 @@ public class TSP_lns extends AbstractProblem {
 				i1 = i2;
 				i2 = i3;
 			}
+			return null;
 		}
 
 		@Override

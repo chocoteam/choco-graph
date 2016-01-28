@@ -133,7 +133,7 @@ public class PropLagr_DCMST extends Propagator implements GraphLagrangianRelaxat
 		if (hkb - Math.floor(hkb) < 0.001) {
 			hkb = Math.floor(hkb);
 		}
-		obj.updateLowerBound((int) Math.ceil(hkb), aCause);
+		obj.updateLowerBound((int) Math.ceil(hkb), this);
 		HKfilter.performPruning((double) (obj.getUB()) + totalPenalities + 0.001);
 	}
 
@@ -155,7 +155,7 @@ public class PropLagr_DCMST extends Propagator implements GraphLagrangianRelaxat
 			if (hkb - Math.floor(hkb) < 0.00001) {
 				hkb = Math.floor(hkb);
 			}
-			obj.updateLowerBound((int) Math.ceil(hkb), aCause);
+			obj.updateLowerBound((int) Math.ceil(hkb), this);
 			HKfilter.performPruning((double) (obj.getUB()) + totalPenalities + 0.001);
 			alpha *= beta;
 		}
@@ -176,7 +176,7 @@ public class PropLagr_DCMST extends Propagator implements GraphLagrangianRelaxat
 				if (hkb > besthkb) {
 					besthkb = hkb;
 				}
-				obj.updateLowerBound((int) Math.ceil(hkb), aCause);
+				obj.updateLowerBound((int) Math.ceil(hkb), this);
 				if (updateStep(hkb, alpha)) return;
 			}
 		}
@@ -236,7 +236,7 @@ public class PropLagr_DCMST extends Propagator implements GraphLagrangianRelaxat
 	//***********************************************************************************
 
 	public void remove(int from, int to) throws ContradictionException {
-		gV.removeArc(from, to, aCause);
+		gV.removeArc(from, to, this);
 		if (firstPropag) {
 			g.removeEdge(from, to);
 		}
@@ -244,7 +244,7 @@ public class PropLagr_DCMST extends Propagator implements GraphLagrangianRelaxat
 	}
 
 	public void enforce(int from, int to) throws ContradictionException {
-		gV.enforceArc(from, to, aCause);
+		gV.enforceArc(from, to, this);
 	}
 
 	public void contradiction() throws ContradictionException {

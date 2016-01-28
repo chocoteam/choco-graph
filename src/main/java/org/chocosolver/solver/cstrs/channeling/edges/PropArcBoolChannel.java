@@ -76,13 +76,13 @@ public class PropArcBoolChannel extends Propagator<Variable> {
 	public void propagate(int evtmask) throws ContradictionException {
 		if(from<0 || to<0 || from>=g.getNbMaxNodes() || to>=g.getNbMaxNodes()
 				|| !g.getPotSuccOrNeighOf(from).contain(to)){
-			bool.setToFalse(aCause);
+			bool.setToFalse(this);
 		}else if(g.getMandSuccOrNeighOf(from).contain(to)){
-			bool.setToTrue(aCause);
+			bool.setToTrue(this);
 		}else if(bool.getLB()==1){
-			g.enforceArc(from,to,aCause);
+			g.enforceArc(from,to,this);
 		}else if(bool.getUB()==0){
-			g.removeArc(from,to,aCause);
+			g.removeArc(from,to,this);
 		}
 	}
 

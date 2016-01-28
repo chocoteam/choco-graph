@@ -94,7 +94,7 @@ public class PropHamiltonianCycle extends Propagator<IUndirectedGraphVar> {
 			e1[i].set(i);
 			e2[i].set(i);
 			size[i].set(1);
-			g.enforceNode(i,aCause);
+			g.enforceNode(i,this);
 		}
 		ISet nei;
 		for (int i = 0; i < n; i++) {
@@ -144,9 +144,9 @@ public class PropHamiltonianCycle extends Propagator<IUndirectedGraphVar> {
 		size[ext2].set(t);
 		if (t > 2 && t <= n) {
 			if (t < n) {
-				g.removeArc(ext1, ext2, aCause);
+				g.removeArc(ext1, ext2, this);
 			} else if (t == n) {
-				g.enforceArc(ext1, ext2, aCause);
+				g.enforceArc(ext1, ext2, this);
 			}
 		}
 	}

@@ -47,6 +47,7 @@ public class GraphDecision extends Decision<IGraphVar> {
     //***********************************************************************************
 
     public GraphDecision(PoolManager<GraphDecision> poolManager) {
+        super(2);
         this.poolManager = poolManager;
     }
 
@@ -60,14 +61,14 @@ public class GraphDecision extends Decision<IGraphVar> {
     }
 
     public void setNode(IGraphVar variable, int node, GraphAssignment graph_ass) {
-        super.set(variable);
+        super.set(variable,variable.getSolver().getEnvironment().getWorldIndex());
         this.from = node;
         this.to = -1;
         assignment = graph_ass;
     }
 
     public void setArc(IGraphVar variable, int from, int to, GraphAssignment graph_ass) {
-        super.set(variable);
+        super.set(variable,variable.getSolver().getEnvironment().getWorldIndex());
         this.from = from;
         this.to = to;
         assignment = graph_ass;

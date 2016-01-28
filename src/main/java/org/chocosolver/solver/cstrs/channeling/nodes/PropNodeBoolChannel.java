@@ -80,13 +80,13 @@ public class PropNodeBoolChannel extends Propagator<Variable> {
 	@Override
 	public void propagate(int evtmask) throws ContradictionException {
 		if(vertex<0 || vertex>=g.getNbMaxNodes() || !g.getPotentialNodes().contain(vertex)){
-			bool.setToFalse(aCause);
+			bool.setToFalse(this);
 		}else if(g.getMandatoryNodes().contain(vertex)){
-			bool.setToTrue(aCause);
+			bool.setToTrue(this);
 		}else if(bool.getLB()==1){
-			g.enforceNode(vertex,aCause);
+			g.enforceNode(vertex,this);
 		}else if(bool.getUB()==0){
-			g.removeNode(vertex,aCause);
+			g.removeNode(vertex,this);
 		}
 	}
 

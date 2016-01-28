@@ -61,7 +61,7 @@ public class ArboTest {
 		assertTrue(s.getMeasures().getSolutionCount() > 0);
 	}
 
-	@Test(groups = "10s")
+	@Test(groups = "1m")
 	public static void debug() {
 		for (int n = 5; n < 7; n++) {
 			System.out.println("tree : n=" + n);

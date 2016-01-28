@@ -173,11 +173,11 @@ public class PropTransitivity<V extends IGraphVar> extends Propagator<V> {
 			for (int i = env.getFirstElement(); i >= 0; i = env.getNextElement()) {
 				if (i != to && i != from) {
 					if (ker.contain(i)) {
-						if (g.enforceArc(from, i, aCause)) {
+						if (g.enforceArc(from, i, this)) {
 							_enfArc(from, i);
 						}
 					} else if (!g.getPotSuccOrNeighOf(from).contain(i)) {
-						if (g.removeArc(to, i, aCause)) {
+						if (g.removeArc(to, i, this)) {
 							_remArc(to, i);
 						}
 					}
@@ -188,11 +188,11 @@ public class PropTransitivity<V extends IGraphVar> extends Propagator<V> {
 			for (int i = env.getFirstElement(); i >= 0; i = env.getNextElement()) {
 				if(i!=to && i!=from) {
 					if (ker.contain(i)) {
-						if (g.enforceArc(i, to, aCause)) {
+						if (g.enforceArc(i, to, this)) {
 							_enfArc(i, to);
 						}
 					} else if (!g.getPotSuccOrNeighOf(i).contain(to)) {
-						if (g.removeArc(i, from, aCause)) {
+						if (g.removeArc(i, from, this)) {
 							_remArc(i, from);
 						}
 					}
@@ -206,13 +206,13 @@ public class PropTransitivity<V extends IGraphVar> extends Propagator<V> {
 		if (from != to) {
 			ISet nei = g.getMandSuccOrNeighOf(from);
 			for (int i = nei.getFirstElement(); i >= 0; i = nei.getNextElement()) {
-				if (g.removeArc(i, to, aCause)) {
+				if (g.removeArc(i, to, this)) {
 					_remArc(i, to);
 				}
 			}
 			nei = g.getMandPredOrNeighOf(to);
 			for (int i = nei.getFirstElement(); i >= 0; i = nei.getNextElement()) {
-				if (g.removeArc(from, i, aCause)) {
+				if (g.removeArc(from, i, this)) {
 					_remArc(from, i);
 				}
 			}

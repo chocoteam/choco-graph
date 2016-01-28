@@ -98,8 +98,8 @@ public class PropTreeCostSimple extends Propagator<IUndirectedGraphVar> {
 		gdm.unfreeze();
         minSum.set(min);
         maxSum.set(max);
-        sum.updateLowerBound(min, aCause);
-        sum.updateUpperBound(max, aCause);
+        sum.updateLowerBound(min, this);
+        sum.updateUpperBound(max, this);
     }
 
     @Override
@@ -108,8 +108,8 @@ public class PropTreeCostSimple extends Propagator<IUndirectedGraphVar> {
 		gdm.forEachArc(edgeEnf, GraphEventType.ADD_ARC);
 		gdm.forEachArc(edgeRem, GraphEventType.REMOVE_ARC);
 		gdm.unfreeze();
-        sum.updateLowerBound(minSum.get(), aCause);
-        sum.updateUpperBound(maxSum.get(), aCause);
+        sum.updateLowerBound(minSum.get(), this);
+        sum.updateUpperBound(maxSum.get(), this);
     }
 
     @Override

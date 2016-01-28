@@ -66,7 +66,7 @@ public class PropNeighIntsChannel2 extends Propagator<IntVar> {
         for (int i = 0; i < n; i++) {
 			idm[i] = succs[i].monitorDelta(this);
         }
-        elementRemoved = element -> g.removeArc(currentSet, element, aCause);
+        elementRemoved = element -> g.removeArc(currentSet, element, this);
     }
 
     //***********************************************************************************
@@ -76,14 +76,14 @@ public class PropNeighIntsChannel2 extends Propagator<IntVar> {
     @Override
     public void propagate(int evtmask) throws ContradictionException {
         for (int i = 0; i < n; i++) {
-			g.enforceNode(i,aCause);
+			g.enforceNode(i,this);
 			if(succs[i].isInstantiated()){
-				g.enforceArc(i,succs[i].getValue(),aCause);
+				g.enforceArc(i,succs[i].getValue(),this);
 			}
             ISet tmp = g.getPotSuccOrNeighOf(i);
             for (int j = tmp.getFirstElement(); j >= 0; j = tmp.getNextElement()) {
                 if (!succs[i].contains(j)) {
-                    g.removeArc(i, j, aCause);
+                    g.removeArc(i, j, this);
                 }
             }
         }
@@ -97,7 +97,7 @@ public class PropNeighIntsChannel2 extends Propagator<IntVar> {
 		currentSet = idxVarInProp;
 		idm[currentSet].freeze();
 		if(vars[idxVarInProp].isInstantiated()){
-			g.enforceArc(idxVarInProp,vars[idxVarInProp].getValue(),aCause);
+			g.enforceArc(idxVarInProp,vars[idxVarInProp].getValue(),this);
 		}else {
 			idm[currentSet].forEachRemVal(elementRemoved);
 		}

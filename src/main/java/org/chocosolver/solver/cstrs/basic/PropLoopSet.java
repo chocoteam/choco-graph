@@ -69,19 +69,19 @@ public class PropLoopSet extends Propagator<Variable> {
 		ISet nodes = g.getPotentialNodes();
 		for(int i=nodes.getFirstElement();i>=0;i=nodes.getNextElement()){
 			if(g.getMandSuccOrNeighOf(i).contain(i)){ // mandatory loop detected
-				loops.addToKernel(i,aCause);
+				loops.addToKernel(i,this);
 			}else if(!g.getPotSuccOrNeighOf(i).contain(i)){ // no potential loop
-				loops.removeFromEnvelope(i,aCause);
+				loops.removeFromEnvelope(i,this);
 			}
 			else if(loops.kernelContains(i)){
-				g.enforceArc(i,i,aCause);
+				g.enforceArc(i,i,this);
 			}else if(!loops.envelopeContains(i)){
-				g.removeArc(i,i,aCause);
+				g.removeArc(i,i,this);
 			}
 		}
 		for(int i=loops.getEnvelopeFirst();i>=0;i=loops.getEnvelopeNext()){
 			if(!nodes.contain(i)){
-				loops.removeFromEnvelope(i,aCause);
+				loops.removeFromEnvelope(i,this);
 			}
 		}
     }

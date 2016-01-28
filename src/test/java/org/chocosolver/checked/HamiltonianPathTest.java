@@ -28,6 +28,7 @@
 package org.chocosolver.checked;
 
 import gnu.trove.list.array.TIntArrayList;
+import org.chocosolver.solver.search.strategy.decision.IntDecision;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import org.chocosolver.samples.input.GraphGenerator;
@@ -41,7 +42,6 @@ import org.chocosolver.solver.search.GraphStrategyFactory;
 import org.chocosolver.solver.search.strategy.ISF;
 import org.chocosolver.solver.search.strategy.assignments.DecisionOperator;
 import org.chocosolver.solver.search.strategy.decision.Decision;
-import org.chocosolver.solver.search.strategy.decision.fast.FastDecision;
 import org.chocosolver.solver.search.strategy.strategy.AbstractStrategy;
 import org.chocosolver.solver.search.strategy.ArcStrategy;
 import org.chocosolver.solver.search.strategy.GraphStrategy;
@@ -60,7 +60,7 @@ public class HamiltonianPathTest {
 
 	private final static long TIME_LIMIT = 3000;
 
-	@Test(groups = "10m")
+	@Test(groups = "1m")
 	public static void test() {
 		int[] sizes = new int[]{20, 50};
 		long s;
@@ -69,7 +69,7 @@ public class HamiltonianPathTest {
 		long time = System.currentTimeMillis();
 		for (int n : sizes) {
 			for (int nb : nbVoisins) {
-				for (int ks = 0; ks < 10; ks++) {
+				for (int ks = 0; ks < 2; ks++) {
 					s = System.currentTimeMillis();
 					System.out.println("n:" + n + " nbVoisins:" + nb + " s:" + s);
 					GraphGenerator gg = new GraphGenerator(n, s, GraphGenerator.InitialProperty.HamiltonianCircuit);
@@ -215,7 +215,7 @@ public class HamiltonianPathTest {
 
 	private static class ConstructorIntHeur extends AbstractStrategy<IntVar> {
 		int n, offset;
-		PoolManager<FastDecision> pool;
+		PoolManager<IntDecision> pool;
 
 		public ConstructorIntHeur(IntVar[] v, int off) {
 			super(v);
@@ -225,7 +225,9 @@ public class HamiltonianPathTest {
 		}
 
 		@Override
-		public void init() throws ContradictionException {}
+		public boolean init() {
+			return true;
+		}
 
 		@Override
 		public Decision<IntVar> getDecision() {
@@ -236,8 +238,8 @@ public class HamiltonianPathTest {
 					return null;
 				}
 			}
-			FastDecision d = pool.getE();
-			if(d==null)d=new FastDecision(pool);
+			IntDecision d = pool.getE();
+			if(d==null)d=new IntDecision(pool);
 			d.set(vars[x], vars[x].getLB(), DecisionOperator.int_eq);
 			return d;
 		}

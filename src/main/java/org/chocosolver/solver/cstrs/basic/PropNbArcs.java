@@ -83,8 +83,8 @@ public class PropNbArcs extends Propagator {
     }
 
     private void filter(int nbK, int nbE) throws ContradictionException {
-        k.updateLowerBound(nbK, aCause);
-        k.updateUpperBound(nbE, aCause);
+        k.updateLowerBound(nbK, this);
+        k.updateUpperBound(nbE, this);
         if (nbK != nbE && k.isInstantiated()) {
             ISet nei;
             ISet env = g.getPotentialNodes();
@@ -92,7 +92,7 @@ public class PropNbArcs extends Propagator {
                 for (int i = env.getFirstElement(); i >= 0; i = env.getNextElement()) {
                     nei = g.getUB().getSuccOrNeighOf(i);
                     for (int j = nei.getFirstElement(); j >= 0; j = nei.getNextElement()) {
-                        g.enforceArc(i, j, aCause);
+                        g.enforceArc(i, j, this);
                     }
                 }
             }
@@ -103,7 +103,7 @@ public class PropNbArcs extends Propagator {
                     neiKer = g.getLB().getSuccOrNeighOf(i);
                     for (int j = nei.getFirstElement(); j >= 0; j = nei.getNextElement()) {
                         if (!neiKer.contain(j)) {
-                            g.removeArc(i, j, aCause);
+                            g.removeArc(i, j, this);
                         }
                     }
                 }

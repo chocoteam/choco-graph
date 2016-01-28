@@ -70,9 +70,9 @@ public class PropNeighBoolsChannel2 extends Propagator<BoolVar> {
         for (int i = 0; i < n; i++) {
 			for(int j=0;j<n;j++){
 				if(matrix[i][j].getLB()==1){
-					g.enforceArc(i,j,aCause);
+					g.enforceArc(i,j,this);
 				}else if(matrix[i][j].getUB()==0){
-					g.removeArc(i,j,aCause);
+					g.removeArc(i,j,this);
 				}
 			}
         }
@@ -83,9 +83,9 @@ public class PropNeighBoolsChannel2 extends Propagator<BoolVar> {
 		int i = idxVarInProp/n;
 		int j = idxVarInProp%n;
 		if(matrix[i][j].getLB()==1){
-			g.enforceArc(i,j,aCause);
+			g.enforceArc(i,j,this);
 		}else{
-			g.removeArc(i,j,aCause);
+			g.removeArc(i,j,this);
 		}
     }
 

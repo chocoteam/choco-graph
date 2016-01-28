@@ -128,8 +128,8 @@ public class PropCycleCostSimple extends Propagator {
         if (maxSum < 0) {
             maxSum = Integer.MAX_VALUE;
         }
-        sum.updateLowerBound(minSum, aCause);
-        sum.updateUpperBound(maxSum, aCause);
+        sum.updateLowerBound(minSum, this);
+        sum.updateUpperBound(maxSum, this);
         filter(minSum);
     }
 
@@ -141,10 +141,10 @@ public class PropCycleCostSimple extends Propagator {
             for (int j = succs.getFirstElement(); j >= 0; j = succs.getNextElement()) {
                 if (i < j && !g.getMandNeighOf(i).contain(j)) {
                     if (replacementCost[i] == -1 || replacementCost[j] == -1) {
-                        g.removeArc(i, j, aCause);
+                        g.removeArc(i, j, this);
                     }
                     if ((2 * distMatrix[i][j] - replacementCost[i] - replacementCost[j]) / 2 > delta) {
-                        g.removeArc(i, j, aCause);
+                        g.removeArc(i, j, this);
                     }
                 }
             }

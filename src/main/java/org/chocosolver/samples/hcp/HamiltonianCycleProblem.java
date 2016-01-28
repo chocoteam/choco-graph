@@ -32,16 +32,25 @@ import org.chocosolver.solver.Solver;
 import org.chocosolver.solver.cstrs.GraphConstraintFactory;
 import org.chocosolver.solver.exception.ContradictionException;
 import org.chocosolver.solver.search.GraphStrategyFactory;
+import org.chocosolver.solver.search.limits.FailCounter;
+import org.chocosolver.solver.search.loop.SearchLoopFactory;
 import org.chocosolver.solver.search.loop.monitors.IMonitorContradiction;
 import org.chocosolver.solver.search.loop.monitors.SearchMonitorFactory;
+import org.chocosolver.solver.search.restart.MonotonicRestartStrategy;
+import org.chocosolver.solver.search.solution.ISolutionRecorder;
+import org.chocosolver.solver.search.solution.LastSolutionRecorder;
+import org.chocosolver.solver.search.solution.Solution;
 import org.chocosolver.solver.search.strategy.ArcStrategy;
 import org.chocosolver.solver.search.strategy.GraphStrategy;
 import org.chocosolver.solver.trace.Chatterbox;
 import org.chocosolver.solver.variables.GraphVarFactory;
 import org.chocosolver.solver.variables.IUndirectedGraphVar;
+import org.chocosolver.util.criteria.LongCriterion;
 import org.chocosolver.util.objects.graphs.UndirectedGraph;
 import org.chocosolver.util.objects.setDataStructures.ISet;
 import org.chocosolver.util.objects.setDataStructures.SetType;
+
+import java.util.List;
 
 /**
  * Solves the Hamiltonian Cycle Problem
@@ -61,7 +70,7 @@ public class HamiltonianCycleProblem extends AbstractProblem {
 
 	private long limit = 10000; //time limit
 	// TSPLIB HCP Instance file path (see http://comopt.ifi.uni-heidelberg.de/software/TSPLIB95/)
-	private String instancePath = "src/main/java/samples/hcp/alb1000.hcp";
+	private String instancePath = "src/main/java/org/chocosolver/samples/hcp/alb1000.hcp";
 	// graph variable expected to form a Hamiltonian Cycle
 	private IUndirectedGraphVar graph;
 
@@ -104,21 +113,23 @@ public class HamiltonianCycleProblem extends AbstractProblem {
 		SearchMonitorFactory.limitTime(solver, limit);
 		Chatterbox.showStatistics(solver);
 		// restart search every 100 fails
-		solver.plugMonitor(new IMonitorContradiction() {
-			int count = 0;
-			@Override
-			public void onContradiction(ContradictionException cex) {
-				count ++;
-				if(count>=100){
-					count = 0;
-					solver.getSearchLoop().restart();
-				}
-			}
-		});
+		SearchLoopFactory.restart(solver, new FailCounter(solver,100), new MonotonicRestartStrategy(100), 1000);
 	}
 
 	@Override
 	public void solve() {
+		solver.set(new ISolutionRecorder(){
+
+			@Override
+			public Solution getLastSolution() {
+				return null;
+			}
+
+			@Override
+			public List<Solution> getSolutions() {
+				return null;
+			}
+		});
 		solver.findSolution();
 	}
 

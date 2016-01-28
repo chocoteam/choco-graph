@@ -69,12 +69,12 @@ public class PropArborescence extends PropArborescences {
 
 	@Override
 	public void propagate(int evt) throws ContradictionException {
-		g.enforceNode(root, aCause);
+		g.enforceNode(root, this);
 		// explore the graph from the root
 		explore();
 		// remove unreachable nodes
 		for (int o = visited.nextClearBit(0); o < n; o = visited.nextClearBit(o + 1)) {
-			g.removeNode(o,aCause);
+			g.removeNode(o,this);
 		}
 		super.propagate(evt);
 	}

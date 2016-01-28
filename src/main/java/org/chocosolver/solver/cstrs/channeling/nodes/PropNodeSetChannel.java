@@ -68,10 +68,10 @@ public class PropNodeSetChannel extends Propagator<Variable> {
 		this.g = gV;
 		sdm = set.monitorDelta(this);
 		gdm = g.monitorDelta(this);
-		forceS = element -> g.enforceNode(element, aCause);
-		remS = element -> g.removeNode(element, aCause);
-		forceG = element -> set.addToKernel(element, aCause);
-		remG = element -> set.removeFromEnvelope(element, aCause);
+		forceS = element -> g.enforceNode(element, this);
+		remS = element -> g.removeNode(element, this);
+		forceG = element -> set.addToKernel(element, this);
+		remG = element -> set.removeFromEnvelope(element, this);
 	}
 
 	//***********************************************************************************
@@ -91,16 +91,16 @@ public class PropNodeSetChannel extends Propagator<Variable> {
 	public void propagate(int evtmask) throws ContradictionException {
 		for(int i=set.getEnvelopeFirst();i!=SetVar.END;i=set.getEnvelopeNext()){
 			if(g.getMandatoryNodes().contain(i)){
-				set.addToKernel(i,aCause);
+				set.addToKernel(i,this);
 			}else if(!g.getPotentialNodes().contain(i)){
-				set.removeFromEnvelope(i,aCause);
+				set.removeFromEnvelope(i,this);
 			}
 		}
 		for(int i=g.getPotentialNodes().getFirstElement();i>=0;i=g.getPotentialNodes().getNextElement()){
 			if(set.kernelContains(i)) {
-				g.enforceNode(i, aCause);
+				g.enforceNode(i, this);
 			} else if(!set.envelopeContains(i)){
-				g.removeNode(i,aCause);
+				g.removeNode(i,this);
 			}
 		}
 		gdm.unfreeze();

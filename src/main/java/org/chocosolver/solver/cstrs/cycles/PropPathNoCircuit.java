@@ -126,7 +126,7 @@ public class PropPathNoCircuit extends Propagator<IDirectedGraphVar> {
         if (origin[j].get() != j) {
             contradiction(g, "");
         }
-        g.removeArc(last, start, aCause);
+        g.removeArc(last, start, this);
         origin[last].set(start);
         end[start].set(last);
         size[start].add(size[j].get());

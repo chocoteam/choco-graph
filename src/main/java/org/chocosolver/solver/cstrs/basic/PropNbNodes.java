@@ -70,8 +70,8 @@ public class PropNbNodes extends Propagator {
     public void propagate(int evtmask) throws ContradictionException {
         int env = g.getPotentialNodes().getSize();
         int ker = g.getMandatoryNodes().getSize();
-        k.updateLowerBound(ker, aCause);
-        k.updateUpperBound(env, aCause);
+        k.updateLowerBound(ker, this);
+        k.updateUpperBound(env, this);
         if (ker == env) {
             setPassive();
         } else if (k.isInstantiated()) {
@@ -79,14 +79,14 @@ public class PropNbNodes extends Propagator {
             ISet envNodes = g.getPotentialNodes();
             if (v == env) {
                 for (int i = envNodes.getFirstElement(); i >= 0; i = envNodes.getNextElement()) {
-                    g.enforceNode(i, aCause);
+                    g.enforceNode(i, this);
                 }
                 setPassive();
             } else if (v == ker) {
                 ISet kerNodes = g.getMandatoryNodes();
                 for (int i = envNodes.getFirstElement(); i >= 0; i = envNodes.getNextElement()) {
                     if (!kerNodes.contain(i)) {
-                        g.removeNode(i, aCause);
+                        g.removeNode(i, this);
                     }
                 }
                 setPassive();

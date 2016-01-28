@@ -97,7 +97,7 @@ public class PropConnected extends Propagator<IUndirectedGraphVar> {
 			explore();
 			// remove unreachable nodes
 			for (int o = visited.nextClearBit(0); o < n; o = visited.nextClearBit(o + 1)) {
-				g.removeNode(o,aCause);
+				g.removeNode(o,this);
 			}
 			// force isthma in case vertices are fixed
 			if (g.getMandatoryNodes().getSize() == g.getPotentialNodes().getSize() && !checkerOnly) {
@@ -106,7 +106,7 @@ public class PropConnected extends Propagator<IUndirectedGraphVar> {
 				}
 				int nbIsma = env_CC_finder.isthmusFrom.size();
 				for (int i = 0; i < nbIsma; i++) {
-					g.enforceArc(env_CC_finder.isthmusFrom.get(i), env_CC_finder.isthmusTo.get(i), aCause);
+					g.enforceArc(env_CC_finder.isthmusFrom.get(i), env_CC_finder.isthmusTo.get(i), this);
 				}
 			}
 			// one could force nodes which are necessary to connect mandatory nodes together (dominator algo)

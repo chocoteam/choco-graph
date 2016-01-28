@@ -87,17 +87,17 @@ public class PropLagr_OneTree_IntVar extends PropLagr_OneTree {
 
 	@Override
 	public void remove(int from, int to) throws ContradictionException {
-		succ[from].removeValue(to,aCause);
-		succ[to].removeValue(from,aCause);
+		succ[from].removeValue(to,this);
+		succ[to].removeValue(from,this);
 	}
 
 	@Override
 	public void enforce(int from, int to) throws ContradictionException {
 		if(!succ[from].contains(to)){
-			succ[to].instantiateTo(from,aCause);
+			succ[to].instantiateTo(from,this);
 		}
 		if(!succ[to].contains(from)){
-			succ[from].instantiateTo(to,aCause);
+			succ[from].instantiateTo(to,this);
 		}
 	}
 

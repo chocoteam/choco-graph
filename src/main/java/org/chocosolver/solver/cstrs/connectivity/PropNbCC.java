@@ -73,15 +73,15 @@ public class PropNbCC extends Propagator {
 	@Override
 	public void propagate(int evtmask) throws ContradictionException {
 		// trivial case
-		k.updateLowerBound(0,aCause);
+		k.updateLowerBound(0,this);
 		if(g.getPotentialNodes().getSize() == 0){
-			k.instantiateTo(0,aCause);
+			k.instantiateTo(0,this);
 			return;
 		}
 		if(k.getUB() == 0){
 			ISet nodes = g.getPotentialNodes();
 			for(int i = nodes.getFirstElement();i>=0;i=nodes.getNextElement()){
-				g.removeNode(i,aCause);
+				g.removeNode(i,this);
 			}
 			return;
 		}
@@ -89,8 +89,8 @@ public class PropNbCC extends Propagator {
 		// bound computation
 		int min = minCC();
 		int max = maxCC();
-		k.updateLowerBound(min, aCause);
-		k.updateUpperBound(max,aCause);
+		k.updateLowerBound(min, this);
+		k.updateUpperBound(max,this);
 
 		// A bit of pruning (removes unreachable nodes)
 		if(k.getUB() == min && min != max){
@@ -104,7 +104,7 @@ public class PropNbCC extends Propagator {
 				}
 				if(pot){
 					for (int i = env_CC_finder.getCC_firstNode()[cc]; i >= 0 && pot; i = env_CC_finder.getCC_nextNode()[i]) {
-						g.removeNode(i,aCause);
+						g.removeNode(i,this);
 					}
 				}
 			}
@@ -117,7 +117,7 @@ public class PropNbCC extends Propagator {
 			}
 			int nbIsma = env_CC_finder.isthmusFrom.size();
 			for (int i = 0; i < nbIsma; i++) {
-				g.enforceArc(env_CC_finder.isthmusFrom.get(i), env_CC_finder.isthmusTo.get(i), aCause);
+				g.enforceArc(env_CC_finder.isthmusFrom.get(i), env_CC_finder.isthmusTo.get(i), this);
 			}
 		}
 	}

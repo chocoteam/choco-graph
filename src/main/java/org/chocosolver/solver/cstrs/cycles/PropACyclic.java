@@ -86,7 +86,7 @@ public class PropACyclic extends Propagator<IGraphVar> {
 	@Override
 	public void propagate(int evtmask) throws ContradictionException {
 		for(int i=0;i<n;i++){
-			g.removeArc(i,i,aCause);
+			g.removeArc(i,i,this);
 			if(g.getMandSuccOrNeighOf(i).getSize()>0) {
 				for(int j=0;j<n;j++){
 					if(g.getMandSuccOrNeighOf(i).contain(j)) {
@@ -108,7 +108,7 @@ public class PropACyclic extends Propagator<IGraphVar> {
 
 	public void propagateIJ(int from, int to) throws ContradictionException {
 		if(g.isDirected()){
-			g.removeArc(to,from,aCause);
+			g.removeArc(to,from,this);
 		}
 		int first, last, i;
 		// mark reachable from 'To'
@@ -153,7 +153,7 @@ public class PropACyclic extends Propagator<IGraphVar> {
 				for (int j = nei.getFirstElement(); j >= 0; j = nei.getNextElement()) {
 					if (rfFrom.get(j)) {
 						if((i!=from || j!=to) && (i!=to || j!=from)) {
-							g.removeArc(i, j, aCause);
+							g.removeArc(i, j, this);
 						}
 					}
 				}

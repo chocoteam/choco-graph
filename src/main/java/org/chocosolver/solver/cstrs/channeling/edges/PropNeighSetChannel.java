@@ -63,8 +63,8 @@ public class PropNeighSetChannel extends Propagator<Variable> {
 		this.g = gV;
 		this.inc = incSet;
 		sdm = set.monitorDelta(this);
-		forceS = element -> inc.enforce(g,vertex,element,aCause);
-		remS = element -> inc.remove(g,vertex,element, aCause);
+		forceS = element -> inc.enforce(g,vertex,element,this);
+		remS = element -> inc.remove(g,vertex,element, this);
 	}
 
 	//***********************************************************************************
@@ -84,16 +84,16 @@ public class PropNeighSetChannel extends Propagator<Variable> {
 	public void propagate(int evtmask) throws ContradictionException {
 		for(int i=inc.getPotSet(g,vertex).getFirstElement();i>=0;i=inc.getPotSet(g,vertex).getNextElement()){
 			if(!set.envelopeContains(i)){
-				inc.remove(g,vertex,i,aCause);
+				inc.remove(g,vertex,i,this);
 			}else if(set.kernelContains(i)){
-				inc.enforce(g,vertex,i,aCause);
+				inc.enforce(g,vertex,i,this);
 			}
 		}
 		for(int i=set.getEnvelopeFirst();i!=SetVar.END;i=set.getEnvelopeNext()){
 			if(!inc.getPotSet(g,vertex).contain(i)){
-				set.removeFromEnvelope(i,aCause);
+				set.removeFromEnvelope(i,this);
 			}else if(inc.getMandSet(g,vertex).contain(i)){
-				set.addToKernel(i,aCause);
+				set.addToKernel(i,this);
 			}
 		}
 		sdm.unfreeze();
@@ -109,9 +109,9 @@ public class PropNeighSetChannel extends Propagator<Variable> {
 		} else {
 			for(int i=set.getEnvelopeFirst();i!=SetVar.END;i=set.getEnvelopeNext()){
 				if(!inc.getPotSet(g,vertex).contain(i)){
-					set.removeFromEnvelope(i,aCause);
+					set.removeFromEnvelope(i,this);
 				}else if(inc.getMandSet(g,vertex).contain(i)){
-					set.addToKernel(i,aCause);
+					set.addToKernel(i,this);
 				}
 			}
 		}

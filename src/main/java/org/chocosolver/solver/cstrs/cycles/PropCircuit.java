@@ -136,8 +136,8 @@ public class PropCircuit extends Propagator<IDirectedGraphVar> {
 		size[ext1].set(t);
 		size[ext2].set(t);
 		if (t > 2 && t <= n && t < n && t<g.getMandatoryNodes().getSize()) {
-			g.removeArc(ext1, ext2, aCause);
-			g.removeArc(ext2, ext1, aCause);
+			g.removeArc(ext1, ext2, this);
+			g.removeArc(ext2, ext1, this);
 		}
 	}
 

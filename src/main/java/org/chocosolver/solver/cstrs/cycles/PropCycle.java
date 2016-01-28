@@ -140,9 +140,9 @@ public class PropCycle extends Propagator<IUndirectedGraphVar> {
 		size[ext2].set(t);
 		if (t > 2 && t <= n) {
 			if (t < n && t < g.getMandatoryNodes().getSize()) {
-				g.removeArc(ext1, ext2, aCause);
+				g.removeArc(ext1, ext2, this);
 			} else if (t == n) {
-				g.enforceArc(ext1, ext2, aCause);
+				g.enforceArc(ext1, ext2, this);
 			}
 		}
 	}

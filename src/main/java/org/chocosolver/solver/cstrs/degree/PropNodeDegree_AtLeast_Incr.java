@@ -162,10 +162,10 @@ public class PropNodeDegree_AtLeast_Incr extends Propagator<IGraphVar> {
 		ISet ker = target.getMandSet(g, i);
 		int potSize = pot.getSize();
 		if (potSize < degrees[i]) {
-			g.removeNode(i, aCause);
+			g.removeNode(i, this);
 		} else if (potSize == degrees[i] && g.getMandatoryNodes().contain(i) && ker.getSize() < potSize) {
 			for (int s = pot.getFirstElement(); s >= 0; s = pot.getNextElement()) {
-				target.enforce(g, i, s, aCause);
+				target.enforce(g, i, s, this);
 			}
 		}
 	}

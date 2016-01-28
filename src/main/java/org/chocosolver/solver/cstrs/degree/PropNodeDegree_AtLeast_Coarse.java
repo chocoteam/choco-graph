@@ -137,10 +137,10 @@ public class PropNodeDegree_AtLeast_Coarse extends Propagator<IGraphVar> {
         ISet ker = target.getMandSet(g, i);
         int size = nei.getSize();
         if (size < degrees[i]) {
-            g.removeNode(i, aCause);
+            g.removeNode(i, this);
         } else if (size == degrees[i] && g.getMandatoryNodes().contain(i) && ker.getSize() < size) {
             for (int s = nei.getFirstElement(); s >= 0; s = nei.getNextElement()) {
-                target.enforce(g, i, s, aCause);
+                target.enforce(g, i, s, this);
             }
         }
     }

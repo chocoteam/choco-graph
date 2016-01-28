@@ -112,13 +112,15 @@ public class CliqueEnumeration extends AbstractProblem {
 			AbstractStrategy[] strats;
 			ArrayList<Decision> choices;
 			@Override
-			public void init() throws ContradictionException {
+			public boolean init() {
 				rd = new Random();
 				strats = new AbstractStrategy[]{intSearch,setSearch,graphSearch};
 				choices = new ArrayList<>();
+				boolean fine = true;
 				for(AbstractStrategy s:strats){
-					s.init();
+					fine &= s.init();
 				}
+				return fine;
 			}
 			@Override
 			public Decision getDecision() {
