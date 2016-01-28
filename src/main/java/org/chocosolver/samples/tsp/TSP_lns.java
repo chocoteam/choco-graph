@@ -27,6 +27,7 @@
 
 package org.chocosolver.samples.tsp;
 
+import gnu.trove.list.array.TIntArrayList;
 import org.chocosolver.samples.AbstractProblem;
 import org.chocosolver.solver.ICause;
 import org.chocosolver.solver.ResolutionPolicy;
@@ -41,10 +42,7 @@ import org.chocosolver.solver.search.loop.monitors.IMonitorSolution;
 import org.chocosolver.solver.search.loop.monitors.SearchMonitorFactory;
 import org.chocosolver.solver.search.strategy.GraphStrategies;
 import org.chocosolver.solver.search.strategy.decision.Decision;
-import org.chocosolver.solver.variables.GraphVarFactory;
-import org.chocosolver.solver.variables.IUndirectedGraphVar;
-import org.chocosolver.solver.variables.IntVar;
-import org.chocosolver.solver.variables.VariableFactory;
+import org.chocosolver.solver.variables.*;
 import org.chocosolver.util.objects.graphs.UndirectedGraph;
 import org.chocosolver.util.objects.setDataStructures.ISet;
 import org.chocosolver.util.objects.setDataStructures.SetType;
@@ -66,7 +64,7 @@ public class TSP_lns extends AbstractProblem {
 	// VARIABLES
 	//***********************************************************************************
 
-	public final static String REPO = "src/main/java/samples/tsp";
+	public final static String REPO = "src/main/java/org/chocosolver/samples/tsp";
 	public final static String INSTANCE = "bier127";
 	public final static int MAX_SIZE = 300;
 	public final static int LIMIT = 30; // in seconds
@@ -134,7 +132,7 @@ public class TSP_lns extends AbstractProblem {
 		SearchMonitorFactory.limitTime(solver, LIMIT+"s");
 
 		// LNS (relaxes consecutive edges)
-		INeighbor LNS = new SubpathLNS(graph.getNbMaxNodes(),solver);
+		INeighbor LNS = new SubpathLNS(graph.getNbMaxNodes());
 		SearchLoopFactory.lns(solver,LNS,new FailCounter(solver,30));
 
 		// log
@@ -176,8 +174,9 @@ public class TSP_lns extends AbstractProblem {
 		int n, nbRL;
 		UndirectedGraph solution;
 		int nbFreeEdges = 15;
+		LNSDecision metaDec = new LNSDecision();
 
-		protected SubpathLNS(int n, Solver mSolver) {
+		protected SubpathLNS(int n) {
 			this.n = n;
 			this.solution = new UndirectedGraph(n,SetType.LINKED_LIST,true);
 		}
@@ -201,6 +200,7 @@ public class TSP_lns extends AbstractProblem {
 
 		@Override
 		public Decision fixSomeVariables() {
+			metaDec.free();
 			// relaxes a sub-path (a set of consecutive edges in a solution)
 			int i1 = rd.nextInt(n);
 			ISet nei = solution.getNeighOf(i1);
@@ -209,7 +209,7 @@ public class TSP_lns extends AbstractProblem {
 				i2 = nei.getNextElement();
 			}
 			for(int k=0;k<n-nbFreeEdges;k++){
-//				graph.enforceArc(i1,i2,cause);
+				metaDec.add(i1,i2);
 				int i3 = solution.getNeighOf(i2).getFirstElement();
 				if(i3==i1){
 					i3 = solution.getNeighOf(i2).getNextElement();
@@ -217,7 +217,8 @@ public class TSP_lns extends AbstractProblem {
 				i1 = i2;
 				i2 = i3;
 			}
-			return null;
+
+			return metaDec;
 		}
 
 		@Override
@@ -233,6 +234,38 @@ public class TSP_lns extends AbstractProblem {
 		@Override
 		public boolean isSearchComplete() {
 			return nbFreeEdges>=n;
+		}
+
+		private class LNSDecision extends Decision{
+			TIntArrayList from = new TIntArrayList();
+			TIntArrayList to = new TIntArrayList();
+
+			public LNSDecision() {
+				super(1);
+			}
+
+			public void add(int i, int j){
+				from.add(i);
+				to.add(j);
+			}
+
+			@Override
+			public void apply() throws ContradictionException {
+				for(int k = 0;k<from.size();k++){
+					graph.enforceArc(from.get(k),to.get(k),this);
+				}
+			}
+
+			@Override
+			public Object getDecisionValue() {
+				return null;
+			}
+
+			@Override
+			public void free() {
+				from.clear();
+				to.clear();
+			}
 		}
 	}
 }
