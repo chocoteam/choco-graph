@@ -59,7 +59,7 @@ public class DCMST extends AbstractProblem {
 	//***********************************************************************************
 
 	public static void main(String[] args) {
-		String dir = "src/main/java/samples/dcmstp";
+		String dir = "src/main/java/org/chocosolver/samples/dcmstp";
 		String inst = "r123_300_1";
 		new DCMST(dir, inst).execute();
 	}

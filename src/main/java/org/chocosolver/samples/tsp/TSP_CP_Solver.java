@@ -35,7 +35,7 @@ package org.chocosolver.samples.tsp;
 
 public class TSP_CP_Solver {
 
-	public final static String REPO = "src/main/java/samples/tsp";
+	public final static String REPO = "src/main/java/org/chocosolver/samples/tsp";
 	public final static String INSTANCE = "bier127";
 	public final static int MAX_SIZE = 300;
 

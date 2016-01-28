@@ -118,18 +118,6 @@ public class HamiltonianCycleProblem extends AbstractProblem {
 
 	@Override
 	public void solve() {
-		solver.set(new ISolutionRecorder(){
-
-			@Override
-			public Solution getLastSolution() {
-				return null;
-			}
-
-			@Override
-			public List<Solution> getSolutions() {
-				return null;
-			}
-		});
 		solver.findSolution();
 	}
 

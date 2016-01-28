@@ -60,7 +60,7 @@ public class TSP_exact extends AbstractProblem {
     // VARIABLES
     //***********************************************************************************
 
-	public final static String REPO = "src/main/java/samples/tsp";
+	public final static String REPO = "src/main/java/org/chocosolver/samples/tsp";
 	public final static String INSTANCE = "bier127";
 	public final static int MAX_SIZE = 300;
 	public final static int LIMIT = 30; // in seconds
