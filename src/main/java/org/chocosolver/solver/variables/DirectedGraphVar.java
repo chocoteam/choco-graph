@@ -62,7 +62,7 @@ public class DirectedGraphVar extends GraphVar<DirectedGraph> implements IDirect
     public boolean removeArc(int x, int y, ICause cause) throws ContradictionException {
         assert cause != null;
         if (LB.arcExists(x, y)) {
-            this.contradiction(cause, GraphEventType.REMOVE_ARC, "remove mandatory arc " + x + "->" + y);
+            this.contradiction(cause, "remove mandatory arc " + x + "->" + y);
             return false;
         }
         if (UB.removeArc(x, y)) {
@@ -94,7 +94,7 @@ public class DirectedGraphVar extends GraphVar<DirectedGraph> implements IDirect
             }
             return false;
         }
-        this.contradiction(cause, GraphEventType.ADD_ARC, "enforce arc which is not in the domain");
+        this.contradiction(cause, "enforce arc which is not in the domain");
         return false;
     }
 

@@ -162,7 +162,7 @@ public class PropTreeNoSubtour extends Propagator<IUndirectedGraphVar> {
                 if (k != mate[x]) {
                     ck = color[k].get();
                     if (ck == cj) {
-                        g.removeArc(x, k, aCause);
+                        g.removeArc(x, k, this);
                     } else {
                         if (ck == ci && !in.get(k)) {
                             in.set(k);

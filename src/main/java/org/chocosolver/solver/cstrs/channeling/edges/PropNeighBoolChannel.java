@@ -59,6 +59,12 @@ public class PropNeighBoolChannel extends Propagator<Variable> {
 		this.bools = neigh;
 		this.g = gV;
 		this.inc = incSet;
+		super.linkVariables();
+	}
+
+	@Override
+	protected void linkVariables() {
+		// do nothing, the linking is postponed because getPropagationConditions() needs some internal data
 	}
 
 	//***********************************************************************************
@@ -78,16 +84,16 @@ public class PropNeighBoolChannel extends Propagator<Variable> {
 	public void propagate(int evtmask) throws ContradictionException {
 		for(int i=inc.getPotSet(g,vertex).getFirstElement();i>=0;i=inc.getPotSet(g, vertex).getNextElement()){
 			if(bools[i].getUB()==0){
-				inc.remove(g,vertex,i,aCause);
+				inc.remove(g,vertex,i,this);
 			}else if(bools[i].getLB()==1){
-				inc.enforce(g,vertex,i,aCause);
+				inc.enforce(g,vertex,i,this);
 			}
 		}
 		for(int i=0;i<bools.length;i++){
 			if(!inc.getPotSet(g,vertex).contain(i)){
-				bools[i].setToFalse(aCause);
+				bools[i].setToFalse(this);
 			}else if(inc.getMandSet(g,vertex).contain(i)){
-				bools[i].setToTrue(aCause);
+				bools[i].setToTrue(this);
 			}
 		}
 	}
@@ -96,16 +102,16 @@ public class PropNeighBoolChannel extends Propagator<Variable> {
 	public void propagate(int idxVarInProp, int mask) throws ContradictionException {
 		if (idxVarInProp < bools.length) {
 			if(bools[idxVarInProp].getLB()==1){
-				inc.enforce(g,vertex,idxVarInProp,aCause);
+				inc.enforce(g,vertex,idxVarInProp,this);
 			}else{
-				inc.remove(g,vertex,idxVarInProp,aCause);
+				inc.remove(g,vertex,idxVarInProp,this);
 			}
 		} else {
 			for(int i=0;i<bools.length;i++){
 				if(!inc.getPotSet(g,vertex).contain(i)){
-					bools[i].setToFalse(aCause);
+					bools[i].setToFalse(this);
 				}else if(inc.getMandSet(g,vertex).contain(i)){
-					bools[i].setToTrue(aCause);
+					bools[i].setToTrue(this);
 				}
 			}
 		}

@@ -163,11 +163,11 @@ public class PropNodeDegree_AtMost_Incr extends Propagator<IGraphVar> {
         ISet env = target.getPotSet(g, i);
         int size = ker.getSize();
         if (size > degrees[i]) {
-            g.removeNode(i, aCause);
+            g.removeNode(i, this);
         } else if (size == degrees[i] && env.getSize() > size) {
             for (int other = env.getFirstElement(); other >= 0; other = env.getNextElement()) {
                 if (!ker.contain(other)) {
-                    target.remove(g, i, other, aCause);
+                    target.remove(g, i, other, this);
                 }
             }
         }

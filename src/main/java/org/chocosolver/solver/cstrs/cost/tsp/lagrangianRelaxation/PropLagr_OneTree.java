@@ -125,7 +125,7 @@ public class PropLagr_OneTree extends Propagator implements GraphLagrangianRelax
         if (hkb - Math.floor(hkb) < 0.001) {
             hkb = Math.floor(hkb);
         }
-        obj.updateLowerBound((int) Math.ceil(hkb), aCause);
+        obj.updateLowerBound((int) Math.ceil(hkb), this);
         HKfilter.performPruning((double) (obj.getUB()) + totalPenalities + 0.001);
         for (int iter = 5; iter > 0; iter--) {
             for (int i = nbSprints; i > 0; i--) {
@@ -138,7 +138,7 @@ public class PropLagr_OneTree extends Propagator implements GraphLagrangianRelax
                 if (hkb - Math.floor(hkb) < 0.001) {
                     hkb = Math.floor(hkb);
                 }
-                obj.updateLowerBound((int) Math.ceil(hkb), aCause);
+                obj.updateLowerBound((int) Math.ceil(hkb), this);
                 // HK.performPruning((double) (obj.getUB()) + totalPenalities + 0.001);
                 //	DO NOT FILTER HERE TO SPEED UP CONVERGENCE (not always true)
                 updateStep(hkb, alpha);
@@ -154,7 +154,7 @@ public class PropLagr_OneTree extends Propagator implements GraphLagrangianRelax
             if (hkb - Math.floor(hkb) < 0.001) {
                 hkb = Math.floor(hkb);
             }
-            obj.updateLowerBound((int) Math.ceil(hkb), aCause);
+            obj.updateLowerBound((int) Math.ceil(hkb), this);
             HKfilter.performPruning((double) (obj.getUB()) + totalPenalities + 0.001);
             updateStep(hkb, alpha);
             HKPenalities();
@@ -246,11 +246,11 @@ public class PropLagr_OneTree extends Propagator implements GraphLagrangianRelax
     //***********************************************************************************
 
     public void remove(int from, int to) throws ContradictionException {
-        gV.removeArc(from, to, aCause);
+        gV.removeArc(from, to, this);
     }
 
     public void enforce(int from, int to) throws ContradictionException {
-        gV.enforceArc(from, to, aCause);
+        gV.enforceArc(from, to, this);
     }
 
     public void contradiction() throws ContradictionException {

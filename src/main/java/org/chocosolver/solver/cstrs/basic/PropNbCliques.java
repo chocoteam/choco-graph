@@ -105,7 +105,7 @@ public class PropNbCliques extends Propagator<Variable> {
 		do{
 			heur.computeMIS();
 			for(R rule:rules){
-				rule.filter(nb,support,heur,aCause);
+				rule.filter(nb,support,heur,this);
 			}
 		}while(heur.hasNextMIS());
 	}

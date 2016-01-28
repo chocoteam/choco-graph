@@ -89,12 +89,15 @@ public class PropConnected extends Propagator<IUndirectedGraphVar> {
 
 	@Override
 	public void propagate(int evtmask) throws ContradictionException {
+		if (g.getPotentialNodes().getSize() == 0) {
+			contradiction(g, "");
+		}
 		if(g.getMandatoryNodes().getSize()>1) {
 			// explore the graph from the first mandatory node
 			explore();
 			// remove unreachable nodes
 			for (int o = visited.nextClearBit(0); o < n; o = visited.nextClearBit(o + 1)) {
-				g.removeNode(o,aCause);
+				g.removeNode(o,this);
 			}
 			// force isthma in case vertices are fixed
 			if (g.getMandatoryNodes().getSize() == g.getPotentialNodes().getSize() && !checkerOnly) {
@@ -103,7 +106,7 @@ public class PropConnected extends Propagator<IUndirectedGraphVar> {
 				}
 				int nbIsma = env_CC_finder.isthmusFrom.size();
 				for (int i = 0; i < nbIsma; i++) {
-					g.enforceArc(env_CC_finder.isthmusFrom.get(i), env_CC_finder.isthmusTo.get(i), aCause);
+					g.enforceArc(env_CC_finder.isthmusFrom.get(i), env_CC_finder.isthmusTo.get(i), this);
 				}
 			}
 			// one could force nodes which are necessary to connect mandatory nodes together (dominator algo)
@@ -112,8 +115,12 @@ public class PropConnected extends Propagator<IUndirectedGraphVar> {
 
 	@Override
 	public ESat isEntailed() {
-		if(g.getPotentialNodes().getSize()<=1){
+		if(g.getPotentialNodes().getSize()==1){
 			return ESat.TRUE;
+		}
+		//Graphs with zero nodes are not connected.
+		if(g.getMandatoryNodes().getSize() == 0){
+			return ESat.FALSE;
 		}
 		explore();
 		for(int i=g.getMandatoryNodes().getFirstElement();i>=0;i=g.getMandatoryNodes().getNextElement()){
@@ -124,6 +131,7 @@ public class PropConnected extends Propagator<IUndirectedGraphVar> {
 		if (!g.isInstantiated()) {
 			return ESat.UNDEFINED;
 		}
+
 		return ESat.TRUE;
 	}
 
@@ -131,8 +139,8 @@ public class PropConnected extends Propagator<IUndirectedGraphVar> {
 		visited.clear();
 		int first = 0;
 		int last = 0;
-		if(g.getMandatoryNodes().getSize()<=1){
-			return; // empty or singleton graph
+		if(g.getMandatoryNodes().getSize()<=0){
+			return; // empty graph
 		}
 		int i = g.getMandatoryNodes().getFirstElement();
 		fifo[last++] = i;

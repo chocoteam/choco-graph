@@ -68,7 +68,8 @@ public class GraphStrategy extends AbstractStrategy<IGraphVar> {
     }
 
     @Override
-    public void init() {
+    public boolean init() {
+        return true;
     }
 
     @Override

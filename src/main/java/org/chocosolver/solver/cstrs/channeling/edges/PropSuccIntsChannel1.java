@@ -65,8 +65,8 @@ public class PropSuccIntsChannel1 extends Propagator<IDirectedGraphVar> {
 		for(int i=0;i<n;i++){
 			assert succs[i].hasEnumeratedDomain():"channeling variables should be enumerated";
 		}
-		arcForced = (i, j) -> succs[i].instantiateTo(j, aCause);
-		arcRemoved = (i, j) -> succs[i].removeValue(j, aCause);
+		arcForced = (i, j) -> succs[i].instantiateTo(j, this);
+		arcRemoved = (i, j) -> succs[i].removeValue(j, this);
 	}
 
 	//***********************************************************************************
@@ -78,11 +78,11 @@ public class PropSuccIntsChannel1 extends Propagator<IDirectedGraphVar> {
 		for (int i = 0; i < n; i++) {
 			ISet tmp = g.getMandSuccOrNeighOf(i);
 			for (int j = tmp.getFirstElement(); j >= 0; j = tmp.getNextElement()) {
-				succs[i].instantiateTo(j, aCause);
+				succs[i].instantiateTo(j, this);
 			}
 			for (int j=succs[i].getLB(); j<=succs[i].getUB(); j=succs[i].nextValue(j)) {
 				if (!g.getPotSuccOrNeighOf(i).contain(j)) {
-					succs[i].removeValue(j, aCause);
+					succs[i].removeValue(j, this);
 				}
 			}
 		}

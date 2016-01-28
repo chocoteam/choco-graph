@@ -51,7 +51,7 @@ public class PropAntiSymmetric extends Propagator<IDirectedGraphVar> {
 
 	IDirectedGraphVar g;
     IGraphDeltaMonitor gdm;
-    EnfProc enf;
+    PairProcedure enf;
     int n;
 
     //***********************************************************************************
@@ -62,7 +62,11 @@ public class PropAntiSymmetric extends Propagator<IDirectedGraphVar> {
         super(graph);
         g = graph;
         gdm = g.monitorDelta(this);
-        enf = new EnfProc();
+        enf = (PairProcedure) (from, to) -> {
+			if (from != to) {
+				g.removeArc(to, from, PropAntiSymmetric.this);
+			}
+		};
         n = g.getNbMaxNodes();
     }
 
@@ -77,7 +81,7 @@ public class PropAntiSymmetric extends Propagator<IDirectedGraphVar> {
         for (int i = ker.getFirstElement(); i >= 0; i = ker.getNextElement()) {
             succ = g.getMandSuccOf(i);
             for (int j = succ.getFirstElement(); j >= 0; j = succ.getNextElement()) {
-                g.removeArc(j, i, aCause);
+                g.removeArc(j, i, this);
             }
         }
         gdm.unfreeze();
@@ -111,21 +115,5 @@ public class PropAntiSymmetric extends Propagator<IDirectedGraphVar> {
             return ESat.TRUE;
         }
         return ESat.UNDEFINED;
-    }
-
-    //***********************************************************************************
-    // PROCEDURES
-    //***********************************************************************************
-
-    /**
-     * Enable to remove the opposite arc
-     */
-    private class EnfProc implements PairProcedure {
-        @Override
-        public void execute(int from, int to) throws ContradictionException {
-            if (from != to) {
-                g.removeArc(to, from, aCause);
-            }
-        }
     }
 }

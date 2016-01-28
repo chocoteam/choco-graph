@@ -116,9 +116,11 @@ public class PropPathNoCircuit extends Propagator<IDirectedGraphVar> {
     }
 
     @Override
-    public ESat isEntailed() {
-        throw new UnsupportedOperationException("isEntail() not implemented yet");
-    }
+   	public ESat isEntailed() {
+   		throw new UnsupportedOperationException("isEntail() not implemented yet. " +
+   				"Please do not use -ea VM argument " +
+   				"and do not reify constraint "+this.getClass().getSimpleName());
+   	}
 
     private void enforce(int i, int j) throws ContradictionException {
         int last = end[j].get();
@@ -126,7 +128,7 @@ public class PropPathNoCircuit extends Propagator<IDirectedGraphVar> {
         if (origin[j].get() != j) {
             contradiction(g, "");
         }
-        g.removeArc(last, start, aCause);
+        g.removeArc(last, start, this);
         origin[last].set(start);
         end[start].set(last);
         size[start].add(size[j].get());

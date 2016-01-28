@@ -27,8 +27,8 @@
 
 package org.chocosolver.solver.variables.delta;
 
+import org.chocosolver.memory.IEnvironment;
 import org.chocosolver.solver.ICause;
-import org.chocosolver.solver.search.loop.ISearchLoop;
 import org.chocosolver.solver.search.loop.TimeStampedObject;
 
 public class GraphDelta extends TimeStampedObject implements IGraphDelta {
@@ -43,11 +43,11 @@ public class GraphDelta extends TimeStampedObject implements IGraphDelta {
     // CONSTRUCTORS
     //***********************************************************************************
 
-    public GraphDelta(ISearchLoop loop) {
-		super(loop);
+    public GraphDelta(IEnvironment environment) {
+        super(environment);
         deltaOfType = new IEnumDelta[NB];
         for (int i = 0; i < NB; i++) {
-            deltaOfType[i] = new EnumDelta(loop);
+            deltaOfType[i] = new EnumDelta(environment);
         }
     }
 

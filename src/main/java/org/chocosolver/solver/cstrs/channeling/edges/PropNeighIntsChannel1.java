@@ -73,14 +73,14 @@ public class PropNeighIntsChannel1 extends Propagator<IUndirectedGraphVar> {
 			ISet tmp = g.getMandSuccOrNeighOf(i);
 			for (int j = tmp.getFirstElement(); j >= 0; j = tmp.getNextElement()) {
 				if(!succs[i].contains(j)){
-					succs[j].instantiateTo(i,aCause);
+					succs[j].instantiateTo(i,this);
 				}else if(!succs[j].contains(i)){
-					succs[i].instantiateTo(j, aCause);
+					succs[i].instantiateTo(j, this);
 				}
 			}
 			for (int j=succs[i].getLB(); j<=succs[i].getUB(); j=succs[i].nextValue(j)) {
 				if (!g.getPotSuccOrNeighOf(i).contain(j)) {
-					succs[i].removeValue(j, aCause);
+					succs[i].removeValue(j, this);
 				}
 			}
 		}

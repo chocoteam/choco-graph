@@ -28,9 +28,6 @@
 package org.chocosolver.solver.search;
 
 import org.chocosolver.solver.exception.ContradictionException;
-import org.chocosolver.solver.explanations.Deduction;
-import org.chocosolver.solver.explanations.Explanation;
-import org.chocosolver.solver.explanations.ExplanationEngine;
 import org.chocosolver.solver.search.strategy.decision.Decision;
 import org.chocosolver.solver.variables.IGraphVar;
 import org.chocosolver.util.PoolManager;
@@ -50,6 +47,7 @@ public class GraphDecision extends Decision<IGraphVar> {
     //***********************************************************************************
 
     public GraphDecision(PoolManager<GraphDecision> poolManager) {
+        super(2);
         this.poolManager = poolManager;
     }
 
@@ -63,14 +61,14 @@ public class GraphDecision extends Decision<IGraphVar> {
     }
 
     public void setNode(IGraphVar variable, int node, GraphAssignment graph_ass) {
-        super.set(variable);
+        super.set(variable,variable.getSolver().getEnvironment().getWorldIndex());
         this.from = node;
         this.to = -1;
         assignment = graph_ass;
     }
 
     public void setArc(IGraphVar variable, int from, int to, GraphAssignment graph_ass) {
-        super.set(variable);
+        super.set(variable,variable.getSolver().getEnvironment().getWorldIndex());
         this.from = from;
         this.to = to;
         assignment = graph_ass;
@@ -109,10 +107,5 @@ public class GraphDecision extends Decision<IGraphVar> {
             return " node " + from + assignment.toString();
         }
         return " arc (" + from + "," + to + ")" + assignment.toString();
-    }
-
-    @Override
-    public void explain(ExplanationEngine xengine, Deduction d, Explanation e) {
-        throw new UnsupportedOperationException("GraphDecision is not equipped for explanations");
     }
 }

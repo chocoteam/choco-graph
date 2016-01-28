@@ -128,7 +128,7 @@ public class GraphVarFactory {
 		IGraphVar[] bvars = new IGraphVar[n];
 		int k = 0;
 		for (int i = 0; i < n; i++) {
-			if ((s.getVar(i).getTypeAndKind() & Variable.KIND) == Variable.GRAPH) {
+			if ((s.getVar(i).getTypeAndKind() & Variable.KIND) == GraphVar.GRAPH) {
 				bvars[k++] = (IGraphVar) s.getVar(i);
 			}
 		}

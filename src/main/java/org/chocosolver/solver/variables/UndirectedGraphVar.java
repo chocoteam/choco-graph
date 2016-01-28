@@ -30,6 +30,8 @@ package org.chocosolver.solver.variables;
 import org.chocosolver.solver.ICause;
 import org.chocosolver.solver.Solver;
 import org.chocosolver.solver.exception.ContradictionException;
+import org.chocosolver.solver.explanations.Explanation;
+import org.chocosolver.solver.explanations.ExplanationEngine;
 import org.chocosolver.solver.variables.delta.IGraphDelta;
 import org.chocosolver.util.objects.graphs.UndirectedGraph;
 import org.chocosolver.util.objects.setDataStructures.ISet;
@@ -62,7 +64,7 @@ public class UndirectedGraphVar extends GraphVar<UndirectedGraph> implements IUn
     public boolean removeArc(int x, int y, ICause cause) throws ContradictionException {
         assert cause != null;
         if (LB.edgeExists(x, y)) {
-            this.contradiction(cause, GraphEventType.REMOVE_ARC, "remove mandatory arc");
+            this.contradiction(cause, "remove mandatory arc");
             return false;
         }
         if (UB.removeEdge(x, y)) {
@@ -94,7 +96,7 @@ public class UndirectedGraphVar extends GraphVar<UndirectedGraph> implements IUn
             }
             return false;
         }
-        this.contradiction(cause, GraphEventType.ADD_ARC, "enforce arc which is not in the domain");
+        this.contradiction(cause, "enforce arc which is not in the domain");
         return false;
     }
 

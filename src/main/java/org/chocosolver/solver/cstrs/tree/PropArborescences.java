@@ -126,11 +126,11 @@ public class PropArborescences extends Propagator<IDirectedGraphVar> {
 		// remove backward arcs
 		ISet potNodes = g.getPotentialNodes();
 		for (int x = potNodes.getFirstElement(); x>=0; x=potNodes.getNextElement()) {
-			g.removeArc(x, x, aCause); // no loop
+			g.removeArc(x, x, this); // no loop
 			ISet nei = g.getPotSuccOf(x);
 			for (int y = nei.getFirstElement(); y >= 0; y = nei.getNextElement()) {
 				if (domFinder.isDomminatedBy(x, y)) {
-					g.removeArc(x, y, aCause);
+					g.removeArc(x, y, this);
 				}
 			}
 		}
@@ -156,7 +156,7 @@ public class PropArborescences extends Propagator<IDirectedGraphVar> {
 				throw new UnsupportedOperationException();
 			}
 			// DOMINATOR enforcing
-			if(g.enforceNode(i, aCause)){
+			if(g.enforceNode(i, this)){
 				mandVert.set(i);
 			}
 			// ARC-DOMINATOR enforcing
@@ -169,7 +169,7 @@ public class PropArborescences extends Propagator<IDirectedGraphVar> {
 					}
 				}
 				if (arcDom) {
-					g.enforceArc(i, j, aCause);
+					g.enforceArc(i, j, this);
 				}
 			}
 		}
@@ -177,6 +177,8 @@ public class PropArborescences extends Propagator<IDirectedGraphVar> {
 
 	@Override
 	public ESat isEntailed() {
-		throw new UnsupportedOperationException("tree constraint isEntail() is not implemented");
+		throw new UnsupportedOperationException("isEntail() not implemented yet. " +
+				"Please do not use -ea VM argument " +
+				"and do not reify constraint "+this.getClass().getSimpleName());
 	}
 }

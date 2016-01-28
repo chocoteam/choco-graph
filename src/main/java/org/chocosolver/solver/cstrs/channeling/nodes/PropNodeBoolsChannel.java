@@ -66,8 +66,14 @@ public class PropNodeBoolsChannel extends Propagator<Variable> {
 		this.bools = vertices;
 		this.g = gV;
 		gdm = g.monitorDelta(this);
-		forceG = element -> bools[element].setToTrue(aCause);
-		remG = element -> bools[element].setToFalse(aCause);
+		forceG = element -> bools[element].setToTrue(this);
+		remG = element -> bools[element].setToFalse(this);
+		super.linkVariables();
+	}
+
+	@Override
+	protected void linkVariables() {
+		// do nothing, the linking is postponed because getPropagationConditions() needs some internal data
 	}
 
 	//***********************************************************************************
@@ -87,16 +93,16 @@ public class PropNodeBoolsChannel extends Propagator<Variable> {
 	public void propagate(int evtmask) throws ContradictionException {
 		for(int i=0;i<bools.length;i++){
 			if(!g.getPotentialNodes().contain(i)){
-				bools[i].setToFalse(aCause);
+				bools[i].setToFalse(this);
 			}else if(g.getMandatoryNodes().contain(i)){
-				bools[i].setToTrue(aCause);
+				bools[i].setToTrue(this);
 			}
 		}
 		for(int i=g.getPotentialNodes().getFirstElement();i>=0;i=g.getPotentialNodes().getNextElement()){
 			if(!bools[i].contains(1)){
-				g.removeNode(i,aCause);
+				g.removeNode(i,this);
 			}else if(bools[i].getLB()==1){
-				g.enforceNode(i,aCause);
+				g.enforceNode(i,this);
 			}
 		}
 		gdm.unfreeze();
@@ -106,9 +112,9 @@ public class PropNodeBoolsChannel extends Propagator<Variable> {
 	public void propagate(int idxVarInProp, int mask) throws ContradictionException {
 		if (idxVarInProp < bools.length) {
 			if(bools[idxVarInProp].getValue()==1){
-				g.enforceNode(idxVarInProp,aCause);
+				g.enforceNode(idxVarInProp,this);
 			}else{
-				g.removeNode(idxVarInProp,aCause);
+				g.removeNode(idxVarInProp,this);
 			}
 		} else {
 			gdm.freeze();

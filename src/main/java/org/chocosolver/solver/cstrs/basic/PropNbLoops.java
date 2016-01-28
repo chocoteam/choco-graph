@@ -79,22 +79,22 @@ public class PropNbLoops extends Propagator {
                 max++;
             }
         }
-        k.updateLowerBound(min, aCause);
-        k.updateUpperBound(max, aCause);
+        k.updateLowerBound(min, this);
+        k.updateUpperBound(max, this);
         if (min == max) {
             setPassive();
         } else if (k.isInstantiated()) {
             if (k.getValue() == max) {
                 for (int i = nodes.getFirstElement(); i >= 0; i = nodes.getNextElement()) {
                     if (g.getPotSuccOrNeighOf(i).contain(i)) {
-                        g.enforceArc(i, i, aCause);
+                        g.enforceArc(i, i, this);
                     }
                 }
                 setPassive();
             }else if (k.getValue() == min) {
                 for (int i = nodes.getFirstElement(); i >= 0; i = nodes.getNextElement()) {
                     if (!g.getMandSuccOrNeighOf(i).contain(i)) {
-                        g.removeArc(i, i, aCause);
+                        g.removeArc(i, i, this);
                     }
                 }
                 setPassive();

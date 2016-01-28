@@ -79,11 +79,11 @@ public class PropDiameter extends Propagator<IGraphVar> {
 		int max = -1;
 		for (int i = g.getPotentialNodes().getFirstElement(); i >= 0; i = g.getPotentialNodes().getNextElement()) {
 			if(g.getMandatoryNodes().contain(i)) {
-				diameter.updateLowerBound(BFS(i, true), aCause);
+				diameter.updateLowerBound(BFS(i, true), this);
 			}
 			max = Math.max(max,BFS(i,false));
 		}
-		diameter.updateUpperBound(max,aCause);
+		diameter.updateUpperBound(max,this);
 	}
 
 	private int BFS(int i, boolean min) {

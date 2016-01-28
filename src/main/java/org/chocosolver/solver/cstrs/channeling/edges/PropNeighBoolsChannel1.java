@@ -68,15 +68,15 @@ public class PropNeighBoolsChannel1 extends Propagator<IGraphVar> {
 		assert (n == g.getNbMaxNodes());
 		gdm = g.monitorDelta(this);
 		arcForced = (i, j) -> {
-            matrix[i][j].setToTrue(aCause);
+            matrix[i][j].setToTrue(this);
             if(!g.isDirected()){
-                matrix[j][i].setToTrue(aCause);
+                matrix[j][i].setToTrue(this);
             }
         };
 		arcRemoved = (i, j) -> {
-            matrix[i][j].setToFalse(aCause);
+            matrix[i][j].setToFalse(this);
             if(!g.isDirected()){
-                matrix[j][i].setToFalse(aCause);
+                matrix[j][i].setToFalse(this);
             }
         };
 	}
@@ -90,9 +90,9 @@ public class PropNeighBoolsChannel1 extends Propagator<IGraphVar> {
 		for (int i = 0; i < n; i++) {
 			for (int j=0;j<n;j++) {
 				if(g.getMandSuccOrNeighOf(i).contain(j)){
-					matrix[i][j].setToTrue(aCause);
+					matrix[i][j].setToTrue(this);
 				}else if (!g.getPotSuccOrNeighOf(i).contain(j)) {
-					matrix[i][j].setToFalse(aCause);
+					matrix[i][j].setToFalse(this);
 				}
 			}
 		}

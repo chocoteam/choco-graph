@@ -75,15 +75,15 @@ public class PropNeighSetsChannel1 extends Propagator<IGraphVar> {
         assert (n == g.getNbMaxNodes());
         gdm = g.monitorDelta(this);
         arcForced = (i, j) -> {
-            sets[i].addToKernel(j, aCause);
+            sets[i].addToKernel(j, this);
             if(!g.isDirected()){
-                sets[j].addToKernel(i,aCause);
+                sets[j].addToKernel(i,this);
             }
         };
         arcRemoved = (i, j) -> {
-            sets[i].removeFromEnvelope(j, aCause);
+            sets[i].removeFromEnvelope(j, this);
             if(!g.isDirected()){
-                sets[j].removeFromEnvelope(i,aCause);
+                sets[j].removeFromEnvelope(i,this);
             }
         };
     }
@@ -97,16 +97,16 @@ public class PropNeighSetsChannel1 extends Propagator<IGraphVar> {
         for (int i = 0; i < n; i++) {
             ISet tmp = g.getMandSuccOrNeighOf(i);
             for (int j = tmp.getFirstElement(); j >= 0; j = tmp.getNextElement()) {
-                sets[i].addToKernel(j, aCause);
+                sets[i].addToKernel(j, this);
 				if(!g.isDirected()){
-					sets[j].addToKernel(i,aCause);
+					sets[j].addToKernel(i,this);
 				}
             }
             for (int j=sets[i].getEnvelopeFirst(); j!=SetVar.END; j=sets[i].getEnvelopeNext()) {
                 if (!g.getPotSuccOrNeighOf(i).contain(j)) {
-                    sets[i].removeFromEnvelope(j, aCause);
+                    sets[i].removeFromEnvelope(j, this);
 					if(!g.isDirected()){
-						sets[j].removeFromEnvelope(i,aCause);
+						sets[j].removeFromEnvelope(i,this);
 					}
                 }
             }

@@ -62,12 +62,12 @@ public class PropInclusion extends Propagator<IGraphVar> {
 		g = new IGraphVar[]{g1,g2};
 		gdm = new IGraphDeltaMonitor[]{g1.monitorDelta(this),g2.monitorDelta(this)};
 		prNode = new IntProcedure[]{
-				i -> g[1].enforceNode(i,aCause),
-				i -> g[0].removeNode(i,aCause)
+				i -> g[1].enforceNode(i,this),
+				i -> g[0].removeNode(i,this)
 		};
 		prArc = new PairProcedure[]{
-				(i, j) -> g[1].enforceArc(i,j,aCause),
-				(i, j) -> g[0].removeArc(i,j,aCause)
+				(i, j) -> g[1].enforceArc(i,j,this),
+				(i, j) -> g[0].removeArc(i,j,this)
 		};
 		etNode = new GraphEventType[]{GraphEventType.ADD_NODE,GraphEventType.REMOVE_NODE};
 		etArcs = new GraphEventType[]{GraphEventType.ADD_ARC,GraphEventType.REMOVE_ARC};
@@ -81,26 +81,26 @@ public class PropInclusion extends Propagator<IGraphVar> {
 	public void propagate(int evtmask) throws ContradictionException {
 		if(g[0].getNbMaxNodes() != g[1].getNbMaxNodes()){
 			for(int i=g[1].getNbMaxNodes();i<g[0].getNbMaxNodes();i++){
-				g[0].removeNode(i,aCause);
+				g[0].removeNode(i,this);
 			}
 		}
 		ISet set = g[0].getMandatoryNodes();
 		for(int i=set.getFirstElement();i>=0;i=set.getNextElement()){
-			g[1].enforceNode(i,aCause);
+			g[1].enforceNode(i,this);
 			ISet suc = g[0].getMandSuccOrNeighOf(i);
 			for(int j=suc.getFirstElement();j>=0;j=suc.getNextElement()){
-				g[1].enforceArc(i,j,aCause);
+				g[1].enforceArc(i,j,this);
 			}
 		}
 		set = g[0].getPotentialNodes();
 		for(int i=set.getFirstElement();i>=0;i=set.getNextElement()){
 			if(!g[1].getPotentialNodes().contain(i)){
-				g[0].removeNode(i, aCause);
+				g[0].removeNode(i, this);
 			}else {
 				ISet suc = g[0].getPotSuccOrNeighOf(i);
 				for (int j = suc.getFirstElement(); j >= 0; j = suc.getNextElement()) {
 					if(!g[1].getPotSuccOrNeighOf(i).contain(j)) {
-						g[1].removeArc(i, j, aCause);
+						g[1].removeArc(i, j, this);
 					}
 				}
 			}

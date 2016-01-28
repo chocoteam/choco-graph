@@ -75,8 +75,8 @@ public class PropNeighSetsChannel2 extends Propagator<SetVar> {
         for (int i = 0; i < n; i++) {
             sdm[i] = sets[i].monitorDelta(this);
         }
-        elementForced = element -> g.enforceArc(currentSet, element, aCause);
-        elementRemoved = element -> g.removeArc(currentSet, element, aCause);
+        elementForced = element -> g.enforceArc(currentSet, element, this);
+        elementRemoved = element -> g.removeArc(currentSet, element, this);
     }
 
     //***********************************************************************************
@@ -87,12 +87,12 @@ public class PropNeighSetsChannel2 extends Propagator<SetVar> {
     public void propagate(int evtmask) throws ContradictionException {
         for (int i = 0; i < n; i++) {
             for (int j=sets[i].getKernelFirst(); j!=SetVar.END; j=sets[i].getKernelNext()) {
-                g.enforceArc(i, j, aCause);
+                g.enforceArc(i, j, this);
             }
             ISet tmp = g.getPotSuccOrNeighOf(i);
             for (int j = tmp.getFirstElement(); j >= 0; j = tmp.getNextElement()) {
                 if (!sets[i].envelopeContains(j)) {
-                    g.removeArc(i, j, aCause);
+                    g.removeArc(i, j, this);
                 }
             }
         }

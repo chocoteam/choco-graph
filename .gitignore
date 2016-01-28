@@ -27,4 +27,6 @@ target/maven-archiver/pom.properties
 
 src/main/java/META-INF/MANIFEST.MF
 
-out/production/choco-graph/META-INF/MANIFEST.MF
+out/
+
+target/

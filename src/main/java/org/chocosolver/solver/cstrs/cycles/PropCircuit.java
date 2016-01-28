@@ -115,16 +115,9 @@ public class PropCircuit extends Propagator<IDirectedGraphVar> {
 
 	@Override
 	public ESat isEntailed() {
-		ISet nodes = g.getMandatoryNodes();
-		for (int i = nodes.getFirstElement(); i >= 0; i = nodes.getNextElement()) {
-			if (g.getMandSuccOf(i).getSize() > 2 || g.getPotSuccOf(i).getSize() < 2) {
-				return ESat.FALSE;
-			}
-		}
-		if (g.isInstantiated()) {
-			return ESat.TRUE;
-		}
-		return ESat.UNDEFINED;
+		throw new UnsupportedOperationException("isEntail() not implemented yet. " +
+				"Please do not use -ea VM argument " +
+				"and do not reify constraint "+this.getClass().getSimpleName());
 	}
 
 	private void enforce(int i, int j) throws ContradictionException {
@@ -136,8 +129,8 @@ public class PropCircuit extends Propagator<IDirectedGraphVar> {
 		size[ext1].set(t);
 		size[ext2].set(t);
 		if (t > 2 && t <= n && t < n && t<g.getMandatoryNodes().getSize()) {
-			g.removeArc(ext1, ext2, aCause);
-			g.removeArc(ext2, ext1, aCause);
+			g.removeArc(ext1, ext2, this);
+			g.removeArc(ext2, ext1, this);
 		}
 	}
 

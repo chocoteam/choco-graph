@@ -711,7 +711,7 @@ public class GraphConstraintFactory {
 				new PropNodeDegree_AtLeast_Incr(g, Orientation.PREDECESSORS, 1),
 				new PropNodeDegree_AtMost_Incr(g, Orientation.SUCCESSORS, 1),
 				new PropNodeDegree_AtMost_Incr(g, Orientation.PREDECESSORS, 1),
-				new PropNbSCC(g,g.getSolver().ONE),
+				new PropNbSCC(g,g.getSolver().ONE()),
 				new PropCircuit(g)
 		);
 	}
@@ -768,12 +768,12 @@ public class GraphConstraintFactory {
 		return new Constraint("NbCC",new PropNbCC(g,nb));
 	}
 	/**
-	 * Creates a strong connectedness constraint which ensures that g is strongly connected
+	 * Creates a strong connectedness constraint which ensures that g has exactly one strongly connected component
 	 * @param g	a directed graph variable
 	 * @return A strong connectedness constraint which ensures that g is strongly connected
 	 */
 	public static Constraint strongly_connected(IDirectedGraphVar g){
-		return nb_strongly_connected_components(g, VF.bounded("nbSCC", 0, g.getNbMaxNodes(), g.getSolver()));
+		return nb_strongly_connected_components(g, g.getSolver().ONE());
 	}
 
 	/**
@@ -959,7 +959,7 @@ public class GraphConstraintFactory {
 	 */
 	public static Constraint diameter(IDirectedGraphVar g, IntVar d) {
 		return new Constraint("NbCliques",
-				new PropNbSCC(g,g.getSolver().ONE),
+				new PropNbSCC(g,g.getSolver().ONE()),
 				new PropDiameter(g, d)
 		);
 	}

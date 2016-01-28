@@ -98,24 +98,24 @@ public class PropNodeDegree_Var extends Propagator<Variable> {
 	public void propagateDirected() throws ContradictionException {
 		for(int i=0;i<n;i++){
 			if(!g.getPotentialNodes().contain(i)){
-				degrees[i].instantiateTo(0,aCause);
+				degrees[i].instantiateTo(0,this);
 			}else if(degrees[i].getLB()>0){
-				g.enforceNode(i,aCause);
+				g.enforceNode(i,this);
 			}
 			ISet env = target.getPotSet(g, i);
 			ISet ker = target.getMandSet(g, i);
-			degrees[i].updateLowerBound(ker.getSize(),aCause);
-			degrees[i].updateUpperBound(env.getSize(),aCause);
+			degrees[i].updateLowerBound(ker.getSize(),this);
+			degrees[i].updateUpperBound(env.getSize(),this);
 			if(ker.getSize() < env.getSize() && degrees[i].isInstantiated()){
 				int d = degrees[i].getValue();
 				if(env.getSize() == d){
 					for (int s = env.getFirstElement(); s >= 0; s = env.getNextElement()) {
-						target.enforce(g, i, s, aCause);
+						target.enforce(g, i, s, this);
 					}
 				}else if(ker.getSize() == d){
 					for (int s = env.getFirstElement(); s >= 0; s = env.getNextElement()) {
 						if(!ker.contain(s)) {
-							target.remove(g, i, s, aCause);
+							target.remove(g, i, s, this);
 						}
 					}
 				}
@@ -133,26 +133,26 @@ public class PropNodeDegree_Var extends Propagator<Variable> {
 		do{
 			toDo.clear(i);
 			if(!g.getPotentialNodes().contain(i)){
-				degrees[i].instantiateTo(0,aCause);
+				degrees[i].instantiateTo(0,this);
 			}else if(degrees[i].getLB()>0){
-				g.enforceNode(i,aCause);
+				g.enforceNode(i,this);
 			}
 			ISet env = target.getPotSet(g, i);
 			ISet ker = target.getMandSet(g, i);
-			degrees[i].updateLowerBound(ker.getSize(),aCause);
-			degrees[i].updateUpperBound(env.getSize(),aCause);
+			degrees[i].updateLowerBound(ker.getSize(),this);
+			degrees[i].updateUpperBound(env.getSize(),this);
 			if(ker.getSize() < env.getSize() && degrees[i].isInstantiated()){
 				int d = degrees[i].getValue();
 				if(env.getSize() == d){
 					for (int s = env.getFirstElement(); s >= 0; s = env.getNextElement()) {
-						if(target.enforce(g, i, s, aCause)){
+						if(target.enforce(g, i, s, this)){
 							toDo.set(s);
 						}
 					}
 				}else if(ker.getSize() == d){
 					for (int s = env.getFirstElement(); s >= 0; s = env.getNextElement()) {
 						if(!ker.contain(s)) {
-							if (target.remove(g, i, s, aCause)) {
+							if (target.remove(g, i, s, this)) {
 								toDo.set(s);
 							}
 						}
