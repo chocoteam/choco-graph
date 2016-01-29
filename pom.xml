@@ -31,7 +31,7 @@
 
     <groupId>org.choco-solver</groupId>
     <artifactId>choco-graph</artifactId>
-    <version>3.3.3-SNAPSHOT</version>
+    <version>3.3.3</version>
     <packaging>jar</packaging>
     <name>A graph module for Choco3</name>
     <url>https://github.com/chocoteam/choco-graph</url>
