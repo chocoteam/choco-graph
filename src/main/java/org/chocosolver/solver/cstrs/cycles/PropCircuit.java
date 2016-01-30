@@ -115,9 +115,9 @@ public class PropCircuit extends Propagator<IDirectedGraphVar> {
 
 	@Override
 	public ESat isEntailed() {
-		throw new UnsupportedOperationException("isEntail() not implemented yet. " +
-				"Please do not use -ea VM argument " +
-				"and do not reify constraint "+this.getClass().getSimpleName());
+		System.out.println("[WARNING] "+this.getClass().getSimpleName()+".isEntail() is not implemented yet " +
+				"and returns true by default. Please do not reify this constraint ");
+		return ESat.TRUE;
 	}
 
 	private void enforce(int i, int j) throws ContradictionException {
