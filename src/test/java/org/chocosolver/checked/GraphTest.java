@@ -52,9 +52,9 @@ public class GraphTest {
         }
         final IUndirectedGraphVar sol = model.graphVar("solution", LB, UB);
         model.connected(sol).post();
-        model.nodes_channeling(sol, isVertexPresent).post();
+        model.nodesChanneling(sol, isVertexPresent).post();
         for (int i = 0; i < 3; i++) {
-            model.edge_channeling(sol, isEdgePresent[i], edges[i][0], edges[i][1]).post();
+            model.edgeChanneling(sol, isEdgePresent[i], edges[i][0], edges[i][1]).post();
         }
         final IntVar sum = model.intVar("sum", -50, 50);
         model.sum(ArrayUtils.append(actEdgeW, actVertW), "=", sum).post();
