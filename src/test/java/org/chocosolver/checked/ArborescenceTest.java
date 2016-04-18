@@ -27,14 +27,12 @@
 
 package org.chocosolver.checked;
 
+import org.chocosolver.graphsolver.GraphModel;
 import org.testng.annotations.Test;
 import org.chocosolver.solver.Solver;
-import org.chocosolver.solver.cstrs.GraphConstraintFactory;
-import org.chocosolver.solver.search.GraphStrategyFactory;
-import org.chocosolver.solver.search.loop.monitors.SearchMonitorFactory;
-import org.chocosolver.solver.variables.GraphVarFactory;
-import org.chocosolver.solver.variables.IDirectedGraphVar;
-import org.chocosolver.solver.variables.VariableFactory;
+import org.chocosolver.graphsolver.search.GraphStrategyFactory;
+
+import org.chocosolver.graphsolver.variables.IDirectedGraphVar;
 import org.chocosolver.util.objects.graphs.DirectedGraph;
 import org.chocosolver.util.objects.setDataStructures.SetType;
 
@@ -43,20 +41,20 @@ import static org.testng.Assert.assertTrue;
 
 public class ArborescenceTest {
 
-	private static SetType graphTypeEnv = SetType.BOOL_ARRAY;
-	private static SetType graphTypeKer = SetType.BOOL_ARRAY;
+	private static SetType graphTypeEnv = SetType.BIPARTITESET;
+	private static SetType graphTypeKer = SetType.BIPARTITESET;
 
 	public static Solver model(int n, int seed, boolean gac) {
-		final Solver s = new Solver();
-		DirectedGraph GLB = new DirectedGraph(s,n,graphTypeKer,false);
-		DirectedGraph GUB = new DirectedGraph(s,n,graphTypeEnv,false);
+		final GraphModel m = new GraphModel();
+		DirectedGraph GLB = new DirectedGraph(m,n,graphTypeKer,false);
+		DirectedGraph GUB = new DirectedGraph(m,n,graphTypeEnv,false);
 		for (int i = 0; i < n; i++) {
 			for (int j = 1; j < n; j++) {
 				GUB.addArc(i, j);
 			}
 		}
 		GLB.addNode(0);
-		final IDirectedGraphVar g = GraphVarFactory.directed_graph_var("G", GLB, GUB, s);
+		final IDirectedGraphVar g = m.directed_graph_var("G", GLB, GUB);
 		int[] preds = new int[n];
 		for (int i = 0; i < n; i++) {
 			preds[i] = 1;
@@ -64,21 +62,21 @@ public class ArborescenceTest {
 		preds[0] = 0;
 		System.out.println("%%%%%%%%%");
 		if(gac) {
-			s.post(GraphConstraintFactory.directed_tree(g, 0));
+			m.directed_tree(g, 0).post();
 		}else{
-			s.post(GraphConstraintFactory.directed_forest(g));
+			m.directed_forest(g).post();
 			int[] indeg = new int[n];
 			for(int i=0;i<n;i++) {
 				indeg[i] = 1;
 			}
 			indeg[0] = 0;
-			s.post(GraphConstraintFactory.min_in_degrees(g, indeg));
+			m.min_in_degrees(g, indeg).post();
 		}
-		s.post(GraphConstraintFactory.nb_nodes(g, VariableFactory.bounded("nbNodes", n / 3, n, s)));
-		s.set(GraphStrategyFactory.random(g, seed));
-		SearchMonitorFactory.limitSolution(s, 1000);
-		s.findAllSolutions();
-		return s;
+		m.nb_nodes(g, m.intVar("nbNodes", n / 3, n)).post();
+		m.getSolver().set(GraphStrategyFactory.random(g, seed));
+		m.getSolver().limitSolution(1000);
+		while(m.solve());
+		return m.getSolver();
 	}
 
 	@Test(groups = "10s")

@@ -974,7 +974,7 @@ public class KnightTourProblem extends AbstractProblem {
 			}
 			// find its lowest remaining degree neighbor
 			suc = g.getPotNeighOf(from);
-			for (int j = suc.getFirstElement(); j >= 0; j = suc.getNextElement()) {
+			for (int j : suc) {
 				if (!g.getMandNeighOf(from).contain(j)) {
 					to = j;
 					return true;

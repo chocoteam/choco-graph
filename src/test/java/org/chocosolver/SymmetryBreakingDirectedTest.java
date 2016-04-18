@@ -1,19 +1,14 @@
 package org.chocosolver;
 
-import org.chocosolver.solver.Solver;
+import org.chocosolver.graphsolver.GraphModel;
 import org.chocosolver.solver.constraints.Constraint;
 import org.chocosolver.solver.constraints.Propagator;
 import org.chocosolver.solver.constraints.PropagatorPriority;
-import org.chocosolver.solver.cstrs.GCF;
 import org.chocosolver.solver.exception.ContradictionException;
-import org.chocosolver.solver.search.GraphStrategyFactory;
-import org.chocosolver.solver.variables.GraphVarFactory;
-import org.chocosolver.solver.variables.IDirectedGraphVar;
-import org.chocosolver.solver.variables.VF;
+import org.chocosolver.graphsolver.variables.IDirectedGraphVar;
 import org.chocosolver.util.ESat;
 import org.chocosolver.util.objects.graphs.DirectedGraph;
 import org.chocosolver.util.objects.setDataStructures.SetType;
-import org.chocosolver.util.objects.setDataStructures.iterableSet.ItSet;
 import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
@@ -45,7 +40,7 @@ public class SymmetryBreakingDirectedTest {
 
             void dfs(boolean[] used, int u) {
                 used[u] = true;
-                for (int v: new ItSet(graph.getPotSuccOf(u))) {
+                for (int v: graph.getPotSuccOf(u)) {
                     if (!used[v]) {
                         dfs(used, v);
                     }
@@ -93,27 +88,25 @@ public class SymmetryBreakingDirectedTest {
      * @return true, if solution exists and false otherwise
      */
     private static boolean solutionExists(int n, int m, boolean addSymmetryBreaking) {
-        Solver solver = new Solver();
-        DirectedGraph GLB = new DirectedGraph(solver, n, SetType.BITSET, true);
-        DirectedGraph GUB = new DirectedGraph(solver, n, SetType.BITSET, true);
+        GraphModel model = new GraphModel();
+        DirectedGraph GLB = new DirectedGraph(model, n, SetType.BITSET, true);
+        DirectedGraph GUB = new DirectedGraph(model, n, SetType.BITSET, true);
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
                 GUB.addArc(i, j);
             }
         }
-        IDirectedGraphVar graph = GraphVarFactory.directed_graph_var("G", GLB, GUB, solver);
+        IDirectedGraphVar graph = model.directed_graph_var("G", GLB, GUB);
 
-        solver.set(GraphStrategyFactory.lexico(graph));
-
-        solver.post(containsDirectedTree(graph));
-        solver.post(GCF.nb_arcs(graph, VF.fixed(m, solver)));
-        solver.post(GCF.no_circuit(graph));
+        containsDirectedTree(graph).post();
+        model.nb_arcs(graph, model.intVar(m)).post();
+        model.no_circuit(graph).post();
 
         // add symmetry breaking constraint if necessary
         if (addSymmetryBreaking) {
-            GCF.postSymmetryBreaking(graph, solver);
+            model.postSymmetryBreaking(graph);
         }
-        return solver.findSolution();
+        return model.solve();
     }
 
     @BeforeMethod

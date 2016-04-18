@@ -29,4 +29,6 @@ src/main/java/META-INF/MANIFEST.MF
 
 out/
 
+.idea/*
+
 target/

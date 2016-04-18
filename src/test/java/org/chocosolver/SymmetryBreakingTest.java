@@ -1,17 +1,14 @@
 package org.chocosolver;
 
-import org.chocosolver.solver.Solver;
+import org.chocosolver.graphsolver.GraphModel;
 import org.chocosolver.solver.constraints.Constraint;
-import org.chocosolver.solver.cstrs.GCF;
-import org.chocosolver.solver.search.GraphStrategyFactory;
-import org.chocosolver.solver.variables.GraphVarFactory;
-import org.chocosolver.solver.variables.IUndirectedGraphVar;
-import org.chocosolver.solver.variables.VF;
-import org.chocosolver.util.Pair;
-import org.chocosolver.util.PropGirth;
+import org.chocosolver.graphsolver.search.GraphStrategyFactory;
+
+import org.chocosolver.graphsolver.variables.IUndirectedGraphVar;
+import org.chocosolver.graphsolver.cstrs.symmbreaking.Pair;
+import org.chocosolver.graphsolver.cstrs.symmbreaking.PropGirth;
 import org.chocosolver.util.objects.graphs.UndirectedGraph;
 import org.chocosolver.util.objects.setDataStructures.SetType;
-import org.chocosolver.util.objects.setDataStructures.iterableSet.ItSet;
 import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
@@ -64,7 +61,7 @@ public class SymmetryBreakingTest {
         for (int i = 1; i <= n; i++) {
             HashSet<Pair<Integer, Integer>> set = new HashSet<>();
             for (Pair<Integer, Integer> u: reachable) {
-                for (int v: new ItSet(graph.getMandNeighOf(u.getA()))) {
+                for (int v: graph.getMandNeighOf(u.getA())) {
                     if (v != u.getB()) {
                         if (v == vertex) {
                             return i;
@@ -89,34 +86,32 @@ public class SymmetryBreakingTest {
      * @return true, if solution exists and false otherwise
      */
     private static boolean solutionExists(int n, int m, int l, boolean addSymmetryBreaking) {
-        Solver solver = new Solver();
-        UndirectedGraph GLB = new UndirectedGraph(solver, n, SetType.BITSET, true);
-        UndirectedGraph GUB = new UndirectedGraph(solver, n, SetType.BITSET, true);
+        GraphModel model = new GraphModel();
+        UndirectedGraph GLB = new UndirectedGraph(model, n, SetType.BITSET, true);
+        UndirectedGraph GUB = new UndirectedGraph(model, n, SetType.BITSET, true);
         for (int i = 0; i < n; i++) {
             for (int j = i + 1; j < n; j++) {
                 GUB.addEdge(i, j);
             }
         }
-        IUndirectedGraphVar graph = GraphVarFactory.undirected_graph_var("G", GLB, GUB, solver);
+        IUndirectedGraphVar graph = model.undirected_graph_var("G", GLB, GUB);
         // graph mush contains n nodes, m edges and have girth exactly l
-        solver.set(GraphStrategyFactory.lexico(graph));
-        solver.post(GCF.nb_edges(graph, VF.fixed(m, solver)));
-        solver.post(GCF.connected(graph)); // GCF.postSymmetryBreaking is sb predicate only for connected undirected graphs
-        solver.post(new Constraint("GirthConstraint", new PropGirth(graph, VF.fixed(l, solver))));
+        model.getSolver().set(GraphStrategyFactory.inputOrder(graph));
+        model.nb_edges(graph, model.intVar(m)).post();
+        model.connected(graph).post(); // GCF.postSymmetryBreaking is sb predicate only for connected undirected graphs
+        new Constraint("GirthConstraint", new PropGirth(graph, model.intVar(l))).post();
         // add symmetry breaking constraint if necessary
         if (addSymmetryBreaking) {
             // choose one to test
-            GCF.postSymmetryBreaking(graph, solver);
-//            solver.post(GCF.symmetryBreaking2(graph, solver));
-//            solver.post(GCF.symmetryBreaking3(graph, solver));
+            model.postSymmetryBreaking(graph);
+//            model.symmetryBreaking2(graph, solver));
+//            model.symmetryBreaking3(graph, solver));
         }
-        boolean result = solver.findSolution();
+        boolean result = model.solve();
         if (result) { // check correctness of found answer
             int count = 0;
             for (int u = 0; u < n; u++) {
-                for (int v: new ItSet(graph.getMandNeighOf(u))) {
-                    count++;
-                }
+                count += graph.getMandNeighOf(u).getSize();
             }
             Assert.assertEquals(count, 2 * m, "correct number of edges");
             Assert.assertEquals(getGraphGirth(graph), l, "correct girth");

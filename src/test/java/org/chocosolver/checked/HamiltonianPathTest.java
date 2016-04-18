@@ -28,28 +28,15 @@
 package org.chocosolver.checked;
 
 import gnu.trove.list.array.TIntArrayList;
-import org.chocosolver.solver.search.strategy.decision.IntDecision;
+import org.chocosolver.graphsolver.GraphModel;
+import org.chocosolver.solver.search.strategy.SearchStrategyFactory;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import org.chocosolver.samples.input.GraphGenerator;
-import org.chocosolver.solver.Solver;
-import org.chocosolver.solver.constraints.ICF;
-import org.chocosolver.solver.cstrs.GraphConstraintFactory;
-import org.chocosolver.solver.exception.ContradictionException;
-import org.chocosolver.solver.search.loop.monitors.SearchMonitorFactory;
-import org.chocosolver.solver.search.measure.IMeasures;
-import org.chocosolver.solver.search.GraphStrategyFactory;
-import org.chocosolver.solver.search.strategy.ISF;
-import org.chocosolver.solver.search.strategy.assignments.DecisionOperator;
-import org.chocosolver.solver.search.strategy.decision.Decision;
-import org.chocosolver.solver.search.strategy.strategy.AbstractStrategy;
-import org.chocosolver.solver.search.strategy.ArcStrategy;
-import org.chocosolver.solver.search.strategy.GraphStrategy;
-import org.chocosolver.solver.variables.GraphVarFactory;
+import org.chocosolver.graphsolver.search.GraphStrategyFactory;
+
 import org.chocosolver.solver.variables.IntVar;
-import org.chocosolver.solver.variables.VF;
-import org.chocosolver.solver.variables.IDirectedGraphVar;
-import org.chocosolver.util.PoolManager;
+import org.chocosolver.graphsolver.variables.IDirectedGraphVar;
 import org.chocosolver.util.objects.graphs.DirectedGraph;
 import org.chocosolver.util.objects.setDataStructures.SetType;
 
@@ -89,11 +76,11 @@ public class HamiltonianPathTest {
 	}
 
 	private static void testProblem(boolean[][] matrix, long s, boolean rd, boolean strongFilter) {
-		Solver solver = new Solver();
+		GraphModel model = new GraphModel();
 		int n = matrix.length;
 		// build model
-		DirectedGraph GLB = new DirectedGraph(solver,n,SetType.LINKED_LIST,true);
-		DirectedGraph GUB = new DirectedGraph(solver,n,SetType.BITSET,true);
+		DirectedGraph GLB = new DirectedGraph(n,SetType.LINKED_LIST,true);
+		DirectedGraph GUB = new DirectedGraph(n,SetType.BITSET,true);
 		for (int i = 0; i < n - 1; i++) {
 			for (int j = 1; j < n; j++) {
 				if (matrix[i][j]) {
@@ -101,29 +88,28 @@ public class HamiltonianPathTest {
 				}
 			}
 		}
-		IDirectedGraphVar graph = GraphVarFactory.directed_graph_var("G", GLB, GUB, solver);
-		solver.post(GraphConstraintFactory.path(graph, 0, n - 1));
+		IDirectedGraphVar graph = model.directed_graph_var("G", GLB, GUB);
+		model.path(graph, 0, n - 1).post();
 		if(strongFilter){
 			// could add alldiff as well
-			solver.post(GraphConstraintFactory.reachability(graph,0));
+			model.reachability(graph,0).post();
 		}
 
 		// configure solver
 		if (rd) {
-			solver.set(GraphStrategyFactory.random(graph, s));
+			model.getSolver().set(GraphStrategyFactory.random(graph, s));
 		} else {
-			solver.set(GraphStrategyFactory.graphStrategy(graph, null, new ConstructorHeur(graph, 0), GraphStrategy.NodeArcPriority.ARCS));
+			model.getSolver().set(GraphStrategyFactory.inputOrder(graph));
 		}
-		SearchMonitorFactory.limitTime(solver, TIME_LIMIT);
-		solver.findSolution();
-		IMeasures mes = solver.getMeasures();
+		model.getSolver().limitTime(TIME_LIMIT);
+		model.solve();
 
 		// the problem has at least one solution
-		Assert.assertFalse(mes.getSolutionCount() == 0 && mes.getTimeCount() < TIME_LIMIT/1000);
+		Assert.assertFalse(model.getSolver().getSolutionCount() == 0 && model.getSolver().getTimeCount() < TIME_LIMIT/1000);
 	}
 
 	private static void testInt(boolean[][] matrix, long seed, boolean rd, boolean enumerated) {
-		Solver solver = new Solver();
+		GraphModel model = new GraphModel();
 		int n = matrix.length;
 		// build model
 		IntVar[] succ = new IntVar[n];
@@ -138,29 +124,24 @@ public class HamiltonianPathTest {
 			}
 			if(l.isEmpty())throw new UnsupportedOperationException();
 			if(enumerated){
-				succ[i] = VF.enumerated("suc",l.toArray(),solver);
+				succ[i] = model.intVar("suc",l.toArray());
 			}else{
-				succ[i] = VF.bounded("suc",offset,n+offset,solver);
-				solver.post(ICF.member(succ[i],l.toArray()));
+				succ[i] = model.intVar("suc",offset,n+offset,true);
+				model.member(succ[i],l.toArray()).post();
 			}
 		}
-		succ[n-1] = VF.fixed(n+offset,solver);
-		solver.post(ICF.path(succ,VF.fixed(offset,solver),VF.fixed(n-1+offset,solver),offset));
+		succ[n-1] = model.intVar(n+offset);
+		model.path(succ,model.intVar(offset),model.intVar(n-1+offset),offset).post();
 		// configure solver
 		if (rd) {
-			if(enumerated){
-				solver.set(ISF.random_value(succ,seed));
-			}else{
-				solver.set(ISF.random_bound(succ, seed));
-			}
+			model.getSolver().set(SearchStrategyFactory.randomSearch(succ,seed));
 		} else {
-			solver.set(new ConstructorIntHeur(succ,offset));
+			model.getSolver().set(SearchStrategyFactory.inputOrderLBSearch(succ));
 		}
-		SearchMonitorFactory.limitTime(solver, TIME_LIMIT);
-		solver.findSolution();
-		IMeasures mes = solver.getMeasures();
+		model.getSolver().limitTime(TIME_LIMIT);
+		model.solve();
 		// the problem has at least one solution
-		Assert.assertFalse(mes.getSolutionCount() == 0 && mes.getTimeCount() < TIME_LIMIT/1000);
+		Assert.assertFalse(model.getSolver().getSolutionCount() == 0 && model.getSolver().getTimeCount() < TIME_LIMIT/1000);
 	}
 
 	private static boolean[][] transformMatrix(boolean[][] m) {
@@ -172,76 +153,76 @@ public class HamiltonianPathTest {
 		}
 		return matrix;
 	}
-
-	// constructive heuristic, can be useful to debug
-	private static class ConstructorHeur extends ArcStrategy<IDirectedGraphVar> {
-		int source, n;
-
-		public ConstructorHeur(IDirectedGraphVar graphVar, int s) {
-			super(graphVar);
-			source = s;
-			n = graphVar.getNbMaxNodes();
-		}
-
-		@Override
-		public boolean computeNextArc() {
-			int x = source;
-			int y = g.getMandSuccOf(x).getFirstElement();
-			int nb = 1;
-			while (y != -1) {
-				x = y;
-				y = g.getMandSuccOf(x).getFirstElement();
-				nb++;
-			}
-			y = g.getPotSuccOf(x).getFirstElement();
-			if (y == -1) {
-				if (x != n - 1 || nb != n) {
-					for (int i = 0; i < n; i++) {
-						if (g.getPotSuccOf(i).getSize() > 1) {
-							this.from = i;
-							this.to = g.getPotSuccOf(i).getFirstElement();
-							return true;
-						}
-					}
-					throw new UnsupportedOperationException();
-				}
-				return false;
-			}
-			this.from = x;
-			this.to = y;
-			return true;
-		}
-	}
-
-	private static class ConstructorIntHeur extends AbstractStrategy<IntVar> {
-		int n, offset;
-		PoolManager<IntDecision> pool;
-
-		public ConstructorIntHeur(IntVar[] v, int off) {
-			super(v);
-			offset = off;
-			n = v.length;
-			pool = new PoolManager<>();
-		}
-
-		@Override
-		public boolean init() {
-			return true;
-		}
-
-		@Override
-		public Decision<IntVar> getDecision() {
-			int x = 0;
-			while (vars[x].isInstantiated()) {
-				x = vars[x].getValue()-offset;
-				if(x==vars.length){
-					return null;
-				}
-			}
-			IntDecision d = pool.getE();
-			if(d==null)d=new IntDecision(pool);
-			d.set(vars[x], vars[x].getLB(), DecisionOperator.int_eq);
-			return d;
-		}
-	}
+//
+//	// constructive heuristic, can be useful to debug
+//	private static class ConstructorHeur extends ArcStrategy<IDirectedGraphVar> {
+//		int source, n;
+//
+//		public ConstructorHeur(IDirectedGraphVar graphVar, int s) {
+//			super(graphVar);
+//			source = s;
+//			n = graphVar.getNbMaxNodes();
+//		}
+//
+//		@Override
+//		public boolean computeNextArc() {
+//			int x = source;
+//			int y = g.getMandSuccOf(x).getFirstElement();
+//			int nb = 1;
+//			while (y != -1) {
+//				x = y;
+//				y = g.getMandSuccOf(x).getFirstElement();
+//				nb++;
+//			}
+//			y = g.getPotSuccOf(x).getFirstElement();
+//			if (y == -1) {
+//				if (x != n - 1 || nb != n) {
+//					for (int i = 0; i < n; i++) {
+//						if (g.getPotSuccOf(i).getSize() > 1) {
+//							this.from = i;
+//							this.to = g.getPotSuccOf(i).getFirstElement();
+//							return true;
+//						}
+//					}
+//					throw new UnsupportedOperationException();
+//				}
+//				return false;
+//			}
+//			this.from = x;
+//			this.to = y;
+//			return true;
+//		}
+//	}
+//
+//	private static class ConstructorIntHeur extends AbstractStrategy<IntVar> {
+//		int n, offset;
+//		PoolManager<IntDecision> pool;
+//
+//		public ConstructorIntHeur(IntVar[] v, int off) {
+//			super(v);
+//			offset = off;
+//			n = v.length;
+//			pool = new PoolManager<>();
+//		}
+//
+//		@Override
+//		public boolean init() {
+//			return true;
+//		}
+//
+//		@Override
+//		public Decision<IntVar> getDecision() {
+//			int x = 0;
+//			while (vars[x].isInstantiated()) {
+//				x = vars[x].getValue()-offset;
+//				if(x==vars.length){
+//					return null;
+//				}
+//			}
+//			IntDecision d = pool.getE();
+//			if(d==null)d=new IntDecision(pool);
+//			d.set(vars[x], vars[x].getLB(), DecisionOperator.int_eq);
+//			return d;
+//		}
+//	}
 }

@@ -27,10 +27,10 @@
 
 package org.chocosolver.checked;
 
+import org.chocosolver.graphsolver.GraphModel;
+import org.chocosolver.graphsolver.variables.IGraphVar;
 import org.testng.Assert;
 import org.testng.annotations.Test;
-import org.chocosolver.solver.Solver;
-import org.chocosolver.solver.variables.*;
 
 /**
  * @author Jean-Guillaume Fages
@@ -39,9 +39,9 @@ public class SolverTest {
 
     @Test(groups = "1s")
     public void testFH1() {
-        Solver solver = new Solver();
-		IGraphVar g = GraphVarFactory.directed_graph_var("g", 5, solver);
-		IGraphVar[] gvars = GraphVarFactory.retrieveGraphVars(solver);
+        GraphModel model = new GraphModel();
+		IGraphVar g = model.directed_graph_var("g", 5);
+		IGraphVar[] gvars = model.retrieveGraphVars(model);
         Assert.assertEquals(gvars, new IGraphVar[]{g});
     }
 }

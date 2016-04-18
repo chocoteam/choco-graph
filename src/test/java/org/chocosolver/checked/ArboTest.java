@@ -27,12 +27,11 @@
 
 package org.chocosolver.checked;
 
+import org.chocosolver.graphsolver.GraphModel;
 import org.testng.annotations.Test;
-import org.chocosolver.solver.Solver;
-import org.chocosolver.solver.cstrs.GraphConstraintFactory;
-import org.chocosolver.solver.search.GraphStrategyFactory;
-import org.chocosolver.solver.variables.GraphVarFactory;
-import org.chocosolver.solver.variables.IDirectedGraphVar;
+import org.chocosolver.graphsolver.search.GraphStrategyFactory;
+
+import org.chocosolver.graphsolver.variables.IDirectedGraphVar;
 import org.chocosolver.util.objects.graphs.DirectedGraph;
 import org.chocosolver.util.objects.setDataStructures.SetType;
 
@@ -40,25 +39,26 @@ import static org.testng.Assert.assertTrue;
 
 public class ArboTest {
 
-	private static SetType graphTypeEnv = SetType.BOOL_ARRAY;
-	private static SetType graphTypeKer = SetType.BOOL_ARRAY;
+	private static SetType graphTypeEnv = SetType.BITSET;
+	private static SetType graphTypeKer = SetType.BITSET;
 
 	public static void model(int n, int seed) {
-		Solver s = new Solver();
-		DirectedGraph GLB = new DirectedGraph(s,n,graphTypeKer, false);
-		DirectedGraph GUB = new DirectedGraph(s,n,graphTypeEnv, false);
+		GraphModel model = new GraphModel();
+		DirectedGraph GLB = new DirectedGraph(model,n,graphTypeKer, false);
+		DirectedGraph GUB = new DirectedGraph(model,n,graphTypeEnv, false);
 		for (int i = 0; i < n; i++) {
 			for (int j = 0; j < n; j++) {
 				GUB.addArc(i, j);
 			}
 		}
-		IDirectedGraphVar g = GraphVarFactory.directed_graph_var("G", GLB, GUB, s);
-		s.post(GraphConstraintFactory.directed_forest(g));
-		s.set(GraphStrategyFactory.random(g, seed));
-		s.findAllSolutions();
+		IDirectedGraphVar g = model.directed_graph_var("G", GLB, GUB);
+		model.directed_forest(g).post();
+		model.getSolver().set(GraphStrategyFactory.random(g, seed));
 
-		assertTrue(s.getMeasures().getFailCount() == 0);
-		assertTrue(s.getMeasures().getSolutionCount() > 0);
+		while (model.solve());
+
+		assertTrue(model.getSolver().getFailCount() == 0);
+		assertTrue(model.getSolver().getSolutionCount() > 0);
 	}
 
 	@Test(groups = "1m")

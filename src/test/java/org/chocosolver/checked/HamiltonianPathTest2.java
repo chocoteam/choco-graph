@@ -27,25 +27,22 @@
 
 package org.chocosolver.checked;
 
+import org.chocosolver.graphsolver.GraphModel;
 import org.testng.Assert;
 import org.testng.annotations.Test;
-import org.chocosolver.samples.AbstractProblem;
 import org.chocosolver.samples.input.GraphGenerator;
 import org.chocosolver.solver.Cause;
 import org.chocosolver.solver.Solver;
-import org.chocosolver.solver.constraints.IntConstraintFactory;
-import org.chocosolver.solver.cstrs.GraphConstraintFactory;
 import org.chocosolver.solver.exception.ContradictionException;
-import org.chocosolver.solver.search.GraphStrategyFactory;
+import org.chocosolver.graphsolver.search.GraphStrategyFactory;
 import org.chocosolver.solver.search.strategy.strategy.AbstractStrategy;
-import org.chocosolver.solver.variables.GraphVarFactory;
-import org.chocosolver.solver.variables.IDirectedGraphVar;
+
+import org.chocosolver.graphsolver.variables.IDirectedGraphVar;
 import org.chocosolver.solver.variables.IntVar;
-import org.chocosolver.solver.variables.VariableFactory;
 import org.chocosolver.util.objects.graphs.DirectedGraph;
 import org.chocosolver.util.objects.setDataStructures.SetType;
 
-public class HamiltonianPathTest2 extends AbstractProblem {
+public class HamiltonianPathTest2 {
 
 	//***********************************************************************************
 	// VARIABLES
@@ -53,40 +50,17 @@ public class HamiltonianPathTest2 extends AbstractProblem {
 
 	private static SetType gt;
 
-	private int n;
-	private IDirectedGraphVar graph;
-	private boolean[][] adjacencyMatrix;
-	// model parameters
-	private long seed;
-	private boolean strongFilter;
-
 	//***********************************************************************************
 	// CONSTRUCTORS
 	//***********************************************************************************
 
-	private void set(boolean[][] matrix, long s, boolean strong) {
-		seed = s;
-		n = matrix.length;
-		adjacencyMatrix = matrix;
-		strongFilter = strong;
-	}
+	public Solver solve(boolean[][] adjacencyMatrix, long seed, boolean strongFilter) {
+		int n = adjacencyMatrix.length;
 
-	//***********************************************************************************
-	// MODEL
-	//***********************************************************************************
-
-
-	@Override
-	public void createSolver() {
-		level = Level.SILENT;
-		solver = new Solver();
-	}
-
-	@Override
-	public void buildModel() {
+		GraphModel model = new GraphModel();
 		// create model
-		DirectedGraph GLB = new DirectedGraph(solver, n, SetType.LINKED_LIST, true);
-		DirectedGraph GUB = new DirectedGraph(solver, n, SetType.LINKED_LIST, true);
+		DirectedGraph GLB = new DirectedGraph( n, SetType.LINKED_LIST, true);
+		DirectedGraph GUB = new DirectedGraph( n, SetType.LINKED_LIST, true);
 		for (int i = 0; i < n - 1; i++) {
 			for (int j = 1; j < n; j++) {
 				if (adjacencyMatrix[i][j]) {
@@ -94,32 +68,20 @@ public class HamiltonianPathTest2 extends AbstractProblem {
 				}
 			}
 		}
-		graph = GraphVarFactory.directed_graph_var("G", GLB, GUB, solver);
-		solver.post(GraphConstraintFactory.path(graph, 0, n - 1));
+		IDirectedGraphVar graph = model.directed_graph_var("G", GLB, GUB);
+		model.path(graph, 0, n - 1).post();
 		if(strongFilter){
-			solver.post(GraphConstraintFactory.reachability(graph,0));
+			model.reachability(graph,0).post();
 		}
-	}
 
-	//***********************************************************************************
-	// METHODS
-	//***********************************************************************************
-
-
-	@Override
-	public void configureSearch() {
 		AbstractStrategy strategy;
 		strategy = GraphStrategyFactory.random(graph, seed);
-		solver.set(strategy);
-	}
+		model.getSolver().set(strategy);
 
-	@Override
-	public void solve() {
-		solver.findAllSolutions();
-	}
+		while (model.solve());
 
-	@Override
-	public void prettyOut() {}
+		return model.getSolver();
+	}
 
 	//***********************************************************************************
 	// TESTS
@@ -224,10 +186,8 @@ public class HamiltonianPathTest2 extends AbstractProblem {
 		gt = SetType.LINKED_LIST;
 		for (int i = 0; i < 4; i++) {
 			for (boolean p : vls) {
-				HamiltonianPathTest2 hcp = new HamiltonianPathTest2();
-				hcp.set(matrix, seed, p);
-				hcp.execute();
-				Assert.assertEquals(nbSols, hcp.solver.getMeasures().getSolutionCount(), "nb sol incorrect " + i + " ; " + p + " ; " + gt);
+				Solver hp = new HamiltonianPathTest2().solve(matrix, seed, p);
+				Assert.assertEquals(nbSols, hp.getSolutionCount(), "nb sol incorrect " + i + " ; " + p + " ; " + gt);
 			}
 		}
 		System.gc();
@@ -247,8 +207,8 @@ public class HamiltonianPathTest2 extends AbstractProblem {
 
 	private static long referencemodel(boolean[][] matrix, int offset) {
 		int n = matrix.length;
-		Solver solver = new Solver();
-		IntVar[] vars = VariableFactory.enumeratedArray("", n, offset, n - 1 + offset, solver);
+		GraphModel model = new GraphModel();
+		IntVar[] vars = model.intVarArray("", n, offset, n - 1 + offset, false);
 		try {
 			for (int i = 0; i < n; i++) {
 				for (int j = 0; j < n; j++) {
@@ -260,11 +220,8 @@ public class HamiltonianPathTest2 extends AbstractProblem {
 		} catch (ContradictionException e) {
 			e.printStackTrace();
 		}
-		solver.post(IntConstraintFactory.circuit(vars, offset));
-		long nbsol = solver.findAllSolutions();
-		if (nbsol == 0) {
-			return -1;
-		}
-		return solver.getMeasures().getSolutionCount();
+		model.circuit(vars, offset).post();
+		while (model.solve());
+		return model.getSolver().getSolutionCount();
 	}
 }
