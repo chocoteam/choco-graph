@@ -38,7 +38,7 @@ public interface IUndirectedGraphVar extends IGraphVar<UndirectedGraph> {
 	 * @param idx	a vertex
 	 * @return The set of neighbors of 'idx' in LB
 	 */
-	public ISet getMandNeighOf(int idx);
+	ISet getMandNeighOf(int idx);
 
 	/**
 	 * Get the set of neighbors of vertex 'idx' in the upper bound graph
@@ -46,5 +46,5 @@ public interface IUndirectedGraphVar extends IGraphVar<UndirectedGraph> {
 	 * @param idx	a vertex
 	 * @return The set of neighbors of 'idx' in UB
 	 */
-	public ISet getPotNeighOf(int idx);
+	ISet getPotNeighOf(int idx);
 }

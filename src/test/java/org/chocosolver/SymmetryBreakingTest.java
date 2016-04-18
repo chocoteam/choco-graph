@@ -94,7 +94,7 @@ public class SymmetryBreakingTest {
                 GUB.addEdge(i, j);
             }
         }
-        IUndirectedGraphVar graph = model.undirected_graph_var("G", GLB, GUB);
+        IUndirectedGraphVar graph = model.graphVar("G", GLB, GUB);
         // graph mush contains n nodes, m edges and have girth exactly l
         model.getSolver().set(GraphStrategyFactory.inputOrder(graph));
         model.nb_edges(graph, model.intVar(m)).post();

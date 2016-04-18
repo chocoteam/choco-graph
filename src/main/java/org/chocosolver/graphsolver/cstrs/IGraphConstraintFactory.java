@@ -83,7 +83,7 @@ public interface IGraphConstraintFactory {
 	 * @return A constraint to force the number of nodes in g to be equal to nb
 	 */
 	default Constraint nb_nodes(IGraphVar g, IntVar nb){
-		return new Constraint("nb_nodes", new PropNbNodes(g,nb));
+		return new Constraint("nbNodes", new PropNbNodes(g,nb));
 	}
 
 	/**
@@ -93,7 +93,7 @@ public interface IGraphConstraintFactory {
 	 * @return A constraint to force the number of arcs in g to be equal to nb
 	 */
 	default Constraint nb_arcs(IDirectedGraphVar g, IntVar nb){
-		return new Constraint("nb_arcs", new PropNbArcs(g,nb));
+		return new Constraint("nbArcs", new PropNbArcs(g,nb));
 	}
 
 	/**
@@ -103,7 +103,7 @@ public interface IGraphConstraintFactory {
 	 * @return A constraint to force the number of edges in g to be equal to nb
 	 */
 	default Constraint nb_edges(IUndirectedGraphVar g, IntVar nb){
-		return new Constraint("nb_edges", new PropNbArcs(g,nb));
+		return new Constraint("nbEdges", new PropNbArcs(g,nb));
 	}
 
 	// loops
@@ -116,7 +116,7 @@ public interface IGraphConstraintFactory {
 	 * @return A constraint which makes sure every node has a loop
 	 */
 	default Constraint loop_set(IGraphVar g, SetVar loops){
-		return new Constraint("loop_set", new PropLoopSet(g,loops));
+		return new Constraint("loopSet", new PropLoopSet(g,loops));
 	}
 
 	/**
@@ -127,7 +127,7 @@ public interface IGraphConstraintFactory {
 	 * @return A constraint which ensures g has nb loops
 	 */
 	default Constraint nb_loops(IGraphVar g, IntVar nb){
-		return new Constraint("nb_loops", new PropNbLoops(g,nb));
+		return new Constraint("nbLoops", new PropNbLoops(g,nb));
 	}
 
 
@@ -507,7 +507,7 @@ public interface IGraphConstraintFactory {
 		return new Constraint("degrees",new PropNodeDegree_Var(g, degrees));
 	}
 
-	// in_degrees
+	// inDegrees
 
 	/**
 	 * Minimum inner degree constraint
@@ -567,7 +567,7 @@ public interface IGraphConstraintFactory {
 	 * @return a degree inner constraint
 	 */
 	default Constraint in_degrees(IDirectedGraphVar g, IntVar[] degrees){
-		return new Constraint("in_degrees",new PropNodeDegree_Var(g, Orientation.PREDECESSORS, degrees));
+		return new Constraint("inDegrees",new PropNodeDegree_Var(g, Orientation.PREDECESSORS, degrees));
 	}
 
 	// out-degrees
@@ -630,7 +630,7 @@ public interface IGraphConstraintFactory {
 	 * @return an outer degree constraint
 	 */
 	default Constraint out_degrees(IDirectedGraphVar g, IntVar[] degrees){
-		return new Constraint("out_degrees",new PropNodeDegree_Var(g, Orientation.SUCCESSORS, degrees));
+		return new Constraint("outDegrees",new PropNodeDegree_Var(g, Orientation.SUCCESSORS, degrees));
 	}
 
 
@@ -699,7 +699,7 @@ public interface IGraphConstraintFactory {
 	 * @return a circuit constraint
 	 */
 	default Constraint hamiltonian_circuit(IDirectedGraphVar g) {
-		IntVar[] gint = _me().succ_int_array(g);
+		IntVar[] gint = _me().succInts(g);
 		return _me().circuit(gint,0);
 	}
 

@@ -73,9 +73,9 @@ public class CliqueEnumeration {
 		GLB.addNode(2);
 		GLB.addEdge(1,2);					// 1 and 2 must belong to the same clique
 		// graph variable
-		IUndirectedGraphVar graphvar = model.undirected_graph_var("G", GLB, GUB);
+		IUndirectedGraphVar graphvar = model.graphVar("G", GLB, GUB);
 
-		final SetVar vertices = model.nodes_set(graphvar);
+		final SetVar vertices = model.nodeSet(graphvar);
 		final IntVar card = model.intVar(3);
 		model.cardinality(vertices, card).post();
 

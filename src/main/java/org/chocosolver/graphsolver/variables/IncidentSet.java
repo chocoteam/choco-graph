@@ -48,7 +48,7 @@ public interface IncidentSet {
 
 	boolean remove(IGraphVar g, int from, int to, ICause cause) throws ContradictionException;
 
-	public class SuccOrNeighSet implements IncidentSet {
+	class SuccOrNeighSet implements IncidentSet {
 
 		@Override
 		public ISet getPotSet(IGraphVar graph, int i) {
@@ -71,7 +71,7 @@ public interface IncidentSet {
 		}
 	}
 
-	public class PredOrNeighSet implements IncidentSet {
+	class PredOrNeighSet implements IncidentSet {
 		@Override
 		public ISet getPotSet(IGraphVar graph, int i) {
 			return graph.getPotPredOrNeighOf(i);

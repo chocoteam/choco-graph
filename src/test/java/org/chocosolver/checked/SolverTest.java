@@ -40,7 +40,7 @@ public class SolverTest {
     @Test(groups = "1s")
     public void testFH1() {
         GraphModel model = new GraphModel();
-		IGraphVar g = model.directed_graph_var("g", 5);
+		IGraphVar g = model.digraphVar("g", 5);
 		IGraphVar[] gvars = model.retrieveGraphVars(model);
         Assert.assertEquals(gvars, new IGraphVar[]{g});
     }

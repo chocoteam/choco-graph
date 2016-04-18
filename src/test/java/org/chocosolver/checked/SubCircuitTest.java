@@ -77,7 +77,7 @@ public class SubCircuitTest {
 				}
 			}
 		}
-		IDirectedGraphVar graph = model.directed_graph_var("G", GLB, GUB);
+		IDirectedGraphVar graph = model.digraphVar("G", GLB, GUB);
 		IntVar circuitLength = model.intVar("length",2,n,false);
 		model.circuit(graph).post();
 		new Constraint("SubCircuitLength",new PropNbNodes(graph, circuitLength)).post();

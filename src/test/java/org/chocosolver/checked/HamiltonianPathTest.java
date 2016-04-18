@@ -88,7 +88,7 @@ public class HamiltonianPathTest {
 				}
 			}
 		}
-		IDirectedGraphVar graph = model.directed_graph_var("G", GLB, GUB);
+		IDirectedGraphVar graph = model.digraphVar("G", GLB, GUB);
 		model.path(graph, 0, n - 1).post();
 		if(strongFilter){
 			// could add alldiff as well

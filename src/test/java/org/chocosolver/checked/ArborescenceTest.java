@@ -54,7 +54,7 @@ public class ArborescenceTest {
 			}
 		}
 		GLB.addNode(0);
-		final IDirectedGraphVar g = m.directed_graph_var("G", GLB, GUB);
+		final IDirectedGraphVar g = m.digraphVar("G", GLB, GUB);
 		int[] preds = new int[n];
 		for (int i = 0; i < n; i++) {
 			preds[i] = 1;

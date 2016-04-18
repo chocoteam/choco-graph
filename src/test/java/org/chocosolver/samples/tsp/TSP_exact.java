@@ -84,7 +84,7 @@ public class TSP_exact {
                 GUB.addEdge(i, j);
             }
         }
-		IUndirectedGraphVar graph = model.undirected_graph_var("G", GLB, GUB);
+		IUndirectedGraphVar graph = model.graphVar("G", GLB, GUB);
 
         // constraints (TSP basic model + lagrangian relaxation)
 		model.tsp(graph, totalCost, costMatrix, 1).post();

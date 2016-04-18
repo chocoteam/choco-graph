@@ -68,7 +68,7 @@ public class HamiltonianPathTest2 {
 				}
 			}
 		}
-		IDirectedGraphVar graph = model.directed_graph_var("G", GLB, GUB);
+		IDirectedGraphVar graph = model.digraphVar("G", GLB, GUB);
 		model.path(graph, 0, n - 1).post();
 		if(strongFilter){
 			model.reachability(graph,0).post();

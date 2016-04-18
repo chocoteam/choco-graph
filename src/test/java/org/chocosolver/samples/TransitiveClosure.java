@@ -73,7 +73,7 @@ public class TransitiveClosure {
 				}
 			}
 		}
-		IDirectedGraphVar tc = model.directed_graph_var("transitive closure", GLB, GUB);
+		IDirectedGraphVar tc = model.digraphVar("transitive closure", GLB, GUB);
 
 		// CONSTRAINTS
 		new Constraint("Graph_TC",new PropTransitivity(tc),new PropNbArcs(tc,nbArcs)).post();

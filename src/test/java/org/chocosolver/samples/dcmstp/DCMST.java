@@ -97,7 +97,7 @@ public class DCMST {
 				}
 			}
 		}
-		IUndirectedGraphVar graph = model.undirected_graph_var("G", GLB, GUB);
+		IUndirectedGraphVar graph = model.graphVar("G", GLB, GUB);
 		IntVar[]degrees = model.degrees(graph);
 		for (int i = 0; i < n; i++) {
 			model.arithm(degrees[i], "<=", dMax[i]).post();

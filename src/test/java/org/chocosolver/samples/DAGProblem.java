@@ -54,7 +54,7 @@ public class DAGProblem {
 			}
 		}
 
-		IDirectedGraphVar dag = model.directed_graph_var("dag", GLB, GUB);
+		IDirectedGraphVar dag = model.digraphVar("dag", GLB, GUB);
 
 		// CONSTRAINTS
 		model.no_circuit(dag).post();

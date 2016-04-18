@@ -51,7 +51,7 @@ public class ArboTest {
 				GUB.addArc(i, j);
 			}
 		}
-		IDirectedGraphVar g = model.directed_graph_var("G", GLB, GUB);
+		IDirectedGraphVar g = model.digraphVar("G", GLB, GUB);
 		model.directed_forest(g).post();
 		model.getSolver().set(GraphStrategyFactory.random(g, seed));
 

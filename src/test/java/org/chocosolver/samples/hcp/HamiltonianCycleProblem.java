@@ -67,7 +67,7 @@ public class HamiltonianCycleProblem {
 				}
 			}
 		}
-		IUndirectedGraphVar graph = model.undirected_graph_var("G", GLB, GUB);
+		IUndirectedGraphVar graph = model.graphVar("G", GLB, GUB);
 		// constraints
 		model.hamiltonian_cycle(graph).post();
 

@@ -50,7 +50,7 @@ public class GraphTest {
         for (int i = 0; i < 3; i++) {
             UB.addEdge(edges[i][0], edges[i][1]);
         }
-        final IUndirectedGraphVar sol = model.undirected_graph_var("solution", LB, UB);
+        final IUndirectedGraphVar sol = model.graphVar("solution", LB, UB);
         model.connected(sol).post();
         model.nodes_channeling(sol, isVertexPresent).post();
         for (int i = 0; i < 3; i++) {

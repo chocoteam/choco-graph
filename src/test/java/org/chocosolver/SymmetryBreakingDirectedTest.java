@@ -96,7 +96,7 @@ public class SymmetryBreakingDirectedTest {
                 GUB.addArc(i, j);
             }
         }
-        IDirectedGraphVar graph = model.directed_graph_var("G", GLB, GUB);
+        IDirectedGraphVar graph = model.digraphVar("G", GLB, GUB);
 
         containsDirectedTree(graph).post();
         model.nb_arcs(graph, model.intVar(m)).post();
