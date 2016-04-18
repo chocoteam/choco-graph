@@ -99,8 +99,8 @@ public class SymmetryBreakingDirectedTest {
         IDirectedGraphVar graph = model.digraphVar("G", GLB, GUB);
 
         containsDirectedTree(graph).post();
-        model.nb_arcs(graph, model.intVar(m)).post();
-        model.no_circuit(graph).post();
+        model.nbArcs(graph, model.intVar(m)).post();
+        model.noCircuit(graph).post();
 
         // add symmetry breaking constraint if necessary
         if (addSymmetryBreaking) {

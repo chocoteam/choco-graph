@@ -62,17 +62,17 @@ public class ArborescenceTest {
 		preds[0] = 0;
 		System.out.println("%%%%%%%%%");
 		if(gac) {
-			m.directed_tree(g, 0).post();
+			m.directedTree(g, 0).post();
 		}else{
-			m.directed_forest(g).post();
+			m.directedForest(g).post();
 			int[] indeg = new int[n];
 			for(int i=0;i<n;i++) {
 				indeg[i] = 1;
 			}
 			indeg[0] = 0;
-			m.min_in_degrees(g, indeg).post();
+			m.minInDegrees(g, indeg).post();
 		}
-		m.nb_nodes(g, m.intVar("nbNodes", n / 3, n)).post();
+		m.nbNodes(g, m.intVar("nbNodes", n / 3, n)).post();
 		m.getSolver().set(GraphStrategyFactory.random(g, seed));
 		m.getSolver().limitSolution(1000);
 		while(m.solve());

@@ -69,7 +69,7 @@ public class HamiltonianCycleProblem {
 		}
 		IUndirectedGraphVar graph = model.graphVar("G", GLB, GUB);
 		// constraints
-		model.hamiltonian_cycle(graph).post();
+		model.hamiltonianCycle(graph).post();
 
 
 		Solver solver = model.getSolver();

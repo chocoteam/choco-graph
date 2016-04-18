@@ -45,8 +45,7 @@ import org.chocosolver.solver.search.strategy.strategy.AbstractStrategy;
  */
 public final class GraphStrategyFactory {
 
-	private GraphStrategyFactory() {
-	}
+	private GraphStrategyFactory() {}
 
 	/**
 	 * Input order graph branching strategy.

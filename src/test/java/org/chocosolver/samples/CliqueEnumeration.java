@@ -80,7 +80,7 @@ public class CliqueEnumeration {
 		model.cardinality(vertices, card).post();
 
 		// constraint : the graph must be a clique
-		model.nb_cliques(graphvar, model.ONE()).post();
+		model.nbCliques(graphvar, model.ONE()).post();
 
 		// solution enumeration
 		while (model.solve()){

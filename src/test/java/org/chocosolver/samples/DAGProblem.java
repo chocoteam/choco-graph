@@ -57,8 +57,8 @@ public class DAGProblem {
 		IDirectedGraphVar dag = model.digraphVar("dag", GLB, GUB);
 
 		// CONSTRAINTS
-		model.no_circuit(dag).post();
-		model.nb_arcs(dag, nbArcs).post();
+		model.noCircuit(dag).post();
+		model.nbArcs(dag, nbArcs).post();
 
 		model.setObjective(ResolutionPolicy.MAXIMIZE,nbArcs);
 		while (model.solve()){

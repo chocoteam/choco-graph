@@ -97,7 +97,7 @@ public class SymmetryBreakingTest {
         IUndirectedGraphVar graph = model.graphVar("G", GLB, GUB);
         // graph mush contains n nodes, m edges and have girth exactly l
         model.getSolver().set(GraphStrategyFactory.inputOrder(graph));
-        model.nb_edges(graph, model.intVar(m)).post();
+        model.nbEdges(graph, model.intVar(m)).post();
         model.connected(graph).post(); // GCF.postSymmetryBreaking is sb predicate only for connected undirected graphs
         new Constraint("GirthConstraint", new PropGirth(graph, model.intVar(l))).post();
         // add symmetry breaking constraint if necessary

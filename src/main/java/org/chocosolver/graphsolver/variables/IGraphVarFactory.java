@@ -145,7 +145,7 @@ public interface IGraphVarFactory {
 	 */
 	default IntVar nbNodes(IGraphVar g){
 		IntVar nb = g.getModel().intVar("nbNodes",0,g.getNbMaxNodes(),true);
-		_me().nb_nodes(g, nb).post();
+		_me().nbNodes(g, nb).post();
 		return nb;
 	}
 
@@ -156,7 +156,7 @@ public interface IGraphVarFactory {
 	 */
 	default IntVar nbArcs(IDirectedGraphVar g){
 		IntVar nb = _me().intVar("nbArcs",0,g.getNbMaxNodes()*g.getNbMaxNodes(),true);
-		_me().nb_arcs(g, nb).post();
+		_me().nbArcs(g, nb).post();
 		return nb;
 	}
 
@@ -167,7 +167,7 @@ public interface IGraphVarFactory {
 	 */
 	default IntVar nbEdges(IUndirectedGraphVar g){
 		IntVar nb = _me().intVar("nbEdges",0,g.getNbMaxNodes()*g.getNbMaxNodes(),true);
-		_me().nb_edges(g, nb).post();
+		_me().nbEdges(g, nb).post();
 		return nb;
 	}
 
@@ -179,7 +179,7 @@ public interface IGraphVarFactory {
 	 */
 	default IntVar nbLoops(IGraphVar g){
 		IntVar nb = _me().intVar("nbLoops",0,g.getNbMaxNodes(),true);
-		_me().nb_loops(g,nb).post();
+		_me().nbLoops(g,nb).post();
 		return nb;
 	}
 
@@ -191,7 +191,7 @@ public interface IGraphVarFactory {
 	 */
 	default SetVar loopSet(IGraphVar g){
 		SetVar l = makeSetVar("loops",0,g.getNbMaxNodes());
-		_me().loop_set(g,l).post();
+		_me().loopSet(g,l).post();
 		return l;
 	}
 
@@ -209,7 +209,7 @@ public interface IGraphVarFactory {
 	default SetVar nodeSet(IGraphVar g){
 		int n = g.getNbMaxNodes();
 		SetVar nodes = makeSetVar("nodes",0,n-1);
-		_me().nodes_channeling(g, nodes).post();
+		_me().nodesChanneling(g, nodes).post();
 		return nodes;
 	}
 
@@ -220,7 +220,7 @@ public interface IGraphVarFactory {
 	 */
 	default BoolVar[] nodeSetBool(IGraphVar g){
 		BoolVar[] nodes = _me().boolVarArray("nodes",g.getNbMaxNodes());
-		_me().nodes_channeling(g, nodes).post();
+		_me().nodesChanneling(g, nodes).post();
 		return nodes;
 	}
 
@@ -232,7 +232,7 @@ public interface IGraphVarFactory {
 	 */
 	default BoolVar isNode(IGraphVar g, int vertex){
 		BoolVar node = _me().boolVar("nodes("+vertex+")");
-		_me().node_channeling(g, node, vertex).post();
+		_me().nodeChanneling(g, node, vertex).post();
 		return node;
 	}
 
@@ -248,7 +248,7 @@ public interface IGraphVarFactory {
 	 */
 	default BoolVar isArc(IDirectedGraphVar g, int from, int to){
 		BoolVar node = _me().boolVar("arc("+from+","+to+")");
-		_me().arc_channeling(g, node, from, to).post();
+		_me().arcChanneling(g, node, from, to).post();
 		return node;
 	}
 
@@ -263,7 +263,7 @@ public interface IGraphVarFactory {
 	 */
 	default BoolVar isEdge(IUndirectedGraphVar g, int v1, int v2){
 		BoolVar node = _me().boolVar("edge("+v1+","+v2+")");
-		_me().edge_channeling(g, node, v1, v2).post();
+		_me().edgeChanneling(g, node, v1, v2).post();
 		return node;
 	}
 
@@ -280,7 +280,7 @@ public interface IGraphVarFactory {
 	default IntVar[] neighInts(IUndirectedGraphVar g){
 		int n = g.getNbMaxNodes();
 		IntVar[] successors = _me().intVarArray("neighOf",n,0,n-1,false);
-		_me().neighbors_channeling(g, successors).post();
+		_me().neighborsChanneling(g, successors).post();
 		return successors;
 	}
 
@@ -296,7 +296,7 @@ public interface IGraphVarFactory {
 		for(int i=0;i<n;i++){
 			neighbors[i] = makeSetVar("neighOf("+i+")",0,n-1);
 		}
-		_me().neighbors_channeling(g, neighbors).post();
+		_me().neighborsChanneling(g, neighbors).post();
 		return neighbors;
 	}
 
@@ -309,7 +309,7 @@ public interface IGraphVarFactory {
 	default BoolVar[][] adjacencyMatrix(IUndirectedGraphVar g){
 		int n = g.getNbMaxNodes();
 		BoolVar[][] neighbors = _me().boolVarMatrix("neighOf",n,n);
-		_me().neighbors_channeling(g, neighbors).post();
+		_me().neighborsChanneling(g, neighbors).post();
 		return neighbors;
 	}
 
@@ -322,7 +322,7 @@ public interface IGraphVarFactory {
 	default SetVar neighSet(IUndirectedGraphVar g, int node){
 		int n = g.getNbMaxNodes();
 		SetVar neighborsOf = makeSetVar("neighOf("+node+")",0,n-1);
-		_me().neighbors_channeling(g, neighborsOf, node).post();
+		_me().neighborsChanneling(g, neighborsOf, node).post();
 		return neighborsOf;
 	}
 
@@ -334,7 +334,7 @@ public interface IGraphVarFactory {
 	 */
 	default BoolVar[] neighBools(IUndirectedGraphVar g, int node){
 		BoolVar[] neighborsOf = _me().boolVarArray("neighOf("+node+")",g.getNbMaxNodes());
-		_me().neighbors_channeling(g, neighborsOf, node).post();
+		_me().neighborsChanneling(g, neighborsOf, node).post();
 		return neighborsOf;
 	}
 
@@ -350,7 +350,7 @@ public interface IGraphVarFactory {
 	default IntVar[] succInts(IDirectedGraphVar g){
 		int n = g.getNbMaxNodes();
 		IntVar[] successors = _me().intVarArray("succOf",n,0,n-1,false);
-		_me().successors_channeling(g, successors).post();
+		_me().successorsChanneling(g, successors).post();
 		return successors;
 	}
 
@@ -366,7 +366,7 @@ public interface IGraphVarFactory {
 		for(int i=0;i<n;i++){
 			successors[i] = makeSetVar("succOf("+i+")",0,n-1);
 		}
-		_me().successors_channeling(g, successors).post();
+		_me().successorsChanneling(g, successors).post();
 		return successors;
 	}
 
@@ -379,7 +379,7 @@ public interface IGraphVarFactory {
 	default BoolVar[][] adjacencyMatrix(IDirectedGraphVar g){
 		int n = g.getNbMaxNodes();
 		BoolVar[][] successors = _me().boolVarMatrix("succOf",n,n);
-		_me().successors_channeling(g, successors).post();
+		_me().successorsChanneling(g, successors).post();
 		return successors;
 	}
 
@@ -392,7 +392,7 @@ public interface IGraphVarFactory {
 	default SetVar succSet(IDirectedGraphVar g, int node){
 		int n = g.getNbMaxNodes();
 		SetVar successorsOf = makeSetVar("succOf("+node+")",0,n-1);
-		_me().successors_channeling(g, successorsOf, node).post();
+		_me().successorsChanneling(g, successorsOf, node).post();
 		return successorsOf;
 	}
 
@@ -404,7 +404,7 @@ public interface IGraphVarFactory {
 	 */
 	default BoolVar[] succBools(IDirectedGraphVar g, int node){
 		BoolVar[] successorsOf = _me().boolVarArray("succOf("+node+")",g.getNbMaxNodes());
-		_me().successors_channeling(g, successorsOf, node).post();
+		_me().successorsChanneling(g, successorsOf, node).post();
 		return successorsOf;
 	}
 
@@ -419,7 +419,7 @@ public interface IGraphVarFactory {
 	default SetVar predSet(IDirectedGraphVar g, int node){
 		int n = g.getNbMaxNodes();
 		SetVar predecessorsOf = makeSetVar("predOf("+node+")",0,n-1);
-		_me().predecessors_channeling(g, predecessorsOf, node).post();
+		_me().predecessorsChanneling(g, predecessorsOf, node).post();
 		return predecessorsOf;
 	}
 
@@ -431,7 +431,7 @@ public interface IGraphVarFactory {
 	 */
 	default BoolVar[] predBools(IDirectedGraphVar g, int node){
 		BoolVar[] predecessorsOf = _me().boolVarArray("predOf("+node+")",g.getNbMaxNodes());
-		_me().predecessors_channeling(g, predecessorsOf, node).post();
+		_me().predecessorsChanneling(g, predecessorsOf, node).post();
 		return predecessorsOf;
 
 	}
@@ -462,7 +462,7 @@ public interface IGraphVarFactory {
 	default IntVar[] inDegrees(IDirectedGraphVar g){
 		int n = g.getNbMaxNodes();
 		IntVar[] degrees = _me().intVarArray("in_degree",n,0,n,true);
-		_me().in_degrees(g,degrees).post();
+		_me().inDegrees(g,degrees).post();
 		return degrees;
 	}
 
@@ -475,7 +475,7 @@ public interface IGraphVarFactory {
 	default IntVar[] outDegrees(IDirectedGraphVar g){
 		int n = g.getNbMaxNodes();
 		IntVar[] degrees = _me().intVarArray("out_degree",n,0,n,true);
-		_me().out_degrees(g,degrees).post();
+		_me().outDegrees(g,degrees).post();
 		return degrees;
 	}
 

@@ -111,7 +111,7 @@ public class PropNbCliques extends Propagator<Variable> {
 
 	@Override
 	public ESat isEntailed() {
-		return ESat.TRUE; // redundant propagator (in addition to transitivity and nb_connected_components
+		return ESat.TRUE; // redundant propagator (in addition to transitivity and nbConnectedComponents
 	}
 
 	class Rcustom implements R{
