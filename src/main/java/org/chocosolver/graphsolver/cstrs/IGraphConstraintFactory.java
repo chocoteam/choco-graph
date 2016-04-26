@@ -657,7 +657,7 @@ public interface IGraphConstraintFactory {
 			m += g.getPotNeighOf(i).getSize();
 		}
 		m /= 2;
-		Propagator pMaxDeg = (m<20*n)?new PropNodeDegree_AtMost_Incr(g, 2):new PropNodeDegree_AtMost_Incr(g, 2);
+		Propagator pMaxDeg = (m<20*n)?new PropNodeDegree_AtMost_Incr(g, 2):new PropNodeDegree_AtMost_Coarse(g, 2);
 		return new Constraint("hamiltonianCycle",
 				new PropNodeDegree_AtLeast_Incr(g, 2),
 				pMaxDeg,
