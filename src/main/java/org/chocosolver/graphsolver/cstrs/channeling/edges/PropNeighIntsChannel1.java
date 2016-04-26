@@ -70,7 +70,7 @@ public class PropNeighIntsChannel1 extends Propagator<IUndirectedGraphVar> {
 	@Override
 	public void propagate(int evtmask) throws ContradictionException {
 		for (int i = 0; i < n; i++) {
-			ISet tmp = g.getMandSuccOrNeighOf(i);
+			ISet tmp = g.getMandNeighOf(i);
 			for (int j : tmp) {
 				if(!succs[i].contains(j)){
 					succs[j].instantiateTo(i,this);
@@ -79,7 +79,7 @@ public class PropNeighIntsChannel1 extends Propagator<IUndirectedGraphVar> {
 				}
 			}
 			for (int j=succs[i].getLB(); j<=succs[i].getUB(); j=succs[i].nextValue(j)) {
-				if (!g.getPotSuccOrNeighOf(i).contain(j)) {
+				if (!g.getPotNeighOf(i).contain(j)) {
 					succs[i].removeValue(j, this);
 				}
 			}
@@ -90,13 +90,13 @@ public class PropNeighIntsChannel1 extends Propagator<IUndirectedGraphVar> {
 	public ESat isEntailed() {
 		for (int i = 0; i < n; i++) {
 			if(succs[i].isInstantiated()){
-				if (!g.getPotSuccOrNeighOf(i).contain(succs[i].getValue())) {
+				if (!g.getPotNeighOf(i).contain(succs[i].getValue())) {
 					return ESat.FALSE;
 				}
 			}
-			ISet tmp = g.getMandSuccOrNeighOf(i);
+			ISet tmp = g.getMandNeighOf(i);
 			for (int j : tmp) {
-				if ((!succs[i].contains(j)) || (!succs[j].contains(i))) {
+				if ((!succs[i].contains(j)) && (!succs[j].contains(i))) {
 					return ESat.FALSE;
 				}
 			}

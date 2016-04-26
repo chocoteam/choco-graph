@@ -51,6 +51,7 @@ public class PropNeighIntsChannel2 extends Propagator<IntVar> {
     private IntVar[] succs;
     private IGraphVar g;
     private IntProcedure elementRemoved;
+	private boolean dir;
 
     //***********************************************************************************
     // CONSTRUCTORS
@@ -62,11 +63,16 @@ public class PropNeighIntsChannel2 extends Propagator<IntVar> {
         n = succs.length;
         g = gV;
         assert (n == g.getNbMaxNodes());
+		dir = g.isDirected();
 		idm = new IIntDeltaMonitor[n];
         for (int i = 0; i < n; i++) {
 			idm[i] = succs[i].monitorDelta(this);
         }
-        elementRemoved = element -> g.removeArc(currentSet, element, this);
+		elementRemoved = element -> {
+			if(dir || !succs[element].contains(currentSet)){
+				g.removeArc(currentSet, element, this);
+			}
+		};
     }
 
     //***********************************************************************************
@@ -82,7 +88,7 @@ public class PropNeighIntsChannel2 extends Propagator<IntVar> {
 			}
             ISet tmp = g.getPotSuccOrNeighOf(i);
             for (int j : tmp) {
-                if (!succs[i].contains(j)) {
+                if (!succs[i].contains(j) && (dir || !succs[j].contains(i))) {
                     g.removeArc(i, j, this);
                 }
             }
@@ -98,9 +104,8 @@ public class PropNeighIntsChannel2 extends Propagator<IntVar> {
 		idm[currentSet].freeze();
 		if(vars[idxVarInProp].isInstantiated()){
 			g.enforceArc(idxVarInProp,vars[idxVarInProp].getValue(),this);
-		}else {
-			idm[currentSet].forEachRemVal(elementRemoved);
 		}
+		idm[currentSet].forEachRemVal(elementRemoved);
 		idm[currentSet].unfreeze();
     }
 
