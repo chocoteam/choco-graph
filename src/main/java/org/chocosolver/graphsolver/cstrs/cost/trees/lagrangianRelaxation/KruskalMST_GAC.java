@@ -258,7 +258,7 @@ public class KruskalMST_GAC extends AbstractTreeFinder {
         ccTree.addNode(newNode);
         ccTEdgeCost[newNode] = propHK.getMinArcVal();
         for (int i : ccTree.getNodes()) {
-            if (ccTree.getPredOf(i).iterator().next() == -1) {
+            if (ccTree.getPredOf(i).isEmpty()) {
                 if (i != cctRoot) {
                     ccTree.addArc(cctRoot, i);
                 }

@@ -53,7 +53,7 @@ public class HamiltonianCycleProblem {
 
 	public static void main(String[] args) {
 		// TSPLIB HCP Instance (see http://comopt.ifi.uni-heidelberg.de/software/TSPLIB95/)
-		boolean[][] matrix = HCP_Utils.parseTSPLIBInstance("src/main/java/org/chocosolver/samples/hcp/alb1000.hcp");
+		boolean[][] matrix = HCP_Utils.parseTSPLIBInstance("src/test/java/org/chocosolver/samples/hcp/alb1000.hcp");
 		int n = matrix.length;
 
 		GraphModel model = new GraphModel("solving the Hamiltonian Cycle Problem");

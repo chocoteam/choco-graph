@@ -35,7 +35,7 @@ package org.chocosolver.samples.tsp;
 
 public class TSP_CP_Solver {
 
-	public final static String REPO = "src/main/java/org/chocosolver/samples/tsp";
+	public final static String REPO = "src/test/java/org/chocosolver/samples/tsp";
 	public final static String INSTANCE = "bier127";
 	public final static int MAX_SIZE = 300;
 
@@ -43,7 +43,7 @@ public class TSP_CP_Solver {
 		int[][] data = TSP_Utils.parseInstance(REPO + "/" + INSTANCE + ".tsp", MAX_SIZE);
 		// presolve with LNS
 		TSP_lns lns = new TSP_lns(data);
-		if(lns.optimalityProved()) {
+		if(!lns.optimalityProved()) {
 			// optimality proof with Lagrangian relaxation
 			new TSP_exact(data, lns.getBestSolutionValue());
 		}
