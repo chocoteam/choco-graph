@@ -44,54 +44,54 @@ import java.util.BitSet;
  */
 public class ArrayHeap implements ISimpleHeap {
 
-    BitSet in;
-    double[] value;
-    int size;
+	protected BitSet in;
+	protected double[] value;
+	protected int size;
 
-    public ArrayHeap(int n) {
-        in = new BitSet(n);
-        value = new double[n];
-        size = 0;
-    }
+	public ArrayHeap(int n) {
+		in = new BitSet(n);
+		value = new double[n];
+		size = 0;
+	}
 
-    @Override
-    public boolean addOrUpdateElement(int element, double element_key) {
-        if (!in.get(element)) {
-            in.set(element);
-            size++;
-            value[element] = element_key;
-            return true;
-        } else if (element_key < value[element]) {
-            value[element] = element_key;
-            return true;
-        }
-        return false;
-    }
+	@Override
+	public boolean addOrUpdateElement(int element, double element_key) {
+		if (!in.get(element)) {
+			in.set(element);
+			size++;
+			value[element] = element_key;
+			return true;
+		} else if (element_key < value[element]) {
+			value[element] = element_key;
+			return true;
+		}
+		return false;
+	}
 
-    @Override
-    public int removeFirstElement() {
-        if (isEmpty()) {
-            throw new UnsupportedOperationException();
-        }
-        int min = in.nextSetBit(0);
-        for (int i = in.nextSetBit(0); i >= 0; i = in.nextSetBit(i + 1)) {
-            if (value[i] < value[min]) {
-                min = i;
-            }
-        }
-        in.clear(min);
-        size--;
-        return min;
-    }
+	@Override
+	public int removeFirstElement() {
+		if (isEmpty()) {
+			throw new UnsupportedOperationException();
+		}
+		int min = in.nextSetBit(0);
+		for (int i = in.nextSetBit(0); i >= 0; i = in.nextSetBit(i + 1)) {
+			if (value[i] < value[min]) {
+				min = i;
+			}
+		}
+		in.clear(min);
+		size--;
+		return min;
+	}
 
-    @Override
-    public void clear() {
-        in.clear();
-        size = 0;
-    }
+	@Override
+	public void clear() {
+		in.clear();
+		size = 0;
+	}
 
-    @Override
-    public boolean isEmpty() {
-        return size == 0;
-    }
+	@Override
+	public boolean isEmpty() {
+		return size == 0;
+	}
 }

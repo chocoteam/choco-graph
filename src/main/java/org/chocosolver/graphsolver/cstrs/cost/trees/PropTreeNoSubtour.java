@@ -57,15 +57,15 @@ public class PropTreeNoSubtour extends Propagator<IUndirectedGraphVar> {
     // VARIABLES
     //***********************************************************************************
 
-    IUndirectedGraphVar g;
-    IGraphDeltaMonitor gdm;
-    int n;
+    private IUndirectedGraphVar g;
+    private IGraphDeltaMonitor gdm;
+    private int n;
     private PairProcedure arcEnforced;
     private IStateInt[] color, size;
     // list
-    int[] fifo;
-    int[] mate;
-    BitSet in;
+    private int[] fifo;
+    private int[] mate;
+    private BitSet in;
 
     //***********************************************************************************
     // CONSTRUCTORS

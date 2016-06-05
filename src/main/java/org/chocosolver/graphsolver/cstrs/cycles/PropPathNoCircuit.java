@@ -45,103 +45,103 @@ import org.chocosolver.util.procedure.PairProcedure;
  */
 public class PropPathNoCircuit extends Propagator<IDirectedGraphVar> {
 
-    //***********************************************************************************
-    // VARIABLES
-    //***********************************************************************************
+	//***********************************************************************************
+	// VARIABLES
+	//***********************************************************************************
 
-    IDirectedGraphVar g;
-    IGraphDeltaMonitor gdm;
-    int n;
-    private PairProcedure arcEnforced;
-    private IStateInt[] origin, end, size;
+	private IDirectedGraphVar g;
+	private IGraphDeltaMonitor gdm;
+	private int n;
+	private PairProcedure arcEnforced;
+	private IStateInt[] origin, end, size;
 
-    //***********************************************************************************
-    // CONSTRUCTORS
-    //***********************************************************************************
+	//***********************************************************************************
+	// CONSTRUCTORS
+	//***********************************************************************************
 
-    /**
-     * Ensures that graph has no circuit, with Caseaux/Laburthe/Pesant algorithm
-     * runs in O(1) per instantiation event
-     *
-     * @param graph
-     */
-    public PropPathNoCircuit(IDirectedGraphVar graph) {
-        super(new IDirectedGraphVar[]{graph}, PropagatorPriority.LINEAR, true);
-        g = graph;
-        gdm = g.monitorDelta(this);
-        this.n = g.getNbMaxNodes();
-        arcEnforced = new EnfArc();
-        origin = new IStateInt[n];
-        size = new IStateInt[n];
-        end = new IStateInt[n];
+	/**
+	 * Ensures that graph has no circuit, with Caseaux/Laburthe/Pesant algorithm
+	 * runs in O(1) per instantiation event
+	 *
+	 * @param graph
+	 */
+	public PropPathNoCircuit(IDirectedGraphVar graph) {
+		super(new IDirectedGraphVar[]{graph}, PropagatorPriority.LINEAR, true);
+		g = graph;
+		gdm = g.monitorDelta(this);
+		this.n = g.getNbMaxNodes();
+		arcEnforced = new EnfArc();
+		origin = new IStateInt[n];
+		size = new IStateInt[n];
+		end = new IStateInt[n];
 		IEnvironment environment = graph.getEnvironment();
-        for (int i = 0; i < n; i++) {
-            origin[i] = environment.makeInt(i);
-            size[i] = environment.makeInt(1);
-            end[i] = environment.makeInt(i);
-        }
-    }
+		for (int i = 0; i < n; i++) {
+			origin[i] = environment.makeInt(i);
+			size[i] = environment.makeInt(1);
+			end[i] = environment.makeInt(i);
+		}
+	}
 
-    //***********************************************************************************
-    // METHODS
-    //***********************************************************************************
+	//***********************************************************************************
+	// METHODS
+	//***********************************************************************************
 
-    @Override
-    public void propagate(int evtmask) throws ContradictionException {
-        int j;
-        for (int i = 0; i < n; i++) {
-            end[i].set(i);
-            origin[i].set(i);
-            size[i].set(1);
-        }
-        for (int i = 0; i < n; i++) {
-            j = g.getMandSuccOf(i).iterator().next();
-            if (j != -1) {
-                enforce(i, j);
-            }
-        }
-        gdm.unfreeze();
-    }
+	@Override
+	public void propagate(int evtmask) throws ContradictionException {
+		int j;
+		for (int i = 0; i < n; i++) {
+			end[i].set(i);
+			origin[i].set(i);
+			size[i].set(1);
+		}
+		for (int i = 0; i < n; i++) {
+			j = g.getMandSuccOf(i).iterator().next();
+			if (j != -1) {
+				enforce(i, j);
+			}
+		}
+		gdm.unfreeze();
+	}
 
-    @Override
-    public void propagate(int idxVarInProp, int mask) throws ContradictionException {
-        gdm.freeze();
-        gdm.forEachArc(arcEnforced, GraphEventType.ADD_ARC);
-        gdm.unfreeze();
-    }
+	@Override
+	public void propagate(int idxVarInProp, int mask) throws ContradictionException {
+		gdm.freeze();
+		gdm.forEachArc(arcEnforced, GraphEventType.ADD_ARC);
+		gdm.unfreeze();
+	}
 
-    @Override
-    public int getPropagationConditions(int vIdx) {
-        return GraphEventType.ADD_ARC.getMask();
-    }
+	@Override
+	public int getPropagationConditions(int vIdx) {
+		return GraphEventType.ADD_ARC.getMask();
+	}
 
-    @Override
-   	public ESat isEntailed() {
-        System.out.println("[WARNING] "+this.getClass().getSimpleName()+".isEntail() is not implemented yet " +
-      				"and returns true by default. Please do not reify this constraint ");
-      		return ESat.TRUE;
-   	}
+	@Override
+	public ESat isEntailed() {
+		System.out.println("[WARNING] "+this.getClass().getSimpleName()+".isEntail() is not implemented yet " +
+				"and returns true by default. Please do not reify this constraint ");
+		return ESat.TRUE;
+	}
 
-    private void enforce(int i, int j) throws ContradictionException {
-        int last = end[j].get();
-        int start = origin[i].get();
-        if (origin[j].get() != j) {
-            fails();
-        }
-        g.removeArc(last, start, this);
-        origin[last].set(start);
-        end[start].set(last);
-        size[start].add(size[j].get());
-    }
+	private void enforce(int i, int j) throws ContradictionException {
+		int last = end[j].get();
+		int start = origin[i].get();
+		if (origin[j].get() != j) {
+			fails();
+		}
+		g.removeArc(last, start, this);
+		origin[last].set(start);
+		end[start].set(last);
+		size[start].add(size[j].get());
+	}
 
-    //***********************************************************************************
-    // PROCEDURES
-    //***********************************************************************************
+	//***********************************************************************************
+	// PROCEDURES
+	//***********************************************************************************
 
-    private class EnfArc implements PairProcedure {
-        @Override
-        public void execute(int i, int j) throws ContradictionException {
-            enforce(i, j);
-        }
-    }
+	private class EnfArc implements PairProcedure {
+		@Override
+		public void execute(int i, int j) throws ContradictionException {
+			enforce(i, j);
+		}
+	}
 }

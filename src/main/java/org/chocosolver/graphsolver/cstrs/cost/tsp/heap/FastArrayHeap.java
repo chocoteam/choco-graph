@@ -40,41 +40,41 @@ package org.chocosolver.graphsolver.cstrs.cost.tsp.heap;
  */
 public class FastArrayHeap extends ArrayHeap {
 
-    int[] best;
-    int bestSize;
-    double bestVal;
+	private int[] best;
+	private int bestSize;
+	private double bestVal;
 
-    public FastArrayHeap(int n) {
-        super(n);
-        best = new int[n];
-    }
+	public FastArrayHeap(int n) {
+		super(n);
+		best = new int[n];
+	}
 
-    @Override
-    public boolean addOrUpdateElement(int element, double element_key) {
-        if (isEmpty() || element_key < bestVal) {
-            bestVal = element_key;
-            bestSize = 0;
-            best[bestSize++] = element;
-        } else if (element_key == bestVal && element_key < value[element]) {
-            best[bestSize++] = element;
-        }
-        return super.addOrUpdateElement(element, element_key);
-    }
+	@Override
+	public boolean addOrUpdateElement(int element, double element_key) {
+		if (isEmpty() || element_key < bestVal) {
+			bestVal = element_key;
+			bestSize = 0;
+			best[bestSize++] = element;
+		} else if (element_key == bestVal && element_key < value[element]) {
+			best[bestSize++] = element;
+		}
+		return super.addOrUpdateElement(element, element_key);
+	}
 
-    @Override
-    public int removeFirstElement() {
-        if (bestSize > 0) {
-            int min = best[--bestSize];
-            in.clear(min);
-            size--;
-            return min;
-        }
-        return super.removeFirstElement();
-    }
+	@Override
+	public int removeFirstElement() {
+		if (bestSize > 0) {
+			int min = best[--bestSize];
+			in.clear(min);
+			size--;
+			return min;
+		}
+		return super.removeFirstElement();
+	}
 
-    @Override
-    public void clear() {
-        super.clear();
-        bestSize = 0;
-    }
+	@Override
+	public void clear() {
+		super.clear();
+		bestSize = 0;
+	}
 }

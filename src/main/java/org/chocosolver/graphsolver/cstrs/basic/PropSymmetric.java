@@ -51,10 +51,10 @@ public class PropSymmetric extends Propagator<IDirectedGraphVar> {
     // VARIABLES
     //***********************************************************************************
 
-	IDirectedGraphVar g;
-    IGraphDeltaMonitor gdm;
-    PairProcedure enf;
-    int n;
+    private IDirectedGraphVar g;
+    private IGraphDeltaMonitor gdm;
+    private PairProcedure enf;
+    private int n;
 
     //***********************************************************************************
     // CONSTRUCTORS
