@@ -4,9 +4,8 @@ import org.chocosolver.graphsolver.GraphModel;
 import org.chocosolver.graphsolver.variables.IUndirectedGraphVar;
 import org.chocosolver.util.ESat;
 import org.chocosolver.util.objects.graphs.UndirectedGraph;
-import org.testng.annotations.Test;
-
 import org.chocosolver.util.objects.setDataStructures.SetType;
+import org.testng.annotations.Test;
 
 import static org.testng.Assert.assertEquals;
 
@@ -34,7 +33,7 @@ public class ConnectedTest {
 
         model.connected(graph).post();
 
-        while (model.solve()){
+        while (model.getSolver().solve()){
             System.out.println(graph);
         }
     }
@@ -53,7 +52,7 @@ public class ConnectedTest {
 
         model.connected(graph).getOpposite().post();
 
-        while (model.solve()){
+        while (model.getSolver().solve()){
             System.out.println(graph);
         }
     }
@@ -70,7 +69,7 @@ public class ConnectedTest {
 
         m.connected(g).post();
 
-        while (m.solve()){
+        while (m.getSolver().solve()){
             System.out.println(g);
         }
     }

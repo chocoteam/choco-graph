@@ -27,10 +27,10 @@
 
 package org.chocosolver.graphsolver.cstrs.channeling.edges;
 
+import org.chocosolver.graphsolver.variables.IGraphVar;
 import org.chocosolver.solver.constraints.Propagator;
 import org.chocosolver.solver.constraints.PropagatorPriority;
 import org.chocosolver.solver.exception.ContradictionException;
-import org.chocosolver.graphsolver.variables.IGraphVar;
 import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.solver.variables.delta.IIntDeltaMonitor;
 import org.chocosolver.util.ESat;

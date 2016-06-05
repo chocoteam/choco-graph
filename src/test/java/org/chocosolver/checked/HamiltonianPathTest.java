@@ -29,16 +29,15 @@ package org.chocosolver.checked;
 
 import gnu.trove.list.array.TIntArrayList;
 import org.chocosolver.graphsolver.GraphModel;
-import org.chocosolver.solver.search.strategy.SearchStrategyFactory;
-import org.testng.Assert;
-import org.testng.annotations.Test;
-import org.chocosolver.samples.input.GraphGenerator;
 import org.chocosolver.graphsolver.search.GraphStrategyFactory;
-
-import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.graphsolver.variables.IDirectedGraphVar;
+import org.chocosolver.samples.input.GraphGenerator;
+import org.chocosolver.solver.search.strategy.Search;
+import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.util.objects.graphs.DirectedGraph;
 import org.chocosolver.util.objects.setDataStructures.SetType;
+import org.testng.Assert;
+import org.testng.annotations.Test;
 
 /**
  * @author Jean-Guillaume Fages
@@ -97,12 +96,12 @@ public class HamiltonianPathTest {
 
 		// configure solver
 		if (rd) {
-			model.getSolver().set(GraphStrategyFactory.random(graph, s));
+			model.getSolver().setSearch(GraphStrategyFactory.random(graph, s));
 		} else {
-			model.getSolver().set(GraphStrategyFactory.inputOrder(graph));
+			model.getSolver().setSearch(GraphStrategyFactory.inputOrder(graph));
 		}
 		model.getSolver().limitTime(TIME_LIMIT);
-		model.solve();
+		model.getSolver().solve();
 
 		// the problem has at least one solution
 		Assert.assertFalse(model.getSolver().getSolutionCount() == 0 && model.getSolver().getTimeCount() < TIME_LIMIT/1000);
@@ -134,12 +133,12 @@ public class HamiltonianPathTest {
 		model.path(succ,model.intVar(offset),model.intVar(n-1+offset),offset).post();
 		// configure solver
 		if (rd) {
-			model.getSolver().set(SearchStrategyFactory.randomSearch(succ,seed));
+			model.getSolver().setSearch(Search.randomSearch(succ,seed));
 		} else {
-			model.getSolver().set(SearchStrategyFactory.inputOrderLBSearch(succ));
+			model.getSolver().setSearch(Search.inputOrderLBSearch(succ));
 		}
 		model.getSolver().limitTime(TIME_LIMIT);
-		model.solve();
+		model.getSolver().solve();
 		// the problem has at least one solution
 		Assert.assertFalse(model.getSolver().getSolutionCount() == 0 && model.getSolver().getTimeCount() < TIME_LIMIT/1000);
 	}

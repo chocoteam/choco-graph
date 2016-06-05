@@ -28,24 +28,24 @@
 package org.chocosolver.checked;
 
 import org.chocosolver.graphsolver.GraphModel;
-import org.testng.Assert;
-import org.testng.annotations.Test;
-import org.chocosolver.samples.input.GraphGenerator;
-import org.chocosolver.solver.Cause;
-import org.chocosolver.solver.Solver;
-import org.chocosolver.solver.constraints.Constraint;
 import org.chocosolver.graphsolver.cstrs.basic.PropNbNodes;
-import org.chocosolver.solver.exception.ContradictionException;
 import org.chocosolver.graphsolver.search.GraphStrategyFactory;
 import org.chocosolver.graphsolver.search.strategy.GraphStrategy;
 import org.chocosolver.graphsolver.search.strategy.arcs.RandomArc;
 import org.chocosolver.graphsolver.search.strategy.nodes.RandomNode;
-import org.chocosolver.solver.search.strategy.strategy.AbstractStrategy;
-
 import org.chocosolver.graphsolver.variables.IDirectedGraphVar;
+import org.chocosolver.samples.input.GraphGenerator;
+import org.chocosolver.solver.Cause;
+import org.chocosolver.solver.Solver;
+import org.chocosolver.solver.constraints.Constraint;
+import org.chocosolver.solver.exception.ContradictionException;
+import org.chocosolver.solver.search.strategy.strategy.AbstractStrategy;
 import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.util.objects.graphs.DirectedGraph;
 import org.chocosolver.util.objects.setDataStructures.SetType;
+import org.testng.Assert;
+import org.testng.annotations.Test;
+
 import java.util.Random;
 
 public class SubCircuitTest {
@@ -84,9 +84,9 @@ public class SubCircuitTest {
 
 		AbstractStrategy arcs = GraphStrategyFactory.graphStrategy(graph,null,new RandomArc(graph,seed), GraphStrategy.NodeArcPriority.ARCS);
 		AbstractStrategy nodes = GraphStrategyFactory.graphStrategy(graph,new RandomNode(graph,seed), null, GraphStrategy.NodeArcPriority.NODES_THEN_ARCS);
-		model.getSolver().set(arcs,nodes);
+		model.getSolver().setSearch(arcs,nodes);
 
-		while (model.solve());
+		while (model.getSolver().solve());
 
 		return model.getSolver();
 	}
@@ -224,7 +224,7 @@ public class SubCircuitTest {
 			e.printStackTrace();
 		}
 		model.subCircuit(vars, offset, length).post();
-		while (model.solve());
+		while (model.getSolver().solve());
 		return model.getSolver().getSolutionCount();
 	}
 }

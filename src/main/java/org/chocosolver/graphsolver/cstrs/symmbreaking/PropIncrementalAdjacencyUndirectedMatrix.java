@@ -1,13 +1,13 @@
 package org.chocosolver.graphsolver.cstrs.symmbreaking;
 
+import org.chocosolver.graphsolver.variables.GraphEventType;
 import org.chocosolver.graphsolver.variables.IUndirectedGraphVar;
+import org.chocosolver.graphsolver.variables.delta.IGraphDeltaMonitor;
 import org.chocosolver.solver.constraints.Propagator;
 import org.chocosolver.solver.constraints.PropagatorPriority;
 import org.chocosolver.solver.exception.ContradictionException;
 import org.chocosolver.solver.variables.BoolVar;
-import org.chocosolver.graphsolver.variables.GraphEventType;
 import org.chocosolver.solver.variables.Variable;
-import org.chocosolver.graphsolver.variables.delta.IGraphDeltaMonitor;
 import org.chocosolver.solver.variables.events.IntEventType;
 import org.chocosolver.util.ESat;
 import org.chocosolver.util.objects.setDataStructures.ISet;

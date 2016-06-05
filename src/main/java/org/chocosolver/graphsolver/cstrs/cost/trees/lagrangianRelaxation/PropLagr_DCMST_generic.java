@@ -27,10 +27,10 @@ package org.chocosolver.graphsolver.cstrs.cost.trees.lagrangianRelaxation;
  */
 
 import gnu.trove.list.array.TIntArrayList;
+import org.chocosolver.graphsolver.cstrs.cost.GraphLagrangianRelaxation;
 import org.chocosolver.graphsolver.variables.IUndirectedGraphVar;
 import org.chocosolver.solver.constraints.Propagator;
 import org.chocosolver.solver.constraints.PropagatorPriority;
-import org.chocosolver.graphsolver.cstrs.cost.GraphLagrangianRelaxation;
 import org.chocosolver.solver.exception.ContradictionException;
 import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.solver.variables.Variable;
@@ -276,7 +276,7 @@ public class PropLagr_DCMST_generic extends Propagator implements GraphLagrangia
 
 	@Override
 	public void contradiction() throws ContradictionException {
-		contradiction(gV, "mst failure");
+		fails();
 	}
 
 	//***********************************************************************************

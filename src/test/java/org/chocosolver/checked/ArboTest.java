@@ -28,12 +28,11 @@
 package org.chocosolver.checked;
 
 import org.chocosolver.graphsolver.GraphModel;
-import org.testng.annotations.Test;
 import org.chocosolver.graphsolver.search.GraphStrategyFactory;
-
 import org.chocosolver.graphsolver.variables.IDirectedGraphVar;
 import org.chocosolver.util.objects.graphs.DirectedGraph;
 import org.chocosolver.util.objects.setDataStructures.SetType;
+import org.testng.annotations.Test;
 
 import static org.testng.Assert.assertTrue;
 
@@ -53,9 +52,9 @@ public class ArboTest {
 		}
 		IDirectedGraphVar g = model.digraphVar("G", GLB, GUB);
 		model.directedForest(g).post();
-		model.getSolver().set(GraphStrategyFactory.random(g, seed));
+		model.getSolver().setSearch(GraphStrategyFactory.random(g, seed));
 
-		while (model.solve());
+		while (model.getSolver().solve());
 
 		assertTrue(model.getSolver().getFailCount() == 0);
 		assertTrue(model.getSolver().getSolutionCount() > 0);

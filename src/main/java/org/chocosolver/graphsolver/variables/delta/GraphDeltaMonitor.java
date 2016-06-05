@@ -26,10 +26,10 @@
  */
 package org.chocosolver.graphsolver.variables.delta;
 
+import org.chocosolver.graphsolver.variables.GraphEventType;
 import org.chocosolver.solver.ICause;
 import org.chocosolver.solver.exception.ContradictionException;
 import org.chocosolver.solver.search.loop.TimeStampedObject;
-import org.chocosolver.graphsolver.variables.GraphEventType;
 import org.chocosolver.util.procedure.IntProcedure;
 import org.chocosolver.util.procedure.PairProcedure;
 

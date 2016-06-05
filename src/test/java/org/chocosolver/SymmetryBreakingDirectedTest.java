@@ -1,11 +1,11 @@
 package org.chocosolver;
 
 import org.chocosolver.graphsolver.GraphModel;
+import org.chocosolver.graphsolver.variables.IDirectedGraphVar;
 import org.chocosolver.solver.constraints.Constraint;
 import org.chocosolver.solver.constraints.Propagator;
 import org.chocosolver.solver.constraints.PropagatorPriority;
 import org.chocosolver.solver.exception.ContradictionException;
-import org.chocosolver.graphsolver.variables.IDirectedGraphVar;
 import org.chocosolver.util.ESat;
 import org.chocosolver.util.objects.graphs.DirectedGraph;
 import org.chocosolver.util.objects.setDataStructures.SetType;
@@ -106,7 +106,7 @@ public class SymmetryBreakingDirectedTest {
         if (addSymmetryBreaking) {
             model.postSymmetryBreaking(graph);
         }
-        return model.solve();
+        return model.getSolver().solve();
     }
 
     @BeforeMethod

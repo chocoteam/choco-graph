@@ -29,15 +29,15 @@ package org.chocosolver.samples.tsp;
 
 import gnu.trove.list.array.TIntArrayList;
 import org.chocosolver.graphsolver.GraphModel;
-import org.chocosolver.solver.ResolutionPolicy;
+import org.chocosolver.graphsolver.search.strategy.GraphStrategies;
+import org.chocosolver.graphsolver.variables.IUndirectedGraphVar;
+import org.chocosolver.solver.Model;
 import org.chocosolver.solver.Solver;
 import org.chocosolver.solver.exception.ContradictionException;
 import org.chocosolver.solver.search.limits.FailCounter;
 import org.chocosolver.solver.search.loop.lns.neighbors.INeighbor;
-import org.chocosolver.graphsolver.search.strategy.GraphStrategies;
 import org.chocosolver.solver.search.strategy.decision.Decision;
 import org.chocosolver.solver.search.strategy.decision.DecisionPath;
-import org.chocosolver.graphsolver.variables.IUndirectedGraphVar;
 import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.util.objects.graphs.UndirectedGraph;
 import org.chocosolver.util.objects.setDataStructures.ISet;
@@ -105,16 +105,16 @@ public class TSP_lns {
 		final GraphStrategies search = new GraphStrategies(graph, costMatrix);
 		search.configure(GraphStrategies.MIN_COST, true);
 		Solver solver = model.getSolver();
-		solver.set(search);
+		solver.setSearch(search);
 		solver.limitTime(LIMIT+"s");
 
 		// LNS (relaxes consecutive edges)
 		INeighbor LNS = new SubpathLNS(graph);
 		solver.setLNS(LNS,new FailCounter(model,30));
 
-		model.setObjective(ResolutionPolicy.MINIMIZE, totalCost);
+		model.setObjective(Model.MINIMIZE, totalCost);
 
-		while (model.solve()){
+		while (solver.solve()){
 			search.configure(GraphStrategies.MIN_DELTA_DEGREE, true);
 			System.out.println("solution found : " + totalCost);
 			bestSolutionValue = totalCost.getValue();

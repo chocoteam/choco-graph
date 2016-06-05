@@ -28,19 +28,18 @@
 package org.chocosolver.checked;
 
 import org.chocosolver.graphsolver.GraphModel;
-import org.testng.Assert;
-import org.testng.annotations.Test;
+import org.chocosolver.graphsolver.search.GraphStrategyFactory;
+import org.chocosolver.graphsolver.variables.IDirectedGraphVar;
 import org.chocosolver.samples.input.GraphGenerator;
 import org.chocosolver.solver.Cause;
 import org.chocosolver.solver.Solver;
 import org.chocosolver.solver.exception.ContradictionException;
-import org.chocosolver.graphsolver.search.GraphStrategyFactory;
 import org.chocosolver.solver.search.strategy.strategy.AbstractStrategy;
-
-import org.chocosolver.graphsolver.variables.IDirectedGraphVar;
 import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.util.objects.graphs.DirectedGraph;
 import org.chocosolver.util.objects.setDataStructures.SetType;
+import org.testng.Assert;
+import org.testng.annotations.Test;
 
 public class HamiltonianPathTest2 {
 
@@ -76,9 +75,9 @@ public class HamiltonianPathTest2 {
 
 		AbstractStrategy strategy;
 		strategy = GraphStrategyFactory.random(graph, seed);
-		model.getSolver().set(strategy);
+		model.getSolver().setSearch(strategy);
 
-		while (model.solve());
+		while (model.getSolver().solve());
 
 		return model.getSolver();
 	}
@@ -221,7 +220,7 @@ public class HamiltonianPathTest2 {
 			e.printStackTrace();
 		}
 		model.circuit(vars, offset).post();
-		while (model.solve());
+		while (model.getSolver().solve());
 		return model.getSolver().getSolutionCount();
 	}
 }

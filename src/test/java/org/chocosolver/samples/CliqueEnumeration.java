@@ -76,14 +76,14 @@ public class CliqueEnumeration {
 		IUndirectedGraphVar graphvar = model.graphVar("G", GLB, GUB);
 
 		final SetVar vertices = model.nodeSet(graphvar);
-		final IntVar card = model.intVar(3);
-		model.cardinality(vertices, card).post();
+		final IntVar card = vertices.getCard();
+		model.arithm(card,"=",3).post();
 
 		// constraint : the graph must be a clique
-		model.nbCliques(graphvar, model.ONE()).post();
+		model.nbCliques(graphvar, model.intVar(1)).post();
 
 		// solution enumeration
-		while (model.solve()){
+		while (model.getSolver().solve()){
 			System.out.println("solution found : ");
 			System.out.println(graphvar);
 		}

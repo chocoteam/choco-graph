@@ -27,11 +27,11 @@
 
 package org.chocosolver.graphsolver.cstrs.basic;
 
+import org.chocosolver.graphsolver.variables.GraphEventType;
 import org.chocosolver.graphsolver.variables.IGraphVar;
 import org.chocosolver.solver.constraints.Propagator;
 import org.chocosolver.solver.constraints.PropagatorPriority;
 import org.chocosolver.solver.exception.ContradictionException;
-import org.chocosolver.graphsolver.variables.GraphEventType;
 import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.solver.variables.Variable;
 import org.chocosolver.solver.variables.events.IntEventType;

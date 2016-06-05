@@ -28,8 +28,8 @@
 package org.chocosolver.samples;
 
 import org.chocosolver.graphsolver.GraphModel;
-import org.chocosolver.solver.ResolutionPolicy;
 import org.chocosolver.graphsolver.variables.IDirectedGraphVar;
+import org.chocosolver.solver.Model;
 import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.util.objects.graphs.DirectedGraph;
 import org.chocosolver.util.objects.setDataStructures.SetType;
@@ -60,8 +60,8 @@ public class DAGProblem {
 		model.noCircuit(dag).post();
 		model.nbArcs(dag, nbArcs).post();
 
-		model.setObjective(ResolutionPolicy.MAXIMIZE,nbArcs);
-		while (model.solve()){
+		model.setObjective(Model.MAXIMIZE,nbArcs);
+		while (model.getSolver().solve()){
 			System.out.println("new solution found : "+nbArcs);
 			System.out.println(dag);
 		}

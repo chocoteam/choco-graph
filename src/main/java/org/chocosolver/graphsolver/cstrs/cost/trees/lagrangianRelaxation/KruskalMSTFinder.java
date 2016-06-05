@@ -29,8 +29,8 @@ package org.chocosolver.graphsolver.cstrs.cost.trees.lagrangianRelaxation;
 
 import gnu.trove.list.array.TIntArrayList;
 import org.chocosolver.graphsolver.cstrs.cost.GraphLagrangianRelaxation;
-import org.chocosolver.solver.exception.ContradictionException;
 import org.chocosolver.graphsolver.util.LCAGraphManager;
+import org.chocosolver.solver.exception.ContradictionException;
 import org.chocosolver.util.objects.graphs.DirectedGraph;
 import org.chocosolver.util.objects.graphs.UndirectedGraph;
 import org.chocosolver.util.objects.setDataStructures.ISet;

@@ -28,11 +28,11 @@
 package org.chocosolver.samples.hcp;
 
 import org.chocosolver.graphsolver.GraphModel;
-import org.chocosolver.solver.Solver;
 import org.chocosolver.graphsolver.search.GraphStrategyFactory;
 import org.chocosolver.graphsolver.search.strategy.ArcStrategy;
 import org.chocosolver.graphsolver.search.strategy.GraphStrategy;
 import org.chocosolver.graphsolver.variables.IUndirectedGraphVar;
+import org.chocosolver.solver.Solver;
 import org.chocosolver.util.objects.graphs.UndirectedGraph;
 import org.chocosolver.util.objects.setDataStructures.ISet;
 import org.chocosolver.util.objects.setDataStructures.SetType;
@@ -77,7 +77,7 @@ public class KnightTourProblem {
 
 		// basically branch on sparse areas of the graph
 		Solver solver = model.getSolver();
-		solver.set(GraphStrategyFactory.graphStrategy(graph, null, new MinNeigh(graph), GraphStrategy.NodeArcPriority.ARCS));
+		solver.setSearch(GraphStrategyFactory.graphStrategy(graph, null, new MinNeigh(graph), GraphStrategy.NodeArcPriority.ARCS));
 		solver.limitTime("20s");
 
 		solver.solve();

@@ -28,13 +28,13 @@
 package org.chocosolver.samples;
 
 import org.chocosolver.graphsolver.GraphModel;
-import org.chocosolver.solver.ResolutionPolicy;
-import org.chocosolver.solver.constraints.Constraint;
 import org.chocosolver.graphsolver.cstrs.basic.PropNbArcs;
 import org.chocosolver.graphsolver.cstrs.basic.PropTransitivity;
 import org.chocosolver.graphsolver.search.GraphStrategyFactory;
-import org.chocosolver.solver.search.strategy.SearchStrategyFactory;
 import org.chocosolver.graphsolver.variables.IDirectedGraphVar;
+import org.chocosolver.solver.Model;
+import org.chocosolver.solver.constraints.Constraint;
+import org.chocosolver.solver.search.strategy.Search;
 import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.util.objects.graphs.DirectedGraph;
 import org.chocosolver.util.objects.setDataStructures.SetType;
@@ -78,11 +78,11 @@ public class TransitiveClosure {
 		// CONSTRAINTS
 		new Constraint("Graph_TC",new PropTransitivity(tc),new PropNbArcs(tc,nbArcs)).post();
 		// tries to find the smallest graph first
-		model.getSolver().set(SearchStrategyFactory.inputOrderLBSearch(nbArcs), GraphStrategyFactory.inputOrder(tc));
+		model.getSolver().setSearch(Search.inputOrderLBSearch(nbArcs), GraphStrategyFactory.inputOrder(tc));
 
-		model.setObjective(ResolutionPolicy.MINIMIZE, nbArcs);
+		model.setObjective(Model.MINIMIZE, nbArcs);
 
-		while (model.solve()){
+		while (model.getSolver().solve()){
 			System.out.println("new solution found : "+nbArcs);
 			System.out.println(tc);
 		}

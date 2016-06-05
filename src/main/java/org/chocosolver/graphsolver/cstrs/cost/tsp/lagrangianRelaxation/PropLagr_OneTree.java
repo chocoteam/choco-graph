@@ -254,7 +254,7 @@ public class PropLagr_OneTree extends Propagator implements GraphLagrangianRelax
     }
 
     public void contradiction() throws ContradictionException {
-        contradiction(obj, "mst failure");
+        fails();
     }
 
     //***********************************************************************************

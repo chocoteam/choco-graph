@@ -185,7 +185,7 @@ public class PropCycleCostSimple extends Propagator {
             }
         }
         if (idx == -1) {
-            contradiction(g, "");
+            fails();
         }
         return idx;
     }
@@ -215,7 +215,7 @@ public class PropCycleCostSimple extends Propagator {
             }
         }
         if (idx == -1) {
-            contradiction(g, "");
+            fails();
         }
         return idx;
     }

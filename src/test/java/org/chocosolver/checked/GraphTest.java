@@ -3,8 +3,9 @@ package org.chocosolver.checked;
 
 import org.chocosolver.graphsolver.GraphModel;
 import org.chocosolver.graphsolver.variables.IUndirectedGraphVar;
-import org.chocosolver.solver.ResolutionPolicy;
-import org.chocosolver.solver.variables.*;
+import org.chocosolver.solver.Model;
+import org.chocosolver.solver.variables.BoolVar;
+import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.util.ESat;
 import org.chocosolver.util.objects.graphs.UndirectedGraph;
 import org.chocosolver.util.objects.setDataStructures.SetType;
@@ -59,9 +60,9 @@ public class GraphTest {
         final IntVar sum = model.intVar("sum", -50, 50);
         model.sum(ArrayUtils.append(actEdgeW, actVertW), "=", sum).post();
 
-        model.setObjective(ResolutionPolicy.MAXIMIZE,sum);
+        model.setObjective(Model.MAXIMIZE,sum);
 
-        while (model.solve()){
+        while (model.getSolver().solve()){
             System.out.println("SOLUTION FOUND " + sum);
         }
 

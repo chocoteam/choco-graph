@@ -28,13 +28,12 @@
 package org.chocosolver.checked;
 
 import org.chocosolver.graphsolver.GraphModel;
-import org.testng.annotations.Test;
-import org.chocosolver.solver.Solver;
 import org.chocosolver.graphsolver.search.GraphStrategyFactory;
-
 import org.chocosolver.graphsolver.variables.IDirectedGraphVar;
+import org.chocosolver.solver.Solver;
 import org.chocosolver.util.objects.graphs.DirectedGraph;
 import org.chocosolver.util.objects.setDataStructures.SetType;
+import org.testng.annotations.Test;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
@@ -73,9 +72,9 @@ public class ArborescenceTest {
 			m.minInDegrees(g, indeg).post();
 		}
 		m.nbNodes(g, m.intVar("nbNodes", n / 3, n)).post();
-		m.getSolver().set(GraphStrategyFactory.random(g, seed));
+		m.getSolver().setSearch(GraphStrategyFactory.random(g, seed));
 		m.getSolver().limitSolution(1000);
-		while(m.solve());
+		while(m.getSolver().solve());
 		return m.getSolver();
 	}
 

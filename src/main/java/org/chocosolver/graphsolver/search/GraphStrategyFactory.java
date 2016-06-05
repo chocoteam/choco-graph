@@ -28,11 +28,11 @@
 package org.chocosolver.graphsolver.search;
 
 import org.chocosolver.graphsolver.search.strategy.ArcStrategy;
-import org.chocosolver.graphsolver.search.strategy.arcs.RandomArc;
-import org.chocosolver.graphsolver.variables.IGraphVar;
 import org.chocosolver.graphsolver.search.strategy.GraphStrategy;
 import org.chocosolver.graphsolver.search.strategy.NodeStrategy;
+import org.chocosolver.graphsolver.search.strategy.arcs.RandomArc;
 import org.chocosolver.graphsolver.search.strategy.nodes.RandomNode;
+import org.chocosolver.graphsolver.variables.IGraphVar;
 import org.chocosolver.solver.search.strategy.strategy.AbstractStrategy;
 
 /**

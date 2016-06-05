@@ -27,14 +27,14 @@
 
 package org.chocosolver.graphsolver;
 
-import org.chocosolver.graphsolver.variables.GraphVar;
-import org.chocosolver.solver.Model;
-import org.chocosolver.solver.Settings;
 import org.chocosolver.graphsolver.cstrs.IGraphConstraintFactory;
 import org.chocosolver.graphsolver.search.GraphStrategyFactory;
-import org.chocosolver.solver.search.strategy.SearchStrategyFactory;
-import org.chocosolver.solver.search.strategy.strategy.AbstractStrategy;
+import org.chocosolver.graphsolver.variables.GraphVar;
 import org.chocosolver.graphsolver.variables.IGraphVarFactory;
+import org.chocosolver.solver.Model;
+import org.chocosolver.solver.Settings;
+import org.chocosolver.solver.search.strategy.Search;
+import org.chocosolver.solver.search.strategy.strategy.AbstractStrategy;
 import org.chocosolver.solver.variables.Variable;
 
 import java.util.ArrayList;
@@ -60,7 +60,7 @@ public class GraphModel extends Model implements IGraphVarFactory, IGraphConstra
 			@Override
 			public AbstractStrategy makeDefaultSearch(Model model) {
 				// overrides default search strategy to handle graph vars
-				AbstractStrategy other = SearchStrategyFactory.defaultSearch(model);
+				AbstractStrategy other = Search.defaultSearch(model);
 				GraphVar[] gvs = retrieveGraphVars();
 				if(gvs.length==0){
 					return other;
@@ -70,7 +70,7 @@ public class GraphModel extends Model implements IGraphVarFactory, IGraphConstra
 						gss[i] = GraphStrategyFactory.inputOrder(gvs[i]);
 					}
 					gss[gvs.length] = other;
-					return SearchStrategyFactory.sequencer(gss);
+					return Search.sequencer(gss);
 				}
 			}
 		});

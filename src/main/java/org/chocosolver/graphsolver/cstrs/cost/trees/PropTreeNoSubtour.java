@@ -146,7 +146,7 @@ public class PropTreeNoSubtour extends Propagator<IUndirectedGraphVar> {
         int ci = color[i].get();
         int cj = color[j].get();
         if (ci == cj) {
-            contradiction(g, "");
+            fails();
         }
         int idxFirst = 0;
         int idxLast = 0;

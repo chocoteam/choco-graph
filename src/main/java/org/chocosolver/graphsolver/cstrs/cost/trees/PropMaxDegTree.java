@@ -125,7 +125,7 @@ public class PropMaxDegTree extends Propagator<IUndirectedGraphVar> {
 				if (!oneNode.get(s)) {
 					counter[s]++;
 					if (counter[s] > maxDegree[s]) {
-						contradiction(vars[0], "");
+						fails();
 					} else if (counter[s] == maxDegree[s] - 1) {
 						oneNode.set(s);
 						list[last++] = s;

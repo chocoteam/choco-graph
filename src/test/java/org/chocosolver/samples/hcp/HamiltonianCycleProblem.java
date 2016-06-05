@@ -28,13 +28,13 @@
 package org.chocosolver.samples.hcp;
 
 import org.chocosolver.graphsolver.GraphModel;
-import org.chocosolver.solver.Solver;
 import org.chocosolver.graphsolver.search.GraphStrategyFactory;
-import org.chocosolver.solver.search.limits.FailCounter;
-import org.chocosolver.solver.search.restart.MonotonicRestartStrategy;
 import org.chocosolver.graphsolver.search.strategy.ArcStrategy;
 import org.chocosolver.graphsolver.search.strategy.GraphStrategy;
 import org.chocosolver.graphsolver.variables.IUndirectedGraphVar;
+import org.chocosolver.solver.Solver;
+import org.chocosolver.solver.search.limits.FailCounter;
+import org.chocosolver.solver.search.restart.MonotonicRestartStrategy;
 import org.chocosolver.util.objects.graphs.UndirectedGraph;
 import org.chocosolver.util.objects.setDataStructures.ISet;
 import org.chocosolver.util.objects.setDataStructures.SetType;
@@ -73,7 +73,7 @@ public class HamiltonianCycleProblem {
 
 
 		Solver solver = model.getSolver();
-		solver.set(GraphStrategyFactory.graphStrategy(graph, null,
+		solver.setSearch(GraphStrategyFactory.graphStrategy(graph, null,
 				new ArcStrategy<IUndirectedGraphVar>(graph){
 					@Override
 					public boolean computeNextArc() {
@@ -102,6 +102,6 @@ public class HamiltonianCycleProblem {
 		// restart search every 100 fails
 		solver.setRestarts(new FailCounter(model,100), new MonotonicRestartStrategy(100), 1000);
 
-		model.solve();
+		model.getSolver().solve();
 	}
 }

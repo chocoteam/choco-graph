@@ -28,10 +28,10 @@
 package org.chocosolver.samples.tsp;
 
 import org.chocosolver.graphsolver.GraphModel;
-import org.chocosolver.solver.ResolutionPolicy;
-import org.chocosolver.solver.Solver;
 import org.chocosolver.graphsolver.search.strategy.GraphStrategies;
 import org.chocosolver.graphsolver.variables.IUndirectedGraphVar;
+import org.chocosolver.solver.Model;
+import org.chocosolver.solver.Solver;
 import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.util.objects.graphs.UndirectedGraph;
 import org.chocosolver.util.objects.setDataStructures.SetType;
@@ -95,11 +95,11 @@ public class TSP_exact {
 		GraphStrategies strategy = new GraphStrategies(graph, costMatrix);
 		strategy.configure(GraphStrategies.MAX_COST, true);
 		strategy.useLastConflict();
-		solver.set(strategy);
+		solver.setSearch(strategy);
 		solver.limitTime(LIMIT+"s");
 
-		model.setObjective(ResolutionPolicy.MINIMIZE,totalCost);
-		while (model.solve()){
+		model.setObjective(Model.MINIMIZE,totalCost);
+		while (solver.solve()){
 			System.out.println("solution found : " + totalCost);
 		}
 		if(solver.getTimeCount()<LIMIT){

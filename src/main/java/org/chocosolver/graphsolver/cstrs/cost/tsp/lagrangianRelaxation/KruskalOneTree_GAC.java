@@ -27,8 +27,8 @@
 
 package org.chocosolver.graphsolver.cstrs.cost.tsp.lagrangianRelaxation;
 
-import org.chocosolver.graphsolver.cstrs.cost.trees.lagrangianRelaxation.KruskalMSTFinder;
 import org.chocosolver.graphsolver.cstrs.cost.GraphLagrangianRelaxation;
+import org.chocosolver.graphsolver.cstrs.cost.trees.lagrangianRelaxation.KruskalMSTFinder;
 import org.chocosolver.solver.exception.ContradictionException;
 import org.chocosolver.util.objects.graphs.UndirectedGraph;
 import org.chocosolver.util.objects.setDataStructures.ISet;

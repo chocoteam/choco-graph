@@ -28,8 +28,8 @@
 package org.chocosolver.graphsolver.cstrs.cost.trees.lagrangianRelaxation;
 
 import org.chocosolver.graphsolver.cstrs.cost.GraphLagrangianRelaxation;
-import org.chocosolver.graphsolver.cstrs.cost.tsp.heap.ISimpleHeap;
 import org.chocosolver.graphsolver.cstrs.cost.tsp.heap.FastSimpleHeap;
+import org.chocosolver.graphsolver.cstrs.cost.tsp.heap.ISimpleHeap;
 import org.chocosolver.solver.exception.ContradictionException;
 import org.chocosolver.util.objects.graphs.UndirectedGraph;
 import org.chocosolver.util.objects.setDataStructures.ISet;

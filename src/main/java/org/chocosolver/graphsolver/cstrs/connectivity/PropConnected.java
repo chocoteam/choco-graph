@@ -27,13 +27,13 @@
 
 package org.chocosolver.graphsolver.cstrs.connectivity;
 
+import org.chocosolver.graphsolver.util.ConnectivityFinder;
+import org.chocosolver.graphsolver.variables.GraphEventType;
 import org.chocosolver.graphsolver.variables.IUndirectedGraphVar;
 import org.chocosolver.solver.constraints.Propagator;
 import org.chocosolver.solver.constraints.PropagatorPriority;
 import org.chocosolver.solver.exception.ContradictionException;
-import org.chocosolver.graphsolver.variables.GraphEventType;
 import org.chocosolver.util.ESat;
-import org.chocosolver.graphsolver.util.ConnectivityFinder;
 
 import java.util.BitSet;
 
@@ -89,7 +89,7 @@ public class PropConnected extends Propagator<IUndirectedGraphVar> {
 	@Override
 	public void propagate(int evtmask) throws ContradictionException {
 		if (g.getPotentialNodes().getSize() == 0) {
-			contradiction(g, "");
+			fails();
 		}
 		if(g.getMandatoryNodes().getSize()>1) {
 			// explore the graph from the first mandatory node

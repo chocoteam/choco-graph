@@ -27,10 +27,10 @@
 
 package org.chocosolver.graphsolver.variables;
 
+import org.chocosolver.graphsolver.variables.delta.IGraphDelta;
 import org.chocosolver.solver.ICause;
 import org.chocosolver.solver.Model;
 import org.chocosolver.solver.exception.ContradictionException;
-import org.chocosolver.graphsolver.variables.delta.IGraphDelta;
 import org.chocosolver.util.objects.graphs.DirectedGraph;
 import org.chocosolver.util.objects.setDataStructures.ISet;
 

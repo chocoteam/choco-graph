@@ -45,6 +45,7 @@ import org.chocosolver.graphsolver.cstrs.degree.*;
 import org.chocosolver.graphsolver.cstrs.inclusion.PropInclusion;
 import org.chocosolver.graphsolver.cstrs.symmbreaking.PropIncrementalAdjacencyMatrix;
 import org.chocosolver.graphsolver.cstrs.symmbreaking.PropIncrementalAdjacencyUndirectedMatrix;
+import org.chocosolver.graphsolver.cstrs.symmbreaking.PropSymmetryBreaking;
 import org.chocosolver.graphsolver.cstrs.symmbreaking.PropSymmetryBreakingEx;
 import org.chocosolver.graphsolver.cstrs.tree.PropArborescence;
 import org.chocosolver.graphsolver.cstrs.tree.PropArborescences;
@@ -56,8 +57,9 @@ import org.chocosolver.graphsolver.variables.IncidentSet;
 import org.chocosolver.solver.Model;
 import org.chocosolver.solver.constraints.Constraint;
 import org.chocosolver.solver.constraints.Propagator;
-import org.chocosolver.graphsolver.cstrs.symmbreaking.PropSymmetryBreaking;
-import org.chocosolver.solver.variables.*;
+import org.chocosolver.solver.variables.BoolVar;
+import org.chocosolver.solver.variables.IntVar;
+import org.chocosolver.solver.variables.SetVar;
 import org.chocosolver.util.objects.graphs.Orientation;
 import org.chocosolver.util.tools.ArrayUtils;
 
@@ -718,7 +720,7 @@ public interface IGraphConstraintFactory {
 				new PropNodeDegree_AtLeast_Incr(g, Orientation.PREDECESSORS, 1),
 				new PropNodeDegree_AtMost_Incr(g, Orientation.SUCCESSORS, 1),
 				new PropNodeDegree_AtMost_Incr(g, Orientation.PREDECESSORS, 1),
-				new PropNbSCC(g,g.getModel().ONE()),
+				new PropNbSCC(g,g.getModel().intVar(1)),
 				new PropCircuit(g)
 		);
 	}
@@ -780,7 +782,7 @@ public interface IGraphConstraintFactory {
 	 * @return A strong connectedness constraint which ensures that g is strongly connected
 	 */
 	default Constraint stronglyConnected(IDirectedGraphVar g){
-		return nbStronglyConnectedComponents(g, g.getModel().ONE());
+		return nbStronglyConnectedComponents(g, g.getModel().intVar(1));
 	}
 
 	/**
@@ -966,7 +968,7 @@ public interface IGraphConstraintFactory {
 	 */
 	default Constraint diameter(IDirectedGraphVar g, IntVar d) {
 		return new Constraint("NbCliques",
-				new PropNbSCC(g,g.getModel().ONE()),
+				new PropNbSCC(g,g.getModel().intVar(1)),
 				new PropDiameter(g, d)
 		);
 	}

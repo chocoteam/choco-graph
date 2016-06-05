@@ -27,13 +27,13 @@
 
 package org.chocosolver.graphsolver.variables;
 
+import org.chocosolver.graphsolver.variables.delta.GraphDelta;
 import org.chocosolver.graphsolver.variables.delta.GraphDeltaMonitor;
+import org.chocosolver.graphsolver.variables.delta.IGraphDelta;
+import org.chocosolver.graphsolver.variables.delta.IGraphDeltaMonitor;
 import org.chocosolver.solver.ICause;
 import org.chocosolver.solver.Model;
 import org.chocosolver.solver.exception.ContradictionException;
-import org.chocosolver.graphsolver.variables.delta.GraphDelta;
-import org.chocosolver.graphsolver.variables.delta.IGraphDelta;
-import org.chocosolver.graphsolver.variables.delta.IGraphDeltaMonitor;
 import org.chocosolver.solver.variables.events.IEventType;
 import org.chocosolver.solver.variables.impl.AbstractVariable;
 import org.chocosolver.util.objects.graphs.IGraph;

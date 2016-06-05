@@ -27,6 +27,7 @@
 
 package org.chocosolver.graphsolver.cstrs.cycles;
 
+import org.chocosolver.graphsolver.variables.GraphEventType;
 import org.chocosolver.graphsolver.variables.IUndirectedGraphVar;
 import org.chocosolver.graphsolver.variables.delta.IGraphDeltaMonitor;
 import org.chocosolver.memory.IEnvironment;
@@ -34,7 +35,6 @@ import org.chocosolver.memory.IStateInt;
 import org.chocosolver.solver.constraints.Propagator;
 import org.chocosolver.solver.constraints.PropagatorPriority;
 import org.chocosolver.solver.exception.ContradictionException;
-import org.chocosolver.graphsolver.variables.GraphEventType;
 import org.chocosolver.util.ESat;
 import org.chocosolver.util.objects.setDataStructures.ISet;
 import org.chocosolver.util.procedure.PairProcedure;

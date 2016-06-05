@@ -27,8 +27,8 @@
 
 package org.chocosolver.graphsolver.cstrs.tree;
 
-import org.chocosolver.solver.exception.ContradictionException;
 import org.chocosolver.graphsolver.variables.IDirectedGraphVar;
+import org.chocosolver.solver.exception.ContradictionException;
 
 /**
  * Every vertex is reachable from the root

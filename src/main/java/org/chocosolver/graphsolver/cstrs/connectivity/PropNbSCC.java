@@ -27,14 +27,14 @@
 
 package org.chocosolver.graphsolver.cstrs.connectivity;
 
+import org.chocosolver.graphsolver.util.StrongConnectivityFinder;
+import org.chocosolver.graphsolver.variables.IDirectedGraphVar;
 import org.chocosolver.solver.constraints.Propagator;
 import org.chocosolver.solver.constraints.PropagatorPriority;
 import org.chocosolver.solver.exception.ContradictionException;
-import org.chocosolver.graphsolver.variables.IDirectedGraphVar;
 import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.solver.variables.Variable;
 import org.chocosolver.util.ESat;
-import org.chocosolver.graphsolver.util.StrongConnectivityFinder;
 
 /**
  * Propagator that ensures that the final graph consists in K Strongly Connected Components (SCC)

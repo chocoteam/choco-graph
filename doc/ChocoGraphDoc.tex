@@ -1352,12 +1352,12 @@ public class DAGProblem extends AbstractProblem{
 	@Override
 	public void configureSearch() {
 		// tries to find the largest graph first
-		solver.set(GraphStrategyFactory.lexico(dag));
+		solver.setSearch(GraphStrategyFactory.lexico(dag));
 	}
 
 	@Override
 	public void solve() {
-		solver.findOptimalSolution(ResolutionPolicy.MAXIMIZE,nbArcs);
+		solver.findOptimalSolution(Model.MAXIMIZE,nbArcs);
 	}
 
 	@Override

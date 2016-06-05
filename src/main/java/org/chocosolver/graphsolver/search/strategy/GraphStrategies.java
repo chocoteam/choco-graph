@@ -34,9 +34,9 @@
 
 package org.chocosolver.graphsolver.search.strategy;
 
-import org.chocosolver.graphsolver.variables.IGraphVar;
 import org.chocosolver.graphsolver.search.GraphAssignment;
 import org.chocosolver.graphsolver.search.GraphDecision;
+import org.chocosolver.graphsolver.variables.IGraphVar;
 import org.chocosolver.util.objects.setDataStructures.ISet;
 
 public class GraphStrategies extends GraphStrategy {

@@ -26,8 +26,8 @@
  */
 package org.chocosolver.graphsolver.search.strategy.nodes;
 
-import org.chocosolver.graphsolver.variables.IGraphVar;
 import org.chocosolver.graphsolver.search.strategy.NodeStrategy;
+import org.chocosolver.graphsolver.variables.IGraphVar;
 
 public class LexNode extends NodeStrategy<IGraphVar> {
 

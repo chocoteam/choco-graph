@@ -99,7 +99,7 @@ public class PropArborescences extends Propagator<IDirectedGraphVar> {
 			// enforce dominators and arc-dominators
 			enforceDominators();
 		} else {
-			contradiction(g, "the source cannot reach all nodes");
+			fails();
 		}
 	}
 
