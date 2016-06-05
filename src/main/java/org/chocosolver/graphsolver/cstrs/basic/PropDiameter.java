@@ -86,10 +86,11 @@ public class PropDiameter extends Propagator<IGraphVar> {
 		diameter.updateUpperBound(max,this);
 	}
 
-	private int BFS(int i, boolean min) {
+	private int BFS(int root, boolean min) {
 		nextSet.clear();
 		set.clear();
 		visited.clear();
+		int i = root;
 		set.add(i);
 		visited.set(i);
 		ISet nei;

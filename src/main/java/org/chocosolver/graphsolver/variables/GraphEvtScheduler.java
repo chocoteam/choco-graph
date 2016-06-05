@@ -43,7 +43,7 @@ import org.chocosolver.util.iterators.EvtScheduler;
 
 public class GraphEvtScheduler implements EvtScheduler<GraphEventType> {
 
-	boolean done = true;
+	private boolean done = true;
 
 	@Override
 	public void init(GraphEventType type) {

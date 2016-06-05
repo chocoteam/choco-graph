@@ -222,12 +222,13 @@ public class KruskalOneTree_GAC extends KruskalMSTFinder {
         return tSize;
     }
 
-    protected void connectMST(int tSize) throws ContradictionException {
+    protected void connectMST(int treeSize) throws ContradictionException {
         int from, to, rFrom, rTo;
         int idx = activeArcs.nextSetBit(0);
         minTArc = -propHK.getMinArcVal();
         maxTArc = propHK.getMinArcVal();
         double cost;
+        int tSize = treeSize;
         while (tSize < n - 2) {
             if (idx < 0) {
                 propHK.contradiction();
