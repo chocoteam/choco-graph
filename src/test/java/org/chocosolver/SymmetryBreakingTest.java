@@ -3,19 +3,14 @@ package org.chocosolver;
 import org.chocosolver.graphsolver.GraphModel;
 import org.chocosolver.graphsolver.cstrs.symmbreaking.Pair;
 import org.chocosolver.graphsolver.cstrs.symmbreaking.PropGirth;
-import org.chocosolver.graphsolver.search.GraphStrategyFactory;
+import org.chocosolver.graphsolver.search.strategy.GraphStrategy;
 import org.chocosolver.graphsolver.variables.IUndirectedGraphVar;
 import org.chocosolver.solver.constraints.Constraint;
 import org.chocosolver.util.objects.graphs.UndirectedGraph;
 import org.chocosolver.util.objects.setDataStructures.SetType;
 import org.testng.Assert;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.PrintStream;
 import java.util.HashSet;
 
 /**
@@ -33,7 +28,6 @@ import java.util.HashSet;
  * @author Моклев Вячеслав
  */
 public class SymmetryBreakingTest {
-    private static PrintStream oldOut;
 
     /**
      * Calculates a girth of a given graph.
@@ -95,7 +89,7 @@ public class SymmetryBreakingTest {
         }
         IUndirectedGraphVar graph = model.graphVar("G", GLB, GUB);
         // graph mush contains n nodes, m edges and have girth exactly l
-        model.getSolver().setSearch(GraphStrategyFactory.inputOrder(graph));
+        model.getSolver().setSearch(new GraphStrategy(graph));
         model.nbEdges(graph, model.intVar(m)).post();
         model.connected(graph).post(); // GCF.postSymmetryBreaking is sb predicate only for connected undirected graphs
         new Constraint("GirthConstraint", new PropGirth(graph, model.intVar(l))).post();
@@ -116,19 +110,6 @@ public class SymmetryBreakingTest {
             Assert.assertEquals(getGraphGirth(graph), l, "correct girth");
         }
         return result;
-    }
-
-    @BeforeMethod
-    public void setUp() throws Exception {
-        oldOut = System.out;
-        System.setOut(new PrintStream(new OutputStream() {
-            @Override public void write(int b) throws IOException {}
-        }));
-    }
-
-    @AfterMethod
-    public void tearDown() throws Exception {
-        System.setOut(oldOut);
     }
 
     /**
@@ -226,5 +207,4 @@ public class SymmetryBreakingTest {
                 true // it's preprocessed value of solutionExists(10, 10, 9, false), 225 seconds @ AMD FX-8150 (3.6 GHz, 8 Gb RAM)
         );
     }
-
 }

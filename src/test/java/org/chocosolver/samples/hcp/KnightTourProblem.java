@@ -28,7 +28,6 @@
 package org.chocosolver.samples.hcp;
 
 import org.chocosolver.graphsolver.GraphModel;
-import org.chocosolver.graphsolver.search.GraphStrategyFactory;
 import org.chocosolver.graphsolver.search.strategy.ArcStrategy;
 import org.chocosolver.graphsolver.search.strategy.GraphStrategy;
 import org.chocosolver.graphsolver.variables.IUndirectedGraphVar;
@@ -41,8 +40,8 @@ import org.chocosolver.util.objects.setDataStructures.SetType;
  * Solves the Knight's Tour Problem
  * <p/>
  * Uses graph variables (light data structure)
- * Scales up to 200x200 in ten seconds
- * requires -Xms1048m -Xmx2048m for memory allocation
+ * better with -Xms1048m -Xmx2048m for memory allocation
+ * when solving large instances
  *
  *
  * @author Jean-Guillaume Fages
@@ -53,7 +52,10 @@ public class KnightTourProblem {
 	public static void main(String[] args) {
 		boolean[][] matrix;
 		boolean closedTour = true; //Open tour (path instead of cycle)
-		int boardLength = 100;
+		int boardLength = 8;
+		// This generates the boolean incidence matrix of the chessboard graph
+		// It is responsible of the high memory consumption of this example
+		// and could be replaced by lighter data structure
 		if (closedTour) {
 			matrix = HCP_Utils.generateKingTourInstance(boardLength);
 		} else {
@@ -62,22 +64,29 @@ public class KnightTourProblem {
 		GraphModel model = new GraphModel("solving the knight's tour problem with a graph variable");
 		// variables
 		int n = matrix.length;
+		// graph representing mandatory nodes and edges
+		// (linked list data structure as the expected solution is expected to be sparse,
+		// every vertex in [0,n-1] is mandatory)
 		UndirectedGraph GLB = new UndirectedGraph(model,n,SetType.LINKED_LIST,true);
+		// graph representing potential nodes and edges
+		// (linked list data structure as its initial value is sparse,
 		UndirectedGraph GUB = new UndirectedGraph(model,n,SetType.LINKED_LIST,true);
 		for (int i = 0; i < n; i++) {
 			for (int j = i + 1; j < n; j++) {
-				if (matrix[i][j]) {
+				if (matrix[i][j]) { // adds possible edge
 					GUB.addEdge(i, j);
 				}
 			}
 		}
+		// creates the graph variable
 		IUndirectedGraphVar graph = model.graphVar("G", GLB, GUB);
-		// constraints
+
+		// hamiltonian cycle constraint
 		model.hamiltonianCycle(graph).post();
 
 		// basically branch on sparse areas of the graph
 		Solver solver = model.getSolver();
-		solver.setSearch(GraphStrategyFactory.graphStrategy(graph, null, new MinNeigh(graph), GraphStrategy.NodeArcPriority.ARCS));
+		solver.setSearch(new GraphStrategy(graph, null, new MinNeigh(graph), GraphStrategy.NodeArcPriority.ARCS));
 		solver.limitTime("20s");
 
 		solver.solve();

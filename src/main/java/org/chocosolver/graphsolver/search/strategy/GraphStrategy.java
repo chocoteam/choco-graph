@@ -30,7 +30,9 @@ package org.chocosolver.graphsolver.search.strategy;
 import org.chocosolver.graphsolver.search.GraphAssignment;
 import org.chocosolver.graphsolver.search.GraphDecision;
 import org.chocosolver.graphsolver.search.strategy.arcs.LexArc;
+import org.chocosolver.graphsolver.search.strategy.arcs.RandomArc;
 import org.chocosolver.graphsolver.search.strategy.nodes.LexNode;
+import org.chocosolver.graphsolver.search.strategy.nodes.RandomNode;
 import org.chocosolver.graphsolver.variables.IGraphVar;
 import org.chocosolver.solver.search.strategy.strategy.AbstractStrategy;
 import org.chocosolver.util.PoolManager;
@@ -43,6 +45,10 @@ import org.chocosolver.util.PoolManager;
  */
 public class GraphStrategy extends AbstractStrategy<IGraphVar> {
 
+    //***********************************************************************************
+    // VARIABLES
+    //***********************************************************************************
+
     protected IGraphVar g;
     protected NodeStrategy nodeStrategy;
     protected ArcStrategy arcStrategy;
@@ -54,8 +60,21 @@ public class GraphStrategy extends AbstractStrategy<IGraphVar> {
         ARCS
     }
 
+    //***********************************************************************************
+    // CONSTRUCTORS
+    //***********************************************************************************
+
+    /**
+     * Dedicated graph branching strategy.
+     *
+     * @param g   a graph variable to branch on
+     * @param ns strategy over nodes
+     * @param as  strategy over arcs/edges
+     * @param priority   enables to mention if it should first branch on nodes
+     * @return a dedicated strategy to instantiate GRAPHVAR
+     */
     public GraphStrategy(IGraphVar g, NodeStrategy ns, ArcStrategy as, NodeArcPriority priority) {
-        super(new IGraphVar[]{g});
+        super(g);
         this.g = g;
         this.nodeStrategy = ns;
         this.arcStrategy = as;
@@ -63,9 +82,58 @@ public class GraphStrategy extends AbstractStrategy<IGraphVar> {
         pool = new PoolManager<>();
     }
 
+    /**
+     * Lexicographic graph branching strategy.
+     * Branch on nodes then arcs/edges.
+     * <p/>
+     * <p/> node branching:
+     * Let i be the first node such that
+     * i in envelope(g) and i not in kernel(g).
+     * The decision adds i to the kernel of g.
+     * It is fails, then i is removed from the envelope of g.
+     * <p/>
+     * arc/edge branching:
+     * <p/> node branching:
+     * Let (i,j) be the first arc/edge such that
+     * (i,j) in envelope(g) and (i,j) not in kernel(g).
+     * The decision adds (i,j) to the kernel of g.
+     * It is fails, then (i,j) is removed from the envelope of g
+     *
+     * @param g a graph variable to branch on
+     * @return a lexicographic strategy to instantiate g
+     */
     public GraphStrategy(IGraphVar g) {
         this(g, new LexNode(g), new LexArc(g), NodeArcPriority.NODES_THEN_ARCS);
     }
+
+    /**
+     * Random graph branching strategy.
+     * Alternate randomly node and arc/edge decisions.
+     * <p/>
+     * <p/> node branching:
+     * Let i be a randomly selected node such that
+     * i in envelope(g) and i not in kernel(g).
+     * The decision adds i to the kernel of g.
+     * It is fails, then i is removed from the envelope of g.
+     * <p/>
+     * arc/edge branching:
+     * <p/> node branching:
+     * Let (i,j) be a randomly selected arc/edge arc/edge such that
+     * (i,j) in envelope(g) and (i,j) not in kernel(g).
+     * The decision adds (i,j) to the kernel of g.
+     * It is fails, then (i,j) is removed from the envelope of g
+     *
+     * @param g a graph variable to branch on
+     * @param seed     randomness seed
+     * @return a random strategy to instantiate g
+     */
+    public GraphStrategy(IGraphVar g, long seed) {
+        this(g, new RandomNode(g,seed), new RandomArc(g,seed), NodeArcPriority.NODES_THEN_ARCS);
+    }
+
+    //***********************************************************************************
+    // METHODS
+    //***********************************************************************************
 
     @Override
     public boolean init() {

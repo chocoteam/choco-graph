@@ -28,7 +28,7 @@
 package org.chocosolver.checked;
 
 import org.chocosolver.graphsolver.GraphModel;
-import org.chocosolver.graphsolver.search.GraphStrategyFactory;
+import org.chocosolver.graphsolver.search.strategy.GraphStrategy;
 import org.chocosolver.graphsolver.variables.IDirectedGraphVar;
 import org.chocosolver.solver.Solver;
 import org.chocosolver.util.objects.graphs.DirectedGraph;
@@ -72,7 +72,7 @@ public class ArborescenceTest {
 			m.minInDegrees(g, indeg).post();
 		}
 		m.nbNodes(g, m.intVar("nbNodes", n / 3, n)).post();
-		m.getSolver().setSearch(GraphStrategyFactory.random(g, seed));
+		m.getSolver().setSearch(new GraphStrategy(g, seed));
 		m.getSolver().limitSolution(1000);
 		while(m.getSolver().solve());
 		return m.getSolver();
@@ -107,7 +107,7 @@ public class ArborescenceTest {
 
 	@Test(groups = "1m")
 	public static void testAllDataStructure() {
-		for (SetType ge : SetType.values()) {
+		for (SetType ge : new SetType[]{SetType.BIPARTITESET,SetType.LINKED_LIST,SetType.BITSET}) {
 			graphTypeEnv = ge;
 			graphTypeKer = ge;
             System.out.println("env:" + ge + " ker :" + ge);

@@ -30,7 +30,6 @@ public class PropGirth extends Propagator<Variable> {
 	public void propagate(int evtmask) throws ContradictionException {
 		int upperGraphGirth = getUpperGraphGirth();
 		int lowerGraphGirth = getLowerGraphGirth();
-		System.out.println("$org.chocosolver.solver.sbcstrs.test.util.PropGirth::propagate$> " + lowerGraphGirth + ", " + upperGraphGirth);
 		if (upperGraphGirth < girth.getUB()) {
 			girth.updateUpperBound(upperGraphGirth, this);
 		}

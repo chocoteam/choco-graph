@@ -28,7 +28,7 @@
 package org.chocosolver.graphsolver;
 
 import org.chocosolver.graphsolver.cstrs.IGraphConstraintFactory;
-import org.chocosolver.graphsolver.search.GraphStrategyFactory;
+import org.chocosolver.graphsolver.search.strategy.GraphStrategy;
 import org.chocosolver.graphsolver.variables.GraphVar;
 import org.chocosolver.graphsolver.variables.IGraphVarFactory;
 import org.chocosolver.solver.Model;
@@ -67,7 +67,7 @@ public class GraphModel extends Model implements IGraphVarFactory, IGraphConstra
 				}else{
 					AbstractStrategy[] gss = new AbstractStrategy[gvs.length+1];
 					for(int i=0; i<gvs.length; i++){
-						gss[i] = GraphStrategyFactory.inputOrder(gvs[i]);
+						gss[i] = new GraphStrategy(gvs[i]);
 					}
 					gss[gvs.length] = other;
 					return Search.sequencer(gss);

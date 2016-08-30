@@ -28,7 +28,6 @@
 package org.chocosolver.samples.hcp;
 
 import org.chocosolver.graphsolver.GraphModel;
-import org.chocosolver.graphsolver.search.GraphStrategyFactory;
 import org.chocosolver.graphsolver.search.strategy.ArcStrategy;
 import org.chocosolver.graphsolver.search.strategy.GraphStrategy;
 import org.chocosolver.graphsolver.variables.IUndirectedGraphVar;
@@ -73,7 +72,7 @@ public class HamiltonianCycleProblem {
 
 
 		Solver solver = model.getSolver();
-		solver.setSearch(GraphStrategyFactory.graphStrategy(graph, null,
+		solver.setSearch(new GraphStrategy(graph, null,
 				new ArcStrategy<IUndirectedGraphVar>(graph){
 					@Override
 					public boolean computeNextArc() {

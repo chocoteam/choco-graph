@@ -10,13 +10,7 @@ import org.chocosolver.util.ESat;
 import org.chocosolver.util.objects.graphs.DirectedGraph;
 import org.chocosolver.util.objects.setDataStructures.SetType;
 import org.testng.Assert;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
-
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.PrintStream;
 
 /**
  * Tests for {@code GraphConstraintFactory#postSymmetryBreaking(IDirectedGraphVar, Solver) postSymmetryBreaking}/
@@ -31,7 +25,6 @@ import java.io.PrintStream;
  * @author Моклев Вячеслав
  */
 public class SymmetryBreakingDirectedTest {
-    private static PrintStream oldOut;
 
     private static Constraint containsDirectedTree(IDirectedGraphVar graph) {
         return new Constraint("subTree", new Propagator<IDirectedGraphVar>(new IDirectedGraphVar[] {graph}, PropagatorPriority.LINEAR, false) {
@@ -109,19 +102,6 @@ public class SymmetryBreakingDirectedTest {
         return model.getSolver().solve();
     }
 
-    @BeforeMethod
-    public void setUp() throws Exception {
-        oldOut = System.out;
-        System.setOut(new PrintStream(new OutputStream() {
-            @Override public void write(int b) throws IOException {}
-        }));
-    }
-
-    @AfterMethod
-    public void tearDown() throws Exception {
-        System.setOut(oldOut);
-    }
-
     /**
      * Checks equivalence of existance of solution
      * with and without symmetry breaking.
@@ -139,7 +119,8 @@ public class SymmetryBreakingDirectedTest {
 
     @Test
     public static void testAll() {
-        for (int n = 0; n < 10; n++) {
+        for (int n = 0; n < 8; n++) {
+            System.out.println(n);
             for (int m = 0; m < n * n; m++) {
                 test(n, m);
             }

@@ -29,7 +29,6 @@ package org.chocosolver.checked;
 
 import org.chocosolver.graphsolver.GraphModel;
 import org.chocosolver.graphsolver.cstrs.basic.PropNbNodes;
-import org.chocosolver.graphsolver.search.GraphStrategyFactory;
 import org.chocosolver.graphsolver.search.strategy.GraphStrategy;
 import org.chocosolver.graphsolver.search.strategy.arcs.RandomArc;
 import org.chocosolver.graphsolver.search.strategy.nodes.RandomNode;
@@ -82,8 +81,8 @@ public class SubCircuitTest {
 		model.circuit(graph).post();
 		new Constraint("SubCircuitLength",new PropNbNodes(graph, circuitLength)).post();
 
-		AbstractStrategy arcs = GraphStrategyFactory.graphStrategy(graph,null,new RandomArc(graph,seed), GraphStrategy.NodeArcPriority.ARCS);
-		AbstractStrategy nodes = GraphStrategyFactory.graphStrategy(graph,new RandomNode(graph,seed), null, GraphStrategy.NodeArcPriority.NODES_THEN_ARCS);
+		AbstractStrategy arcs = new GraphStrategy(graph,null,new RandomArc(graph,seed), GraphStrategy.NodeArcPriority.ARCS);
+		AbstractStrategy nodes = new GraphStrategy(graph,new RandomNode(graph,seed), null, GraphStrategy.NodeArcPriority.NODES_THEN_ARCS);
 		model.getSolver().setSearch(arcs,nodes);
 
 		while (model.getSolver().solve());

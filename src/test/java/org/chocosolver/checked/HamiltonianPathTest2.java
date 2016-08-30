@@ -28,13 +28,12 @@
 package org.chocosolver.checked;
 
 import org.chocosolver.graphsolver.GraphModel;
-import org.chocosolver.graphsolver.search.GraphStrategyFactory;
+import org.chocosolver.graphsolver.search.strategy.GraphStrategy;
 import org.chocosolver.graphsolver.variables.IDirectedGraphVar;
 import org.chocosolver.samples.input.GraphGenerator;
 import org.chocosolver.solver.Cause;
 import org.chocosolver.solver.Solver;
 import org.chocosolver.solver.exception.ContradictionException;
-import org.chocosolver.solver.search.strategy.strategy.AbstractStrategy;
 import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.util.objects.graphs.DirectedGraph;
 import org.chocosolver.util.objects.setDataStructures.SetType;
@@ -58,8 +57,8 @@ public class HamiltonianPathTest2 {
 
 		GraphModel model = new GraphModel();
 		// create model
-		DirectedGraph GLB = new DirectedGraph( n, SetType.LINKED_LIST, true);
-		DirectedGraph GUB = new DirectedGraph( n, SetType.LINKED_LIST, true);
+		DirectedGraph GLB = new DirectedGraph(model, n, SetType.LINKED_LIST, true);
+		DirectedGraph GUB = new DirectedGraph(model, n, SetType.LINKED_LIST, true);
 		for (int i = 0; i < n - 1; i++) {
 			for (int j = 1; j < n; j++) {
 				if (adjacencyMatrix[i][j]) {
@@ -73,9 +72,7 @@ public class HamiltonianPathTest2 {
 			model.reachability(graph,0).post();
 		}
 
-		AbstractStrategy strategy;
-		strategy = GraphStrategyFactory.random(graph, seed);
-		model.getSolver().setSearch(strategy);
+		model.getSolver().setSearch(new GraphStrategy(graph, seed));
 
 		while (model.getSolver().solve());
 

@@ -30,7 +30,7 @@ package org.chocosolver.samples;
 import org.chocosolver.graphsolver.GraphModel;
 import org.chocosolver.graphsolver.cstrs.basic.PropNbArcs;
 import org.chocosolver.graphsolver.cstrs.basic.PropTransitivity;
-import org.chocosolver.graphsolver.search.GraphStrategyFactory;
+import org.chocosolver.graphsolver.search.strategy.GraphStrategy;
 import org.chocosolver.graphsolver.variables.IDirectedGraphVar;
 import org.chocosolver.solver.Model;
 import org.chocosolver.solver.constraints.Constraint;
@@ -78,7 +78,7 @@ public class TransitiveClosure {
 		// CONSTRAINTS
 		new Constraint("Graph_TC",new PropTransitivity(tc),new PropNbArcs(tc,nbArcs)).post();
 		// tries to find the smallest graph first
-		model.getSolver().setSearch(Search.inputOrderLBSearch(nbArcs), GraphStrategyFactory.inputOrder(tc));
+		model.getSolver().setSearch(Search.inputOrderLBSearch(nbArcs), new GraphStrategy(tc));
 
 		model.setObjective(Model.MINIMIZE, nbArcs);
 

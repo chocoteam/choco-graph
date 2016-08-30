@@ -29,7 +29,7 @@ package org.chocosolver.checked;
 
 import gnu.trove.list.array.TIntArrayList;
 import org.chocosolver.graphsolver.GraphModel;
-import org.chocosolver.graphsolver.search.GraphStrategyFactory;
+import org.chocosolver.graphsolver.search.strategy.GraphStrategy;
 import org.chocosolver.graphsolver.variables.IDirectedGraphVar;
 import org.chocosolver.samples.input.GraphGenerator;
 import org.chocosolver.solver.search.strategy.Search;
@@ -48,7 +48,7 @@ public class HamiltonianPathTest {
 
 	@Test(groups = "1m")
 	public static void test() {
-		int[] sizes = new int[]{20, 50};
+		int[] sizes = new int[]{12,20};
 		long s;
 		int[] nbVoisins = new int[]{3, 5, 10};
 		boolean[][] matrix;
@@ -56,7 +56,7 @@ public class HamiltonianPathTest {
 		for (int n : sizes) {
 			for (int nb : nbVoisins) {
 				for (int ks = 0; ks < 2; ks++) {
-					s = System.currentTimeMillis();
+					s = ks;//System.currentTimeMillis();
 					System.out.println("n:" + n + " nbVoisins:" + nb + " s:" + s);
 					GraphGenerator gg = new GraphGenerator(n, s, GraphGenerator.InitialProperty.HamiltonianCircuit);
 					matrix = transformMatrix(gg.neighborBasedGenerator(nb));
@@ -78,8 +78,8 @@ public class HamiltonianPathTest {
 		GraphModel model = new GraphModel();
 		int n = matrix.length;
 		// build model
-		DirectedGraph GLB = new DirectedGraph(n,SetType.LINKED_LIST,true);
-		DirectedGraph GUB = new DirectedGraph(n,SetType.BITSET,true);
+		DirectedGraph GLB = new DirectedGraph(model,n,SetType.LINKED_LIST,true);
+		DirectedGraph GUB = new DirectedGraph(model,n,SetType.BITSET,true);
 		for (int i = 0; i < n - 1; i++) {
 			for (int j = 1; j < n; j++) {
 				if (matrix[i][j]) {
@@ -95,16 +95,12 @@ public class HamiltonianPathTest {
 		}
 
 		// configure solver
-		if (rd) {
-			model.getSolver().setSearch(GraphStrategyFactory.random(graph, s));
-		} else {
-			model.getSolver().setSearch(GraphStrategyFactory.inputOrder(graph));
-		}
+		model.getSolver().setSearch(rd?new GraphStrategy(graph, s):new GraphStrategy(graph));
 		model.getSolver().limitTime(TIME_LIMIT);
 		model.getSolver().solve();
 
 		// the problem has at least one solution
-		Assert.assertFalse(model.getSolver().getSolutionCount() == 0 && model.getSolver().getTimeCount() < TIME_LIMIT/1000);
+		Assert.assertTrue(model.getSolver().getSolutionCount() > 0);
 	}
 
 	private static void testInt(boolean[][] matrix, long seed, boolean rd, boolean enumerated) {

@@ -65,5 +65,6 @@ public class DAGProblem {
 			System.out.println("new solution found : "+nbArcs);
 			System.out.println(dag);
 		}
+		model.getSolver().printStatistics();
 	}
 }
