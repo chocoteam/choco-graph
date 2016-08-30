@@ -36,6 +36,7 @@ import org.chocosolver.solver.constraints.Propagator;
 import org.chocosolver.solver.constraints.PropagatorPriority;
 import org.chocosolver.solver.exception.ContradictionException;
 import org.chocosolver.util.ESat;
+import org.chocosolver.util.objects.setDataStructures.ISet;
 import org.chocosolver.util.procedure.PairProcedure;
 
 /**
@@ -88,16 +89,20 @@ public class PropPathNoCircuit extends Propagator<IDirectedGraphVar> {
 
 	@Override
 	public void propagate(int evtmask) throws ContradictionException {
-		int j;
 		for (int i = 0; i < n; i++) {
 			end[i].set(i);
 			origin[i].set(i);
 			size[i].set(1);
 		}
 		for (int i = 0; i < n; i++) {
-			j = g.getMandSuccOf(i).iterator().next();
-			if (j != -1) {
-				enforce(i, j);
+			ISet succs = g.getMandSuccOf(i);
+			if (succs.getSize()>0) {
+				if(succs.getSize()>1){
+					fails();
+				}
+				else {
+					enforce(i, g.getMandSuccOf(i).iterator().next());
+				}
 			}
 		}
 		gdm.unfreeze();
