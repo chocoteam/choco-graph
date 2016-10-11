@@ -111,7 +111,7 @@ public class PropIncrementalAdjacencyMatrix extends Propagator<Variable> {
 		for (int i = 0; i < n; i++) {
 			ISet children = graph.getMandSuccOf(i);
 			for (int j = 0; j < n; j++) {
-				if (t[i + j * n].isInstantiatedTo(0)  && children.contain(j)) {
+				if (t[i + j * n].isInstantiatedTo(0)  && children.contains(j)) {
 					return ESat.FALSE;
 				}
 			}
@@ -119,7 +119,7 @@ public class PropIncrementalAdjacencyMatrix extends Propagator<Variable> {
 		for (int i = 0; i < n; i++) {
 			ISet children = graph.getPotSuccOf(i);
 			for (int j = 0; j < n; j++) {
-				if (t[i + j * n].isInstantiatedTo(1) && !children.contain(j)) {
+				if (t[i + j * n].isInstantiatedTo(1) && !children.contains(j)) {
 					return ESat.FALSE;
 				}
 			}

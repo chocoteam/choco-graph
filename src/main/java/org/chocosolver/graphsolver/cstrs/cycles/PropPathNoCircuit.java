@@ -96,8 +96,8 @@ public class PropPathNoCircuit extends Propagator<IDirectedGraphVar> {
 		}
 		for (int i = 0; i < n; i++) {
 			ISet succs = g.getMandSuccOf(i);
-			if (succs.getSize()>0) {
-				if(succs.getSize()>1){
+			if (succs.size()>0) {
+				if(succs.size()>1){
 					fails();
 				}
 				else {

@@ -79,7 +79,7 @@ public class PropNeighIntsChannel1 extends Propagator<IUndirectedGraphVar> {
 				}
 			}
 			for (int j=succs[i].getLB(); j<=succs[i].getUB(); j=succs[i].nextValue(j)) {
-				if (!g.getPotNeighOf(i).contain(j)) {
+				if (!g.getPotNeighOf(i).contains(j)) {
 					succs[i].removeValue(j, this);
 				}
 			}
@@ -90,7 +90,7 @@ public class PropNeighIntsChannel1 extends Propagator<IUndirectedGraphVar> {
 	public ESat isEntailed() {
 		for (int i = 0; i < n; i++) {
 			if(succs[i].isInstantiated()){
-				if (!g.getPotNeighOf(i).contain(succs[i].getValue())) {
+				if (!g.getPotNeighOf(i).contains(succs[i].getValue())) {
 					return ESat.FALSE;
 				}
 			}

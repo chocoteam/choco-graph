@@ -90,13 +90,13 @@ public abstract class GraphVar<E extends IGraph> extends AbstractVariable implem
 
     @Override
     public boolean isInstantiated() {
-        if (getPotentialNodes().getSize() != getMandatoryNodes().getSize()) {
+        if (getPotentialNodes().size() != getMandatoryNodes().size()) {
             return false;
         }
         ISet suc;
         for (int i :getUB().getNodes()) {
             suc = UB.getSuccOrNeighOf(i);
-            if (suc.getSize() != getLB().getSuccOrNeighOf(i).getSize()) {
+            if (suc.size() != getLB().getSuccOrNeighOf(i).size()) {
                 return false;
             }
         }
@@ -107,10 +107,10 @@ public abstract class GraphVar<E extends IGraph> extends AbstractVariable implem
     public boolean removeNode(int x, ICause cause) throws ContradictionException {
         assert cause != null;
         assert (x >= 0 && x < n);
-        if (LB.getNodes().contain(x)) {
+        if (LB.getNodes().contains(x)) {
             this.contradiction(cause, "remove mandatory node");
             return true;
-        } else if (!UB.getNodes().contain(x)) {
+        } else if (!UB.getNodes().contains(x)) {
             return false;
         }
         ISet nei = UB.getSuccOrNeighOf(x);
@@ -136,7 +136,7 @@ public abstract class GraphVar<E extends IGraph> extends AbstractVariable implem
     public boolean enforceNode(int x, ICause cause) throws ContradictionException {
         assert cause != null;
         assert (x >= 0 && x < n);
-        if (UB.getNodes().contain(x)) {
+        if (UB.getNodes().contains(x)) {
             if (LB.addNode(x)) {
                 if (reactOnModification) {
                     delta.add(x, IGraphDelta.NE, cause);

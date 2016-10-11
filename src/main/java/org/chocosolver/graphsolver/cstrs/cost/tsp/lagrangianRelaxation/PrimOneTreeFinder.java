@@ -104,9 +104,9 @@ public class PrimOneTreeFinder extends PrimMSTFinder {
         }
         int first = -1, sizeFirst = n + 1;
         for (int i = 0; i < n; i++) {
-            if (i != oneNode && g.getNeighOf(i).getSize() < sizeFirst) {
+            if (i != oneNode && g.getNeighOf(i).size() < sizeFirst) {
                 first = i;
-                sizeFirst = g.getNeighOf(i).getSize();
+                sizeFirst = g.getNeighOf(i).size();
             }
         }
         if (first == -1) {
@@ -124,7 +124,7 @@ public class PrimOneTreeFinder extends PrimMSTFinder {
         }
         addArc(oneNode, min1);
         addArc(oneNode, min2);
-        if (Tree.getNeighOf(oneNode).getSize() != 2) {
+        if (Tree.getNeighOf(oneNode).size() != 2) {
             throw new UnsupportedOperationException();
         }
     }

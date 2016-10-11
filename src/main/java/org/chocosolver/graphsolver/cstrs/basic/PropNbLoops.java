@@ -72,10 +72,10 @@ public class PropNbLoops extends Propagator {
         int max = 0;
         ISet nodes = g.getPotentialNodes();
         for (int i : nodes) {
-            if (g.getMandSuccOrNeighOf(i).contain(i)) {
+            if (g.getMandSuccOrNeighOf(i).contains(i)) {
                 min++;
                 max++;
-            } else if (g.getPotSuccOrNeighOf(i).contain(i)) {
+            } else if (g.getPotSuccOrNeighOf(i).contains(i)) {
                 max++;
             }
         }
@@ -86,14 +86,14 @@ public class PropNbLoops extends Propagator {
         } else if (k.isInstantiated()) {
             if (k.getValue() == max) {
                 for (int i : nodes) {
-                    if (g.getPotSuccOrNeighOf(i).contain(i)) {
+                    if (g.getPotSuccOrNeighOf(i).contains(i)) {
                         g.enforceArc(i, i, this);
                     }
                 }
                 setPassive();
             }else if (k.getValue() == min) {
                 for (int i : nodes) {
-                    if (!g.getMandSuccOrNeighOf(i).contain(i)) {
+                    if (!g.getMandSuccOrNeighOf(i).contains(i)) {
                         g.removeArc(i, i, this);
                     }
                 }
@@ -121,10 +121,10 @@ public class PropNbLoops extends Propagator {
         int max = 0;
         ISet env = g.getPotentialNodes();
         for (int i : env) {
-            if (g.getMandSuccOrNeighOf(i).contain(i)) {
+            if (g.getMandSuccOrNeighOf(i).contains(i)) {
                 min++;
                 max++;
-            } else if (g.getPotSuccOrNeighOf(i).contain(i)) {
+            } else if (g.getPotSuccOrNeighOf(i).contains(i)) {
                 max++;
             }
         }

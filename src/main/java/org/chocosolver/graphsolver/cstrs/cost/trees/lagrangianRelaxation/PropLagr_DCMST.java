@@ -191,7 +191,7 @@ public class PropLagr_DCMST extends Propagator implements GraphLagrangianRelaxat
 		}
 		int deg;
 		for (int i = 0; i < n; i++) {
-			deg = mst.getNeighOf(i).getSize();
+			deg = mst.getNeighOf(i).size();
 			if (deg > maxDegree[i] || penalities[i] > 0) {
 				nb2viol += (maxDegree[i] - deg) * (maxDegree[i] - deg);
 			}
@@ -207,9 +207,9 @@ public class PropLagr_DCMST extends Propagator implements GraphLagrangianRelaxat
 		double maxPen = 2 * obj.getUB();
 		totalPenalities = 0;
 		for (int i = 0; i < n; i++) {
-			deg = mst.getNeighOf(i).getSize();
+			deg = mst.getNeighOf(i).size();
 			penalities[i] += (deg - maxDegree[i]) * step;
-			if (penalities[i] < 0 || g.getNeighOf(i).getSize() <= maxDegree[i]) {
+			if (penalities[i] < 0 || g.getNeighOf(i).size() <= maxDegree[i]) {
 				penalities[i] = 0;
 			}
 			if (penalities[i] > maxPen) {
@@ -308,7 +308,7 @@ public class PropLagr_DCMST extends Propagator implements GraphLagrangianRelaxat
 	}
 
 	public boolean isMandatory(int i, int j) {
-		return gV.getMandNeighOf(i).contain(j);
+		return gV.getMandNeighOf(i).contains(j);
 	}
 
 	public void waitFirstSolution(boolean b) {

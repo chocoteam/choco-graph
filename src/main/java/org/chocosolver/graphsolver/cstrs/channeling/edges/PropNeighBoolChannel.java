@@ -89,9 +89,9 @@ public class PropNeighBoolChannel extends Propagator<Variable> {
 			}
 		}
 		for(int i=0;i<bools.length;i++){
-			if(!inc.getPotSet(g,vertex).contain(i)){
+			if(!inc.getPotSet(g,vertex).contains(i)){
 				bools[i].setToFalse(this);
-			}else if(inc.getMandSet(g,vertex).contain(i)){
+			}else if(inc.getMandSet(g,vertex).contains(i)){
 				bools[i].setToTrue(this);
 			}
 		}
@@ -107,9 +107,9 @@ public class PropNeighBoolChannel extends Propagator<Variable> {
 			}
 		} else {
 			for(int i=0;i<bools.length;i++){
-				if(!inc.getPotSet(g,vertex).contain(i)){
+				if(!inc.getPotSet(g,vertex).contains(i)){
 					bools[i].setToFalse(this);
-				}else if(inc.getMandSet(g,vertex).contain(i)){
+				}else if(inc.getMandSet(g,vertex).contains(i)){
 					bools[i].setToTrue(this);
 				}
 			}
@@ -119,7 +119,7 @@ public class PropNeighBoolChannel extends Propagator<Variable> {
 	@Override
 	public ESat isEntailed() {
 		for(int i=0;i<bools.length;i++){
-			if(bools[i].getLB()==1 && !inc.getPotSet(g, vertex).contain(i)){
+			if(bools[i].getLB()==1 && !inc.getPotSet(g, vertex).contains(i)){
 				return ESat.FALSE;
 			}
 		}

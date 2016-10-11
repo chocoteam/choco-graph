@@ -722,7 +722,7 @@ public class LexArc extends ArcStrategy<IGraphVar> {
 		for (int i : envNodes) {
 			envSuc = g.getPotSuccOrNeighOf(i);
 			kerSuc = g.getMandSuccOrNeighOf(i);
-			if (envSuc.getSize() != kerSuc.getSize()) {
+			if (envSuc.size() != kerSuc.size()) {
 				for (int j : envSuc) {
 					if (!kerSuc.contain(j)) {
 						this.from = i;
@@ -927,7 +927,7 @@ public class KnightTourProblem {
 			int sizi;
 			from = -1;
 			for (int i = 0; i < n; i++) {
-				sizi = g.getPotNeighOf(i).getSize() - g.getMandNeighOf(i).getSize();
+				sizi = g.getPotNeighOf(i).size() - g.getMandNeighOf(i).size();
 				if (sizi < size && sizi > 0) {
 					from = i;
 					size = sizi;

@@ -211,7 +211,7 @@ public class ConnectivityFinder {
 				}
 			}else {
 				if (i == start) {
-					return k >= act.getSize() - 1;
+					return k >= act.size() - 1;
 				}
 				q = inf[i];
 				i = p[i];
@@ -274,7 +274,7 @@ public class ConnectivityFinder {
 				}
 			}else {
 				if (i == start) {
-					if (k < act.getSize() - 1) {
+					if (k < act.size() - 1) {
 						return false;
 					} else {
 						break;

@@ -120,7 +120,7 @@ public class PropCycle extends Propagator<IUndirectedGraphVar> {
 	public ESat isEntailed() {
 		ISet nodes = g.getMandatoryNodes();
 		for (int i : nodes) {
-			if (g.getMandNeighOf(i).getSize() > 2 || g.getPotNeighOf(i).getSize() < 2) {
+			if (g.getMandNeighOf(i).size() > 2 || g.getPotNeighOf(i).size() < 2) {
 				return ESat.FALSE;
 			}
 		}
@@ -139,7 +139,7 @@ public class PropCycle extends Propagator<IUndirectedGraphVar> {
 		size[ext1].set(t);
 		size[ext2].set(t);
 		if (t > 2 && t <= n) {
-			if (t < n && t < g.getMandatoryNodes().getSize()) {
+			if (t < n && t < g.getMandatoryNodes().size()) {
 				g.removeArc(ext1, ext2, this);
 			} else if (t == n) {
 				g.enforceArc(ext1, ext2, this);

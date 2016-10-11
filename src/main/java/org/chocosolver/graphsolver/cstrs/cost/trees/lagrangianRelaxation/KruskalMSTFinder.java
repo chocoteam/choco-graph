@@ -124,7 +124,7 @@ public class KruskalMSTFinder extends AbstractTreeFinder {
             Tree.getNeighOf(i).clear();
             ccTree.removeNode(i);
             ccTree.addNode(i);
-            size += g.getNeighOf(i).getSize();
+            size += g.getNeighOf(i).size();
         }
         assert size % 2 == 0;
 		size /= 2;
@@ -230,7 +230,7 @@ public class KruskalMSTFinder extends AbstractTreeFinder {
                 if (i >= n) {
                     ccTree.removeNode(i);
                 }
-            } else if (ccTree.getSuccOf(i).getSize() == 1) {
+            } else if (ccTree.getSuccOf(i).size() == 1) {
                 int s = ccTree.getSuccOf(i).iterator().next();
                 ccTree.removeNode(i);
                 if (!ccTree.getPredOf(i).isEmpty()) {

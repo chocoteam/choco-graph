@@ -202,7 +202,7 @@ public class PropLagr_OneTree extends Propagator implements GraphLagrangianRelax
         }
         int deg;
         for (int i = 0; i < n; i++) {
-            deg = mst.getNeighOf(i).getSize();
+            deg = mst.getNeighOf(i).size();
             nb2viol += (2 - deg) * (2 - deg);
         }
         if (nb2viol == 0) {
@@ -219,7 +219,7 @@ public class PropLagr_OneTree extends Propagator implements GraphLagrangianRelax
         double sumPenalities = 0;
         int deg;
         for (int i = 0; i < n; i++) {
-            deg = mst.getNeighOf(i).getSize();
+            deg = mst.getNeighOf(i).size();
             penalities[i] += (deg - 2) * step;
 			assert !(penalities[i] > Double.MAX_VALUE / (n - 1) || penalities[i] < -Double.MAX_VALUE / (n - 1)) :
 					"Extreme-value lagrangian multipliers. Numerical issue may happen";
@@ -284,7 +284,7 @@ public class PropLagr_OneTree extends Propagator implements GraphLagrangianRelax
     }
 
     public boolean isMandatory(int i, int j) {
-        return gV.getMandNeighOf(i).contain(j);
+        return gV.getMandNeighOf(i).contains(j);
     }
 
     public void waitFirstSolution(boolean b) {

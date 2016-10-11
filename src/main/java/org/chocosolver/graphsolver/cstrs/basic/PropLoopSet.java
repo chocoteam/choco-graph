@@ -68,19 +68,19 @@ public class PropLoopSet extends Propagator<Variable> {
     public void propagate(int evtmask) throws ContradictionException {
 		ISet nodes = g.getPotentialNodes();
 		for(int i : nodes){
-			if(g.getMandSuccOrNeighOf(i).contain(i)){ // mandatory loop detected
+			if(g.getMandSuccOrNeighOf(i).contains(i)){ // mandatory loop detected
 				loops.force(i,this);
-			}else if(!g.getPotSuccOrNeighOf(i).contain(i)){ // no potential loop
+			}else if(!g.getPotSuccOrNeighOf(i).contains(i)){ // no potential loop
 				loops.remove(i,this);
 			}
-			else if(loops.getLB().contain(i)){
+			else if(loops.getLB().contains(i)){
 				g.enforceArc(i,i,this);
-			}else if(!loops.getUB().contain(i)){
+			}else if(!loops.getUB().contains(i)){
 				g.removeArc(i,i,this);
 			}
 		}
 		for(int i:loops.getUB()){
-			if(!nodes.contain(i)){
+			if(!nodes.contains(i)){
 				loops.remove(i,this);
 			}
 		}
@@ -93,12 +93,12 @@ public class PropLoopSet extends Propagator<Variable> {
     @Override
     public ESat isEntailed() {
 		for(int i:loops.getLB()){
-			if(!g.getPotSuccOrNeighOf(i).contain(i)){
+			if(!g.getPotSuccOrNeighOf(i).contains(i)){
 				return ESat.FALSE;
 			}
 		}
 		for(int i:g.getMandatoryNodes()){
-			if(g.getMandSuccOrNeighOf(i).contain(i) && !loops.getUB().contain(i)){
+			if(g.getMandSuccOrNeighOf(i).contains(i) && !loops.getUB().contains(i)){
 				return ESat.FALSE;
 			}
 		}

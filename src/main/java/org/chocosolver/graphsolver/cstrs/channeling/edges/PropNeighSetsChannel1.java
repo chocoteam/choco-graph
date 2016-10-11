@@ -100,7 +100,7 @@ public class PropNeighSetsChannel1 extends Propagator<IGraphVar> {
 				}
             }
             for (int j: sets[i].getUB()) {
-                if (!g.getPotSuccOrNeighOf(i).contain(j)) {
+                if (!g.getPotSuccOrNeighOf(i).contains(j)) {
                     sets[i].remove(j, this);
 					if(!g.isDirected()){
 						sets[j].remove(i,this);
@@ -123,13 +123,13 @@ public class PropNeighSetsChannel1 extends Propagator<IGraphVar> {
     public ESat isEntailed() {
         for (int i = 0; i < n; i++) {
             for (int j:sets[i].getLB()) {
-                if (!g.getPotSuccOrNeighOf(i).contain(j)) {
+                if (!g.getPotSuccOrNeighOf(i).contains(j)) {
                     return ESat.FALSE;
                 }
             }
             ISet tmp = g.getMandSuccOrNeighOf(i);
             for (int j : tmp) {
-                if (!sets[i].getUB().contain(j)) {
+                if (!sets[i].getUB().contains(j)) {
                     return ESat.FALSE;
                 }
             }

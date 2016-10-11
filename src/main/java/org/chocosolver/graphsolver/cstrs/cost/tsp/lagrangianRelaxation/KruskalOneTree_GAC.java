@@ -86,9 +86,9 @@ public class KruskalOneTree_GAC extends KruskalMSTFinder {
             Tree.getNeighOf(i).clear();
             ccTree.removeNode(i);
             ccTree.addNode(i);
-            size += g.getNeighOf(i).getSize();
+            size += g.getNeighOf(i).size();
         }
-        size -= g.getNeighOf(0).getSize();
+        size -= g.getNeighOf(0).size();
         assert size % 2 == 0;
         size /= 2;
         ISet nei;

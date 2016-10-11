@@ -14,7 +14,7 @@ This software is licensed under BSD license.
 
 ## Requirement ##
 
-This extension of Choco Solver works with choco-solver-4.0.0.a and associated dependencies. It requires JDK 1.8+
+This extension of Choco Solver works with choco-solver-4.0.0 and associated dependencies. It requires JDK 1.8+
 
 ## Main authors
 

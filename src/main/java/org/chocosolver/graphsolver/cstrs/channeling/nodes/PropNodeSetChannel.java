@@ -90,16 +90,16 @@ public class PropNodeSetChannel extends Propagator<Variable> {
 	@Override
 	public void propagate(int evtmask) throws ContradictionException {
 		for(int i: set.getUB()){
-			if(g.getMandatoryNodes().contain(i)){
+			if(g.getMandatoryNodes().contains(i)){
 				set.force(i,this);
-			}else if(!g.getPotentialNodes().contain(i)){
+			}else if(!g.getPotentialNodes().contains(i)){
 				set.remove(i,this);
 			}
 		}
 		for(int i: g.getPotentialNodes()){
-			if(set.getLB().contain(i)) {
+			if(set.getLB().contains(i)) {
 				g.enforceNode(i, this);
-			} else if(!set.getUB().contain(i)){
+			} else if(!set.getUB().contains(i)){
 				g.removeNode(i,this);
 			}
 		}
@@ -125,17 +125,17 @@ public class PropNodeSetChannel extends Propagator<Variable> {
 	@Override
 	public ESat isEntailed() {
 		for(int i: set.getLB()){
-			if(!g.getPotentialNodes().contain(i)){
+			if(!g.getPotentialNodes().contains(i)){
 				return ESat.FALSE;
 			}
 		}
 		for(int i : g.getMandatoryNodes()){
-			if(!set.getUB().contain(i)){
+			if(!set.getUB().contains(i)){
 				return ESat.FALSE;
 			}
 		}
-		int n = g.getMandatoryNodes().getSize();
-		if(n == g.getPotentialNodes().getSize() && n == set.getUB().getSize() && n == set.getLB().getSize()){
+		int n = g.getMandatoryNodes().size();
+		if(n == g.getPotentialNodes().size() && n == set.getUB().size() && n == set.getLB().size()){
 			return ESat.TRUE;
 		}
 		return ESat.UNDEFINED;

@@ -104,7 +104,7 @@ public class SymmetryBreakingTest {
         if (result) { // check correctness of found answer
             int count = 0;
             for (int u = 0; u < n; u++) {
-                count += graph.getMandNeighOf(u).getSize();
+                count += graph.getMandNeighOf(u).size();
             }
             Assert.assertEquals(count, 2 * m, "correct number of edges");
             Assert.assertEquals(getGraphGirth(graph), l, "correct girth");

@@ -89,7 +89,7 @@ public class PropArborescence extends PropArborescences {
 			for (int y : g.getPotPredOf(i)) {
 				connectedGraph.addArc(y, i);
 			}
-			if (!g.getPotentialNodes().contain(i)) {
+			if (!g.getPotentialNodes().contains(i)) {
 				connectedGraph.addArc(n, i);
 			}
 		}

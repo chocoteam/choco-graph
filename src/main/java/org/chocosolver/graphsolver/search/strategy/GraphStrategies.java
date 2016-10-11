@@ -135,11 +135,11 @@ public class GraphStrategies extends GraphStrategy {
 
     private boolean evaluateNeighbors(int i) {
         ISet set = g.getPotSuccOrNeighOf(i);
-        if (set.getSize() == g.getMandSuccOrNeighOf(i).getSize()) {
+        if (set.size() == g.getMandSuccOrNeighOf(i).size()) {
             return false;
         }
         for (int j : set) {
-            if (!g.getMandSuccOrNeighOf(i).contain(j)) {
+            if (!g.getMandSuccOrNeighOf(i).contains(j)) {
                 int v = -1;
                 switch (mode) {
                     case LEX:
@@ -148,20 +148,20 @@ public class GraphStrategies extends GraphStrategy {
                         return true;
                     case MIN_P_DEGREE:
                     case MAX_P_DEGREE:
-                        v = g.getPotSuccOrNeighOf(i).getSize()
-                                + g.getPotPredOrNeighOf(j).getSize();
+                        v = g.getPotSuccOrNeighOf(i).size()
+                                + g.getPotPredOrNeighOf(j).size();
                         break;
                     case MIN_M_DEGREE:
                     case MAX_M_DEGREE:
-                        v = g.getMandSuccOrNeighOf(i).getSize()
-                                + g.getMandPredOrNeighOf(j).getSize();
+                        v = g.getMandSuccOrNeighOf(i).size()
+                                + g.getMandPredOrNeighOf(j).size();
                         break;
                     case MIN_DELTA_DEGREE:
                     case MAX_DELTA_DEGREE:
-                        v = g.getPotSuccOrNeighOf(i).getSize()
-                                + g.getPotPredOrNeighOf(j).getSize()
-                                - g.getMandSuccOrNeighOf(i).getSize()
-                                - g.getMandPredOrNeighOf(j).getSize();
+                        v = g.getPotSuccOrNeighOf(i).size()
+                                + g.getPotPredOrNeighOf(j).size()
+                                - g.getMandSuccOrNeighOf(i).size()
+                                - g.getMandPredOrNeighOf(j).size();
                         break;
                     case MIN_COST:
                     case MAX_COST:

@@ -138,7 +138,7 @@ public class PropNodeDegree_AtMost_Incr extends Propagator<IGraphVar> {
     public ESat isEntailed() {
         ISet act = g.getMandatoryNodes();
         for (int i : act) {
-            if (target.getPotSet(g, i).getSize() > degrees[i]) {
+            if (target.getPotSet(g, i).size() > degrees[i]) {
                 return ESat.FALSE;
             }
         }
@@ -161,12 +161,12 @@ public class PropNodeDegree_AtMost_Incr extends Propagator<IGraphVar> {
     private void checkAtMost(int i) throws ContradictionException {
         ISet ker = target.getMandSet(g, i);
         ISet env = target.getPotSet(g, i);
-        int size = ker.getSize();
+        int size = ker.size();
         if (size > degrees[i]) {
             g.removeNode(i, this);
-        } else if (size == degrees[i] && env.getSize() > size) {
+        } else if (size == degrees[i] && env.size() > size) {
             for (int other : env) {
-                if (!ker.contain(other)) {
+                if (!ker.contains(other)) {
                     target.remove(g, i, other, this);
                 }
             }

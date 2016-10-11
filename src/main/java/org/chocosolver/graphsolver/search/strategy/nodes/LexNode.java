@@ -38,7 +38,7 @@ public class LexNode extends NodeStrategy<IGraphVar> {
 	@Override
 	public int nextNode() {
 		for (int i : envNodes) {
-			if (!kerNodes.contain(i)) {
+			if (!kerNodes.contains(i)) {
 				return i;
 			}
 		}

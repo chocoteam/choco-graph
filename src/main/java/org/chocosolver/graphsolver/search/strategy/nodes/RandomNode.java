@@ -43,11 +43,11 @@ public class RandomNode extends NodeStrategy<IGraphVar> {
 
     @Override
     public int nextNode() {
-        int delta = envNodes.getSize() - kerNodes.getSize();
+        int delta = envNodes.size() - kerNodes.size();
         if (delta != 0) {
             delta = rd.nextInt(delta);
             for (int i : envNodes) {
-                if (!kerNodes.contain(i)) {
+                if (!kerNodes.contains(i)) {
                     if (delta == 0) {
                         return i;
                     } else {

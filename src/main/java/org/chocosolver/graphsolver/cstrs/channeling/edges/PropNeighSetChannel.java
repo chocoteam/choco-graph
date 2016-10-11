@@ -87,16 +87,16 @@ public class PropNeighSetChannel extends Propagator<Variable> {
 	@Override
 	public void propagate(int evtmask) throws ContradictionException {
 		for(int i:inc.getPotSet(g,vertex)){
-			if(!set.getUB().contain(i)){
+			if(!set.getUB().contains(i)){
 				inc.remove(g,vertex,i,this);
-			}else if(set.getLB().contain(i)){
+			}else if(set.getLB().contains(i)){
 				inc.enforce(g,vertex,i,this);
 			}
 		}
 		for(int i: set.getUB()){
-			if(!inc.getPotSet(g,vertex).contain(i)){
+			if(!inc.getPotSet(g,vertex).contains(i)){
 				set.remove(i,this);
-			}else if(inc.getMandSet(g,vertex).contain(i)){
+			}else if(inc.getMandSet(g,vertex).contains(i)){
 				set.force(i,this);
 			}
 		}
@@ -112,9 +112,9 @@ public class PropNeighSetChannel extends Propagator<Variable> {
 			sdm.unfreeze();
 		} else {
 			for(int i: set.getUB()){
-				if(!inc.getPotSet(g,vertex).contain(i)){
+				if(!inc.getPotSet(g,vertex).contains(i)){
 					set.remove(i,this);
-				}else if(inc.getMandSet(g,vertex).contain(i)){
+				}else if(inc.getMandSet(g,vertex).contains(i)){
 					set.force(i,this);
 				}
 			}
@@ -124,12 +124,12 @@ public class PropNeighSetChannel extends Propagator<Variable> {
 	@Override
 	public ESat isEntailed() {
 		for(int i: set.getLB()){
-			if(!inc.getPotSet(g,vertex).contain(i)){
+			if(!inc.getPotSet(g,vertex).contains(i)){
 				return ESat.FALSE;
 			}
 		}
 		for(int i:inc.getMandSet(g,vertex)){
-			if(!set.getUB().contain(i)){
+			if(!set.getUB().contains(i)){
 				return ESat.FALSE;
 			}
 		}

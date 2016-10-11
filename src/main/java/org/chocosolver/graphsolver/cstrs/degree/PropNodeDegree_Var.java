@@ -101,24 +101,24 @@ public class PropNodeDegree_Var extends Propagator<Variable> {
 
 	public void propagateDirected() throws ContradictionException {
 		for(int i=0;i<n;i++){
-			if(!g.getPotentialNodes().contain(i)){
+			if(!g.getPotentialNodes().contains(i)){
 				degrees[i].instantiateTo(0,this);
 			}else if(degrees[i].getLB()>0){
 				g.enforceNode(i,this);
 			}
 			ISet env = target.getPotSet(g, i);
 			ISet ker = target.getMandSet(g, i);
-			degrees[i].updateLowerBound(ker.getSize(),this);
-			degrees[i].updateUpperBound(env.getSize(),this);
-			if(ker.getSize() < env.getSize() && degrees[i].isInstantiated()){
+			degrees[i].updateLowerBound(ker.size(),this);
+			degrees[i].updateUpperBound(env.size(),this);
+			if(ker.size() < env.size() && degrees[i].isInstantiated()){
 				int d = degrees[i].getValue();
-				if(env.getSize() == d){
+				if(env.size() == d){
 					for (int s : env) {
 						target.enforce(g, i, s, this);
 					}
-				}else if(ker.getSize() == d){
+				}else if(ker.size() == d){
 					for (int s : env) {
-						if(!ker.contain(s)) {
+						if(!ker.contains(s)) {
 							target.remove(g, i, s, this);
 						}
 					}
@@ -136,26 +136,26 @@ public class PropNodeDegree_Var extends Propagator<Variable> {
 		int i = toDo.nextSetBit(0);
 		do{
 			toDo.clear(i);
-			if(!g.getPotentialNodes().contain(i)){
+			if(!g.getPotentialNodes().contains(i)){
 				degrees[i].instantiateTo(0,this);
 			}else if(degrees[i].getLB()>0){
 				g.enforceNode(i,this);
 			}
 			ISet env = target.getPotSet(g, i);
 			ISet ker = target.getMandSet(g, i);
-			degrees[i].updateLowerBound(ker.getSize(),this);
-			degrees[i].updateUpperBound(env.getSize(),this);
-			if(ker.getSize() < env.getSize() && degrees[i].isInstantiated()){
+			degrees[i].updateLowerBound(ker.size(),this);
+			degrees[i].updateUpperBound(env.size(),this);
+			if(ker.size() < env.size() && degrees[i].isInstantiated()){
 				int d = degrees[i].getValue();
-				if(env.getSize() == d){
+				if(env.size() == d){
 					for (int s : env) {
 						if(target.enforce(g, i, s, this)){
 							toDo.set(s);
 						}
 					}
-				}else if(ker.getSize() == d){
+				}else if(ker.size() == d){
 					for (int s : env) {
-						if(!ker.contain(s)) {
+						if(!ker.contains(s)) {
 							if (target.remove(g, i, s, this)) {
 								toDo.set(s);
 							}
@@ -175,16 +175,16 @@ public class PropNodeDegree_Var extends Propagator<Variable> {
 	public ESat isEntailed() {
 		boolean done = true;
 		for(int i=0;i<n;i++){
-			if((!degrees[i].contains(0)) && !g.getPotentialNodes().contain(i)){
+			if((!degrees[i].contains(0)) && !g.getPotentialNodes().contains(i)){
 				return ESat.FALSE;
 			}
 			ISet env = target.getPotSet(g, i);
 			ISet ker = target.getMandSet(g, i);
-			if(degrees[i].getLB()>env.getSize()
-					|| degrees[i].getUB()<ker.getSize()){
+			if(degrees[i].getLB()>env.size()
+					|| degrees[i].getUB()<ker.size()){
 				return ESat.FALSE;
 			}
-			if(env.getSize() != ker.getSize() || !degrees[i].isInstantiated()){
+			if(env.size() != ker.size() || !degrees[i].isInstantiated()){
 				done = false;
 			}
 		}

@@ -73,7 +73,7 @@ public class PropNbCC extends Propagator {
 	public void propagate(int evtmask) throws ContradictionException {
 		// trivial case
 		k.updateLowerBound(0,this);
-		if(g.getPotentialNodes().getSize() == 0){
+		if(g.getPotentialNodes().size() == 0){
 			k.instantiateTo(0,this);
 			return;
 		}
@@ -96,7 +96,7 @@ public class PropNbCC extends Propagator {
 			boolean pot = true;
 			for (int cc = 0; cc < ccs; cc++) {
 				for (int i = env_CC_finder.getCC_firstNode()[cc]; i >= 0 && pot; i = env_CC_finder.getCC_nextNode()[i]) {
-					if (g.getMandatoryNodes().contain(i)) {
+					if (g.getMandatoryNodes().contains(i)) {
 						pot = false;
 					}
 				}
@@ -109,7 +109,7 @@ public class PropNbCC extends Propagator {
 		}
 
 		// Force isthma in case of 1 CC and if vertices are fixed
-		if(k.isInstantiatedTo(1) && g.getMandatoryNodes().getSize()==g.getPotentialNodes().getSize()){
+		if(k.isInstantiatedTo(1) && g.getMandatoryNodes().size()==g.getPotentialNodes().size()){
 			if (!env_CC_finder.isConnectedAndFindIsthma()) {
 				throw new UnsupportedOperationException("connectivity has been checked");
 			}
@@ -126,7 +126,7 @@ public class PropNbCC extends Propagator {
 		int minCC = 0;
 		for (int cc = 0; cc < ccs; cc++) {
 			for (int i = env_CC_finder.getCC_firstNode()[cc]; i >= 0; i = env_CC_finder.getCC_nextNode()[i]) {
-				if (g.getMandatoryNodes().contain(i)) {
+				if (g.getMandatoryNodes().contains(i)) {
 					minCC++;
 					break;
 				}
@@ -138,7 +138,7 @@ public class PropNbCC extends Propagator {
 	public int maxCC() {
 		ker_CC_finder.findAllCC();
 		int nbK = ker_CC_finder.getNBCC();
-		int delta = g.getPotentialNodes().getSize()-g.getMandatoryNodes().getSize();
+		int delta = g.getPotentialNodes().size()-g.getMandatoryNodes().size();
 		return nbK+delta;
 	}
 

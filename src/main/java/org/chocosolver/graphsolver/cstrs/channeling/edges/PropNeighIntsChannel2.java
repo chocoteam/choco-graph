@@ -113,7 +113,7 @@ public class PropNeighIntsChannel2 extends Propagator<IntVar> {
     public ESat isEntailed() {
         for (int i = 0; i < n; i++) {
 			if(succs[i].isInstantiated()){
-                if (!g.getPotSuccOrNeighOf(i).contain(succs[i].getValue())) {
+                if (!g.getPotSuccOrNeighOf(i).contains(succs[i].getValue())) {
                     return ESat.FALSE;
                 }
             }

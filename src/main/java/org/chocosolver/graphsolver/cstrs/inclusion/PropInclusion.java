@@ -94,12 +94,12 @@ public class PropInclusion extends Propagator<IGraphVar> {
 		}
 		set = g[0].getPotentialNodes();
 		for(int i: set){
-			if(!g[1].getPotentialNodes().contain(i)){
+			if(!g[1].getPotentialNodes().contains(i)){
 				g[0].removeNode(i, this);
 			}else {
 				ISet suc = g[0].getPotSuccOrNeighOf(i);
 				for (int j : suc) {
-					if(!g[1].getPotSuccOrNeighOf(i).contain(j)) {
+					if(!g[1].getPotSuccOrNeighOf(i).contains(j)) {
 						g[1].removeArc(i, j, this);
 					}
 				}

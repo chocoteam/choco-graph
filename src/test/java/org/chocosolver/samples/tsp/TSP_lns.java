@@ -32,6 +32,7 @@ import org.chocosolver.graphsolver.GraphModel;
 import org.chocosolver.graphsolver.search.strategy.GraphStrategies;
 import org.chocosolver.graphsolver.variables.IUndirectedGraphVar;
 import org.chocosolver.solver.Model;
+import org.chocosolver.solver.Solution;
 import org.chocosolver.solver.Solver;
 import org.chocosolver.solver.exception.ContradictionException;
 import org.chocosolver.solver.search.limits.FailCounter;
@@ -69,7 +70,7 @@ public class TSP_lns {
 	//***********************************************************************************
 
 	public static void main(String[] args) {
-		String REPO = "src/main/java/org/chocosolver/samples/tsp";
+		String REPO = "src/test/java/org/chocosolver/samples/tsp";
 		String INSTANCE = "bier127";
 		int[][] data = TSP_Utils.parseInstance(REPO + "/" + INSTANCE + ".tsp", 300);
 		new TSP_lns(data);
@@ -220,6 +221,11 @@ public class TSP_lns {
 		@Override
 		public boolean isSearchComplete() {
 			return nbFreeEdges>=n;
+		}
+
+		@Override
+		public void loadFromSolution(Solution solution) {
+			throw new UnsupportedOperationException("not implemented");
 		}
 
 		private class LNSDecision extends Decision{

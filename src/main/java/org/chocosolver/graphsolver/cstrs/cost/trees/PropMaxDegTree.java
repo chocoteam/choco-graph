@@ -89,7 +89,7 @@ public class PropMaxDegTree extends Propagator<IUndirectedGraphVar> {
 				if (oneNode.get(i)) {
 					for (int j : nei) {
 						if (oneNode.get(j)) {
-							if (!g.getMandNeighOf(i).contain(j)) {
+							if (!g.getMandNeighOf(i).contains(j)) {
 								g.removeArc(i, j, this);
 							}
 						}

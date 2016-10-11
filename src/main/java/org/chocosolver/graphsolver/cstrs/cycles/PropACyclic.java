@@ -87,9 +87,9 @@ public class PropACyclic extends Propagator<IGraphVar> {
 	public void propagate(int evtmask) throws ContradictionException {
 		for(int i=0;i<n;i++){
 			g.removeArc(i,i,this);
-			if(g.getMandSuccOrNeighOf(i).getSize()>0) {
+			if(g.getMandSuccOrNeighOf(i).size()>0) {
 				for(int j=0;j<n;j++){
-					if(g.getMandSuccOrNeighOf(i).contain(j)) {
+					if(g.getMandSuccOrNeighOf(i).contains(j)) {
 						propagateIJ(i, j);
 					}
 				}

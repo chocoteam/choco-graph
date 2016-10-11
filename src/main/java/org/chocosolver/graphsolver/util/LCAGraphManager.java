@@ -98,7 +98,7 @@ public class LCAGraphManager {
 	//***********************************************************************************
 
 	private void initParams() {
-		nbActives = graph.getNodes().getSize();
+		nbActives = graph.getNodes().size();
 		for (int i = 0; i < nbNodes; i++) {
 			successors[i] = graph.getSuccOf(i);
 			dfsNumberOfNode[i] = -1;

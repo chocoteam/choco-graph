@@ -656,7 +656,7 @@ public interface IGraphConstraintFactory {
 		int m = 0;
 		int n = g.getNbMaxNodes();
 		for(int i=0;i<n;i++){
-			m += g.getPotNeighOf(i).getSize();
+			m += g.getPotNeighOf(i).size();
 		}
 		m /= 2;
 		Propagator pMaxDeg = (m<20*n)?new PropNodeDegree_AtMost_Incr(g, 2):new PropNodeDegree_AtMost_Coarse(g, 2);
@@ -674,13 +674,13 @@ public interface IGraphConstraintFactory {
 	 * @return a cycle constraint
 	 */
 	default Constraint cycle(IUndirectedGraphVar g) {
-		if(g.getMandatoryNodes().getSize() == g.getNbMaxNodes()){
+		if(g.getMandatoryNodes().size() == g.getNbMaxNodes()){
 			return hamiltonianCycle(g);
 		}
 		int m = 0;
 		int n = g.getNbMaxNodes();
 		for(int i=0;i<n;i++){
-			m += g.getPotNeighOf(i).getSize();
+			m += g.getPotNeighOf(i).size();
 		}
 		m /= 2;
 		Propagator pMaxDeg = (m<20*n)?new PropNodeDegree_AtMost_Incr(g, 2):new PropNodeDegree_AtMost_Incr(g, 2);
@@ -712,7 +712,7 @@ public interface IGraphConstraintFactory {
 	 * @return a circuit constraint
 	 */
 	default Constraint circuit(IDirectedGraphVar g) {
-		if(g.getMandatoryNodes().getSize() == g.getNbMaxNodes()){
+		if(g.getMandatoryNodes().size() == g.getNbMaxNodes()){
 			return hamiltonianCircuit(g);
 		}
 		return new Constraint("circuit",

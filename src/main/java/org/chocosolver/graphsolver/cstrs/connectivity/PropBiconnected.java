@@ -66,7 +66,7 @@ public class PropBiconnected extends Propagator<IUndirectedGraphVar> {
 
     @Override
     public void propagate(int evtmask) throws ContradictionException {
-        if (g.getPotentialNodes().getSize() == g.getMandatoryNodes().getSize() && !env_CC_finder.isBiconnected()) {
+        if (g.getPotentialNodes().size() == g.getMandatoryNodes().size() && !env_CC_finder.isBiconnected()) {
             fails();
         }
     }
@@ -82,7 +82,7 @@ public class PropBiconnected extends Propagator<IUndirectedGraphVar> {
 
     @Override
     public ESat isEntailed() {
-		if (g.getPotentialNodes().getSize() == g.getMandatoryNodes().getSize()){
+		if (g.getPotentialNodes().size() == g.getMandatoryNodes().size()){
 			return ESat.UNDEFINED;
 		}
         if (!env_CC_finder.isBiconnected()) {

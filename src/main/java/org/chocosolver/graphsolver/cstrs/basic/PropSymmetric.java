@@ -108,7 +108,7 @@ public class PropSymmetric extends Propagator<IDirectedGraphVar> {
         for (int i : ker) {
             succ = g.getMandSuccOf(i);
             for (int j : succ) {
-                if (!g.getPotSuccOf(j).contain(i)) {
+                if (!g.getPotSuccOf(j).contains(i)) {
                     return ESat.FALSE;
                 }
             }

@@ -78,7 +78,7 @@ public class PropDiameter extends Propagator<IGraphVar> {
 	public void propagate(int evtmask) throws ContradictionException {
 		int max = -1;
 		for (int i : g.getPotentialNodes()) {
-			if(g.getMandatoryNodes().contain(i)) {
+			if(g.getMandatoryNodes().contains(i)) {
 				diameter.updateLowerBound(BFS(i, true), this);
 			}
 			max = Math.max(max,BFS(i,false));
@@ -95,7 +95,7 @@ public class PropDiameter extends Propagator<IGraphVar> {
 		visited.set(i);
 		ISet nei;
 		int depth = 0;
-		int nbMand = g.getMandatoryNodes().getSize();
+		int nbMand = g.getMandatoryNodes().size();
 		int count = 1;
 		while (!set.isEmpty()) {
 			for (i = set.size() - 1; i >= 0; i--) {
@@ -105,7 +105,7 @@ public class PropDiameter extends Propagator<IGraphVar> {
 						visited.set(j);
 						nextSet.add(j);
 						if(min) {
-							if (g.getMandatoryNodes().contain(j)) {
+							if (g.getMandatoryNodes().contains(j)) {
 								count++;
 								if (count == nbMand) {
 									return depth + 1;

@@ -93,9 +93,9 @@ public class PropNeighBoolsChannel2 extends Propagator<BoolVar> {
     public ESat isEntailed() {
         for (int i = 0; i < n; i++) {
 			for(int j=0;j<n;j++){
-				if(matrix[i][j].getLB()==1 && !g.getPotSuccOrNeighOf(i).contain(j)){
+				if(matrix[i][j].getLB()==1 && !g.getPotSuccOrNeighOf(i).contains(j)){
 					return ESat.FALSE;
-				}else if(matrix[i][j].getUB()==0 && g.getMandSuccOrNeighOf(i).contain(j)){
+				}else if(matrix[i][j].getUB()==0 && g.getMandSuccOrNeighOf(i).contains(j)){
 					return ESat.FALSE;
 				}
 			}

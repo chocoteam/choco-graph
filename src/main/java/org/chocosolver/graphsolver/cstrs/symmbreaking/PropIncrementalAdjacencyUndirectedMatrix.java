@@ -116,7 +116,7 @@ public class PropIncrementalAdjacencyUndirectedMatrix extends Propagator<Variabl
 		for (int i = 0; i < n; i++) {
 			ISet children = graph.getMandNeighOf(i);
 			for (int j = 0; j < n; j++) {
-				if ((t[i + j * n].isInstantiatedTo(0) || t[j + i * n].isInstantiatedTo(0)) && children.contain(j)) {
+				if ((t[i + j * n].isInstantiatedTo(0) || t[j + i * n].isInstantiatedTo(0)) && children.contains(j)) {
 					return ESat.FALSE;
 				}
 			}
@@ -124,7 +124,7 @@ public class PropIncrementalAdjacencyUndirectedMatrix extends Propagator<Variabl
 		for (int i = 0; i < n; i++) {
 			ISet children = graph.getPotNeighOf(i);
 			for (int j = 0; j < n; j++) {
-				if ((t[i + j * n].isInstantiatedTo(1) || t[j + i * n].isInstantiatedTo(1)) && !children.contain(j)) {
+				if ((t[i + j * n].isInstantiatedTo(1) || t[j + i * n].isInstantiatedTo(1)) && !children.contains(j)) {
 					return ESat.FALSE;
 				}
 			}

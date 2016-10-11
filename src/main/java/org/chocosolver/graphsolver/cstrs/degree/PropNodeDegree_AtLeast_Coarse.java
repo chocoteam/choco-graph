@@ -117,7 +117,7 @@ public class PropNodeDegree_AtLeast_Coarse extends Propagator<IGraphVar> {
     public ESat isEntailed() {
         ISet act = g.getMandatoryNodes();
         for (int i : act) {
-            if (target.getPotSet(g, i).getSize() < degrees[i]) {
+            if (target.getPotSet(g, i).size() < degrees[i]) {
                 return ESat.FALSE;
             }
         }
@@ -134,10 +134,10 @@ public class PropNodeDegree_AtLeast_Coarse extends Propagator<IGraphVar> {
     private void checkAtLeast(int i) throws ContradictionException {
         ISet nei = target.getPotSet(g, i);
         ISet ker = target.getMandSet(g, i);
-        int size = nei.getSize();
+        int size = nei.size();
         if (size < degrees[i]) {
             g.removeNode(i, this);
-        } else if (size == degrees[i] && g.getMandatoryNodes().contain(i) && ker.getSize() < size) {
+        } else if (size == degrees[i] && g.getMandatoryNodes().contains(i) && ker.size() < size) {
             for (int s : nei) {
                 target.enforce(g, i, s, this);
             }

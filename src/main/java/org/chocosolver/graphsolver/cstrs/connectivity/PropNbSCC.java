@@ -73,7 +73,7 @@ public class PropNbSCC extends Propagator {
 	public void propagate(int evtmask) throws ContradictionException {
 		// trivial case
 		k.updateLowerBound(0,this);
-		if(g.getPotentialNodes().getSize() == 0){
+		if(g.getPotentialNodes().size() == 0){
 			k.instantiateTo(0,this);
 			return;
 		}
@@ -96,7 +96,7 @@ public class PropNbSCC extends Propagator {
 			boolean pot = true;
 			for (int cc = 0; cc < ccs; cc++) {
 				for (int i = env_CC_finder.getSCCFirstNode(cc); i >= 0 && pot; i = env_CC_finder.getNextNode(i)) {
-					if (g.getMandatoryNodes().contain(i)) {
+					if (g.getMandatoryNodes().contains(i)) {
 						pot = false;
 					}
 				}
@@ -115,7 +115,7 @@ public class PropNbSCC extends Propagator {
 		int minCC = 0;
 		for (int cc = 0; cc < ccs; cc++) {
 			for (int i = env_CC_finder.getSCCFirstNode(cc); i >= 0; i = env_CC_finder.getNextNode(i)) {
-				if (g.getMandatoryNodes().contain(i)) {
+				if (g.getMandatoryNodes().contains(i)) {
 					minCC++;
 					break;
 				}
@@ -127,7 +127,7 @@ public class PropNbSCC extends Propagator {
 	public int maxCC() {
 		ker_CC_finder.findAllSCC();
 		int nbK = ker_CC_finder.getNbSCC();
-		int delta = g.getPotentialNodes().getSize()-g.getMandatoryNodes().getSize();
+		int delta = g.getPotentialNodes().size()-g.getMandatoryNodes().size();
 		return nbK+delta;
 	}
 

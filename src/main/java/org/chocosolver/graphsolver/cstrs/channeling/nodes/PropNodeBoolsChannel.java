@@ -87,9 +87,9 @@ public class PropNodeBoolsChannel extends Propagator<Variable> {
 	@Override
 	public void propagate(int evtmask) throws ContradictionException {
 		for(int i=0;i<bools.length;i++){
-			if(!g.getPotentialNodes().contain(i)){
+			if(!g.getPotentialNodes().contains(i)){
 				bools[i].setToFalse(this);
-			}else if(g.getMandatoryNodes().contain(i)){
+			}else if(g.getMandatoryNodes().contains(i)){
 				bools[i].setToTrue(this);
 			}
 		}
@@ -122,10 +122,10 @@ public class PropNodeBoolsChannel extends Propagator<Variable> {
 	@Override
 	public ESat isEntailed() {
 		for(int i=0;i<bools.length;i++){
-			if(bools[i].getLB()==1 && !g.getPotentialNodes().contain(i)){
+			if(bools[i].getLB()==1 && !g.getPotentialNodes().contains(i)){
 				return ESat.FALSE;
 			}
-			if(bools[i].getUB()==0 && g.getMandatoryNodes().contain(i)){
+			if(bools[i].getUB()==0 && g.getMandatoryNodes().contains(i)){
 				return ESat.FALSE;
 			}
 		}

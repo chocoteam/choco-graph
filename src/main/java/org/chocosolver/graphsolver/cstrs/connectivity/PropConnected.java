@@ -88,10 +88,10 @@ public class PropConnected extends Propagator<IUndirectedGraphVar> {
 
 	@Override
 	public void propagate(int evtmask) throws ContradictionException {
-		if (g.getPotentialNodes().getSize() == 0) {
+		if (g.getPotentialNodes().size() == 0) {
 			fails();
 		}
-		if(g.getMandatoryNodes().getSize()>1) {
+		if(g.getMandatoryNodes().size()>1) {
 			// explore the graph from the first mandatory node
 			explore();
 			// remove unreachable nodes
@@ -99,7 +99,7 @@ public class PropConnected extends Propagator<IUndirectedGraphVar> {
 				g.removeNode(o,this);
 			}
 			// force isthma in case vertices are fixed
-			if (g.getMandatoryNodes().getSize() == g.getPotentialNodes().getSize() && !checkerOnly) {
+			if (g.getMandatoryNodes().size() == g.getPotentialNodes().size() && !checkerOnly) {
 				if (!env_CC_finder.isConnectedAndFindIsthma()) {
 					throw new UnsupportedOperationException("connectivity has been checked");
 				}
@@ -114,11 +114,11 @@ public class PropConnected extends Propagator<IUndirectedGraphVar> {
 
 	@Override
 	public ESat isEntailed() {
-		if(g.getPotentialNodes().getSize()==1){
+		if(g.getPotentialNodes().size()==1){
 			return ESat.TRUE;
 		}
 		//Graphs with zero nodes are not connected.
-		if(g.getMandatoryNodes().getSize() == 0){
+		if(g.getMandatoryNodes().size() == 0){
 			return ESat.FALSE;
 		}
 		explore();
@@ -138,7 +138,7 @@ public class PropConnected extends Propagator<IUndirectedGraphVar> {
 		visited.clear();
 		int first = 0;
 		int last = 0;
-		if(g.getMandatoryNodes().getSize()<=0){
+		if(g.getMandatoryNodes().size()<=0){
 			return; // empty graph
 		}
 		int i = g.getMandatoryNodes().iterator().next();

@@ -78,9 +78,9 @@ public class PropArcBoolChannel extends Propagator<Variable> {
 	@Override
 	public void propagate(int evtmask) throws ContradictionException {
 		if(from<0 || to<0 || from>=g.getNbMaxNodes() || to>=g.getNbMaxNodes()
-				|| !g.getPotSuccOrNeighOf(from).contain(to)){
+				|| !g.getPotSuccOrNeighOf(from).contains(to)){
 			bool.setToFalse(this);
-		}else if(g.getMandSuccOrNeighOf(from).contain(to)){
+		}else if(g.getMandSuccOrNeighOf(from).contains(to)){
 			bool.setToTrue(this);
 		}else if(bool.getLB()==1){
 			g.enforceArc(from,to,this);
@@ -92,13 +92,13 @@ public class PropArcBoolChannel extends Propagator<Variable> {
 	@Override
 	public ESat isEntailed() {
 		if((from<0 || from>=g.getNbMaxNodes() || to<0 || to>=g.getNbMaxNodes())
-				|| (bool.getLB()==1 && !g.getPotSuccOrNeighOf(from).contain(to))
-				|| (bool.getUB()==0 && g.getMandSuccOrNeighOf(from).contain(to))
+				|| (bool.getLB()==1 && !g.getPotSuccOrNeighOf(from).contains(to))
+				|| (bool.getUB()==0 && g.getMandSuccOrNeighOf(from).contains(to))
 				){
 			return ESat.FALSE;
 		}
 		if(bool.isInstantiated()
-				&& g.getMandSuccOrNeighOf(from).contain(to)==g.getPotSuccOrNeighOf(from).contain(to)){
+				&& g.getMandSuccOrNeighOf(from).contains(to)==g.getPotSuccOrNeighOf(from).contains(to)){
 			return ESat.TRUE;
 		}
 		return ESat.UNDEFINED;

@@ -112,7 +112,7 @@ public class KnightTourProblem {
 			int sizi;
 			from = -1;
 			for (int i = 0; i < n; i++) {
-				sizi = g.getPotNeighOf(i).getSize() - g.getMandNeighOf(i).getSize();
+				sizi = g.getPotNeighOf(i).size() - g.getMandNeighOf(i).size();
 				if (sizi < size && sizi > 0) {
 					from = i;
 					size = sizi;
@@ -123,7 +123,7 @@ public class KnightTourProblem {
 			}
 			suc = g.getPotNeighOf(from);
 			for (int j : suc) {
-				if (!g.getMandNeighOf(from).contain(j)) {
+				if (!g.getMandNeighOf(from).contains(j)) {
 					to = j;
 					return true;
 				}

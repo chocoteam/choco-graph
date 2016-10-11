@@ -89,7 +89,7 @@ public class PropTreeCostSimple extends Propagator<IUndirectedGraphVar> {
             for (int j : nei) {
                 if (i <= j) {
                     max += distMatrix[i][j];
-                    if (g.getMandNeighOf(i).contain(j)) {
+                    if (g.getMandNeighOf(i).contains(j)) {
                         min += distMatrix[i][j];
                     }
                 }
@@ -126,7 +126,7 @@ public class PropTreeCostSimple extends Propagator<IUndirectedGraphVar> {
             for (int j : nei) {
                 if (i <= j) {
                     max += distMatrix[i][j];
-                    if (g.getMandNeighOf(i).contain(j)) {
+                    if (g.getMandNeighOf(i).contains(j)) {
                         min += distMatrix[i][j];
                     }
                 }

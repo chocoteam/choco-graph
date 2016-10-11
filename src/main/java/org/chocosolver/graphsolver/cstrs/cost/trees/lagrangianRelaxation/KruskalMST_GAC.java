@@ -112,7 +112,7 @@ public class KruskalMST_GAC extends AbstractTreeFinder {
             Tree.getNeighOf(i).clear();
             ccTree.removeNode(i);
             ccTree.addNode(i);
-            size += g.getNeighOf(i).getSize();
+            size += g.getNeighOf(i).size();
         }
 		size /= 2; // recent change
         int idx = 0;

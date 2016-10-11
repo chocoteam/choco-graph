@@ -80,9 +80,9 @@ public class PropTransitivity<V extends IGraphVar> extends Propagator<V> {
 		int n = g.getNbMaxNodes();
 		for (int i : g.getPotentialNodes()) {
 			for (int j = 0; j < n; j++) {
-				if (g.getMandSuccOrNeighOf(i).contain(j)) {
+				if (g.getMandSuccOrNeighOf(i).contains(j)) {
 					_enfArc(i, j);
-				} else if (!g.getPotSuccOrNeighOf(i).contain(j)) {
+				} else if (!g.getPotSuccOrNeighOf(i).contains(j)) {
 					_remArc(i, j);
 				}
 			}
@@ -135,7 +135,7 @@ public class PropTransitivity<V extends IGraphVar> extends Propagator<V> {
 			for (int j : g.getMandSuccOrNeighOf(i)) {
 				if(i!=j){
 					for (int j2 : g.getMandSuccOrNeighOf(j)) {
-						if(j2!=i && !g.getPotSuccOrNeighOf(i).contain(j2)){
+						if(j2!=i && !g.getPotSuccOrNeighOf(i).contains(j2)){
 							return ESat.FALSE;
 						}
 					}
@@ -169,11 +169,11 @@ public class PropTransitivity<V extends IGraphVar> extends Propagator<V> {
 			ISet env = g.getPotSuccOrNeighOf(to);
 			for (int i : env) {
 				if (i != to && i != from) {
-					if (ker.contain(i)) {
+					if (ker.contains(i)) {
 						if (g.enforceArc(from, i, this)) {
 							_enfArc(from, i);
 						}
-					} else if (!g.getPotSuccOrNeighOf(from).contain(i)) {
+					} else if (!g.getPotSuccOrNeighOf(from).contains(i)) {
 						if (g.removeArc(to, i, this)) {
 							_remArc(to, i);
 						}
@@ -184,11 +184,11 @@ public class PropTransitivity<V extends IGraphVar> extends Propagator<V> {
 			env = g.getPotPredOrNeighOf(from);
 			for (int i : env) {
 				if(i!=to && i!=from) {
-					if (ker.contain(i)) {
+					if (ker.contains(i)) {
 						if (g.enforceArc(i, to, this)) {
 							_enfArc(i, to);
 						}
-					} else if (!g.getPotSuccOrNeighOf(i).contain(to)) {
+					} else if (!g.getPotSuccOrNeighOf(i).contains(to)) {
 						if (g.removeArc(i, from, this)) {
 							_remArc(i, from);
 						}

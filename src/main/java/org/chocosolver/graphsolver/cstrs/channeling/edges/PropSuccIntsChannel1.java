@@ -83,7 +83,7 @@ public class PropSuccIntsChannel1 extends Propagator<IDirectedGraphVar> {
 				succs[i].instantiateTo(j, this);
 			}
 			for (int j=succs[i].getLB(); j<=succs[i].getUB(); j=succs[i].nextValue(j)) {
-				if (!g.getPotSuccOrNeighOf(i).contain(j)) {
+				if (!g.getPotSuccOrNeighOf(i).contains(j)) {
 					succs[i].removeValue(j, this);
 				}
 			}
@@ -103,7 +103,7 @@ public class PropSuccIntsChannel1 extends Propagator<IDirectedGraphVar> {
 	public ESat isEntailed() {
 		for (int i = 0; i < n; i++) {
 			if(succs[i].isInstantiated()){
-				if (!g.getPotSuccOrNeighOf(i).contain(succs[i].getValue())) {
+				if (!g.getPotSuccOrNeighOf(i).contains(succs[i].getValue())) {
 					return ESat.FALSE;
 				}
 			}

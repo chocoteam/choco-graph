@@ -79,9 +79,9 @@ public class PropNodeBoolChannel extends Propagator<Variable> {
 
 	@Override
 	public void propagate(int evtmask) throws ContradictionException {
-		if(vertex<0 || vertex>=g.getNbMaxNodes() || !g.getPotentialNodes().contain(vertex)){
+		if(vertex<0 || vertex>=g.getNbMaxNodes() || !g.getPotentialNodes().contains(vertex)){
 			bool.setToFalse(this);
-		}else if(g.getMandatoryNodes().contain(vertex)){
+		}else if(g.getMandatoryNodes().contains(vertex)){
 			bool.setToTrue(this);
 		}else if(bool.getLB()==1){
 			g.enforceNode(vertex,this);
@@ -93,13 +93,13 @@ public class PropNodeBoolChannel extends Propagator<Variable> {
 	@Override
 	public ESat isEntailed() {
 		if((vertex<0 || vertex>=g.getNbMaxNodes())
-				|| (bool.getLB()==1 && !g.getPotentialNodes().contain(vertex))
-				|| (bool.getUB()==0 && g.getMandatoryNodes().contain(vertex))
+				|| (bool.getLB()==1 && !g.getPotentialNodes().contains(vertex))
+				|| (bool.getUB()==0 && g.getMandatoryNodes().contains(vertex))
 				){
 			return ESat.FALSE;
 		}
 		if(bool.isInstantiated()
-				&& g.getMandatoryNodes().contain(vertex)==g.getPotentialNodes().contain(vertex)){
+				&& g.getMandatoryNodes().contains(vertex)==g.getPotentialNodes().contains(vertex)){
 			return ESat.TRUE;
 		}
 		return ESat.UNDEFINED;

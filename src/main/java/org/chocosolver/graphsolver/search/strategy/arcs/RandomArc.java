@@ -53,9 +53,9 @@ public class RandomArc extends ArcStrategy<IGraphVar> {
         for (int i : envNodes) {
             envSuc = g.getPotSuccOrNeighOf(i);
             kerSuc = g.getMandSuccOrNeighOf(i);
-            if (envSuc.getSize() != kerSuc.getSize()) {
+            if (envSuc.size() != kerSuc.size()) {
                 for (int j : envSuc) {
-                    if (!kerSuc.contain(j)) {
+                    if (!kerSuc.contains(j)) {
                         pFrom.add(i);
                         pTo.add(j);
                     }

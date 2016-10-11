@@ -72,8 +72,8 @@ public class PropNbArcs extends Propagator {
         int nbE = 0;
         ISet env = g.getPotentialNodes();
         for (int i : env) {
-            nbE += g.getPotSuccOrNeighOf(i).getSize();
-            nbK += g.getMandSuccOrNeighOf(i).getSize();
+            nbE += g.getPotSuccOrNeighOf(i).size();
+            nbK += g.getMandSuccOrNeighOf(i).size();
         }
         if (!g.isDirected()) {
             nbK /= 2;
@@ -102,7 +102,7 @@ public class PropNbArcs extends Propagator {
                     nei = g.getUB().getSuccOrNeighOf(i);
                     neiKer = g.getLB().getSuccOrNeighOf(i);
                     for (int j : nei) {
-                        if (!neiKer.contain(j)) {
+                        if (!neiKer.contains(j)) {
                             g.removeArc(i, j, this);
                         }
                     }
@@ -130,8 +130,8 @@ public class PropNbArcs extends Propagator {
         int nbE = 0;
         ISet env = g.getPotentialNodes();
         for (int i : env) {
-            nbE += g.getUB().getSuccOrNeighOf(i).getSize();
-            nbK += g.getLB().getSuccOrNeighOf(i).getSize();
+            nbE += g.getUB().getSuccOrNeighOf(i).size();
+            nbK += g.getLB().getSuccOrNeighOf(i).size();
         }
         if (!g.isDirected()) {
             nbK /= 2;

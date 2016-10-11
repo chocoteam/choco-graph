@@ -193,7 +193,7 @@ public class PropLagr_DCMST_generic extends Propagator implements GraphLagrangia
 		}
 		int deg;
 		for (int i = 0; i < n; i++) {
-			deg = mst.getNeighOf(i).getSize();
+			deg = mst.getNeighOf(i).size();
 			if (deg > Dmax[i] || lambdaMax[i] != 0) {
 				nb2viol += (Dmax[i] - deg) * (Dmax[i] - deg);
 			}
@@ -211,7 +211,7 @@ public class PropLagr_DCMST_generic extends Propagator implements GraphLagrangia
 		}
 		double maxPen = 2 * obj.getUB();
 		for (int i = 0; i < n; i++) {
-			deg = mst.getNeighOf(i).getSize();
+			deg = mst.getNeighOf(i).size();
 			lambdaMin[i] += (deg - Dmin[i]) * K;
 			lambdaMax[i] += (deg - Dmax[i]) * K;
 			if(lambdaMin[i]>0){
@@ -221,10 +221,10 @@ public class PropLagr_DCMST_generic extends Propagator implements GraphLagrangia
 			if(lambdaMax[i]<0){
 				lambdaMax[i] = 0;
 			}
-			if (gV.getPotNeighOf(i).getSize() <= Dmax[i]) {
+			if (gV.getPotNeighOf(i).size() <= Dmax[i]) {
 				lambdaMax[i] = 0;
 			}
-			if (gV.getMandNeighOf(i).getSize() >= Dmin[i] || Dmin[i]<=1) {
+			if (gV.getMandNeighOf(i).size() >= Dmin[i] || Dmin[i]<=1) {
 				lambdaMin[i] = 0;
 			}
 			if (lambdaMin[i] < -maxPen) {
@@ -323,7 +323,7 @@ public class PropLagr_DCMST_generic extends Propagator implements GraphLagrangia
 
 	@Override
 	public boolean isMandatory(int i, int j) {
-		return gV.getMandNeighOf(i).contain(j);
+		return gV.getMandNeighOf(i).contains(j);
 	}
 
 	@Override

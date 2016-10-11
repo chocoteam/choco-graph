@@ -98,7 +98,7 @@ public class PropNbCliques extends Propagator<Variable> {
 				}
 			}
 		}
-		delta = n-g.getMandatoryNodes().getSize();
+		delta = n-g.getMandatoryNodes().size();
 		// algorithm
 		heur.prepare();
 		do{

@@ -157,7 +157,7 @@ public class PropArborescences extends Propagator<IDirectedGraphVar> {
 			}
 			// ARC-DOMINATOR enforcing
 			ISet pred = g.getPotPredOf(j);
-			if(pred.contain(i) && !g.getMandPredOf(j).contain(i)) {
+			if(pred.contains(i) && !g.getMandPredOf(j).contains(i)) {
 				boolean arcDom = true;
 				for (int p : pred) {
 					if (p != i && !domFinder.isDomminatedBy(p, j)) {

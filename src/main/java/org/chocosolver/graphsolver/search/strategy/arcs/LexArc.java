@@ -42,9 +42,9 @@ public class LexArc extends ArcStrategy<IGraphVar> {
 		for (int i : envNodes) {
 			envSuc = g.getPotSuccOrNeighOf(i);
 			kerSuc = g.getMandSuccOrNeighOf(i);
-			if (envSuc.getSize() != kerSuc.getSize()) {
+			if (envSuc.size() != kerSuc.size()) {
 				for (int j : envSuc) {
-					if (!kerSuc.contain(j)) {
+					if (!kerSuc.contains(j)) {
 						this.from = i;
 						this.to = j;
 						return true;

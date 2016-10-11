@@ -106,7 +106,7 @@ public class PropAntiSymmetric extends Propagator<IDirectedGraphVar> {
         for (int i : ker) {
             succ = g.getMandSuccOf(i);
             for (int j : succ) {
-                if (g.getMandSuccOf(j).contain(i)) {
+                if (g.getMandSuccOf(j).contains(i)) {
                     return ESat.FALSE;
                 }
             }

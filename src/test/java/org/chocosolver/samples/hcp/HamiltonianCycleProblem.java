@@ -81,10 +81,10 @@ public class HamiltonianCycleProblem {
 						int size = 2*n+2;
 						for (int i = 0; i < n; i++) {
 							suc = g.getPotNeighOf(i);
-							int deltai = g.getPotNeighOf(i).getSize() - g.getMandNeighOf(i).getSize();
+							int deltai = g.getPotNeighOf(i).size() - g.getMandNeighOf(i).size();
 							for (int j : suc) {
-								if(!g.getMandNeighOf(i).contain(j)){
-									int deltaj = g.getPotNeighOf(i).getSize() - g.getMandNeighOf(i).getSize();
+								if(!g.getMandNeighOf(i).contains(j)){
+									int deltaj = g.getPotNeighOf(i).size() - g.getMandNeighOf(i).size();
 									if (deltai+deltaj < size && deltai+deltaj > 0) {
 										from = i;
 										to = j;

@@ -56,7 +56,7 @@ public class TSP_exact {
     //***********************************************************************************
 
     public static void main(String[] args) {
-		String REPO = "src/main/java/org/chocosolver/samples/tsp";
+		String REPO = "src/test/java/org/chocosolver/samples/tsp";
 		String INSTANCE = "bier127";
 		int[][] data = TSP_Utils.parseInstance(REPO+"/"+INSTANCE+".tsp", 300);
 		int presolve = TSP_Utils.getOptimum(INSTANCE,REPO+"/bestSols.csv");

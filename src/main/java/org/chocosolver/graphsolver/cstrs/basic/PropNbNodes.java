@@ -68,8 +68,8 @@ public class PropNbNodes extends Propagator {
 
     @Override
     public void propagate(int evtmask) throws ContradictionException {
-        int env = g.getPotentialNodes().getSize();
-        int ker = g.getMandatoryNodes().getSize();
+        int env = g.getPotentialNodes().size();
+        int ker = g.getMandatoryNodes().size();
         k.updateLowerBound(ker, this);
         k.updateUpperBound(env, this);
         if (ker == env) {
@@ -85,7 +85,7 @@ public class PropNbNodes extends Propagator {
             } else if (v == ker) {
                 ISet kerNodes = g.getMandatoryNodes();
                 for (int i : envNodes) {
-                    if (!kerNodes.contain(i)) {
+                    if (!kerNodes.contains(i)) {
                         g.removeNode(i, this);
                     }
                 }
@@ -109,8 +109,8 @@ public class PropNbNodes extends Propagator {
 
     @Override
     public ESat isEntailed() {
-        int env = g.getPotentialNodes().getSize();
-        int ker = g.getMandatoryNodes().getSize();
+        int env = g.getPotentialNodes().size();
+        int ker = g.getMandatoryNodes().size();
         if (env < k.getLB() || ker > k.getUB()) {
             return ESat.FALSE;
         }

@@ -124,7 +124,7 @@ public class PropHamiltonianCycle extends Propagator<IUndirectedGraphVar> {
 	public ESat isEntailed() {
 		ISet nodes = g.getMandatoryNodes();
 		for (int i : nodes) {
-			if (g.getMandNeighOf(i).getSize() > 2 || g.getPotNeighOf(i).getSize() < 2) {
+			if (g.getMandNeighOf(i).size() > 2 || g.getPotNeighOf(i).size() < 2) {
 				return ESat.FALSE;
 			}
 		}

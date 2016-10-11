@@ -93,7 +93,7 @@ public class PropCycleCostSimple extends Propagator {
             for (int j : env) {
                 if (i <= j) {
                     maxSum += distMatrix[i][j];
-                    if (ker.contain(j)) {
+                    if (ker.contains(j)) {
                         minSum += distMatrix[i][j];
                     }
                 }
@@ -141,7 +141,7 @@ public class PropCycleCostSimple extends Propagator {
         for (int i = 0; i < n; i++) {
             succs = g.getPotNeighOf(i);
             for (int j : succs) {
-                if (i < j && !g.getMandNeighOf(i).contain(j)) {
+                if (i < j && !g.getMandNeighOf(i).contains(j)) {
                     if (replacementCost[i] == -1 || replacementCost[j] == -1) {
                         g.removeArc(i, j, this);
                     }
