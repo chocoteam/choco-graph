@@ -69,7 +69,7 @@ public interface IGraphVar<E extends IGraph> extends Variable {
 	 * @param y     node's index
 	 * @param cause algorithm which is related to the removal
 	 * @return true iff the removal has an effect
-	 * @throws org.chocosolver.solver.exception.ContradictionException
+	 * @throws ContradictionException if the arc was mandatory
 	 */
 	public abstract boolean removeArc(int x, int y, ICause cause) throws ContradictionException;
 
@@ -183,7 +183,7 @@ public interface IGraphVar<E extends IGraph> extends Variable {
 	 *
 	 * @param value value of <code>this</code>
 	 * @param cause
-	 * @throws org.chocosolver.solver.exception.ContradictionException
+	 * @throws ContradictionException if the arc was mandatory
 	 */
 	public void instantiateTo(boolean[][] value, ICause cause) throws ContradictionException ;
 }

@@ -63,9 +63,6 @@ public class PropNeighSetsChannel1 extends Propagator<IGraphVar> {
     /**
      * Channeling between a graph variable and set variables
      * representing either node neighbors or node successors
-     *
-     * @param setsV
-     * @param gV
      */
     public PropNeighSetsChannel1(SetVar[] setsV, IGraphVar gV) {
         super(new IGraphVar[]{gV}, PropagatorPriority.LINEAR, true);

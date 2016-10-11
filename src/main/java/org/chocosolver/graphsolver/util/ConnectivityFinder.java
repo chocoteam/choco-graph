@@ -229,6 +229,7 @@ public class ConnectivityFinder {
 
 	/**
 	 * Only for undirected graphs
+	 * @return true iff g is connected
 	 */
 	public boolean isConnectedAndFindIsthma() {
 		assert (!graph.isDirected());

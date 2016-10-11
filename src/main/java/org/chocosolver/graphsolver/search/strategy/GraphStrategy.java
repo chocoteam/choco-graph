@@ -71,7 +71,6 @@ public class GraphStrategy extends AbstractStrategy<IGraphVar> {
      * @param ns strategy over nodes
      * @param as  strategy over arcs/edges
      * @param priority   enables to mention if it should first branch on nodes
-     * @return a dedicated strategy to instantiate GRAPHVAR
      */
     public GraphStrategy(IGraphVar g, NodeStrategy ns, ArcStrategy as, NodeArcPriority priority) {
         super(g);
@@ -85,22 +84,21 @@ public class GraphStrategy extends AbstractStrategy<IGraphVar> {
     /**
      * Lexicographic graph branching strategy.
      * Branch on nodes then arcs/edges.
-     * <p/>
-     * <p/> node branching:
+     * <br>
+     * <br> node branching:
      * Let i be the first node such that
      * i in envelope(g) and i not in kernel(g).
      * The decision adds i to the kernel of g.
      * It is fails, then i is removed from the envelope of g.
-     * <p/>
+     * <br>
      * arc/edge branching:
-     * <p/> node branching:
+     * <br> node branching:
      * Let (i,j) be the first arc/edge such that
      * (i,j) in envelope(g) and (i,j) not in kernel(g).
      * The decision adds (i,j) to the kernel of g.
      * It is fails, then (i,j) is removed from the envelope of g
      *
      * @param g a graph variable to branch on
-     * @return a lexicographic strategy to instantiate g
      */
     public GraphStrategy(IGraphVar g) {
         this(g, new LexNode(g), new LexArc(g), NodeArcPriority.NODES_THEN_ARCS);
@@ -109,15 +107,15 @@ public class GraphStrategy extends AbstractStrategy<IGraphVar> {
     /**
      * Random graph branching strategy.
      * Alternate randomly node and arc/edge decisions.
-     * <p/>
-     * <p/> node branching:
+     * <br>
+     * <br> node branching:
      * Let i be a randomly selected node such that
      * i in envelope(g) and i not in kernel(g).
      * The decision adds i to the kernel of g.
      * It is fails, then i is removed from the envelope of g.
-     * <p/>
+     * <br>
      * arc/edge branching:
-     * <p/> node branching:
+     * <br> node branching:
      * Let (i,j) be a randomly selected arc/edge arc/edge such that
      * (i,j) in envelope(g) and (i,j) not in kernel(g).
      * The decision adds (i,j) to the kernel of g.
@@ -125,7 +123,6 @@ public class GraphStrategy extends AbstractStrategy<IGraphVar> {
      *
      * @param g a graph variable to branch on
      * @param seed     randomness seed
-     * @return a random strategy to instantiate g
      */
     public GraphStrategy(IGraphVar g, long seed) {
         this(g, new RandomNode(g,seed), new RandomArc(g,seed), NodeArcPriority.NODES_THEN_ARCS);

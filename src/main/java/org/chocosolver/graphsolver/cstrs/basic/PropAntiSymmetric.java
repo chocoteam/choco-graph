@@ -39,7 +39,7 @@ import org.chocosolver.util.procedure.PairProcedure;
 /**
  * Ensures that the final graph is antisymmetric
  * i.e. if G has arc (x,y) then it does not have (y,x)
- * Except for loops => (x,x) is allowed
+ * Except for loops : (x,x) is allowed
  *
  * @author Jean-Guillaume Fages
  */

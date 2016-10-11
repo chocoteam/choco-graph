@@ -39,7 +39,7 @@ import org.chocosolver.util.objects.setDataStructures.ISet;
 import org.chocosolver.util.procedure.PairProcedure;
 
 /**
- * Propagator that ensures that the relation of the graph is transitive : (a,b) + (b,c) => (a,c)
+ * Propagator that ensures that the relation of the graph is transitive : (a,b) + (b,c) implies (a,c)
  *
  * @author Jean-Guillaume Fages
  */
