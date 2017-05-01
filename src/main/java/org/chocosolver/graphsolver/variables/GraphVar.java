@@ -261,12 +261,6 @@ public abstract class GraphVar<E extends IGraph> extends AbstractVariable implem
         }
     }
 
-    @Override
-    public void contradiction(ICause cause, String message) throws ContradictionException {
-        assert cause != null;
-        model.getSolver().getEngine().fails(cause, this, message);
-    }
-
     //***********************************************************************************
     // SOLUTIONS : STORE AND RESTORE
     //***********************************************************************************

@@ -5,6 +5,9 @@ Module to manipulate graph variables
 
 CHANGES
 
+01/05/17:
+- Update to choco 4.0.4
+
 11/10/16:
 - Update to choco 4.0.0
 
