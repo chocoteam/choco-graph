@@ -31,7 +31,7 @@
 
     <groupId>org.choco-solver</groupId>
     <artifactId>choco-graph</artifactId>
-    <version>4.1.0</version>
+    <version>4.1.1</version>
     <packaging>jar</packaging>
     <name>A graph module for Choco Solver</name>
     <url>https://github.com/chocoteam/choco-graph</url>
@@ -197,6 +197,17 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.sonatype.plugins</groupId>
+                <artifactId>nexus-staging-maven-plugin</artifactId>
+                <version>1.6.7</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <serverId>sonatype</serverId>
+                    <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+                    <autoReleaseAfterClose>true</autoReleaseAfterClose>
+                </configuration>
             </plugin>
         </plugins>
     </build>
