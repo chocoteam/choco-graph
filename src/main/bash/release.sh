@@ -1,5 +1,10 @@
 #!/bin/sh
 
+function quit() {
+    echo "ERROR: $*"
+    exit 1
+}
+
 function getVersionToRelease() {
     CURRENT_VERSION=`mvn ${MVN_ARGS} org.apache.maven.plugins:maven-help-plugin:2.1.1:evaluate -Dexpression=project.version | grep -v "\[INFO\]"`
     echo ${CURRENT_VERSION%%-SNAPSHOT}
@@ -10,20 +15,33 @@ function guess() {
     echo "${v%.*}.$((${v##*.}+1))-SNAPSHOT"
 }
 
+function sedInPlace() {
+	if [ $(uname) = "Darwin" ]; then
+		sed -i '' "$1" $2
+	else
+		sed -i'' "$1" $2
+	fi
+}
+
 VERSION=$(getVersionToRelease)
 NEXT=$(guess $VERSION)
 TAG="choco-graph-${VERSION}"
 
-git fetch
-git checkout -b release || exit 1
+git fetch || quit "unable to fetch master"
+git checkout -b release || quit "unable to check master out"
 
-mvn -q dependency:purge-local-repository
+#mvn -q dependency:purge-local-repository || quit "unable to purge local repo"
+mvn clean install -DskipTests  || quit "unable to install "
 
 echo "New version is ${VERSION}"
+YEAR=`LANG=en_US.utf8 date +"%Y"`
+sedInPlace "s%Copyright.*.%Copyright (c) $YEAR, IMT Atlantique%"  LICENSE
 #Update the poms:wq
-mvn versions:set -DnewVersion=${VERSION} -DgenerateBackupPoms=false
-git commit -m "initiate release ${VERSION}" -a
-
+mvn versions:set -DnewVersion=${VERSION} -DgenerateBackupPoms=false || quit "unable to set new version"
+mvn license:format || quit "unable to format the license"
+#
+git commit -m "initiate release ${VERSION}" -a || quit "unable to commit initial release"
+#
 echo "Start release"
 #Extract the version
 COMMIT=$(git rev-parse HEAD)
@@ -56,22 +74,11 @@ mvn -P release clean javadoc:jar source:jar deploy -DskipTests ||quit "Unable to
 
 #Set the next development version
 #echo "** Prepare develop for the next version **"
-git checkout develop ||quit "Unable to checkout develop"
-git pull origin develop ||quit "Unable to pull develop"
-git merge --no-ff -m "Merge tag '${TAG}' into develop"  ${TAG} ||quit "Unable to integrate to develop"
 mvn versions:set -DnewVersion=${NEXT} -DgenerateBackupPoms=false
-git commit -m "Prepare the code for the next version" -a ||quit "Unable to commit to develop"
+git commit -m "Prepare the code for ${VERSION}" -a ||quit "Unable to commit to master"
 #
 ##Push changes on develop, with the tag
-git push origin develop ||quit "Unable to push to develop"
+git push origin master ||quit "Unable to push to master"
 
 #Clean
 git branch --delete release ||quit "Unable to delete release"
-
-git checkout $TAG
-mvn clean install -DskipTests
-
-mkdir ./$TAG
-cp ./target/choco-graph-${VERSION}.jar ./$TAG/
-cp ./doc/ChocoGraphDoc.pdf ./$TAG/
-zip hoco-graph-${VERSION}.zip ./$TAG/*
