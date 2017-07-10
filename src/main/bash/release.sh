@@ -34,11 +34,11 @@ git checkout -b release || quit "unable to check master out"
 mvn clean install -DskipTests  || quit "unable to install "
 
 echo "New version is ${VERSION}"
-YEAR=`LANG=en_US.utf8 date +"%Y"`
-sedInPlace "s%Copyright.*.%Copyright (c) $YEAR, IMT Atlantique%"  LICENSE
+# YEAR=`LANG=en_US.utf8 date +"%Y"`
+# sedInPlace "s%Copyright.*.%Copyright (c) $YEAR, CNRS%"  LICENSE
 #Update the poms:wq
 mvn versions:set -DnewVersion=${VERSION} -DgenerateBackupPoms=false || quit "unable to set new version"
-#mvn license:format || quit "unable to format the license"
+# mvn license:format || quit "unable to format the license"
 #
 git commit -m "initiate release ${VERSION}" -a || quit "unable to commit initial release"
 #
