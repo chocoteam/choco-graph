@@ -38,7 +38,7 @@ YEAR=`LANG=en_US.utf8 date +"%Y"`
 sedInPlace "s%Copyright.*.%Copyright (c) $YEAR, IMT Atlantique%"  LICENSE
 #Update the poms:wq
 mvn versions:set -DnewVersion=${VERSION} -DgenerateBackupPoms=false || quit "unable to set new version"
-//mvn license:format || quit "unable to format the license"
+#mvn license:format || quit "unable to format the license"
 #
 git commit -m "initiate release ${VERSION}" -a || quit "unable to commit initial release"
 #
