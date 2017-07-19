@@ -28,7 +28,7 @@
 package org.chocosolver.graphsolver.cstrs.basic;
 
 import org.chocosolver.graphsolver.variables.GraphEventType;
-import org.chocosolver.graphsolver.variables.IDirectedGraphVar;
+import org.chocosolver.graphsolver.variables.DirectedGraphVar;
 import org.chocosolver.graphsolver.variables.delta.IGraphDeltaMonitor;
 import org.chocosolver.solver.constraints.Propagator;
 import org.chocosolver.solver.constraints.PropagatorPriority;
@@ -45,13 +45,13 @@ import org.chocosolver.util.procedure.PairProcedure;
  *
  * @author Jean-Guillaume Fages
  */
-public class PropSymmetric extends Propagator<IDirectedGraphVar> {
+public class PropSymmetric extends Propagator<DirectedGraphVar> {
 
     //***********************************************************************************
     // VARIABLES
     //***********************************************************************************
 
-    private IDirectedGraphVar g;
+    private DirectedGraphVar g;
     private IGraphDeltaMonitor gdm;
     private PairProcedure enf;
     private int n;
@@ -60,8 +60,8 @@ public class PropSymmetric extends Propagator<IDirectedGraphVar> {
     // CONSTRUCTORS
     //***********************************************************************************
 
-    public PropSymmetric(IDirectedGraphVar graph) {
-        super(new IDirectedGraphVar[]{graph}, PropagatorPriority.UNARY, true);
+    public PropSymmetric(DirectedGraphVar graph) {
+        super(new DirectedGraphVar[]{graph}, PropagatorPriority.UNARY, true);
         g = graph;
         gdm = g.monitorDelta(this);
         enf = (PairProcedure) (from, to) -> {

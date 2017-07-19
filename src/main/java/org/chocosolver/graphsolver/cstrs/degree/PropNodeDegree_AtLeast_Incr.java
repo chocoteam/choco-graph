@@ -60,12 +60,12 @@ public class PropNodeDegree_AtLeast_Incr extends Propagator<IGraphVar> {
 	// CONSTRUCTORS
 	//***********************************************************************************
 
-	public PropNodeDegree_AtLeast_Incr(IDirectedGraphVar graph, Orientation setType, int degree) {
+	public PropNodeDegree_AtLeast_Incr(DirectedGraphVar graph, Orientation setType, int degree) {
 		this(graph, setType, buildArray(degree, graph.getNbMaxNodes()));
 	}
 
-	public PropNodeDegree_AtLeast_Incr(IDirectedGraphVar graph, Orientation setType, int[] degrees) {
-		super(new IDirectedGraphVar[]{graph}, PropagatorPriority.BINARY, true);
+	public PropNodeDegree_AtLeast_Incr(DirectedGraphVar graph, Orientation setType, int[] degrees) {
+		super(new DirectedGraphVar[]{graph}, PropagatorPriority.BINARY, true);
 		g = graph;
 		this.degrees = degrees;
 		switch (setType) {

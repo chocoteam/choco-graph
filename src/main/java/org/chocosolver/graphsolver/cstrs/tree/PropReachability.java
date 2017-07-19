@@ -27,7 +27,7 @@
 
 package org.chocosolver.graphsolver.cstrs.tree;
 
-import org.chocosolver.graphsolver.variables.IDirectedGraphVar;
+import org.chocosolver.graphsolver.variables.DirectedGraphVar;
 import org.chocosolver.solver.exception.ContradictionException;
 
 /**
@@ -44,11 +44,11 @@ public class PropReachability extends PropArborescence {
 	// CONSTRUCTORS
 	//***********************************************************************************
 
-	public PropReachability(IDirectedGraphVar graph, int root) {
+	public PropReachability(DirectedGraphVar graph, int root) {
 		super(graph, root);
 	}
 
-	public PropReachability(IDirectedGraphVar graph, int root, boolean simple) {
+	public PropReachability(DirectedGraphVar graph, int root, boolean simple) {
 		super(graph,root,simple);
 	}
 

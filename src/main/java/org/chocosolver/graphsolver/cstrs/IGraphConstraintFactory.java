@@ -51,7 +51,7 @@ import org.chocosolver.graphsolver.cstrs.symmbreaking.PropSymmetryBreakingEx;
 import org.chocosolver.graphsolver.cstrs.tree.PropArborescence;
 import org.chocosolver.graphsolver.cstrs.tree.PropArborescences;
 import org.chocosolver.graphsolver.cstrs.tree.PropReachability;
-import org.chocosolver.graphsolver.variables.IDirectedGraphVar;
+import org.chocosolver.graphsolver.variables.DirectedGraphVar;
 import org.chocosolver.graphsolver.variables.IGraphVar;
 import org.chocosolver.graphsolver.variables.UndirectedGraphVar;
 import org.chocosolver.graphsolver.variables.IncidentSet;
@@ -95,7 +95,7 @@ public interface IGraphConstraintFactory {
 	 * @param nb	an integer variable indicating the expected number of arcs in g
 	 * @return A constraint to force the number of arcs in g to be equal to nb
 	 */
-	default Constraint nbArcs(IDirectedGraphVar g, IntVar nb){
+	default Constraint nbArcs(DirectedGraphVar g, IntVar nb){
 		return new Constraint("nbArcs", new PropNbArcs(g,nb));
 	}
 
@@ -148,7 +148,7 @@ public interface IGraphConstraintFactory {
 	 * @param g	a directed graph variable
 	 * @return A constraint which ensures that g is a symmetric directed graph
 	 */
-	default Constraint symmetric(IDirectedGraphVar g){
+	default Constraint symmetric(DirectedGraphVar g){
 		return new Constraint("symmetric", new PropSymmetric(g));
 	}
 
@@ -158,7 +158,7 @@ public interface IGraphConstraintFactory {
 	 * @param g	a directed graph variable
 	 * @return A constraint which ensures that g is an antisymmetric directed graph
 	 */
-	default Constraint antisymmetric(IDirectedGraphVar g){
+	default Constraint antisymmetric(DirectedGraphVar g){
 		return new Constraint("antisymmetric", new PropAntiSymmetric(g));
 	}
 
@@ -184,7 +184,7 @@ public interface IGraphConstraintFactory {
 	 * @param g A directed graph variable
 	 * @return A transitivity constraint
 	 */
-	default Constraint transitivity(IDirectedGraphVar g){
+	default Constraint transitivity(DirectedGraphVar g){
 		return new Constraint("transitivity",new PropTransitivity(g));
 	}
 
@@ -216,7 +216,7 @@ public interface IGraphConstraintFactory {
 	 * @param g2 A directed graph variable
 	 * @return a constraint which ensures that g1 is a subGraph of g2
 	 */
-	default Constraint subGraph(IDirectedGraphVar g1, IDirectedGraphVar g2){
+	default Constraint subGraph(DirectedGraphVar g1, DirectedGraphVar g2){
 		return new Constraint("subGraph",new PropInclusion(g1,g2));
 	}
 
@@ -271,7 +271,7 @@ public interface IGraphConstraintFactory {
 	 * @param from
 	 * @param to
 	 */
-	default Constraint arcChanneling(IDirectedGraphVar g, BoolVar isArc, int from, int to){
+	default Constraint arcChanneling(DirectedGraphVar g, BoolVar isArc, int from, int to){
 		return new Constraint("arcChanneling",
 				new PropArcBoolChannel(isArc,from,to,g));
 	}
@@ -359,7 +359,7 @@ public interface IGraphConstraintFactory {
 	 * @param g
 	 * @param successors
 	 */
-	default Constraint successorsChanneling(IDirectedGraphVar g, IntVar[] successors){
+	default Constraint successorsChanneling(DirectedGraphVar g, IntVar[] successors){
 		return new Constraint("succIntsChanneling",
 				new PropSuccIntsChannel1(successors,g),new PropNeighIntsChannel2(successors,g));
 	}
@@ -370,7 +370,7 @@ public interface IGraphConstraintFactory {
 	 * @param g
 	 * @param successors
 	 */
-	default Constraint successorsChanneling(IDirectedGraphVar g, SetVar[] successors){
+	default Constraint successorsChanneling(DirectedGraphVar g, SetVar[] successors){
 		return new Constraint("succSetsChanneling",
 				new PropNeighSetsChannel1(successors,g),new PropNeighSetsChannel2(successors,g));
 	}
@@ -381,7 +381,7 @@ public interface IGraphConstraintFactory {
 	 * @param g
 	 * @param successors
 	 */
-	default Constraint successorsChanneling(IDirectedGraphVar g, BoolVar[][] successors){
+	default Constraint successorsChanneling(DirectedGraphVar g, BoolVar[][] successors){
 		return new Constraint("succBoolsChanneling",
 				new PropNeighBoolsChannel1(successors,g),new PropNeighBoolsChannel2(successors,g));
 	}
@@ -393,7 +393,7 @@ public interface IGraphConstraintFactory {
 	 * @param successorsOf
 	 * @param node
 	 */
-	default Constraint successorsChanneling(IDirectedGraphVar g, SetVar successorsOf, int node){
+	default Constraint successorsChanneling(DirectedGraphVar g, SetVar successorsOf, int node){
 		return new Constraint("succSetChanneling",
 				new PropNeighSetChannel(successorsOf,node,g,new IncidentSet.SuccOrNeighSet()));
 	}
@@ -405,7 +405,7 @@ public interface IGraphConstraintFactory {
 	 * @param successorsOf
 	 * @param node
 	 */
-	default Constraint successorsChanneling(IDirectedGraphVar g, BoolVar[] successorsOf, int node){
+	default Constraint successorsChanneling(DirectedGraphVar g, BoolVar[] successorsOf, int node){
 		return new Constraint("succBoolChanneling",
 				new PropNeighBoolChannel(successorsOf,node,g,new IncidentSet.SuccOrNeighSet()));
 	}
@@ -419,7 +419,7 @@ public interface IGraphConstraintFactory {
 	 * @param predecessorsOf
 	 * @param node
 	 */
-	default Constraint predecessorsChanneling(IDirectedGraphVar g, SetVar predecessorsOf, int node){
+	default Constraint predecessorsChanneling(DirectedGraphVar g, SetVar predecessorsOf, int node){
 		return new Constraint("predSetChanneling",
 				new PropNeighSetChannel(predecessorsOf,node,g,new IncidentSet.PredOrNeighSet()));
 	}
@@ -431,7 +431,7 @@ public interface IGraphConstraintFactory {
 	 * @param predecessorsOf
 	 * @param node
 	 */
-	default Constraint predecessorsChanneling(IDirectedGraphVar g, BoolVar[] predecessorsOf, int node){
+	default Constraint predecessorsChanneling(DirectedGraphVar g, BoolVar[] predecessorsOf, int node){
 		return new Constraint("predBoolChanneling",
 				new PropNeighBoolChannel(predecessorsOf,node,g,new IncidentSet.PredOrNeighSet()));
 
@@ -520,7 +520,7 @@ public interface IGraphConstraintFactory {
 	 * @param minDegree	integer minimum degree of every node
 	 * @return a minimum inner degree constraint
 	 */
-	default Constraint minInDegrees(IDirectedGraphVar g, int minDegree){
+	default Constraint minInDegrees(DirectedGraphVar g, int minDegree){
 		return new Constraint("minInDegrees",new PropNodeDegree_AtLeast_Incr(g, Orientation.PREDECESSORS, minDegree));
 	}
 
@@ -532,7 +532,7 @@ public interface IGraphConstraintFactory {
 	 * @param minDegrees	integer array giving the minimum degree of each node
 	 * @return a minimum inner degree constraint
 	 */
-	default Constraint minInDegrees(IDirectedGraphVar g, int[] minDegrees){
+	default Constraint minInDegrees(DirectedGraphVar g, int[] minDegrees){
 		return new Constraint("minInDegrees",new PropNodeDegree_AtLeast_Incr(g, Orientation.PREDECESSORS, minDegrees));
 	}
 
@@ -544,7 +544,7 @@ public interface IGraphConstraintFactory {
 	 * @param maxDegree	integer maximum degree
 	 * @return a maximum inner degree constraint
 	 */
-	default Constraint maxInDegrees(IDirectedGraphVar g, int maxDegree){
+	default Constraint maxInDegrees(DirectedGraphVar g, int maxDegree){
 		return new Constraint("maxInDegrees",new PropNodeDegree_AtMost_Coarse(g, Orientation.PREDECESSORS, maxDegree));
 	}
 
@@ -556,7 +556,7 @@ public interface IGraphConstraintFactory {
 	 * @param maxDegrees	integer array giving the maximum degree of each node
 	 * @return a maximum inner degree constraint
 	 */
-	default Constraint maxInDegrees(IDirectedGraphVar g, int[] maxDegrees){
+	default Constraint maxInDegrees(DirectedGraphVar g, int[] maxDegrees){
 		return new Constraint("maxInDegrees",new PropNodeDegree_AtMost_Coarse(g, Orientation.PREDECESSORS, maxDegrees));
 	}
 
@@ -569,7 +569,7 @@ public interface IGraphConstraintFactory {
 	 * @param degrees	integer array giving the degree of each node
 	 * @return a degree inner constraint
 	 */
-	default Constraint inDegrees(IDirectedGraphVar g, IntVar[] degrees){
+	default Constraint inDegrees(DirectedGraphVar g, IntVar[] degrees){
 		return new Constraint("inDegrees",new PropNodeDegree_Var(g, Orientation.PREDECESSORS, degrees));
 	}
 
@@ -583,7 +583,7 @@ public interface IGraphConstraintFactory {
 	 * @param minDegree	integer minimum degree of every node
 	 * @return a minimum outer degree constraint
 	 */
-	default Constraint minOutDegrees(IDirectedGraphVar g, int minDegree){
+	default Constraint minOutDegrees(DirectedGraphVar g, int minDegree){
 		return new Constraint("minOutDegrees",new PropNodeDegree_AtLeast_Incr(g, Orientation.SUCCESSORS, minDegree));
 	}
 
@@ -595,7 +595,7 @@ public interface IGraphConstraintFactory {
 	 * @param minDegrees	integer array giving the minimum degree of each node
 	 * @return a minimum outer degree constraint
 	 */
-	default Constraint minOutDegrees(IDirectedGraphVar g, int[] minDegrees){
+	default Constraint minOutDegrees(DirectedGraphVar g, int[] minDegrees){
 		return new Constraint("minOutDegrees",new PropNodeDegree_AtLeast_Incr(g, Orientation.SUCCESSORS, minDegrees));
 	}
 
@@ -607,7 +607,7 @@ public interface IGraphConstraintFactory {
 	 * @param maxDegree	integer maximum degree
 	 * @return a maximum outer degree constraint
 	 */
-	default Constraint maxOutDegrees(IDirectedGraphVar g, int maxDegree){
+	default Constraint maxOutDegrees(DirectedGraphVar g, int maxDegree){
 		return new Constraint("maxOutDegrees",new PropNodeDegree_AtMost_Coarse(g, Orientation.SUCCESSORS, maxDegree));
 	}
 
@@ -619,7 +619,7 @@ public interface IGraphConstraintFactory {
 	 * @param maxDegrees	integer array giving the maximum outer degree of each node
 	 * @return a outer maximum degree constraint
 	 */
-	default Constraint maxOutDegrees(IDirectedGraphVar g, int[] maxDegrees){
+	default Constraint maxOutDegrees(DirectedGraphVar g, int[] maxDegrees){
 		return new Constraint("maxOutDegrees",new PropNodeDegree_AtMost_Coarse(g, Orientation.SUCCESSORS, maxDegrees));
 	}
 
@@ -632,7 +632,7 @@ public interface IGraphConstraintFactory {
 	 * @param degrees	integer array giving the degree of each node
 	 * @return an outer degree constraint
 	 */
-	default Constraint outDegrees(IDirectedGraphVar g, IntVar[] degrees){
+	default Constraint outDegrees(DirectedGraphVar g, IntVar[] degrees){
 		return new Constraint("outDegrees",new PropNodeDegree_Var(g, Orientation.SUCCESSORS, degrees));
 	}
 
@@ -701,7 +701,7 @@ public interface IGraphConstraintFactory {
 	 * @param g a directed graph variable
 	 * @return a circuit constraint
 	 */
-	default Constraint hamiltonianCircuit(IDirectedGraphVar g) {
+	default Constraint hamiltonianCircuit(DirectedGraphVar g) {
 		IntVar[] gint = _me().succInts(g);
 		return _me().circuit(gint,0);
 	}
@@ -712,7 +712,7 @@ public interface IGraphConstraintFactory {
 	 * @param g a directed graph variable
 	 * @return a circuit constraint
 	 */
-	default Constraint circuit(IDirectedGraphVar g) {
+	default Constraint circuit(DirectedGraphVar g) {
 		if(g.getMandatoryNodes().size() == g.getNbMaxNodes()){
 			return hamiltonianCircuit(g);
 		}
@@ -745,7 +745,7 @@ public interface IGraphConstraintFactory {
 	 * @param g	a directed graph variable
 	 * @return A circuit elimination constraint
 	 */
-	default Constraint noCircuit(IDirectedGraphVar g){
+	default Constraint noCircuit(DirectedGraphVar g){
 		return new Constraint("noCircuit",new PropACyclic(g));
 	}
 
@@ -793,7 +793,7 @@ public interface IGraphConstraintFactory {
 	 * @param g	a directed graph variable
 	 * @return A strong connectedness constraint which ensures that g is strongly connected
 	 */
-	default Constraint stronglyConnected(IDirectedGraphVar g){
+	default Constraint stronglyConnected(DirectedGraphVar g){
 		return nbStronglyConnectedComponents(g, g.getModel().intVar(1));
 	}
 
@@ -803,7 +803,7 @@ public interface IGraphConstraintFactory {
 	 * @param nb an integer variable indicating the expected number of connected components in g
 	 * @return A strong connectedness constraint which ensures that g has nb strongly connected components
 	 */
-	default Constraint nbStronglyConnectedComponents(IDirectedGraphVar g, IntVar nb){
+	default Constraint nbStronglyConnectedComponents(DirectedGraphVar g, IntVar nb){
 		return new Constraint("NbSCC",new PropNbSCC(g,nb));
 	}
 
@@ -843,7 +843,7 @@ public interface IGraphConstraintFactory {
 	 * @param root the (fixed) root of the tree
 	 * @return a directed tree constraint
 	 */
-	default Constraint directedTree(IDirectedGraphVar g, int root){
+	default Constraint directedTree(DirectedGraphVar g, int root){
 		int n = g.getNbMaxNodes();
 		int[] nbPreds = new int[n];
 		for(int i=0;i<n;i++){
@@ -863,7 +863,7 @@ public interface IGraphConstraintFactory {
 	 * @param g	a directed graph variable
 	 * @return a directed forest constraint
 	 */
-	default Constraint directedForest(IDirectedGraphVar g){
+	default Constraint directedForest(DirectedGraphVar g){
 		return new Constraint("directedForest",new PropArborescences(g)
 				,new PropNodeDegree_AtMost_Coarse(g, Orientation.PREDECESSORS, 1)
 		);
@@ -883,7 +883,7 @@ public interface IGraphConstraintFactory {
 	 * @param root	a vertex reaching every node
 	 * @return A constraint which ensures that every vertex in g is reachable by a simple path from the root
 	 */
-	default Constraint reachability(IDirectedGraphVar g, int root){
+	default Constraint reachability(DirectedGraphVar g, int root){
 		return new Constraint("reachability_from_"+root,new PropReachability(g,root));
 	}
 
@@ -897,7 +897,7 @@ public interface IGraphConstraintFactory {
 	 * @param to an integer variable
 	 * @return a path constraint
 	 */
-	default Constraint path(IDirectedGraphVar g, int from, int to) {
+	default Constraint path(DirectedGraphVar g, int from, int to) {
 		int n = g.getNbMaxNodes();
 		int[] succs = new int[n];
 		int[] preds = new int[n];
@@ -978,7 +978,7 @@ public interface IGraphConstraintFactory {
 	 * @param d	an integer variable
 	 * @return a constraint which states that d is the diameter of g
 	 */
-	default Constraint diameter(IDirectedGraphVar g, IntVar d) {
+	default Constraint diameter(DirectedGraphVar g, IntVar d) {
 		return new Constraint("NbCliques",
 				new PropNbSCC(g,g.getModel().intVar(1)),
 				new PropDiameter(g, d)
@@ -1068,7 +1068,7 @@ public interface IGraphConstraintFactory {
 	 *
 	 * @param graph graph to be constrainted
 	 */
-	default void postSymmetryBreaking(IDirectedGraphVar graph) {
+	default void postSymmetryBreaking(DirectedGraphVar graph) {
 		Model m = _me();
 		// ---------------------- variables ------------------------
 		int n = graph.getNbMaxNodes();

@@ -27,7 +27,7 @@
 
 package org.chocosolver.graphsolver.cstrs.tree;
 
-import org.chocosolver.graphsolver.variables.IDirectedGraphVar;
+import org.chocosolver.graphsolver.variables.DirectedGraphVar;
 import org.chocosolver.solver.exception.ContradictionException;
 
 import java.util.BitSet;
@@ -51,11 +51,11 @@ public class PropArborescence extends PropArborescences {
 	//***********************************************************************************
 
 
-	public PropArborescence(IDirectedGraphVar graph, int root) {
+	public PropArborescence(DirectedGraphVar graph, int root) {
 		this(graph,root,false);
 	}
 
-	public PropArborescence(IDirectedGraphVar graph, int root, boolean simple) {
+	public PropArborescence(DirectedGraphVar graph, int root, boolean simple) {
 		super(graph,simple);
 		this.root = root;
 		this.visited = new BitSet(n);

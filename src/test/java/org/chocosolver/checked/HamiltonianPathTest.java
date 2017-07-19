@@ -30,7 +30,7 @@ package org.chocosolver.checked;
 import gnu.trove.list.array.TIntArrayList;
 import org.chocosolver.graphsolver.GraphModel;
 import org.chocosolver.graphsolver.search.strategy.GraphStrategy;
-import org.chocosolver.graphsolver.variables.IDirectedGraphVar;
+import org.chocosolver.graphsolver.variables.DirectedGraphVar;
 import org.chocosolver.samples.input.GraphGenerator;
 import org.chocosolver.solver.search.strategy.Search;
 import org.chocosolver.solver.variables.IntVar;
@@ -87,7 +87,7 @@ public class HamiltonianPathTest {
 				}
 			}
 		}
-		IDirectedGraphVar graph = model.digraphVar("G", GLB, GUB);
+		DirectedGraphVar graph = model.digraphVar("G", GLB, GUB);
 		model.path(graph, 0, n - 1).post();
 		if(strongFilter){
 			// could add alldiff as well
@@ -150,10 +150,10 @@ public class HamiltonianPathTest {
 	}
 //
 //	// constructive heuristic, can be useful to debug
-//	private static class ConstructorHeur extends ArcStrategy<IDirectedGraphVar> {
+//	private static class ConstructorHeur extends ArcStrategy<DirectedGraphVar> {
 //		int source, n;
 //
-//		public ConstructorHeur(IDirectedGraphVar graphVar, int s) {
+//		public ConstructorHeur(DirectedGraphVar graphVar, int s) {
 //			super(graphVar);
 //			source = s;
 //			n = graphVar.getNbMaxNodes();

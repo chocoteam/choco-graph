@@ -28,7 +28,7 @@
 package org.chocosolver.samples;
 
 import org.chocosolver.graphsolver.GraphModel;
-import org.chocosolver.graphsolver.variables.IDirectedGraphVar;
+import org.chocosolver.graphsolver.variables.DirectedGraphVar;
 import org.chocosolver.solver.Model;
 import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.util.objects.graphs.DirectedGraph;
@@ -54,7 +54,7 @@ public class DAGProblem {
 			}
 		}
 
-		IDirectedGraphVar dag = model.digraphVar("dag", GLB, GUB);
+		DirectedGraphVar dag = model.digraphVar("dag", GLB, GUB);
 
 		// CONSTRAINTS
 		model.noCircuit(dag).post();

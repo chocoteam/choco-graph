@@ -1,7 +1,7 @@
 package org.chocosolver;
 
 import org.chocosolver.graphsolver.GraphModel;
-import org.chocosolver.graphsolver.variables.IDirectedGraphVar;
+import org.chocosolver.graphsolver.variables.DirectedGraphVar;
 import org.chocosolver.solver.constraints.Constraint;
 import org.chocosolver.solver.constraints.Propagator;
 import org.chocosolver.solver.constraints.PropagatorPriority;
@@ -13,7 +13,7 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 /**
- * Tests for {@code GraphConstraintFactory#postSymmetryBreaking(IDirectedGraphVar, Solver) postSymmetryBreaking}/
+ * Tests for {@code GraphConstraintFactory#postSymmetryBreaking(DirectedGraphVar, Solver) postSymmetryBreaking}/
  * Symmetry breaking is using in next problem: given n and m.
  * <br/>
  * Find whether exists directed graph with n nodes, m edges, containing directed spanning tree from 0
@@ -26,9 +26,9 @@ import org.testng.annotations.Test;
  */
 public class SymmetryBreakingDirectedTest {
 
-    private static Constraint containsDirectedTree(IDirectedGraphVar graph) {
-        return new Constraint("subTree", new Propagator<IDirectedGraphVar>(new IDirectedGraphVar[] {graph}, PropagatorPriority.LINEAR, false) {
-            IDirectedGraphVar graph = vars[0];
+    private static Constraint containsDirectedTree(DirectedGraphVar graph) {
+        return new Constraint("subTree", new Propagator<DirectedGraphVar>(new DirectedGraphVar[] {graph}, PropagatorPriority.LINEAR, false) {
+            DirectedGraphVar graph = vars[0];
             int n = graph.getNbMaxNodes();
 
             void dfs(boolean[] used, int u) {
@@ -89,7 +89,7 @@ public class SymmetryBreakingDirectedTest {
                 GUB.addArc(i, j);
             }
         }
-        IDirectedGraphVar graph = model.digraphVar("G", GLB, GUB);
+        DirectedGraphVar graph = model.digraphVar("G", GLB, GUB);
 
         containsDirectedTree(graph).post();
         model.nbArcs(graph, model.intVar(m)).post();

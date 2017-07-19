@@ -34,7 +34,7 @@ import org.chocosolver.solver.exception.ContradictionException;
 import org.chocosolver.util.objects.graphs.DirectedGraph;
 import org.chocosolver.util.objects.setDataStructures.ISet;
 
-public class DirectedGraphVar extends GraphVar<DirectedGraph> implements IDirectedGraphVar{
+public class DirectedGraphVar extends GraphVar<DirectedGraph> {
 
 	////////////////////////////////// GRAPH PART ///////////////////////////////////////
 
@@ -98,22 +98,42 @@ public class DirectedGraphVar extends GraphVar<DirectedGraph> implements IDirect
         return false;
     }
 
-	@Override
+	/**
+	 * Get the set of successors of vertex 'idx' in the lower bound graph
+	 * (mandatory outgoing arcs)
+	 * @param idx	a vertex
+	 * @return The set of successors of 'idx' in LB
+	 */
 	public ISet getMandSuccOf(int idx) {
 		return getMandSuccOrNeighOf(idx);
 	}
 
-	@Override
+	/**
+	 * Get the set of predecessors of vertex 'idx' in the lower bound graph
+	 * (mandatory ingoing arcs)
+	 * @param idx	a vertex
+	 * @return The set of predecessors of 'idx' in LB
+	 */
 	public ISet getMandPredOf(int idx) {
 		return getMandPredOrNeighOf(idx);
 	}
 
-	@Override
+	/**
+	 * Get the set of predecessors of vertex 'idx'
+	 * in the upper bound graph (potential ingoing arcs)
+	 * @param idx	a vertex
+	 * @return The set of predecessors of 'idx' in UB
+	 */
 	public ISet getPotPredOf(int idx) {
 		return getPotPredOrNeighOf(idx);
 	}
 
-	@Override
+	/**
+	 * Get the set of successors of vertex 'idx'
+	 * in the upper bound graph (potential outgoing arcs)
+	 * @param idx	a vertex
+	 * @return The set of successors of 'idx' in UB
+	 */
 	public ISet getPotSuccOf(int idx) {
 		return getPotSuccOrNeighOf(idx);
 	}

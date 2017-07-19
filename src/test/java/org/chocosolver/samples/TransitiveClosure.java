@@ -31,7 +31,7 @@ import org.chocosolver.graphsolver.GraphModel;
 import org.chocosolver.graphsolver.cstrs.basic.PropNbArcs;
 import org.chocosolver.graphsolver.cstrs.basic.PropTransitivity;
 import org.chocosolver.graphsolver.search.strategy.GraphStrategy;
-import org.chocosolver.graphsolver.variables.IDirectedGraphVar;
+import org.chocosolver.graphsolver.variables.DirectedGraphVar;
 import org.chocosolver.solver.Model;
 import org.chocosolver.solver.constraints.Constraint;
 import org.chocosolver.solver.search.strategy.Search;
@@ -73,7 +73,7 @@ public class TransitiveClosure {
 				}
 			}
 		}
-		IDirectedGraphVar tc = model.digraphVar("transitive closure", GLB, GUB);
+		DirectedGraphVar tc = model.digraphVar("transitive closure", GLB, GUB);
 
 		// CONSTRAINTS
 		new Constraint("Graph_TC",new PropTransitivity(tc),new PropNbArcs(tc,nbArcs)).post();

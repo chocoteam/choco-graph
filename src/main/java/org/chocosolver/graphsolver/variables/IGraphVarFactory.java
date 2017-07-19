@@ -72,7 +72,7 @@ public interface IGraphVarFactory {
 	 * @param n		Maximum number of vertices
 	 * @return a directed graph variable having n vertices
 	 */
-	default IDirectedGraphVar digraphVar(String name, int n) {
+	default DirectedGraphVar digraphVar(String name, int n) {
 		return digraphVar(name,n,false);
 	}
 
@@ -83,7 +83,7 @@ public interface IGraphVarFactory {
 	 * @param allNodes If true then every vertex in [0,n-1] belongs to every solution.
 	 * @return a directed graph variable having n vertices
 	 */
-	default IDirectedGraphVar digraphVar(String name, int n, boolean allNodes) {
+	default DirectedGraphVar digraphVar(String name, int n, boolean allNodes) {
 		DirectedGraph lb = new DirectedGraph(_me(), n,SetType.BITSET,allNodes);
 		DirectedGraph ub = new DirectedGraph(_me(), n,SetType.BITSET,allNodes);
 		for(int i=0;i<n;i++){
@@ -108,7 +108,7 @@ public interface IGraphVarFactory {
 	 * @param ub		Directed graph representing possible nodes and edges
 	 * @return	An undirected graph variable
 	 */
-	default IDirectedGraphVar digraphVar(String name, DirectedGraph lb, DirectedGraph ub) {
+	default DirectedGraphVar digraphVar(String name, DirectedGraph lb, DirectedGraph ub) {
 		return new DirectedGraphVar(name, _me(), lb, ub);
 	}
 
@@ -154,7 +154,7 @@ public interface IGraphVarFactory {
 	 * @param g	a directed graph variable
 	 * @return An integer variable representing the number of nodes in g
 	 */
-	default IntVar nbArcs(IDirectedGraphVar g){
+	default IntVar nbArcs(DirectedGraphVar g){
 		IntVar nb = _me().intVar("nbArcs",0,g.getNbMaxNodes()*g.getNbMaxNodes(),true);
 		_me().nbArcs(g, nb).post();
 		return nb;
@@ -246,7 +246,7 @@ public interface IGraphVarFactory {
 	 * @param to index of a potential vertex of g
 	 * @return a boolean variable representing if the arc '(from,to)' is in g or not
 	 */
-	default BoolVar isArc(IDirectedGraphVar g, int from, int to){
+	default BoolVar isArc(DirectedGraphVar g, int from, int to){
 		BoolVar node = _me().boolVar("arc("+from+","+to+")");
 		_me().arcChanneling(g, node, from, to).post();
 		return node;
@@ -347,7 +347,7 @@ public interface IGraphVarFactory {
 	 *          vertex is mandatory
 	 * @return an array of integer variables representing the unique successor of each vertex
 	 */
-	default IntVar[] succInts(IDirectedGraphVar g){
+	default IntVar[] succInts(DirectedGraphVar g){
 		int n = g.getNbMaxNodes();
 		IntVar[] successors = _me().intVarArray("succOf",n,0,n-1,false);
 		_me().successorsChanneling(g, successors).post();
@@ -360,7 +360,7 @@ public interface IGraphVarFactory {
 	 * @param g	a directed graph variable
 	 * @return an array of set variables representing the successors of every vertex
 	 */
-	default SetVar[] succSets(IDirectedGraphVar g){
+	default SetVar[] succSets(DirectedGraphVar g){
 		int n = g.getNbMaxNodes();
 		SetVar[] successors = new SetVar[n];
 		for(int i=0;i<n;i++){
@@ -376,7 +376,7 @@ public interface IGraphVarFactory {
 	 * @param g	a directed graph variable
 	 * @return a matrix of boolean variables representing the adjacency matrix of g
 	 */
-	default BoolVar[][] adjacencyMatrix(IDirectedGraphVar g){
+	default BoolVar[][] adjacencyMatrix(DirectedGraphVar g){
 		int n = g.getNbMaxNodes();
 		BoolVar[][] successors = _me().boolVarMatrix("succOf",n,n);
 		_me().successorsChanneling(g, successors).post();
@@ -389,7 +389,7 @@ public interface IGraphVarFactory {
 	 * @param g	a directed graph variable
 	 * @return a set variable representing the successors of 'node' in g
 	 */
-	default SetVar succSet(IDirectedGraphVar g, int node){
+	default SetVar succSet(DirectedGraphVar g, int node){
 		int n = g.getNbMaxNodes();
 		SetVar successorsOf = makeSetVar("succOf("+node+")",0,n-1);
 		_me().successorsChanneling(g, successorsOf, node).post();
@@ -402,7 +402,7 @@ public interface IGraphVarFactory {
 	 * @param g	a directed graph variable
 	 * @return an array of boolean variables representing the successors of 'node' in g
 	 */
-	default BoolVar[] succBools(IDirectedGraphVar g, int node){
+	default BoolVar[] succBools(DirectedGraphVar g, int node){
 		BoolVar[] successorsOf = _me().boolVarArray("succOf("+node+")",g.getNbMaxNodes());
 		_me().successorsChanneling(g, successorsOf, node).post();
 		return successorsOf;
@@ -416,7 +416,7 @@ public interface IGraphVarFactory {
 	 * @param g	a directed graph variable
 	 * @return a set variable representing the predecessors of 'node' in g
 	 */
-	default SetVar predSet(IDirectedGraphVar g, int node){
+	default SetVar predSet(DirectedGraphVar g, int node){
 		int n = g.getNbMaxNodes();
 		SetVar predecessorsOf = makeSetVar("predOf("+node+")",0,n-1);
 		_me().predecessorsChanneling(g, predecessorsOf, node).post();
@@ -429,7 +429,7 @@ public interface IGraphVarFactory {
 	 * @param g	a directed graph variable
 	 * @return an array of boolean variables representing the predecessors of 'node' in g
 	 */
-	default BoolVar[] predBools(IDirectedGraphVar g, int node){
+	default BoolVar[] predBools(DirectedGraphVar g, int node){
 		BoolVar[] predecessorsOf = _me().boolVarArray("predOf("+node+")",g.getNbMaxNodes());
 		_me().predecessorsChanneling(g, predecessorsOf, node).post();
 		return predecessorsOf;
@@ -459,7 +459,7 @@ public interface IGraphVarFactory {
 	 * @param g	a directed graph variable
 	 * @return an array of integer variables representing the in-degree of each node in g
 	 */
-	default IntVar[] inDegrees(IDirectedGraphVar g){
+	default IntVar[] inDegrees(DirectedGraphVar g){
 		int n = g.getNbMaxNodes();
 		IntVar[] degrees = _me().intVarArray("in_degree",n,0,n,true);
 		_me().inDegrees(g,degrees).post();
@@ -472,7 +472,7 @@ public interface IGraphVarFactory {
 	 * @param g	a directed graph variable
 	 * @return an array of integer variables representing the out-degree of each node in g
 	 */
-	default IntVar[] outDegrees(IDirectedGraphVar g){
+	default IntVar[] outDegrees(DirectedGraphVar g){
 		int n = g.getNbMaxNodes();
 		IntVar[] degrees = _me().intVarArray("out_degree",n,0,n,true);
 		_me().outDegrees(g,degrees).post();

@@ -28,7 +28,7 @@
 package org.chocosolver.graphsolver.cstrs.channeling.edges;
 
 import org.chocosolver.graphsolver.variables.GraphEventType;
-import org.chocosolver.graphsolver.variables.IDirectedGraphVar;
+import org.chocosolver.graphsolver.variables.DirectedGraphVar;
 import org.chocosolver.graphsolver.variables.delta.IGraphDeltaMonitor;
 import org.chocosolver.solver.constraints.Propagator;
 import org.chocosolver.solver.constraints.PropagatorPriority;
@@ -41,7 +41,7 @@ import org.chocosolver.util.procedure.PairProcedure;
 /**
  * @author Jean-Guillaume Fages
  */
-public class PropSuccIntsChannel1 extends Propagator<IDirectedGraphVar> {
+public class PropSuccIntsChannel1 extends Propagator<DirectedGraphVar> {
 
 	//***********************************************************************************
 	// VARIABLES
@@ -50,15 +50,15 @@ public class PropSuccIntsChannel1 extends Propagator<IDirectedGraphVar> {
 	private int n;
 	private IntVar[] succs;
 	private IGraphDeltaMonitor gdm;
-	private IDirectedGraphVar g;
+	private DirectedGraphVar g;
 	private PairProcedure arcForced, arcRemoved;
 
 	//***********************************************************************************
 	// CONSTRUCTORS
 	//***********************************************************************************
 
-	public PropSuccIntsChannel1(final IntVar[] succs, IDirectedGraphVar gV) {
-		super(new IDirectedGraphVar[]{gV}, PropagatorPriority.LINEAR, true);
+	public PropSuccIntsChannel1(final IntVar[] succs, DirectedGraphVar gV) {
+		super(new DirectedGraphVar[]{gV}, PropagatorPriority.LINEAR, true);
 		this.succs = succs;
 		n = succs.length;
 		this.g = gV;

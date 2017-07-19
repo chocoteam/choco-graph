@@ -28,7 +28,7 @@
 package org.chocosolver.graphsolver.cstrs.cycles;
 
 import org.chocosolver.graphsolver.variables.GraphEventType;
-import org.chocosolver.graphsolver.variables.IDirectedGraphVar;
+import org.chocosolver.graphsolver.variables.DirectedGraphVar;
 import org.chocosolver.graphsolver.variables.delta.IGraphDeltaMonitor;
 import org.chocosolver.memory.IEnvironment;
 import org.chocosolver.memory.IStateInt;
@@ -44,13 +44,13 @@ import org.chocosolver.util.procedure.PairProcedure;
  *
  * @author Jean-Guillaume Fages
  */
-public class PropCircuit extends Propagator<IDirectedGraphVar> {
+public class PropCircuit extends Propagator<DirectedGraphVar> {
 
 	//***********************************************************************************
 	// VARIABLES
 	//***********************************************************************************
 
-	private IDirectedGraphVar g;
+	private DirectedGraphVar g;
 	private IGraphDeltaMonitor gdm;
 	private int n;
 	private PairProcedure arcEnforced;
@@ -61,8 +61,8 @@ public class PropCircuit extends Propagator<IDirectedGraphVar> {
 	//***********************************************************************************
 
 
-	public PropCircuit(IDirectedGraphVar graph){
-		super(new IDirectedGraphVar[]{graph}, PropagatorPriority.LINEAR, true);
+	public PropCircuit(DirectedGraphVar graph){
+		super(new DirectedGraphVar[]{graph}, PropagatorPriority.LINEAR, true);
 		g = graph;
 		gdm = g.monitorDelta(this);
 		this.n = g.getNbMaxNodes();

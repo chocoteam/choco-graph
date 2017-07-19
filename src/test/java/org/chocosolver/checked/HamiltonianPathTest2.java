@@ -29,7 +29,7 @@ package org.chocosolver.checked;
 
 import org.chocosolver.graphsolver.GraphModel;
 import org.chocosolver.graphsolver.search.strategy.GraphStrategy;
-import org.chocosolver.graphsolver.variables.IDirectedGraphVar;
+import org.chocosolver.graphsolver.variables.DirectedGraphVar;
 import org.chocosolver.samples.input.GraphGenerator;
 import org.chocosolver.solver.Cause;
 import org.chocosolver.solver.Solver;
@@ -66,7 +66,7 @@ public class HamiltonianPathTest2 {
 				}
 			}
 		}
-		IDirectedGraphVar graph = model.digraphVar("G", GLB, GUB);
+		DirectedGraphVar graph = model.digraphVar("G", GLB, GUB);
 		model.path(graph, 0, n - 1).post();
 		if(strongFilter){
 			model.reachability(graph,0).post();

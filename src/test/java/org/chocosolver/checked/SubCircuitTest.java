@@ -32,7 +32,7 @@ import org.chocosolver.graphsolver.cstrs.basic.PropNbNodes;
 import org.chocosolver.graphsolver.search.strategy.GraphStrategy;
 import org.chocosolver.graphsolver.search.strategy.arcs.RandomArc;
 import org.chocosolver.graphsolver.search.strategy.nodes.RandomNode;
-import org.chocosolver.graphsolver.variables.IDirectedGraphVar;
+import org.chocosolver.graphsolver.variables.DirectedGraphVar;
 import org.chocosolver.samples.input.GraphGenerator;
 import org.chocosolver.solver.Cause;
 import org.chocosolver.solver.Solver;
@@ -76,7 +76,7 @@ public class SubCircuitTest {
 				}
 			}
 		}
-		IDirectedGraphVar graph = model.digraphVar("G", GLB, GUB);
+		DirectedGraphVar graph = model.digraphVar("G", GLB, GUB);
 		IntVar circuitLength = model.intVar("length",2,n,false);
 		model.circuit(graph).post();
 		new Constraint("SubCircuitLength",new PropNbNodes(graph, circuitLength)).post();

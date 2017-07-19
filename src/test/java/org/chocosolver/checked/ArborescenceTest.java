@@ -29,7 +29,7 @@ package org.chocosolver.checked;
 
 import org.chocosolver.graphsolver.GraphModel;
 import org.chocosolver.graphsolver.search.strategy.GraphStrategy;
-import org.chocosolver.graphsolver.variables.IDirectedGraphVar;
+import org.chocosolver.graphsolver.variables.DirectedGraphVar;
 import org.chocosolver.solver.Solver;
 import org.chocosolver.util.objects.graphs.DirectedGraph;
 import org.chocosolver.util.objects.setDataStructures.SetType;
@@ -53,7 +53,7 @@ public class ArborescenceTest {
 			}
 		}
 		GLB.addNode(0);
-		final IDirectedGraphVar g = m.digraphVar("G", GLB, GUB);
+		final DirectedGraphVar g = m.digraphVar("G", GLB, GUB);
 		int[] preds = new int[n];
 		for (int i = 0; i < n; i++) {
 			preds[i] = 1;

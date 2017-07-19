@@ -28,7 +28,7 @@
 package org.chocosolver.graphsolver.cstrs.basic;
 
 import org.chocosolver.graphsolver.variables.GraphEventType;
-import org.chocosolver.graphsolver.variables.IDirectedGraphVar;
+import org.chocosolver.graphsolver.variables.DirectedGraphVar;
 import org.chocosolver.graphsolver.variables.delta.IGraphDeltaMonitor;
 import org.chocosolver.solver.constraints.Propagator;
 import org.chocosolver.solver.exception.ContradictionException;
@@ -43,13 +43,13 @@ import org.chocosolver.util.procedure.PairProcedure;
  *
  * @author Jean-Guillaume Fages
  */
-public class PropAntiSymmetric extends Propagator<IDirectedGraphVar> {
+public class PropAntiSymmetric extends Propagator<DirectedGraphVar> {
 
     //***********************************************************************************
     // VARIABLES
     //***********************************************************************************
 
-	private IDirectedGraphVar g;
+	private DirectedGraphVar g;
     private IGraphDeltaMonitor gdm;
     private PairProcedure enf;
     private int n;
@@ -58,7 +58,7 @@ public class PropAntiSymmetric extends Propagator<IDirectedGraphVar> {
     // CONSTRUCTORS
     //***********************************************************************************
 
-    public PropAntiSymmetric(IDirectedGraphVar graph) {
+    public PropAntiSymmetric(DirectedGraphVar graph) {
         super(graph);
         g = graph;
         gdm = g.monitorDelta(this);

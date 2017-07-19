@@ -27,7 +27,7 @@
 
 package org.chocosolver.graphsolver.cstrs.degree;
 
-import org.chocosolver.graphsolver.variables.IDirectedGraphVar;
+import org.chocosolver.graphsolver.variables.DirectedGraphVar;
 import org.chocosolver.graphsolver.variables.IGraphVar;
 import org.chocosolver.graphsolver.variables.UndirectedGraphVar;
 import org.chocosolver.graphsolver.variables.IncidentSet;
@@ -65,7 +65,7 @@ public class PropNodeDegree_Var extends Propagator<Variable> {
 	// CONSTRUCTORS
 	//***********************************************************************************
 
-	public PropNodeDegree_Var(IDirectedGraphVar graph, Orientation setType, IntVar[] degrees) {
+	public PropNodeDegree_Var(DirectedGraphVar graph, Orientation setType, IntVar[] degrees) {
 		super(ArrayUtils.append(degrees,new Variable[]{graph}), PropagatorPriority.BINARY, false);
 		this.g = graph;
 		this.n = g.getNbMaxNodes();

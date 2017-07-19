@@ -54,12 +54,12 @@ public class PropNodeDegree_AtLeast_Coarse extends Propagator<IGraphVar> {
     // CONSTRUCTORS
     //***********************************************************************************
 
-    public PropNodeDegree_AtLeast_Coarse(IDirectedGraphVar graph, Orientation setType, int degree) {
+    public PropNodeDegree_AtLeast_Coarse(DirectedGraphVar graph, Orientation setType, int degree) {
         this(graph, setType, buildArray(degree, graph.getNbMaxNodes()));
     }
 
-    public PropNodeDegree_AtLeast_Coarse(IDirectedGraphVar graph, Orientation setType, int[] degrees) {
-        super(new IDirectedGraphVar[]{graph}, PropagatorPriority.BINARY, false);
+    public PropNodeDegree_AtLeast_Coarse(DirectedGraphVar graph, Orientation setType, int[] degrees) {
+        super(new DirectedGraphVar[]{graph}, PropagatorPriority.BINARY, false);
         g = graph;
 		this.degrees = degrees;
         switch (setType) {

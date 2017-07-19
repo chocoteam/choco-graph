@@ -29,7 +29,7 @@ package org.chocosolver.checked;
 
 import org.chocosolver.graphsolver.GraphModel;
 import org.chocosolver.graphsolver.search.strategy.GraphStrategy;
-import org.chocosolver.graphsolver.variables.IDirectedGraphVar;
+import org.chocosolver.graphsolver.variables.DirectedGraphVar;
 import org.chocosolver.util.objects.graphs.DirectedGraph;
 import org.chocosolver.util.objects.setDataStructures.SetType;
 import org.testng.annotations.Test;
@@ -50,7 +50,7 @@ public class ArboTest {
 				GUB.addArc(i, j);
 			}
 		}
-		IDirectedGraphVar g = model.digraphVar("G", GLB, GUB);
+		DirectedGraphVar g = model.digraphVar("G", GLB, GUB);
 		model.directedForest(g).post();
 		model.getSolver().setSearch(new GraphStrategy(g, seed));
 

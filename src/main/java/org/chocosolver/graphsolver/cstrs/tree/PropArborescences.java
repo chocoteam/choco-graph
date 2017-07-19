@@ -27,7 +27,7 @@
 
 package org.chocosolver.graphsolver.cstrs.tree;
 
-import org.chocosolver.graphsolver.variables.IDirectedGraphVar;
+import org.chocosolver.graphsolver.variables.DirectedGraphVar;
 import org.chocosolver.solver.constraints.Propagator;
 import org.chocosolver.solver.constraints.PropagatorPriority;
 import org.chocosolver.solver.exception.ContradictionException;
@@ -46,14 +46,14 @@ import java.util.BitSet;
  * CONSIDERS THAT EACH NODE WITH NO PREDECESSOR IS A ROOT (needs at least one such node)
  * @author Jean-Guillaume Fages
  */
-public class PropArborescences extends Propagator<IDirectedGraphVar> {
+public class PropArborescences extends Propagator<DirectedGraphVar> {
 
 	//***********************************************************************************
 	// VARIABLES
 	//***********************************************************************************
 
 	// flow graph
-	protected IDirectedGraphVar g;
+	protected DirectedGraphVar g;
 	protected DirectedGraph connectedGraph;
 	// number of nodes
 	protected int n;
@@ -66,12 +66,12 @@ public class PropArborescences extends Propagator<IDirectedGraphVar> {
 	// CONSTRUCTORS
 	//***********************************************************************************
 
-	public PropArborescences(IDirectedGraphVar graph) {
+	public PropArborescences(DirectedGraphVar graph) {
 		this(graph,false);
 	}
 
-	public PropArborescences(IDirectedGraphVar graph, boolean simple) {
-		super(new IDirectedGraphVar[]{graph}, PropagatorPriority.QUADRATIC, false);
+	public PropArborescences(DirectedGraphVar graph, boolean simple) {
+		super(new DirectedGraphVar[]{graph}, PropagatorPriority.QUADRATIC, false);
 		g = graph;
 		n = g.getNbMaxNodes();
 		successors = new ISet[n];
