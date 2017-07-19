@@ -49,7 +49,7 @@ public interface IGraphVar<E extends IGraph> extends Variable {
 	 * @param cause algorithm which is related to the removal
 	 * @return true iff the removal has an effect
 	 */
-	public boolean removeNode(int x, ICause cause) throws ContradictionException ;
+	boolean removeNode(int x, ICause cause) throws ContradictionException ;
 
 	/**
 	 * Enforce the node x to belong to any solution
@@ -59,7 +59,7 @@ public interface IGraphVar<E extends IGraph> extends Variable {
 	 * @param cause algorithm which is related to the modification
 	 * @return true iff the enforcing has an effect
 	 */
-	public boolean enforceNode(int x, ICause cause) throws ContradictionException ;
+	boolean enforceNode(int x, ICause cause) throws ContradictionException ;
 
 	/**
 	 * Remove arc (or edge in case of undirected graph variable) (x,y) from the domain
@@ -71,7 +71,7 @@ public interface IGraphVar<E extends IGraph> extends Variable {
 	 * @return true iff the removal has an effect
 	 * @throws ContradictionException if the arc was mandatory
 	 */
-	public abstract boolean removeArc(int x, int y, ICause cause) throws ContradictionException;
+	boolean removeArc(int x, int y, ICause cause) throws ContradictionException;
 
 	/**
 	 * Enforces arc (or edge in case of undirected graph variable) (x,y) to belong to any solution
@@ -82,7 +82,7 @@ public interface IGraphVar<E extends IGraph> extends Variable {
 	 * @param cause algorithm which is related to the removal
 	 * @return true iff the enforcing has an effect
 	 */
-	public abstract boolean enforceArc(int x, int y, ICause cause) throws ContradictionException;
+	boolean enforceArc(int x, int y, ICause cause) throws ContradictionException;
 
 	//***********************************************************************************
 	// INCREMENTALITY
@@ -93,7 +93,7 @@ public interface IGraphVar<E extends IGraph> extends Variable {
 	 * @param prop A propagator involving this graph variable
 	 * @return A new instance of IGraphDeltaMonitor to make incremental propagators
 	 */
-	public IGraphDeltaMonitor monitorDelta(ICause prop);
+	IGraphDeltaMonitor monitorDelta(ICause prop);
 
 	//***********************************************************************************
 	// ACCESSORS
@@ -104,19 +104,19 @@ public interface IGraphVar<E extends IGraph> extends Variable {
 	 * Nodes are comprised in the interval [0,getNbMaxNodes()]
 	 * Therefore, any vertex should be strictly lower than getNbMaxNodes()
 	 */
-	public int getNbMaxNodes();
+	int getNbMaxNodes();
 
 	/**
 	 * @return the node set of the lower bound graph,
 	 * i.e. nodes that belong to every solution
 	 */
-	public ISet getMandatoryNodes();
+	ISet getMandatoryNodes();
 
 	/**
 	 * @return the node set of the upper bound graph,
 	 * i.e. nodes that may belong to one solution
 	 */
-	public ISet getPotentialNodes();
+	ISet getPotentialNodes();
 
 	/**
 	 * Get the set of successors (if directed) or neighbors (if undirected) of vertex 'idx'
@@ -124,7 +124,7 @@ public interface IGraphVar<E extends IGraph> extends Variable {
 	 * @param idx	a vertex
 	 * @return The set of successors (if directed) or neighbors (if undirected) of 'idx' in LB
 	 */
-	public ISet getMandSuccOrNeighOf(int idx);
+	ISet getMandSuccOrNeighOf(int idx);
 
 	/**
 	 * Get the set of successors (if directed) or neighbors (if undirected) of vertex 'idx'
@@ -132,7 +132,7 @@ public interface IGraphVar<E extends IGraph> extends Variable {
 	 * @param idx	a vertex
 	 * @return The set of successors (if directed) or neighbors (if undirected) of 'idx' in UB
 	 */
-	public ISet getPotSuccOrNeighOf(int idx);
+	ISet getPotSuccOrNeighOf(int idx);
 
 	/**
 	 * Get the set of predecessors (if directed) or neighbors (if undirected) of vertex 'idx'
@@ -140,7 +140,7 @@ public interface IGraphVar<E extends IGraph> extends Variable {
 	 * @param idx	a vertex
 	 * @return The set of predecessors (if directed) or neighbors (if undirected) of 'idx' in LB
 	 */
-	public ISet getMandPredOrNeighOf(int idx);
+	ISet getMandPredOrNeighOf(int idx);
 
 	/**
 	 * Get the set of predecessors (if directed) or neighbors (if undirected) of vertex 'idx'
@@ -148,22 +148,22 @@ public interface IGraphVar<E extends IGraph> extends Variable {
 	 * @param idx	a vertex
 	 * @return The set of predecessors (if directed) or neighbors (if undirected) of 'idx' in UB
 	 */
-	public ISet getPotPredOrNeighOf(int idx);
+	ISet getPotPredOrNeighOf(int idx);
 
 	/**
 	 * @return the lower bound graph (having mandatory nodes and arcs)
 	 */
-    public E getLB() ;
+    E getLB() ;
 
 	/**
 	 * @return the upper bound graph (having possible nodes and arcs)
 	 */
-    public E getUB() ;
+    E getUB() ;
 
 	/**
 	 * @return true iff the graph is directed. It is undirected otherwise.
 	 */
-	public abstract boolean isDirected();
+	boolean isDirected();
 
 	//***********************************************************************************
 	// SOLUTIONS : STORE AND RESTORE
@@ -174,7 +174,7 @@ public interface IGraphVar<E extends IGraph> extends Variable {
 	 *         plus a set of nodes (last row of the matrix).
 	 *         This method is not supposed to be used except for restoring solutions.
 	 */
-	public boolean[][] getValue() ;
+	boolean[][] getValue() ;
 
 	/**
 	 * Instantiates <code>this</code> to value which represents an adjacency
@@ -185,5 +185,5 @@ public interface IGraphVar<E extends IGraph> extends Variable {
 	 * @param cause
 	 * @throws ContradictionException if the arc was mandatory
 	 */
-	public void instantiateTo(boolean[][] value, ICause cause) throws ContradictionException ;
+	void instantiateTo(boolean[][] value, ICause cause) throws ContradictionException ;
 }

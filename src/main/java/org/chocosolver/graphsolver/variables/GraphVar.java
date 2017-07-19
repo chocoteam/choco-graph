@@ -65,7 +65,7 @@ public abstract class GraphVar<E extends IGraph> extends AbstractVariable implem
      *
      * @param solver
      */
-    public GraphVar(String name, Model solver, E LB, E UB) {
+    protected GraphVar(String name, Model solver, E LB, E UB) {
         super(name, solver);
         this.LB = LB;
         this.UB = UB;
