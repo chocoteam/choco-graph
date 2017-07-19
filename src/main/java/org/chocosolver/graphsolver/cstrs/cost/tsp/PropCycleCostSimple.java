@@ -45,7 +45,7 @@ import java.util.Iterator;
  * Supposes that each node must have two neighbors (cycle)
  * - For minimization problem
  */
-public class PropCycleCostSimple extends Propagator {
+public class PropCycleCostSimple extends Propagator<Variable> {
 
     //***********************************************************************************
     // VARIABLES

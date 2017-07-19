@@ -24,7 +24,7 @@ public class PropSymmetryBreakingEx extends Propagator<BoolVar> {
 		LESS, EQUALS, GREATER, UNDEFINED
 	}
 
-	private Cmp compare(BoolVar a, BoolVar b) throws ContradictionException {
+	private Cmp compare(BoolVar a, BoolVar b) {
 		if (a.isInstantiatedTo(0) && b.isInstantiatedTo(1)) {
 			return Cmp.LESS;
 		}

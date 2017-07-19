@@ -43,7 +43,7 @@ import org.chocosolver.util.objects.setDataStructures.ISet;
  *
  * @author Jean-Guillaume Fages
  */
-public class PropNbNodes extends Propagator {
+public class PropNbNodes extends Propagator<Variable> {
 
     //***********************************************************************************
     // VARIABLES

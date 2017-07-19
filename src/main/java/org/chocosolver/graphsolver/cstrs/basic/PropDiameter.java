@@ -51,7 +51,6 @@ public class PropDiameter extends Propagator<GraphVar> {
 
 	private GraphVar g;
 	private IntVar diameter;
-	private int n;
 	private BitSet visited;
 	private TIntArrayList set, nextSet;
 
@@ -64,8 +63,7 @@ public class PropDiameter extends Propagator<GraphVar> {
 		super(new GraphVar[]{graph}, PropagatorPriority.LINEAR, false);
 		this.g = graph;
 		this.diameter = maxDiam;
-		n = g.getNbMaxNodes();
-		visited = new BitSet(n);
+		visited = new BitSet(g.getNbMaxNodes());
 		set = new TIntArrayList();
 		nextSet = new TIntArrayList();
 	}

@@ -76,12 +76,10 @@ public abstract class GraphVar<E extends IGraph> extends AbstractVariable implem
             f = me.getClass().getSuperclass().getSuperclass().getDeclaredField("scheduler");
             f.setAccessible(true);
             f.set(me, new GraphEvtScheduler());
-        } catch (NoSuchFieldException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
+        } catch (NoSuchFieldException | IllegalAccessException e) {
             e.printStackTrace();
         }
-    }
+	}
 
     //***********************************************************************************
     // METHODS

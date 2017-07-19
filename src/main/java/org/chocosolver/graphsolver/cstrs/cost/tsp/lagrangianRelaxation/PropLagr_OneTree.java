@@ -49,7 +49,7 @@ import org.chocosolver.util.objects.setDataStructures.ISet;
  *
  * @author Jean-Guillaume Fages
  */
-public class PropLagr_OneTree extends Propagator implements GraphLagrangianRelaxation {
+public class PropLagr_OneTree extends Propagator<Variable> implements GraphLagrangianRelaxation {
 
     //***********************************************************************************
     // VARIABLES

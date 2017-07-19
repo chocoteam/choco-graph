@@ -33,11 +33,11 @@ public class PropIncrementalAdjacencyUndirectedMatrix extends Propagator<Variabl
 		super(ArrayUtils.append(new Variable[]{graphVar}, t), PropagatorPriority.LINEAR, true);
 		graph = graphVar;
 		gdm = graph.monitorDelta(this);
-		enforce = (PairProcedure) (from, to) -> {
+		enforce = (from, to) -> {
 			t[from + to * n].instantiateTo(1, this);
 			t[to + from * n].instantiateTo(1, this);
 		};
-		remove = (PairProcedure) (from, to) -> {
+		remove = (from, to) -> {
 			t[from + to * n].instantiateTo(0, this);
 			t[to + from * n].instantiateTo(0, this);
 		};

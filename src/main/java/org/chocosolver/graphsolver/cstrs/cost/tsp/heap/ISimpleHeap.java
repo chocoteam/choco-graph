@@ -40,7 +40,7 @@ public interface ISimpleHeap {
      *
      * @return the first (lowest) element of the heap
      */
-    public int removeFirstElement();
+    int removeFirstElement();
 
     /**
      * Add element in the heap or update its value in case it is already in
@@ -49,15 +49,15 @@ public interface ISimpleHeap {
      * @param value value
      * @return true iff element was not already in the heap or if the new value is strictly lower than the previous one
      */
-    public boolean addOrUpdateElement(int element, double value);
+    boolean addOrUpdateElement(int element, double value);
 
     /**
      * @return true iff the heap is empty
      */
-    public boolean isEmpty();
+    boolean isEmpty();
 
     /**
      * Clear the heap (remove any remaining element)
      */
-    public void clear();
+    void clear();
 }

@@ -33,12 +33,8 @@ public class PropIncrementalAdjacencyMatrix extends Propagator<Variable> {
 		super(ArrayUtils.append(new Variable[]{graphVar}, t), PropagatorPriority.LINEAR, true);
 		graph = graphVar;
 		gdm = graph.monitorDelta(this);
-		enforce = (PairProcedure) (from, to) -> {
-			t[from + to * n].instantiateTo(1, this);
-		};
-		remove = (PairProcedure) (from, to) -> {
-			t[from + to * n].instantiateTo(0, this);
-		};
+		enforce = (from, to) -> t[from + to * n].instantiateTo(1, this);
+		remove = (from, to) -> t[from + to * n].instantiateTo(0, this);
 		n = graphVar.getNbMaxNodes();
 		this.t = t;
 	}

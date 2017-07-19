@@ -5,6 +5,11 @@ Module to manipulate graph variables
 
 CHANGES
 
+19/07/17:
+- Remove interfaces: IGraphVar, IUndirectedGraphVar, IDirectedGraphVar, IGraphDelta, IGraphDeltaMonitor
+-> Use class (without I prefix) directly instead
+- Rename GraphStrategies into GraphSearch
+
 10/07/17:
 - Update to handle release script
 

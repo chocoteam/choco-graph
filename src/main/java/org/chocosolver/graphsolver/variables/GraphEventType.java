@@ -52,7 +52,7 @@ public enum GraphEventType implements IEventType {
 	// CONSTRUCTORS
 	//***********************************************************************************
 
-	private GraphEventType(int mask){
+	GraphEventType(int mask){
 		this.mask = mask;
 	}
 

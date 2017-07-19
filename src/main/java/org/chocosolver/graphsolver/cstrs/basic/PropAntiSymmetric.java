@@ -52,7 +52,6 @@ public class PropAntiSymmetric extends Propagator<DirectedGraphVar> {
 	private DirectedGraphVar g;
     private GraphDeltaMonitor gdm;
     private PairProcedure enf;
-    private int n;
 
     //***********************************************************************************
     // CONSTRUCTORS
@@ -67,7 +66,6 @@ public class PropAntiSymmetric extends Propagator<DirectedGraphVar> {
 				g.removeArc(to, from, PropAntiSymmetric.this);
 			}
 		};
-        n = g.getNbMaxNodes();
     }
 
     //***********************************************************************************

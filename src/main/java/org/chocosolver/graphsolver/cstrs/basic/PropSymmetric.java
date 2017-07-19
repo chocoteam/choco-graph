@@ -54,7 +54,6 @@ public class PropSymmetric extends Propagator<DirectedGraphVar> {
     private DirectedGraphVar g;
     private GraphDeltaMonitor gdm;
     private PairProcedure enf;
-    private int n;
 
     //***********************************************************************************
     // CONSTRUCTORS
@@ -64,12 +63,11 @@ public class PropSymmetric extends Propagator<DirectedGraphVar> {
         super(new DirectedGraphVar[]{graph}, PropagatorPriority.UNARY, true);
         g = graph;
         gdm = g.monitorDelta(this);
-        enf = (PairProcedure) (from, to) -> {
+        enf = (from, to) -> {
 			if (from != to) {
 				g.enforceArc(to, from, PropSymmetric.this);
 			}
 		};
-        n = g.getNbMaxNodes();
     }
 
     //***********************************************************************************

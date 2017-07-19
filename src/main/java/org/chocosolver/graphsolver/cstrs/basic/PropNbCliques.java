@@ -126,16 +126,14 @@ public class PropNbCliques extends Propagator<Variable> {
 				ISet nei;
 				for (int i = mis.nextClearBit(0); i>=0 && i < n; i = mis.nextClearBit(i + 1)) {
 					int mate = -1;
-					int last = 0;
 					nei = graph.getNeighOf(i);
 					for (int j : nei) {
 						if (mis.get(j)) {
 							if (mate == -1) {
 								mate = j;
 							} else if (mate >= 0) {
-								mate = -2;
+								mate = -2;break;
 							}
-							if (mate == -2 && last == 0) break;
 						}
 					}
 					if (mate >= 0) {

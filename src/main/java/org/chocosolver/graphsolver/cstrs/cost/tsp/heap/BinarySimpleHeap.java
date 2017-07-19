@@ -87,7 +87,7 @@ public class BinarySimpleHeap implements ISimpleHeap {
         firstEmpty--;
         int last = firstEmpty;
         if (last > 0) {
-            move(last, 0);
+            moveAtFirst(last);
             decrease(0);
         } else {
             positions[first] = -1;
@@ -124,9 +124,7 @@ public class BinarySimpleHeap implements ISimpleHeap {
             int current = ((last - 1) >> 1);
             int idx = last;
             while (current != idx && current >= 0 && values[elements[idx]] < values[elements[current]]) {
-                if (current != idx) {
-                    swap(current, idx);
-                }
+                swap(current, idx);
                 idx = current;
                 current = ((current - 1) >> 1);
             }
@@ -145,9 +143,7 @@ public class BinarySimpleHeap implements ISimpleHeap {
         int current = ((last - 1) >> 1);
         int idx = last;
         while (current != idx && current >= 0 && values[elements[idx]] < values[elements[current]]) {
-            if (current != idx) {
-                swap(current, idx);
-            }
+            swap(current, idx);
             idx = current;
             current = ((current - 1) >> 1);
         }
@@ -178,18 +174,17 @@ public class BinarySimpleHeap implements ISimpleHeap {
     }
 
     /**
-     * move data in node n_from to node n_to
-     * Erase previous information of node n_to
+     * moveAtFirst data in node n_from to node 0
+     * Erase previous information of node 0
      *
      * @param n_from index of the node of the source data
-     * @param n_to   index of the target node
      */
-    private void move(int n_from, int n_to) {
-        int eT = elements[n_to];
+    private void moveAtFirst(int n_from) {
+        int eT = elements[0];
         int eF = elements[n_from];
         positions[eT] = -1;
-        positions[eF] = n_to;
-        elements[n_to] = eF;
+        positions[eF] = 0;
+        elements[0] = eF;
         elements[n_from] = -1;
     }
 

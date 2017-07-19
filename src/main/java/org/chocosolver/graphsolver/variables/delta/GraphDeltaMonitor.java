@@ -61,16 +61,16 @@ public class GraphDeltaMonitor extends TimeStampedObject implements IDeltaMonito
     public void freeze() {
 		if (needReset()) {
 			for (int i = 0; i < 4; i++) {
-				this.first[i] = last[i] = 0;
+				first[i] = last[i] = 0;
 			}
 			resetStamp();
 		}
         for (int i = 0; i < 3; i++) {
-            this.frozenFirst[i] = first[i]; // freeze indices
-            this.first[i] = this.frozenLast[i] = last[i] = delta.getSize(i);
+            frozenFirst[i] = first[i]; // freeze indices
+            first[i] = frozenLast[i] = last[i] = delta.getSize(i);
         }
-        this.frozenFirst[3] = first[3]; // freeze indices
-        this.first[3] = this.frozenLast[3] = last[3] = delta.getSize(GraphDelta.AE_tail);
+        frozenFirst[3] = first[3]; // freeze indices
+        first[3] = frozenLast[3] = last[3] = delta.getSize(GraphDelta.AE_tail);
     }
 
     @Override
@@ -78,9 +78,9 @@ public class GraphDeltaMonitor extends TimeStampedObject implements IDeltaMonito
         delta.lazyClear();    // fix 27/07/12
         resetStamp();
         for (int i = 0; i < 3; i++) {
-            this.first[i] = last[i] = delta.getSize(i);
+            first[i] = last[i] = delta.getSize(i);
         }
-        this.first[3] = last[3] = delta.getSize(GraphDelta.AE_tail);
+        first[3] = last[3] = delta.getSize(GraphDelta.AE_tail);
     }
 
     /**

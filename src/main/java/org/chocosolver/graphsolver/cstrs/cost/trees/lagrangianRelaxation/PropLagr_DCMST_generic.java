@@ -42,7 +42,7 @@ import org.chocosolver.util.objects.setDataStructures.SetType;
 /**
  * Lagrangian relaxation of the DCMST problem
  */
-public class PropLagr_DCMST_generic extends Propagator implements GraphLagrangianRelaxation {
+public class PropLagr_DCMST_generic extends Propagator<Variable> implements GraphLagrangianRelaxation {
 
 	//***********************************************************************************
 	// VARIABLES
@@ -184,7 +184,7 @@ public class PropLagr_DCMST_generic extends Propagator implements GraphLagrangia
 		}
 	}
 
-	protected boolean updateStep(double hkb, double alpha) throws ContradictionException {
+	protected boolean updateStep(double hkb, double alpha) {
 		double nb2viol = 0;
 		double target = obj.getUB();
 		assert (target - hkb >= 0);

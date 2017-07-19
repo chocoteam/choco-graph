@@ -43,7 +43,7 @@ import org.chocosolver.util.ESat;
  *
  * @author Jean-Guillaume Fages
  */
-public class PropNbSCC extends Propagator {
+public class PropNbSCC extends Propagator<Variable> {
 
 	//***********************************************************************************
 	// VARIABLES
@@ -101,7 +101,7 @@ public class PropNbSCC extends Propagator {
 					}
 				}
 				if(pot){
-					for (int i = env_CC_finder.getSCCFirstNode(cc); i >= 0 && pot; i = env_CC_finder.getNextNode(i)) {
+					for (int i = env_CC_finder.getSCCFirstNode(cc); i >= 0; i = env_CC_finder.getNextNode(i)) {
 						g.removeNode(i,this);
 					}
 				}
