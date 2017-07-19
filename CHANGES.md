@@ -9,6 +9,7 @@ CHANGES
 - Remove interfaces: IGraphVar, IUndirectedGraphVar, IDirectedGraphVar, IGraphDelta, IGraphDeltaMonitor
 -> Use class (without I prefix) directly instead
 - Rename GraphStrategies into GraphSearch
+- Add graphViz export for graph variable domain: g.graphVizExport()
 
 10/07/17:
 - Update to handle release script
