@@ -27,7 +27,7 @@
 
 package org.chocosolver.graphsolver.search;
 
-import org.chocosolver.graphsolver.variables.IGraphVar;
+import org.chocosolver.graphsolver.variables.GraphVar;
 import org.chocosolver.solver.ICause;
 import org.chocosolver.solver.exception.ContradictionException;
 
@@ -41,20 +41,20 @@ import java.io.Serializable;
  */
 public abstract class GraphAssignment implements Serializable {
 
-    public abstract void apply(IGraphVar var, int node, ICause cause) throws ContradictionException;
+    public abstract void apply(GraphVar var, int node, ICause cause) throws ContradictionException;
 
-    public abstract void unapply(IGraphVar var, int node, ICause cause) throws ContradictionException;
+    public abstract void unapply(GraphVar var, int node, ICause cause) throws ContradictionException;
 
-    public abstract void apply(IGraphVar var, int from, int to, ICause cause) throws ContradictionException;
+    public abstract void apply(GraphVar var, int from, int to, ICause cause) throws ContradictionException;
 
-    public abstract void unapply(IGraphVar var, int from, int to, ICause cause) throws ContradictionException;
+    public abstract void unapply(GraphVar var, int from, int to, ICause cause) throws ContradictionException;
 
     public abstract String toString();
 
     public static GraphAssignment graph_enforcer = new GraphAssignment() {
 
         @Override
-        public void apply(IGraphVar var, int node, ICause cause) throws ContradictionException {
+        public void apply(GraphVar var, int node, ICause cause) throws ContradictionException {
             if (node < var.getNbMaxNodes()) {
                 var.enforceNode(node, cause);
             } else {
@@ -63,7 +63,7 @@ public abstract class GraphAssignment implements Serializable {
         }
 
         @Override
-        public void unapply(IGraphVar var, int node, ICause cause) throws ContradictionException {
+        public void unapply(GraphVar var, int node, ICause cause) throws ContradictionException {
             if (node < var.getNbMaxNodes()) {
                 var.removeNode(node, cause);
             } else {
@@ -72,7 +72,7 @@ public abstract class GraphAssignment implements Serializable {
         }
 
         @Override
-        public void apply(IGraphVar var, int from, int to, ICause cause) throws ContradictionException {
+        public void apply(GraphVar var, int from, int to, ICause cause) throws ContradictionException {
             if (from == -1 || to == -1) {
                 throw new UnsupportedOperationException();
             }
@@ -80,7 +80,7 @@ public abstract class GraphAssignment implements Serializable {
         }
 
         @Override
-        public void unapply(IGraphVar var, int from, int to, ICause cause) throws ContradictionException {
+        public void unapply(GraphVar var, int from, int to, ICause cause) throws ContradictionException {
             if (from == -1 || to == -1) {
                 throw new UnsupportedOperationException();
             }
@@ -95,22 +95,22 @@ public abstract class GraphAssignment implements Serializable {
 
     public static GraphAssignment graph_remover = new GraphAssignment() {
         @Override
-        public void apply(IGraphVar var, int value, ICause cause) throws ContradictionException {
+        public void apply(GraphVar var, int value, ICause cause) throws ContradictionException {
             graph_enforcer.unapply(var, value, cause);
         }
 
         @Override
-        public void unapply(IGraphVar var, int value, ICause cause) throws ContradictionException {
+        public void unapply(GraphVar var, int value, ICause cause) throws ContradictionException {
             graph_enforcer.apply(var, value, cause);
         }
 
         @Override
-        public void apply(IGraphVar var, int from, int to, ICause cause) throws ContradictionException {
+        public void apply(GraphVar var, int from, int to, ICause cause) throws ContradictionException {
             graph_enforcer.unapply(var, from, to, cause);
         }
 
         @Override
-        public void unapply(IGraphVar var, int from, int to, ICause cause) throws ContradictionException {
+        public void unapply(GraphVar var, int from, int to, ICause cause) throws ContradictionException {
             graph_enforcer.apply(var, from, to, cause);
         }
 

@@ -27,7 +27,7 @@
 
 package org.chocosolver.graphsolver.cstrs.channeling.edges;
 
-import org.chocosolver.graphsolver.variables.IGraphVar;
+import org.chocosolver.graphsolver.variables.GraphVar;
 import org.chocosolver.solver.constraints.Propagator;
 import org.chocosolver.solver.constraints.PropagatorPriority;
 import org.chocosolver.solver.exception.ContradictionException;
@@ -49,7 +49,7 @@ public class PropNeighIntsChannel2 extends Propagator<IntVar> {
     private int n, currentSet;
     private IIntDeltaMonitor[] idm;
     private IntVar[] succs;
-    private IGraphVar g;
+    private GraphVar g;
     private IntProcedure elementRemoved;
 	private boolean dir;
 
@@ -57,7 +57,7 @@ public class PropNeighIntsChannel2 extends Propagator<IntVar> {
     // CONSTRUCTORS
     //***********************************************************************************
 
-    public PropNeighIntsChannel2(IntVar[] succs, IGraphVar gV) {
+    public PropNeighIntsChannel2(IntVar[] succs, GraphVar gV) {
         super(succs, PropagatorPriority.LINEAR, true);
         this.succs = succs;
         n = succs.length;

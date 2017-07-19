@@ -40,52 +40,52 @@ import org.chocosolver.util.objects.setDataStructures.ISet;
 
 public interface IncidentSet {
 
-	ISet getPotSet(IGraphVar graph, int i);
+	ISet getPotSet(GraphVar graph, int i);
 
-	ISet getMandSet(IGraphVar graph, int i);
+	ISet getMandSet(GraphVar graph, int i);
 
-	boolean enforce(IGraphVar g, int from, int to, ICause cause) throws ContradictionException;
+	boolean enforce(GraphVar g, int from, int to, ICause cause) throws ContradictionException;
 
-	boolean remove(IGraphVar g, int from, int to, ICause cause) throws ContradictionException;
+	boolean remove(GraphVar g, int from, int to, ICause cause) throws ContradictionException;
 
 	class SuccOrNeighSet implements IncidentSet {
 
 		@Override
-		public ISet getPotSet(IGraphVar graph, int i) {
+		public ISet getPotSet(GraphVar graph, int i) {
 			return graph.getPotSuccOrNeighOf(i);
 		}
 
 		@Override
-		public ISet getMandSet(IGraphVar graph, int i) {
+		public ISet getMandSet(GraphVar graph, int i) {
 			return graph.getMandSuccOrNeighOf(i);
 		}
 
 		@Override
-		public boolean enforce(IGraphVar g, int from, int to, ICause cause) throws ContradictionException {
+		public boolean enforce(GraphVar g, int from, int to, ICause cause) throws ContradictionException {
 			return g.enforceArc(from, to, cause);
 		}
 
 		@Override
-		public boolean remove(IGraphVar g, int from, int to, ICause cause) throws ContradictionException {
+		public boolean remove(GraphVar g, int from, int to, ICause cause) throws ContradictionException {
 			return g.removeArc(from, to, cause);
 		}
 	}
 
 	class PredOrNeighSet implements IncidentSet {
 		@Override
-		public ISet getPotSet(IGraphVar graph, int i) {
+		public ISet getPotSet(GraphVar graph, int i) {
 			return graph.getPotPredOrNeighOf(i);
 		}
 		@Override
-		public ISet getMandSet(IGraphVar graph, int i) {
+		public ISet getMandSet(GraphVar graph, int i) {
 			return graph.getMandPredOrNeighOf(i);
 		}
 		@Override
-		public boolean enforce(IGraphVar g, int from, int to, ICause cause) throws ContradictionException {
+		public boolean enforce(GraphVar g, int from, int to, ICause cause) throws ContradictionException {
 			return g.enforceArc(to, from, cause);
 		}
 		@Override
-		public boolean remove(IGraphVar g, int from, int to, ICause cause) throws ContradictionException {
+		public boolean remove(GraphVar g, int from, int to, ICause cause) throws ContradictionException {
 			return g.removeArc(to, from, cause);
 		}
 	}

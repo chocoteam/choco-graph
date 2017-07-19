@@ -28,8 +28,8 @@
 package org.chocosolver.graphsolver.cstrs.inclusion;
 
 import org.chocosolver.graphsolver.variables.GraphEventType;
-import org.chocosolver.graphsolver.variables.IGraphVar;
-import org.chocosolver.graphsolver.variables.delta.IGraphDeltaMonitor;
+import org.chocosolver.graphsolver.variables.GraphVar;
+import org.chocosolver.graphsolver.variables.delta.GraphDeltaMonitor;
 import org.chocosolver.solver.constraints.Propagator;
 import org.chocosolver.solver.constraints.PropagatorPriority;
 import org.chocosolver.solver.exception.ContradictionException;
@@ -41,14 +41,14 @@ import org.chocosolver.util.procedure.PairProcedure;
 /**
  * @author Jean-Guillaume Fages
  */
-public class PropInclusion extends Propagator<IGraphVar> {
+public class PropInclusion extends Propagator<GraphVar> {
 
 	//***********************************************************************************
 	// VARIABLES
 	//***********************************************************************************
 
-	private IGraphVar[] g; // g[1] in g[2]
-	private IGraphDeltaMonitor[] gdm;
+	private GraphVar[] g; // g[1] in g[2]
+	private GraphDeltaMonitor[] gdm;
 	private IntProcedure[] prNode;
 	private PairProcedure[] prArc;
 	private GraphEventType[] etNode,etArcs;
@@ -57,10 +57,10 @@ public class PropInclusion extends Propagator<IGraphVar> {
 	// CONSTRUCTORS
 	//***********************************************************************************
 
-	public PropInclusion(IGraphVar g1, IGraphVar g2){
-		super(new IGraphVar[]{g1,g2}, PropagatorPriority.LINEAR,true);
-		g = new IGraphVar[]{g1,g2};
-		gdm = new IGraphDeltaMonitor[]{g1.monitorDelta(this),g2.monitorDelta(this)};
+	public PropInclusion(GraphVar g1, GraphVar g2){
+		super(new GraphVar[]{g1,g2}, PropagatorPriority.LINEAR,true);
+		g = new GraphVar[]{g1,g2};
+		gdm = new GraphDeltaMonitor[]{g1.monitorDelta(this),g2.monitorDelta(this)};
 		prNode = new IntProcedure[]{
 				i -> g[1].enforceNode(i,this),
 				i -> g[0].removeNode(i,this)

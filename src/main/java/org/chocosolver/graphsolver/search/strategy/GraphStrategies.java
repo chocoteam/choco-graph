@@ -36,7 +36,7 @@ package org.chocosolver.graphsolver.search.strategy;
 
 import org.chocosolver.graphsolver.search.GraphAssignment;
 import org.chocosolver.graphsolver.search.GraphDecision;
-import org.chocosolver.graphsolver.variables.IGraphVar;
+import org.chocosolver.graphsolver.variables.GraphVar;
 import org.chocosolver.util.objects.setDataStructures.ISet;
 
 public class GraphStrategies extends GraphStrategy {
@@ -73,7 +73,7 @@ public class GraphStrategies extends GraphStrategy {
      * @param graphVar   varriable to branch on
      * @param costMatrix can be null
      */
-    public GraphStrategies(IGraphVar graphVar, int[][] costMatrix) {
+    public GraphStrategies(GraphVar graphVar, int[][] costMatrix) {
         super(graphVar, null, null, NodeArcPriority.ARCS);
         costs = costMatrix;
         n = g.getNbMaxNodes();

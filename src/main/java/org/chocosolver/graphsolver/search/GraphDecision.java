@@ -27,12 +27,12 @@
 
 package org.chocosolver.graphsolver.search;
 
-import org.chocosolver.graphsolver.variables.IGraphVar;
+import org.chocosolver.graphsolver.variables.GraphVar;
 import org.chocosolver.solver.exception.ContradictionException;
 import org.chocosolver.solver.search.strategy.decision.Decision;
 import org.chocosolver.util.PoolManager;
 
-public class GraphDecision extends Decision<IGraphVar> {
+public class GraphDecision extends Decision<GraphVar> {
 
     //***********************************************************************************
     // VARIABLES
@@ -60,14 +60,14 @@ public class GraphDecision extends Decision<IGraphVar> {
         }
     }
 
-    public void setNode(IGraphVar variable, int node, GraphAssignment graph_ass) {
+    public void setNode(GraphVar variable, int node, GraphAssignment graph_ass) {
         super.set(variable);
         this.from = node;
         this.to = -1;
         assignment = graph_ass;
     }
 
-    public void setArc(IGraphVar variable, int from, int to, GraphAssignment graph_ass) {
+    public void setArc(GraphVar variable, int from, int to, GraphAssignment graph_ass) {
         super.set(variable);
         this.from = from;
         this.to = to;

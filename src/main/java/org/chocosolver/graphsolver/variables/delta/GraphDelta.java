@@ -31,9 +31,19 @@ import org.chocosolver.memory.IEnvironment;
 import org.chocosolver.solver.ICause;
 import org.chocosolver.solver.search.loop.TimeStampedObject;
 import org.chocosolver.solver.variables.delta.EnumDelta;
+import org.chocosolver.solver.variables.delta.IDelta;
 import org.chocosolver.solver.variables.delta.IEnumDelta;
 
-public class GraphDelta extends TimeStampedObject implements IGraphDelta {
+public class GraphDelta extends TimeStampedObject implements IDelta{
+
+	//NR NE AR AE : NodeRemoved NodeEnforced ArcRemoved ArcEnforced
+	public final static int NR = 0;
+	public final static int NE = 1;
+	public final static int AR_tail = 2;
+	public final static int AR_head = 3;
+	public final static int AE_tail = 4;
+	public final static int AE_head = 5;
+	public final static int NB = 6;
 
     //***********************************************************************************
     // VARIABLES
@@ -57,18 +67,15 @@ public class GraphDelta extends TimeStampedObject implements IGraphDelta {
     // METHODS
     //***********************************************************************************
 
-    @Override
     public int getSize(int i) {
         return deltaOfType[i].size();
     }
 
-    @Override
     public void add(int element, int type, ICause cause) {
 		lazyClear();
         deltaOfType[type].add(element, cause);
     }
 
-	@Override
     public void lazyClear() {
         if (needReset()) {
 			for (int i = 0; i < NB; i++) {
@@ -78,12 +85,10 @@ public class GraphDelta extends TimeStampedObject implements IGraphDelta {
 		}
     }
 
-    @Override
     public int get(int index, int type) {
         return deltaOfType[type].get(index);
     }
 
-    @Override
     public ICause getCause(int index, int type) {
         return deltaOfType[type].getCause(index);
     }

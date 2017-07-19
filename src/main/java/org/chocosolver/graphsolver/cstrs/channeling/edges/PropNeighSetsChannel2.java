@@ -27,7 +27,7 @@
 
 package org.chocosolver.graphsolver.cstrs.channeling.edges;
 
-import org.chocosolver.graphsolver.variables.IGraphVar;
+import org.chocosolver.graphsolver.variables.GraphVar;
 import org.chocosolver.solver.constraints.Propagator;
 import org.chocosolver.solver.constraints.PropagatorPriority;
 import org.chocosolver.solver.exception.ContradictionException;
@@ -50,7 +50,7 @@ public class PropNeighSetsChannel2 extends Propagator<SetVar> {
     private int n, currentSet;
     private ISetDeltaMonitor[] sdm;
     private SetVar[] sets;
-    private IGraphVar g;
+    private GraphVar g;
     private IntProcedure elementForced, elementRemoved;
 
     //***********************************************************************************
@@ -61,7 +61,7 @@ public class PropNeighSetsChannel2 extends Propagator<SetVar> {
      * Channeling between a graph variable and set variables
      * representing either node neighbors or node successors
      */
-    public PropNeighSetsChannel2(SetVar[] setsV, IGraphVar gV) {
+    public PropNeighSetsChannel2(SetVar[] setsV, GraphVar gV) {
         super(setsV, PropagatorPriority.LINEAR, true);
         this.sets = new SetVar[setsV.length];
         System.arraycopy(vars, 0, this.sets, 0, setsV.length);

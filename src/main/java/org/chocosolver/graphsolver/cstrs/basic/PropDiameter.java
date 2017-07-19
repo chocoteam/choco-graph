@@ -28,7 +28,7 @@
 package org.chocosolver.graphsolver.cstrs.basic;
 
 import gnu.trove.list.array.TIntArrayList;
-import org.chocosolver.graphsolver.variables.IGraphVar;
+import org.chocosolver.graphsolver.variables.GraphVar;
 import org.chocosolver.solver.constraints.Propagator;
 import org.chocosolver.solver.constraints.PropagatorPriority;
 import org.chocosolver.solver.exception.ContradictionException;
@@ -43,13 +43,13 @@ import java.util.BitSet;
  *
  * @author Jean-Guillaume Fages
  */
-public class PropDiameter extends Propagator<IGraphVar> {
+public class PropDiameter extends Propagator<GraphVar> {
 
 	//***********************************************************************************
 	// VARIABLES
 	//***********************************************************************************
 
-	private IGraphVar g;
+	private GraphVar g;
 	private IntVar diameter;
 	private int n;
 	private BitSet visited;
@@ -60,8 +60,8 @@ public class PropDiameter extends Propagator<IGraphVar> {
 	// CONSTRUCTORS
 	//***********************************************************************************
 
-	public PropDiameter(IGraphVar graph, IntVar maxDiam) {
-		super(new IGraphVar[]{graph}, PropagatorPriority.LINEAR, false);
+	public PropDiameter(GraphVar graph, IntVar maxDiam) {
+		super(new GraphVar[]{graph}, PropagatorPriority.LINEAR, false);
 		this.g = graph;
 		this.diameter = maxDiam;
 		n = g.getNbMaxNodes();

@@ -27,15 +27,15 @@
 package org.chocosolver.graphsolver.search.strategy.nodes;
 
 import org.chocosolver.graphsolver.search.strategy.NodeStrategy;
-import org.chocosolver.graphsolver.variables.IGraphVar;
+import org.chocosolver.graphsolver.variables.GraphVar;
 
 import java.util.Random;
 
-public class RandomNode extends NodeStrategy<IGraphVar> {
+public class RandomNode extends NodeStrategy<GraphVar> {
 
     private Random rd;
 
-    public RandomNode(IGraphVar g, long seed) {
+    public RandomNode(GraphVar g, long seed) {
         super(g);
         this.rd = new Random(seed);
 

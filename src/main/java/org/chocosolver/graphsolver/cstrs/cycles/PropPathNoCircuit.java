@@ -27,9 +27,9 @@
 
 package org.chocosolver.graphsolver.cstrs.cycles;
 
-import org.chocosolver.graphsolver.variables.GraphEventType;
 import org.chocosolver.graphsolver.variables.DirectedGraphVar;
-import org.chocosolver.graphsolver.variables.delta.IGraphDeltaMonitor;
+import org.chocosolver.graphsolver.variables.GraphEventType;
+import org.chocosolver.graphsolver.variables.delta.GraphDeltaMonitor;
 import org.chocosolver.memory.IEnvironment;
 import org.chocosolver.memory.IStateInt;
 import org.chocosolver.solver.constraints.Propagator;
@@ -51,7 +51,7 @@ public class PropPathNoCircuit extends Propagator<DirectedGraphVar> {
 	//***********************************************************************************
 
 	private DirectedGraphVar g;
-	private IGraphDeltaMonitor gdm;
+	private GraphDeltaMonitor gdm;
 	private int n;
 	private PairProcedure arcEnforced;
 	private IStateInt[] origin, end, size;

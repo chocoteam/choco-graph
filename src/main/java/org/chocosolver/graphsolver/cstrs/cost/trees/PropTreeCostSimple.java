@@ -29,7 +29,7 @@ package org.chocosolver.graphsolver.cstrs.cost.trees;
 
 import org.chocosolver.graphsolver.variables.GraphEventType;
 import org.chocosolver.graphsolver.variables.UndirectedGraphVar;
-import org.chocosolver.graphsolver.variables.delta.IGraphDeltaMonitor;
+import org.chocosolver.graphsolver.variables.delta.GraphDeltaMonitor;
 import org.chocosolver.memory.IEnvironment;
 import org.chocosolver.memory.IStateInt;
 import org.chocosolver.solver.constraints.Propagator;
@@ -51,7 +51,7 @@ public class PropTreeCostSimple extends Propagator<UndirectedGraphVar> {
     //***********************************************************************************
 
     protected UndirectedGraphVar g;
-    private IGraphDeltaMonitor gdm;
+    private GraphDeltaMonitor gdm;
     private PairProcedure edgeEnf, edgeRem;
     protected int n;
     protected IntVar sum;

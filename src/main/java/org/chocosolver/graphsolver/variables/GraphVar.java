@@ -29,11 +29,10 @@ package org.chocosolver.graphsolver.variables;
 
 import org.chocosolver.graphsolver.variables.delta.GraphDelta;
 import org.chocosolver.graphsolver.variables.delta.GraphDeltaMonitor;
-import org.chocosolver.graphsolver.variables.delta.IGraphDelta;
-import org.chocosolver.graphsolver.variables.delta.IGraphDeltaMonitor;
 import org.chocosolver.solver.ICause;
 import org.chocosolver.solver.Model;
 import org.chocosolver.solver.exception.ContradictionException;
+import org.chocosolver.solver.variables.Variable;
 import org.chocosolver.solver.variables.events.IEventType;
 import org.chocosolver.solver.variables.impl.AbstractVariable;
 import org.chocosolver.util.objects.graphs.IGraph;
@@ -41,7 +40,7 @@ import org.chocosolver.util.objects.setDataStructures.ISet;
 
 import java.lang.reflect.Field;
 
-public abstract class GraphVar<E extends IGraph> extends AbstractVariable implements IGraphVar<E> {
+public abstract class GraphVar<E extends IGraph> extends AbstractVariable implements Variable {
 
     public static final int GRAPH = 1 << 7; // beware, this relies on choco-solver
 
@@ -51,7 +50,7 @@ public abstract class GraphVar<E extends IGraph> extends AbstractVariable implem
     //***********************************************************************************
 
     protected E UB, LB;
-    protected IGraphDelta delta;
+    protected GraphDelta delta;
     protected int n;
     ///////////// Attributes related to Variable ////////////
     protected boolean reactOnModification;
@@ -103,7 +102,14 @@ public abstract class GraphVar<E extends IGraph> extends AbstractVariable implem
         return true;
     }
 
-    @Override
+    /**
+     * Remove node x from the domain
+     * Removes x from the upper bound graph
+     *
+     * @param x     node's index
+     * @param cause algorithm which is related to the removal
+     * @return true iff the removal has an effect
+     */
     public boolean removeNode(int x, ICause cause) throws ContradictionException {
         assert cause != null;
         assert (x >= 0 && x < n);
@@ -123,7 +129,7 @@ public abstract class GraphVar<E extends IGraph> extends AbstractVariable implem
         }
         if (UB.removeNode(x)) {
             if (reactOnModification) {
-                delta.add(x, IGraphDelta.NR, cause);
+                delta.add(x, GraphDelta.NR, cause);
             }
             GraphEventType e = GraphEventType.REMOVE_NODE;
             notifyPropagators(e, cause);
@@ -132,14 +138,21 @@ public abstract class GraphVar<E extends IGraph> extends AbstractVariable implem
         return false;
     }
 
-    @Override
+    /**
+     * Enforce the node x to belong to any solution
+     * Adds x to the lower bound graph
+     *
+     * @param x     node's index
+     * @param cause algorithm which is related to the modification
+     * @return true iff the enforcing has an effect
+     */
     public boolean enforceNode(int x, ICause cause) throws ContradictionException {
         assert cause != null;
         assert (x >= 0 && x < n);
         if (UB.getNodes().contains(x)) {
             if (LB.addNode(x)) {
                 if (reactOnModification) {
-                    delta.add(x, IGraphDelta.NE, cause);
+                    delta.add(x, GraphDelta.NE, cause);
                 }
                 GraphEventType e = GraphEventType.ADD_NODE;
                 notifyPropagators(e, cause);
@@ -151,62 +164,115 @@ public abstract class GraphVar<E extends IGraph> extends AbstractVariable implem
         return true;
     }
 
-    @Override
+    /**
+     * Remove arc (or edge in case of undirected graph variable) (x,y) from the domain
+     * Removes (x,y) from the upper bound graph
+     *
+     * @param x     node's index
+     * @param y     node's index
+     * @param cause algorithm which is related to the removal
+     * @return true iff the removal has an effect
+     * @throws ContradictionException if the arc was mandatory
+     */
     public abstract boolean removeArc(int x, int y, ICause cause) throws ContradictionException;
 
-    @Override
+    /**
+     * Enforces arc (or edge in case of undirected graph variable) (x,y) to belong to any solution
+     * Adds (x,y) to the lower bound graph
+     *
+     * @param x     node's index
+     * @param y     node's index
+     * @param cause algorithm which is related to the removal
+     * @return true iff the enforcing has an effect
+     */
     public abstract boolean enforceArc(int x, int y, ICause cause) throws ContradictionException;
 
     //***********************************************************************************
     // ACCESSORS
     //***********************************************************************************
 
-    @Override
+	/**
+	 * @return the lower bound graph (having mandatory nodes and arcs)
+	 */
     public E getLB() {
         return LB;
     }
 
-    @Override
+	/**
+	 * @return the upper bound graph (having possible nodes and arcs)
+	 */
     public E getUB() {
         return UB;
     }
 
-    @Override
+    /**
+     * Get the set of successors (if directed) or neighbors (if undirected) of vertex 'idx'
+     * in the lower bound graph (mandatory outgoing arcs)
+     * @param idx	a vertex
+     * @return The set of successors (if directed) or neighbors (if undirected) of 'idx' in LB
+     */
     public ISet getMandSuccOrNeighOf(int idx) {
         return LB.getSuccOrNeighOf(idx);
     }
 
-    @Override
+    /**
+     * Get the set of successors (if directed) or neighbors (if undirected) of vertex 'idx'
+     * in the upper bound graph (potential outgoing arcs)
+     * @param idx	a vertex
+     * @return The set of successors (if directed) or neighbors (if undirected) of 'idx' in UB
+     */
     public ISet getPotSuccOrNeighOf(int idx) {
         return UB.getSuccOrNeighOf(idx);
     }
 
-    @Override
+    /**
+     * Get the set of predecessors (if directed) or neighbors (if undirected) of vertex 'idx'
+     * in the lower bound graph (mandatory ingoing arcs)
+     * @param idx	a vertex
+     * @return The set of predecessors (if directed) or neighbors (if undirected) of 'idx' in LB
+     */
     public ISet getMandPredOrNeighOf(int idx) {
         return LB.getPredOrNeighOf(idx);
     }
 
-    @Override
+    /**
+     * Get the set of predecessors (if directed) or neighbors (if undirected) of vertex 'idx'
+     * in the upper bound graph (potential ingoing arcs)
+     * @param idx	a vertex
+     * @return The set of predecessors (if directed) or neighbors (if undirected) of 'idx' in UB
+     */
     public ISet getPotPredOrNeighOf(int idx) {
         return UB.getPredOrNeighOf(idx);
     }
 
-    @Override
+    /**
+     * @return the maximum number of node the graph variable may have.
+     * Nodes are comprised in the interval [0,getNbMaxNodes()]
+     * Therefore, any vertex should be strictly lower than getNbMaxNodes()
+     */
     public int getNbMaxNodes() {
         return n;
     }
 
-    @Override
+    /**
+     * @return the node set of the lower bound graph,
+     * i.e. nodes that belong to every solution
+     */
     public ISet getMandatoryNodes() {
         return LB.getNodes();
     }
 
-    @Override
+    /**
+     * @return the node set of the upper bound graph,
+     * i.e. nodes that may belong to one solution
+     */
     public ISet getPotentialNodes() {
         return UB.getNodes();
     }
 
-    @Override
+	/**
+	 * @return true iff the graph is directed. It is undirected otherwise.
+	 */
     public abstract boolean isDirected();
 
     //***********************************************************************************
@@ -215,7 +281,7 @@ public abstract class GraphVar<E extends IGraph> extends AbstractVariable implem
 
 
     @Override
-    public IGraphDelta getDelta() {
+    public GraphDelta getDelta() {
         return delta;
     }
 
@@ -248,8 +314,12 @@ public abstract class GraphVar<E extends IGraph> extends AbstractVariable implem
         }
     }
 
-    @Override
-    public IGraphDeltaMonitor monitorDelta(ICause propagator) {
+    /**
+     * Make the propagator 'prop' have an incremental filtering w.r.t. this graph variable
+     * @param propagator A propagator involving this graph variable
+     * @return A new instance of GraphDeltaMonitor to make incremental propagators
+     */
+    public GraphDeltaMonitor monitorDelta(ICause propagator) {
         createDelta();
         return new GraphDeltaMonitor(delta, propagator);
     }
@@ -265,7 +335,11 @@ public abstract class GraphVar<E extends IGraph> extends AbstractVariable implem
     // SOLUTIONS : STORE AND RESTORE
     //***********************************************************************************
 
-    @Override
+	/**
+	 * @return the value of the graph variable represented through an adjacency matrix
+	 *         plus a set of nodes (last row of the matrix).
+	 *         This method is not supposed to be used except for restoring solutions.
+	 */
     public boolean[][] getValue() {
         int n = getUB().getNbMaxNodes();
         boolean[][] vals = new boolean[n + 1][n];
@@ -278,7 +352,15 @@ public abstract class GraphVar<E extends IGraph> extends AbstractVariable implem
         return vals;
     }
 
-    @Override
+	/**
+	 * Instantiates <code>this</code> to value which represents an adjacency
+	 * matrix plus a set of nodes (last row of the matrix).
+	 * This method is not supposed to be used except for restoring solutions.
+	 *
+	 * @param value value of <code>this</code>
+	 * @param cause
+	 * @throws ContradictionException if the arc was mandatory
+	 */
     public void instantiateTo(boolean[][] value, ICause cause) throws ContradictionException {
         int n = value.length - 1;
         for (int i = 0; i < n; i++) {

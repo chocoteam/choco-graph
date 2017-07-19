@@ -28,7 +28,7 @@
 package org.chocosolver.graphsolver.cstrs.degree;
 
 import org.chocosolver.graphsolver.variables.*;
-import org.chocosolver.graphsolver.variables.delta.IGraphDeltaMonitor;
+import org.chocosolver.graphsolver.variables.delta.GraphDeltaMonitor;
 import org.chocosolver.solver.constraints.Propagator;
 import org.chocosolver.solver.constraints.PropagatorPriority;
 import org.chocosolver.solver.exception.ContradictionException;
@@ -43,16 +43,16 @@ import org.chocosolver.util.procedure.PairProcedure;
  *
  * @author Jean-Guillaume Fages
  */
-public class PropNodeDegree_AtLeast_Incr extends Propagator<IGraphVar> {
+public class PropNodeDegree_AtLeast_Incr extends Propagator<GraphVar> {
 
 	//***********************************************************************************
 	// VARIABLES
 	//***********************************************************************************
 
-	private IGraphVar g;
+	private GraphVar g;
 	private int[] degrees;
 	private IncidentSet target;
-	private IGraphDeltaMonitor gdm;
+	private GraphDeltaMonitor gdm;
 	private PairProcedure proc;
 	private IntProcedure nodeProc;
 

@@ -29,7 +29,7 @@ package org.chocosolver.graphsolver.cstrs.cycles;
 
 import org.chocosolver.graphsolver.variables.GraphEventType;
 import org.chocosolver.graphsolver.variables.UndirectedGraphVar;
-import org.chocosolver.graphsolver.variables.delta.IGraphDeltaMonitor;
+import org.chocosolver.graphsolver.variables.delta.GraphDeltaMonitor;
 import org.chocosolver.memory.IEnvironment;
 import org.chocosolver.memory.IStateInt;
 import org.chocosolver.solver.constraints.Propagator;
@@ -51,7 +51,7 @@ public class PropHamiltonianCycle extends Propagator<UndirectedGraphVar> {
 	//***********************************************************************************
 
 	private UndirectedGraphVar g;
-	private IGraphDeltaMonitor gdm;
+	private GraphDeltaMonitor gdm;
 	private int n;
 	private PairProcedure arcEnforced;
 	private IStateInt[] e1, e2, size;

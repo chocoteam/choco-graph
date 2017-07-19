@@ -28,17 +28,17 @@ package org.chocosolver.graphsolver.search.strategy.arcs;
 
 import gnu.trove.list.array.TIntArrayList;
 import org.chocosolver.graphsolver.search.strategy.ArcStrategy;
-import org.chocosolver.graphsolver.variables.IGraphVar;
+import org.chocosolver.graphsolver.variables.GraphVar;
 import org.chocosolver.util.objects.setDataStructures.ISet;
 
 import java.util.Random;
 
-public class RandomArc extends ArcStrategy<IGraphVar> {
+public class RandomArc extends ArcStrategy<GraphVar> {
 
     private Random rd;
     private TIntArrayList pFrom, pTo;
 
-    public RandomArc(IGraphVar g, long seed) {
+    public RandomArc(GraphVar g, long seed) {
         super(g);
         rd = new Random(seed);
         pFrom = new TIntArrayList();

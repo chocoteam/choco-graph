@@ -40,13 +40,13 @@ import org.chocosolver.util.objects.setDataStructures.ISet;
  *
  * @author Jean-Guillaume Fages
  */
-public class PropNodeDegree_AtLeast_Coarse extends Propagator<IGraphVar> {
+public class PropNodeDegree_AtLeast_Coarse extends Propagator<GraphVar> {
 
     //***********************************************************************************
     // VARIABLES
     //***********************************************************************************
 
-    private IGraphVar g;
+    private GraphVar g;
     private int[] degrees;
     private IncidentSet target;
 

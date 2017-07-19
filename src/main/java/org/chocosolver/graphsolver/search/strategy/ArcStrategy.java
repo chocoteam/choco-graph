@@ -26,10 +26,10 @@
  */
 package org.chocosolver.graphsolver.search.strategy;
 
-import org.chocosolver.graphsolver.variables.IGraphVar;
+import org.chocosolver.graphsolver.variables.GraphVar;
 import org.chocosolver.util.objects.setDataStructures.ISet;
 
-public abstract class ArcStrategy<G extends IGraphVar> {
+public abstract class ArcStrategy<G extends GraphVar> {
 
     protected G g;
     protected ISet envNodes;

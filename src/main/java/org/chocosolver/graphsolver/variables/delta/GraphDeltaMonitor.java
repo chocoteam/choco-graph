@@ -30,6 +30,7 @@ import org.chocosolver.graphsolver.variables.GraphEventType;
 import org.chocosolver.solver.ICause;
 import org.chocosolver.solver.exception.ContradictionException;
 import org.chocosolver.solver.search.loop.TimeStampedObject;
+import org.chocosolver.solver.variables.delta.IDeltaMonitor;
 import org.chocosolver.util.procedure.IntProcedure;
 import org.chocosolver.util.procedure.PairProcedure;
 
@@ -39,15 +40,14 @@ import org.chocosolver.util.procedure.PairProcedure;
  * @author Charles Prud'homme
  * @since 07/12/11
  */
-public class GraphDeltaMonitor extends TimeStampedObject implements IGraphDeltaMonitor {
+public class GraphDeltaMonitor extends TimeStampedObject implements IDeltaMonitor {
 
-    protected final IGraphDelta delta;
+    private final GraphDelta delta;
+    private int[] first, last; // references, in variable delta value to propagate, to un propagated values
+    private int[] frozenFirst, frozenLast; // same as previous while the recorder is frozen, to allow "concurrent modifications"
+    private ICause propagator;
 
-    protected int[] first, last; // references, in variable delta value to propagate, to un propagated values
-    protected int[] frozenFirst, frozenLast; // same as previous while the recorder is frozen, to allow "concurrent modifications"
-    protected ICause propagator;
-
-    public GraphDeltaMonitor(IGraphDelta delta, ICause propagator) {
+    public GraphDeltaMonitor(GraphDelta delta, ICause propagator) {
 		super(delta.getEnvironment());
         this.delta = delta;
         this.first = new int[4];
@@ -70,7 +70,7 @@ public class GraphDeltaMonitor extends TimeStampedObject implements IGraphDeltaM
             this.first[i] = this.frozenLast[i] = last[i] = delta.getSize(i);
         }
         this.frozenFirst[3] = first[3]; // freeze indices
-        this.first[3] = this.frozenLast[3] = last[3] = delta.getSize(IGraphDelta.AE_tail);
+        this.first[3] = this.frozenLast[3] = last[3] = delta.getSize(GraphDelta.AE_tail);
     }
 
     @Override
@@ -80,21 +80,26 @@ public class GraphDeltaMonitor extends TimeStampedObject implements IGraphDeltaM
         for (int i = 0; i < 3; i++) {
             this.first[i] = last[i] = delta.getSize(i);
         }
-        this.first[3] = last[3] = delta.getSize(IGraphDelta.AE_tail);
+        this.first[3] = last[3] = delta.getSize(GraphDelta.AE_tail);
     }
 
-    @Override
+    /**
+     * Applies proc to every vertex which has just been removed or enforced, depending on evt.
+     * @param proc    an incremental procedure over vertices
+     * @param evt    either ENFORCENODE or REMOVENODE
+     * @throws ContradictionException if a failure occurs
+     */
     public void forEachNode(IntProcedure proc, GraphEventType evt) throws ContradictionException {
         int type;
         if (evt == GraphEventType.REMOVE_NODE) {
-            type = IGraphDelta.NR;
+            type = GraphDelta.NR;
             for (int i = frozenFirst[type]; i < frozenLast[type]; i++) {
                 if (delta.getCause(i, type) != propagator) {
                     proc.execute(delta.get(i, type));
                 }
             }
         } else if (evt == GraphEventType.ADD_NODE) {
-            type = IGraphDelta.NE;
+            type = GraphDelta.NE;
             for (int i = frozenFirst[type]; i < frozenLast[type]; i++) {
                 if (delta.getCause(i, type) != propagator) {
                     proc.execute(delta.get(i, type));
@@ -105,18 +110,23 @@ public class GraphDeltaMonitor extends TimeStampedObject implements IGraphDeltaM
         }
     }
 
-    @Override
+    /**
+     * Applies proc to every arc which has just been removed or enforced, depending on evt.
+     * @param proc    an incremental procedure over arcs
+     * @param evt    either ENFORCEARC or REMOVEARC
+     * @throws ContradictionException if a failure occurs
+     */
     public void forEachArc(PairProcedure proc, GraphEventType evt) throws ContradictionException {
         if (evt == GraphEventType.REMOVE_ARC) {
             for (int i = frozenFirst[2]; i < frozenLast[2]; i++) {
-                if (delta.getCause(i, IGraphDelta.AR_tail) != propagator) {
-                    proc.execute(delta.get(i, IGraphDelta.AR_tail), delta.get(i, IGraphDelta.AR_head));
+                if (delta.getCause(i, GraphDelta.AR_tail) != propagator) {
+                    proc.execute(delta.get(i, GraphDelta.AR_tail), delta.get(i, GraphDelta.AR_head));
                 }
             }
         } else if (evt == GraphEventType.ADD_ARC) {
             for (int i = frozenFirst[3]; i < frozenLast[3]; i++) {
-                if (delta.getCause(i, IGraphDelta.AE_tail) != propagator) {
-                    proc.execute(delta.get(i, IGraphDelta.AE_tail), delta.get(i, IGraphDelta.AE_head));
+                if (delta.getCause(i, GraphDelta.AE_tail) != propagator) {
+                    proc.execute(delta.get(i, GraphDelta.AE_tail), delta.get(i, GraphDelta.AE_head));
                 }
             }
         } else {

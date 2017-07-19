@@ -28,7 +28,7 @@
 package org.chocosolver.graphsolver.cstrs.channeling.nodes;
 
 import org.chocosolver.graphsolver.variables.GraphEventType;
-import org.chocosolver.graphsolver.variables.IGraphVar;
+import org.chocosolver.graphsolver.variables.GraphVar;
 import org.chocosolver.solver.constraints.Propagator;
 import org.chocosolver.solver.constraints.PropagatorPriority;
 import org.chocosolver.solver.exception.ContradictionException;
@@ -51,13 +51,13 @@ public class PropNodeBoolChannel extends Propagator<Variable> {
 
 	private BoolVar bool;
 	private int vertex;
-	private IGraphVar g;
+	private GraphVar g;
 
 	//***********************************************************************************
 	// CONSTRUCTORS
 	//***********************************************************************************
 
-	public PropNodeBoolChannel(BoolVar isIn, int vertex, IGraphVar gV) {
+	public PropNodeBoolChannel(BoolVar isIn, int vertex, GraphVar gV) {
 		super(new Variable[]{isIn,gV}, PropagatorPriority.UNARY, false);
 		this.bool = isIn;
 		this.vertex = vertex;

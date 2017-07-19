@@ -28,7 +28,7 @@
 package org.chocosolver.checked;
 
 import org.chocosolver.graphsolver.GraphModel;
-import org.chocosolver.graphsolver.variables.IGraphVar;
+import org.chocosolver.graphsolver.variables.GraphVar;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -40,8 +40,8 @@ public class SolverTest {
     @Test(groups = "1s")
     public void testFH1() {
         GraphModel model = new GraphModel();
-		IGraphVar g = model.digraphVar("g", 5);
-		IGraphVar[] gvars = model.retrieveGraphVars(model);
-        Assert.assertEquals(gvars, new IGraphVar[]{g});
+		GraphVar g = model.digraphVar("g", 5);
+		GraphVar[] gvars = model.retrieveGraphVars(model);
+        Assert.assertEquals(gvars, new GraphVar[]{g});
     }
 }

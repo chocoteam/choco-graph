@@ -27,9 +27,9 @@
 
 package org.chocosolver.graphsolver.cstrs.channeling.edges;
 
-import org.chocosolver.graphsolver.variables.GraphEventType;
 import org.chocosolver.graphsolver.variables.DirectedGraphVar;
-import org.chocosolver.graphsolver.variables.delta.IGraphDeltaMonitor;
+import org.chocosolver.graphsolver.variables.GraphEventType;
+import org.chocosolver.graphsolver.variables.delta.GraphDeltaMonitor;
 import org.chocosolver.solver.constraints.Propagator;
 import org.chocosolver.solver.constraints.PropagatorPriority;
 import org.chocosolver.solver.exception.ContradictionException;
@@ -49,7 +49,7 @@ public class PropSuccIntsChannel1 extends Propagator<DirectedGraphVar> {
 
 	private int n;
 	private IntVar[] succs;
-	private IGraphDeltaMonitor gdm;
+	private GraphDeltaMonitor gdm;
 	private DirectedGraphVar g;
 	private PairProcedure arcForced, arcRemoved;
 

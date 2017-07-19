@@ -28,7 +28,7 @@
 package org.chocosolver.graphsolver.cstrs.channeling.edges;
 
 import org.chocosolver.graphsolver.variables.GraphEventType;
-import org.chocosolver.graphsolver.variables.IGraphVar;
+import org.chocosolver.graphsolver.variables.GraphVar;
 import org.chocosolver.solver.constraints.Propagator;
 import org.chocosolver.solver.constraints.PropagatorPriority;
 import org.chocosolver.solver.exception.ContradictionException;
@@ -48,13 +48,13 @@ public class PropArcBoolChannel extends Propagator<Variable> {
 
 	private BoolVar bool;
 	private int from,to;
-	private IGraphVar g;
+	private GraphVar g;
 
 	//***********************************************************************************
 	// CONSTRUCTORS
 	//***********************************************************************************
 
-	public PropArcBoolChannel(BoolVar isIn, int from, int to, IGraphVar gV) {
+	public PropArcBoolChannel(BoolVar isIn, int from, int to, GraphVar gV) {
 		super(new Variable[]{isIn,gV}, PropagatorPriority.UNARY, false);
 		this.bool = isIn;
 		this.from = from;

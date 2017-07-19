@@ -28,7 +28,7 @@
 package org.chocosolver.graphsolver.cstrs.channeling.edges;
 
 import org.chocosolver.graphsolver.variables.GraphEventType;
-import org.chocosolver.graphsolver.variables.IGraphVar;
+import org.chocosolver.graphsolver.variables.GraphVar;
 import org.chocosolver.graphsolver.variables.IncidentSet;
 import org.chocosolver.solver.constraints.Propagator;
 import org.chocosolver.solver.constraints.PropagatorPriority;
@@ -49,7 +49,7 @@ public class PropNeighBoolChannel extends Propagator<Variable> {
 	//***********************************************************************************
 
 	private BoolVar[] bools;
-	private IGraphVar g;
+	private GraphVar g;
 	private int vertex;
 	private IncidentSet inc;
 
@@ -57,7 +57,7 @@ public class PropNeighBoolChannel extends Propagator<Variable> {
 	// CONSTRUCTORS
 	//***********************************************************************************
 
-	public PropNeighBoolChannel(BoolVar[] neigh, final int vertex, IGraphVar gV, IncidentSet incSet) {
+	public PropNeighBoolChannel(BoolVar[] neigh, final int vertex, GraphVar gV, IncidentSet incSet) {
 		super(ArrayUtils.append(neigh,new Variable[]{gV}), PropagatorPriority.LINEAR, true);
 		this.vertex = vertex;
 		this.bools = neigh;

@@ -28,8 +28,8 @@
 package org.chocosolver.graphsolver.cstrs.channeling.nodes;
 
 import org.chocosolver.graphsolver.variables.GraphEventType;
-import org.chocosolver.graphsolver.variables.IGraphVar;
-import org.chocosolver.graphsolver.variables.delta.IGraphDeltaMonitor;
+import org.chocosolver.graphsolver.variables.GraphVar;
+import org.chocosolver.graphsolver.variables.delta.GraphDeltaMonitor;
 import org.chocosolver.solver.constraints.Propagator;
 import org.chocosolver.solver.constraints.PropagatorPriority;
 import org.chocosolver.solver.exception.ContradictionException;
@@ -53,16 +53,16 @@ public class PropNodeSetChannel extends Propagator<Variable> {
 	//***********************************************************************************
 
 	private SetVar set;
-	private IGraphVar g;
+	private GraphVar g;
 	private ISetDeltaMonitor sdm;
-	private IGraphDeltaMonitor gdm;
+	private GraphDeltaMonitor gdm;
 	private IntProcedure forceG, forceS, remG, remS;
 
 	//***********************************************************************************
 	// CONSTRUCTORS
 	//***********************************************************************************
 
-	public PropNodeSetChannel(SetVar vertexSet, IGraphVar gV) {
+	public PropNodeSetChannel(SetVar vertexSet, GraphVar gV) {
 		super(new Variable[]{vertexSet,gV}, PropagatorPriority.LINEAR, true);
 		this.set = vertexSet;
 		this.g = gV;

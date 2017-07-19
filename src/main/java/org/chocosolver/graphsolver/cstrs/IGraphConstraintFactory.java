@@ -52,9 +52,9 @@ import org.chocosolver.graphsolver.cstrs.tree.PropArborescence;
 import org.chocosolver.graphsolver.cstrs.tree.PropArborescences;
 import org.chocosolver.graphsolver.cstrs.tree.PropReachability;
 import org.chocosolver.graphsolver.variables.DirectedGraphVar;
-import org.chocosolver.graphsolver.variables.IGraphVar;
-import org.chocosolver.graphsolver.variables.UndirectedGraphVar;
+import org.chocosolver.graphsolver.variables.GraphVar;
 import org.chocosolver.graphsolver.variables.IncidentSet;
+import org.chocosolver.graphsolver.variables.UndirectedGraphVar;
 import org.chocosolver.solver.Model;
 import org.chocosolver.solver.constraints.Constraint;
 import org.chocosolver.solver.constraints.Propagator;
@@ -85,7 +85,7 @@ public interface IGraphConstraintFactory {
 	 * @param nb	an integer variable indicating the expected number of nodes in g
 	 * @return A constraint to force the number of nodes in g to be equal to nb
 	 */
-	default Constraint nbNodes(IGraphVar g, IntVar nb){
+	default Constraint nbNodes(GraphVar g, IntVar nb){
 		return new Constraint("nbNodes", new PropNbNodes(g,nb));
 	}
 
@@ -118,7 +118,7 @@ public interface IGraphConstraintFactory {
 	 * @param g	a graph variable
 	 * @return A constraint which makes sure every node has a loop
 	 */
-	default Constraint loopSet(IGraphVar g, SetVar loops){
+	default Constraint loopSet(GraphVar g, SetVar loops){
 		return new Constraint("loopSet", new PropLoopSet(g,loops));
 	}
 
@@ -129,7 +129,7 @@ public interface IGraphConstraintFactory {
 	 * @param nb an integer variable counting the number of loops in g
 	 * @return A constraint which ensures g has nb loops
 	 */
-	default Constraint nbLoops(IGraphVar g, IntVar nb){
+	default Constraint nbLoops(GraphVar g, IntVar nb){
 		return new Constraint("nbLoops", new PropNbLoops(g,nb));
 	}
 
@@ -233,7 +233,7 @@ public interface IGraphConstraintFactory {
 	 * @param g
 	 * @param nodes
 	 */
-	default Constraint nodesChanneling(IGraphVar g, SetVar nodes){
+	default Constraint nodesChanneling(GraphVar g, SetVar nodes){
 		return new Constraint("nodesSetChanneling",
 				new PropNodeSetChannel(nodes,g));
 	}
@@ -244,7 +244,7 @@ public interface IGraphConstraintFactory {
 	 * @param g
 	 * @param nodes
 	 */
-	default Constraint nodesChanneling(IGraphVar g, BoolVar[] nodes){
+	default Constraint nodesChanneling(GraphVar g, BoolVar[] nodes){
 		return new Constraint("nodesBoolsChanneling",
 				new PropNodeBoolsChannel(nodes,g));
 	}
@@ -256,7 +256,7 @@ public interface IGraphConstraintFactory {
 	 * @param isIn
 	 * @param vertex
 	 */
-	default Constraint nodeChanneling(IGraphVar g, BoolVar isIn, int vertex){
+	default Constraint nodeChanneling(GraphVar g, BoolVar isIn, int vertex){
 		return new Constraint("nodesBoolChanneling",
 				new PropNodeBoolChannel(isIn,vertex,g));
 	}

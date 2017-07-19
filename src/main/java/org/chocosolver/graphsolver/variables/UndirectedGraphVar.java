@@ -27,7 +27,7 @@
 
 package org.chocosolver.graphsolver.variables;
 
-import org.chocosolver.graphsolver.variables.delta.IGraphDelta;
+import org.chocosolver.graphsolver.variables.delta.GraphDelta;
 import org.chocosolver.solver.ICause;
 import org.chocosolver.solver.Model;
 import org.chocosolver.solver.exception.ContradictionException;
@@ -67,8 +67,8 @@ public class UndirectedGraphVar extends GraphVar<UndirectedGraph> {
         }
         if (UB.removeEdge(x, y)) {
             if (reactOnModification) {
-                delta.add(x, IGraphDelta.AR_tail, cause);
-                delta.add(y, IGraphDelta.AR_head, cause);
+                delta.add(x, GraphDelta.AR_tail, cause);
+                delta.add(y, GraphDelta.AR_head, cause);
             }
             GraphEventType e = GraphEventType.REMOVE_ARC;
             notifyPropagators(e, cause);
@@ -85,8 +85,8 @@ public class UndirectedGraphVar extends GraphVar<UndirectedGraph> {
         if (UB.edgeExists(x, y)) {
             if (LB.addEdge(x, y)) {
                 if (reactOnModification) {
-                    delta.add(x, IGraphDelta.AE_tail, cause);
-                    delta.add(y, IGraphDelta.AE_head, cause);
+                    delta.add(x, GraphDelta.AE_tail, cause);
+                    delta.add(y, GraphDelta.AE_head, cause);
                 }
 				GraphEventType e = GraphEventType.ADD_ARC;
                 notifyPropagators(e, cause);

@@ -28,7 +28,7 @@
 package org.chocosolver.graphsolver.cstrs.channeling.edges;
 
 import org.chocosolver.graphsolver.variables.GraphEventType;
-import org.chocosolver.graphsolver.variables.IGraphVar;
+import org.chocosolver.graphsolver.variables.GraphVar;
 import org.chocosolver.graphsolver.variables.IncidentSet;
 import org.chocosolver.solver.constraints.Propagator;
 import org.chocosolver.solver.constraints.PropagatorPriority;
@@ -50,7 +50,7 @@ public class PropNeighSetChannel extends Propagator<Variable> {
 	//***********************************************************************************
 
 	private SetVar set;
-	private IGraphVar g;
+	private GraphVar g;
 	private int vertex;
 	private IncidentSet inc;
 	private ISetDeltaMonitor sdm;
@@ -60,7 +60,7 @@ public class PropNeighSetChannel extends Propagator<Variable> {
 	// CONSTRUCTORS
 	//***********************************************************************************
 
-	public PropNeighSetChannel(SetVar neigh, final int vertex, IGraphVar gV, IncidentSet incSet) {
+	public PropNeighSetChannel(SetVar neigh, final int vertex, GraphVar gV, IncidentSet incSet) {
 		super(new Variable[]{neigh,gV}, PropagatorPriority.LINEAR, true);
 		this.vertex = vertex;
 		this.set = neigh;

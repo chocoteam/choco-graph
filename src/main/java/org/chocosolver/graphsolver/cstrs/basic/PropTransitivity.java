@@ -29,8 +29,8 @@ package org.chocosolver.graphsolver.cstrs.basic;
 
 import gnu.trove.list.array.TIntArrayList;
 import org.chocosolver.graphsolver.variables.GraphEventType;
-import org.chocosolver.graphsolver.variables.IGraphVar;
-import org.chocosolver.graphsolver.variables.delta.IGraphDeltaMonitor;
+import org.chocosolver.graphsolver.variables.GraphVar;
+import org.chocosolver.graphsolver.variables.delta.GraphDeltaMonitor;
 import org.chocosolver.solver.constraints.Propagator;
 import org.chocosolver.solver.constraints.PropagatorPriority;
 import org.chocosolver.solver.exception.ContradictionException;
@@ -43,14 +43,14 @@ import org.chocosolver.util.procedure.PairProcedure;
  *
  * @author Jean-Guillaume Fages
  */
-public class PropTransitivity<V extends IGraphVar> extends Propagator<V> {
+public class PropTransitivity<V extends GraphVar> extends Propagator<V> {
 
 	//***********************************************************************************
 	// VARIABLES
 	//***********************************************************************************
 
 	private V g;
-	private IGraphDeltaMonitor gdm;
+	private GraphDeltaMonitor gdm;
 	private PairProcedure arcEnforced, arcRemoved;
 	private TIntArrayList eF, eT, rF, rT;
 
@@ -59,7 +59,7 @@ public class PropTransitivity<V extends IGraphVar> extends Propagator<V> {
 	//***********************************************************************************
 
 	public PropTransitivity(V graph) {
-		super((V[]) new IGraphVar[]{graph}, PropagatorPriority.LINEAR, true);
+		super((V[]) new GraphVar[]{graph}, PropagatorPriority.LINEAR, true);
 		g = graph;
 		gdm = g.monitorDelta(this);
 		int n = g.getNbMaxNodes();

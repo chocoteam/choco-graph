@@ -28,8 +28,8 @@
 package org.chocosolver.graphsolver.cstrs.channeling.nodes;
 
 import org.chocosolver.graphsolver.variables.GraphEventType;
-import org.chocosolver.graphsolver.variables.IGraphVar;
-import org.chocosolver.graphsolver.variables.delta.IGraphDeltaMonitor;
+import org.chocosolver.graphsolver.variables.GraphVar;
+import org.chocosolver.graphsolver.variables.delta.GraphDeltaMonitor;
 import org.chocosolver.solver.constraints.Propagator;
 import org.chocosolver.solver.constraints.PropagatorPriority;
 import org.chocosolver.solver.exception.ContradictionException;
@@ -53,15 +53,15 @@ public class PropNodeBoolsChannel extends Propagator<Variable> {
 	//***********************************************************************************
 
 	private BoolVar[] bools;
-	private IGraphVar g;
-	private IGraphDeltaMonitor gdm;
+	private GraphVar g;
+	private GraphDeltaMonitor gdm;
 	private IntProcedure remG, forceG;
 
 	//***********************************************************************************
 	// CONSTRUCTORS
 	//***********************************************************************************
 
-	public PropNodeBoolsChannel(BoolVar[] vertices, IGraphVar gV) {
+	public PropNodeBoolsChannel(BoolVar[] vertices, GraphVar gV) {
 		super(ArrayUtils.append(vertices,new Variable[]{gV}), PropagatorPriority.LINEAR, true);
 		this.bools = vertices;
 		this.g = gV;

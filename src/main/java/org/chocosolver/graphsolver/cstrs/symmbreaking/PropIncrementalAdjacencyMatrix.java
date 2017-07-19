@@ -1,8 +1,8 @@
 package org.chocosolver.graphsolver.cstrs.symmbreaking;
 
-import org.chocosolver.graphsolver.variables.GraphEventType;
 import org.chocosolver.graphsolver.variables.DirectedGraphVar;
-import org.chocosolver.graphsolver.variables.delta.IGraphDeltaMonitor;
+import org.chocosolver.graphsolver.variables.GraphEventType;
+import org.chocosolver.graphsolver.variables.delta.GraphDeltaMonitor;
 import org.chocosolver.solver.constraints.Propagator;
 import org.chocosolver.solver.constraints.PropagatorPriority;
 import org.chocosolver.solver.exception.ContradictionException;
@@ -23,7 +23,7 @@ import java.util.Set;
 public class PropIncrementalAdjacencyMatrix extends Propagator<Variable> {
 
 	private DirectedGraphVar graph;
-	private IGraphDeltaMonitor gdm;
+	private GraphDeltaMonitor gdm;
 	private PairProcedure enforce;
 	private PairProcedure remove;
 	private int n;

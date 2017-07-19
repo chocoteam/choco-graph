@@ -27,7 +27,7 @@
 
 package org.chocosolver.graphsolver.cstrs.channeling.edges;
 
-import org.chocosolver.graphsolver.variables.IGraphVar;
+import org.chocosolver.graphsolver.variables.GraphVar;
 import org.chocosolver.solver.constraints.Propagator;
 import org.chocosolver.solver.constraints.PropagatorPriority;
 import org.chocosolver.solver.exception.ContradictionException;
@@ -46,13 +46,13 @@ public class PropNeighBoolsChannel2 extends Propagator<BoolVar> {
 
     private int n;
     private BoolVar[][] matrix;
-    private IGraphVar g;
+    private GraphVar g;
 
     //***********************************************************************************
     // CONSTRUCTORS
     //***********************************************************************************
 
-    public PropNeighBoolsChannel2(BoolVar[][] adjacencyMatrix, IGraphVar gV) {
+    public PropNeighBoolsChannel2(BoolVar[][] adjacencyMatrix, GraphVar gV) {
         super(ArrayUtils.flatten(adjacencyMatrix), PropagatorPriority.LINEAR, false);
         this.matrix = adjacencyMatrix;
         n = adjacencyMatrix.length;

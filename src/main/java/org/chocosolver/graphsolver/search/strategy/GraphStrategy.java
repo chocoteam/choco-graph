@@ -33,7 +33,7 @@ import org.chocosolver.graphsolver.search.strategy.arcs.LexArc;
 import org.chocosolver.graphsolver.search.strategy.arcs.RandomArc;
 import org.chocosolver.graphsolver.search.strategy.nodes.LexNode;
 import org.chocosolver.graphsolver.search.strategy.nodes.RandomNode;
-import org.chocosolver.graphsolver.variables.IGraphVar;
+import org.chocosolver.graphsolver.variables.GraphVar;
 import org.chocosolver.solver.search.strategy.strategy.AbstractStrategy;
 import org.chocosolver.util.PoolManager;
 
@@ -43,13 +43,13 @@ import org.chocosolver.util.PoolManager;
  * @author Jean-Guillaume Fages
  * @since 1 April 2011
  */
-public class GraphStrategy extends AbstractStrategy<IGraphVar> {
+public class GraphStrategy extends AbstractStrategy<GraphVar> {
 
     //***********************************************************************************
     // VARIABLES
     //***********************************************************************************
 
-    protected IGraphVar g;
+    protected GraphVar g;
     protected NodeStrategy nodeStrategy;
     protected ArcStrategy arcStrategy;
     protected NodeArcPriority priority;
@@ -72,7 +72,7 @@ public class GraphStrategy extends AbstractStrategy<IGraphVar> {
      * @param as  strategy over arcs/edges
      * @param priority   enables to mention if it should first branch on nodes
      */
-    public GraphStrategy(IGraphVar g, NodeStrategy ns, ArcStrategy as, NodeArcPriority priority) {
+    public GraphStrategy(GraphVar g, NodeStrategy ns, ArcStrategy as, NodeArcPriority priority) {
         super(g);
         this.g = g;
         this.nodeStrategy = ns;
@@ -100,7 +100,7 @@ public class GraphStrategy extends AbstractStrategy<IGraphVar> {
      *
      * @param g a graph variable to branch on
      */
-    public GraphStrategy(IGraphVar g) {
+    public GraphStrategy(GraphVar g) {
         this(g, new LexNode(g), new LexArc(g), NodeArcPriority.NODES_THEN_ARCS);
     }
 
@@ -124,7 +124,7 @@ public class GraphStrategy extends AbstractStrategy<IGraphVar> {
      * @param g a graph variable to branch on
      * @param seed     randomness seed
      */
-    public GraphStrategy(IGraphVar g, long seed) {
+    public GraphStrategy(GraphVar g, long seed) {
         this(g, new RandomNode(g,seed), new RandomArc(g,seed), NodeArcPriority.NODES_THEN_ARCS);
     }
 

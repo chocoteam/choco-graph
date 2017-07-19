@@ -28,8 +28,8 @@
 package org.chocosolver.graphsolver.cstrs.channeling.edges;
 
 import org.chocosolver.graphsolver.variables.GraphEventType;
-import org.chocosolver.graphsolver.variables.IGraphVar;
-import org.chocosolver.graphsolver.variables.delta.IGraphDeltaMonitor;
+import org.chocosolver.graphsolver.variables.GraphVar;
+import org.chocosolver.graphsolver.variables.delta.GraphDeltaMonitor;
 import org.chocosolver.solver.constraints.Propagator;
 import org.chocosolver.solver.constraints.PropagatorPriority;
 import org.chocosolver.solver.exception.ContradictionException;
@@ -44,7 +44,7 @@ import org.chocosolver.util.procedure.PairProcedure;
  *
  * @author Jean-Guillaume Fages
  */
-public class PropNeighSetsChannel1 extends Propagator<IGraphVar> {
+public class PropNeighSetsChannel1 extends Propagator<GraphVar> {
 
     //***********************************************************************************
     // VARIABLES
@@ -52,8 +52,8 @@ public class PropNeighSetsChannel1 extends Propagator<IGraphVar> {
 
     private int n;
     private SetVar[] sets;
-    private IGraphDeltaMonitor gdm;
-    private IGraphVar g;
+    private GraphDeltaMonitor gdm;
+    private GraphVar g;
     private PairProcedure arcForced, arcRemoved;
 
     //***********************************************************************************
@@ -64,8 +64,8 @@ public class PropNeighSetsChannel1 extends Propagator<IGraphVar> {
      * Channeling between a graph variable and set variables
      * representing either node neighbors or node successors
      */
-    public PropNeighSetsChannel1(SetVar[] setsV, IGraphVar gV) {
-        super(new IGraphVar[]{gV}, PropagatorPriority.LINEAR, true);
+    public PropNeighSetsChannel1(SetVar[] setsV, GraphVar gV) {
+        super(new GraphVar[]{gV}, PropagatorPriority.LINEAR, true);
         this.sets = setsV;
         n = sets.length;
         this.g = gV;

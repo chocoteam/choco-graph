@@ -28,8 +28,8 @@
 package org.chocosolver.graphsolver.cstrs.channeling.edges;
 
 import org.chocosolver.graphsolver.variables.GraphEventType;
-import org.chocosolver.graphsolver.variables.IGraphVar;
-import org.chocosolver.graphsolver.variables.delta.IGraphDeltaMonitor;
+import org.chocosolver.graphsolver.variables.GraphVar;
+import org.chocosolver.graphsolver.variables.delta.GraphDeltaMonitor;
 import org.chocosolver.solver.constraints.Propagator;
 import org.chocosolver.solver.constraints.PropagatorPriority;
 import org.chocosolver.solver.exception.ContradictionException;
@@ -43,7 +43,7 @@ import org.chocosolver.util.procedure.PairProcedure;
  *
  * @author Jean-Guillaume Fages
  */
-public class PropNeighBoolsChannel1 extends Propagator<IGraphVar> {
+public class PropNeighBoolsChannel1 extends Propagator<GraphVar> {
 
 	//***********************************************************************************
 	// VARIABLES
@@ -51,16 +51,16 @@ public class PropNeighBoolsChannel1 extends Propagator<IGraphVar> {
 
 	private int n;
 	private BoolVar[][] matrix;
-	private IGraphDeltaMonitor gdm;
-	private IGraphVar g;
+	private GraphDeltaMonitor gdm;
+	private GraphVar g;
 	private PairProcedure arcForced, arcRemoved;
 
 	//***********************************************************************************
 	// CONSTRUCTORS
 	//***********************************************************************************
 
-	public PropNeighBoolsChannel1(BoolVar[][] adjacencyMatrix, IGraphVar gV) {
-		super(new IGraphVar[]{gV}, PropagatorPriority.LINEAR, true);
+	public PropNeighBoolsChannel1(BoolVar[][] adjacencyMatrix, GraphVar gV) {
+		super(new GraphVar[]{gV}, PropagatorPriority.LINEAR, true);
 		this.matrix = adjacencyMatrix;
 		n = matrix.length;
 		assert n == matrix[0].length;

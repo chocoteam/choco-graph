@@ -28,9 +28,9 @@
 package org.chocosolver.graphsolver.cstrs.degree;
 
 import org.chocosolver.graphsolver.variables.DirectedGraphVar;
-import org.chocosolver.graphsolver.variables.IGraphVar;
-import org.chocosolver.graphsolver.variables.UndirectedGraphVar;
+import org.chocosolver.graphsolver.variables.GraphVar;
 import org.chocosolver.graphsolver.variables.IncidentSet;
+import org.chocosolver.graphsolver.variables.UndirectedGraphVar;
 import org.chocosolver.solver.constraints.Propagator;
 import org.chocosolver.solver.constraints.PropagatorPriority;
 import org.chocosolver.solver.exception.ContradictionException;
@@ -56,7 +56,7 @@ public class PropNodeDegree_Var extends Propagator<Variable> {
 	//***********************************************************************************
 
 	private int n;
-	private IGraphVar g;
+	private GraphVar g;
 	private IntVar[] degrees;
 	private IncidentSet target;
 	private BitSet toDo;

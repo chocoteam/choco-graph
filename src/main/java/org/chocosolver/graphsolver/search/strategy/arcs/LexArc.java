@@ -27,12 +27,12 @@
 package org.chocosolver.graphsolver.search.strategy.arcs;
 
 import org.chocosolver.graphsolver.search.strategy.ArcStrategy;
-import org.chocosolver.graphsolver.variables.IGraphVar;
+import org.chocosolver.graphsolver.variables.GraphVar;
 import org.chocosolver.util.objects.setDataStructures.ISet;
 
-public class LexArc extends ArcStrategy<IGraphVar> {
+public class LexArc extends ArcStrategy<GraphVar> {
 
-	public LexArc(IGraphVar g) {
+	public LexArc(GraphVar g) {
 		super(g);
 	}
 

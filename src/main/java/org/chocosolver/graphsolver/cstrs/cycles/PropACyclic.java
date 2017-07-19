@@ -29,8 +29,8 @@
 package org.chocosolver.graphsolver.cstrs.cycles;
 
 import org.chocosolver.graphsolver.variables.GraphEventType;
-import org.chocosolver.graphsolver.variables.IGraphVar;
-import org.chocosolver.graphsolver.variables.delta.IGraphDeltaMonitor;
+import org.chocosolver.graphsolver.variables.GraphVar;
+import org.chocosolver.graphsolver.variables.delta.GraphDeltaMonitor;
 import org.chocosolver.solver.constraints.Propagator;
 import org.chocosolver.solver.constraints.PropagatorPriority;
 import org.chocosolver.solver.exception.ContradictionException;
@@ -46,14 +46,14 @@ import java.util.BitSet;
  *
  * @author Jean-Guillaume Fages
  */
-public class PropACyclic extends Propagator<IGraphVar> {
+public class PropACyclic extends Propagator<GraphVar> {
 
 	//***********************************************************************************
 	// VARIABLES
 	//***********************************************************************************
 
-	private IGraphVar g;
-	private IGraphDeltaMonitor gdm;
+	private GraphVar g;
+	private GraphDeltaMonitor gdm;
 	private PairProcedure arcEnf;
 	private int n;
 	private BitSet rfFrom, rfTo;
@@ -63,8 +63,8 @@ public class PropACyclic extends Propagator<IGraphVar> {
 	// CONSTRUCTORS
 	//***********************************************************************************
 
-	public PropACyclic(IGraphVar g){
-		super(new IGraphVar[]{g}, PropagatorPriority.LINEAR,true);
+	public PropACyclic(GraphVar g){
+		super(new GraphVar[]{g}, PropagatorPriority.LINEAR,true);
 		this.g = g;
 		this.n = g.getNbMaxNodes();
 		this.fifo = new int[n];

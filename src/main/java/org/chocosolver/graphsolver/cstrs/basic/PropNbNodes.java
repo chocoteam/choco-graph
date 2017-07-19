@@ -28,7 +28,7 @@
 package org.chocosolver.graphsolver.cstrs.basic;
 
 import org.chocosolver.graphsolver.variables.GraphEventType;
-import org.chocosolver.graphsolver.variables.IGraphVar;
+import org.chocosolver.graphsolver.variables.GraphVar;
 import org.chocosolver.solver.constraints.Propagator;
 import org.chocosolver.solver.constraints.PropagatorPriority;
 import org.chocosolver.solver.exception.ContradictionException;
@@ -49,14 +49,14 @@ public class PropNbNodes extends Propagator {
     // VARIABLES
     //***********************************************************************************
 
-    private IGraphVar g;
+    private GraphVar g;
     private IntVar k;
 
     //***********************************************************************************
     // CONSTRUCTORS
     //***********************************************************************************
 
-    public PropNbNodes(IGraphVar graph, IntVar k) {
+    public PropNbNodes(GraphVar graph, IntVar k) {
         super(new Variable[]{graph, k}, PropagatorPriority.LINEAR, false);
         this.g = graph;
         this.k = k;

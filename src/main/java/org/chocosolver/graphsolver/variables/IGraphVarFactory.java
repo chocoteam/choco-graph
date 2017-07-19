@@ -122,13 +122,13 @@ public interface IGraphVarFactory {
 	 *
 	 * @return array of SetVars of <code>this</code>
 	 */
-	default IGraphVar[] retrieveGraphVars(Model s) {
+	default GraphVar[] retrieveGraphVars(Model s) {
 		int n = s.getNbVars();
-		IGraphVar[] bvars = new IGraphVar[n];
+		GraphVar[] bvars = new GraphVar[n];
 		int k = 0;
 		for (int i = 0; i < n; i++) {
 			if ((s.getVar(i).getTypeAndKind() & Variable.KIND) == GraphVar.GRAPH) {
-				bvars[k++] = (IGraphVar) s.getVar(i);
+				bvars[k++] = (GraphVar) s.getVar(i);
 			}
 		}
 		return Arrays.copyOf(bvars, k);
@@ -143,7 +143,7 @@ public interface IGraphVarFactory {
 	 * @param g	a graph variable
 	 * @return An integer variable representing the number of nodes in g
 	 */
-	default IntVar nbNodes(IGraphVar g){
+	default IntVar nbNodes(GraphVar g){
 		IntVar nb = g.getModel().intVar("nbNodes",0,g.getNbMaxNodes(),true);
 		_me().nbNodes(g, nb).post();
 		return nb;
@@ -177,7 +177,7 @@ public interface IGraphVarFactory {
 	 * @param g	a graph variable
 	 * @return An integer variable representing the number of loops in g
 	 */
-	default IntVar nbLoops(IGraphVar g){
+	default IntVar nbLoops(GraphVar g){
 		IntVar nb = _me().intVar("nbLoops",0,g.getNbMaxNodes(),true);
 		_me().nbLoops(g,nb).post();
 		return nb;
@@ -189,7 +189,7 @@ public interface IGraphVarFactory {
 	 * @param g	a graph variable
 	 * @return a set variable representing nodes of g that have a loop
 	 */
-	default SetVar loopSet(IGraphVar g){
+	default SetVar loopSet(GraphVar g){
 		SetVar l = makeSetVar("loops",0,g.getNbMaxNodes());
 		_me().loopSet(g,l).post();
 		return l;
@@ -206,7 +206,7 @@ public interface IGraphVarFactory {
 	 * @param g	a graph variable
 	 * @return	a set variable representing the nodes of g
 	 */
-	default SetVar nodeSet(IGraphVar g){
+	default SetVar nodeSet(GraphVar g){
 		int n = g.getNbMaxNodes();
 		SetVar nodes = makeSetVar("nodes",0,n-1);
 		_me().nodesChanneling(g, nodes).post();
@@ -218,7 +218,7 @@ public interface IGraphVarFactory {
 	 * @param g	a graph variable
 	 * @return	an array of boolean variables representing the nodes of g
 	 */
-	default BoolVar[] nodeSetBool(IGraphVar g){
+	default BoolVar[] nodeSetBool(GraphVar g){
 		BoolVar[] nodes = _me().boolVarArray("nodes",g.getNbMaxNodes());
 		_me().nodesChanneling(g, nodes).post();
 		return nodes;
@@ -230,7 +230,7 @@ public interface IGraphVarFactory {
 	 * @param vertex index of a potential vertex of g
 	 * @return a boolean variable representing if the node 'vertex' is in g or not
 	 */
-	default BoolVar isNode(IGraphVar g, int vertex){
+	default BoolVar isNode(GraphVar g, int vertex){
 		BoolVar node = _me().boolVar("nodes("+vertex+")");
 		_me().nodeChanneling(g, node, vertex).post();
 		return node;

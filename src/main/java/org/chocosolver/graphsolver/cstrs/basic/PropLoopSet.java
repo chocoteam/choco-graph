@@ -27,7 +27,7 @@
 
 package org.chocosolver.graphsolver.cstrs.basic;
 
-import org.chocosolver.graphsolver.variables.IGraphVar;
+import org.chocosolver.graphsolver.variables.GraphVar;
 import org.chocosolver.solver.constraints.Propagator;
 import org.chocosolver.solver.constraints.PropagatorPriority;
 import org.chocosolver.solver.exception.ContradictionException;
@@ -47,14 +47,14 @@ public class PropLoopSet extends Propagator<Variable> {
     // VARIABLES
     //***********************************************************************************
 
-    private IGraphVar g;
+    private GraphVar g;
     private SetVar loops;
 
     //***********************************************************************************
     // CONSTRUCTORS
     //***********************************************************************************
 
-    public PropLoopSet(IGraphVar graph, SetVar loops) {
+    public PropLoopSet(GraphVar graph, SetVar loops) {
         super(new Variable[]{graph, loops}, PropagatorPriority.LINEAR, false);
         this.g = graph;
         this.loops = loops;

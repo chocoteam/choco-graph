@@ -27,9 +27,9 @@
 
 package org.chocosolver.graphsolver.cstrs.basic;
 
-import org.chocosolver.graphsolver.variables.GraphEventType;
 import org.chocosolver.graphsolver.variables.DirectedGraphVar;
-import org.chocosolver.graphsolver.variables.delta.IGraphDeltaMonitor;
+import org.chocosolver.graphsolver.variables.GraphEventType;
+import org.chocosolver.graphsolver.variables.delta.GraphDeltaMonitor;
 import org.chocosolver.solver.constraints.Propagator;
 import org.chocosolver.solver.exception.ContradictionException;
 import org.chocosolver.util.ESat;
@@ -50,7 +50,7 @@ public class PropAntiSymmetric extends Propagator<DirectedGraphVar> {
     //***********************************************************************************
 
 	private DirectedGraphVar g;
-    private IGraphDeltaMonitor gdm;
+    private GraphDeltaMonitor gdm;
     private PairProcedure enf;
     private int n;
 
