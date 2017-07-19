@@ -29,7 +29,7 @@ package org.chocosolver.graphsolver.cstrs.connectivity;
 
 import org.chocosolver.graphsolver.util.ConnectivityFinder;
 import org.chocosolver.graphsolver.variables.GraphEventType;
-import org.chocosolver.graphsolver.variables.IUndirectedGraphVar;
+import org.chocosolver.graphsolver.variables.UndirectedGraphVar;
 import org.chocosolver.solver.constraints.Propagator;
 import org.chocosolver.solver.constraints.PropagatorPriority;
 import org.chocosolver.solver.exception.ContradictionException;
@@ -41,21 +41,21 @@ import org.chocosolver.util.ESat;
  *
  * @author Jean-Guillaume Fages
  */
-public class PropBiconnected extends Propagator<IUndirectedGraphVar> {
+public class PropBiconnected extends Propagator<UndirectedGraphVar> {
 
     //***********************************************************************************
     // VARIABLES
     //***********************************************************************************
 
-    private IUndirectedGraphVar g;
+    private UndirectedGraphVar g;
     private ConnectivityFinder env_CC_finder;
 
     //***********************************************************************************
     // CONSTRUCTORS
     //***********************************************************************************
 
-    public PropBiconnected(IUndirectedGraphVar graph) {
-        super(new IUndirectedGraphVar[]{graph}, PropagatorPriority.LINEAR, false);
+    public PropBiconnected(UndirectedGraphVar graph) {
+        super(new UndirectedGraphVar[]{graph}, PropagatorPriority.LINEAR, false);
         this.g = graph;
         env_CC_finder = new ConnectivityFinder(g.getUB());
     }

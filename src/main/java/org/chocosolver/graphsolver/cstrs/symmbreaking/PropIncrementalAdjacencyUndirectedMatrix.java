@@ -1,7 +1,7 @@
 package org.chocosolver.graphsolver.cstrs.symmbreaking;
 
 import org.chocosolver.graphsolver.variables.GraphEventType;
-import org.chocosolver.graphsolver.variables.IUndirectedGraphVar;
+import org.chocosolver.graphsolver.variables.UndirectedGraphVar;
 import org.chocosolver.graphsolver.variables.delta.IGraphDeltaMonitor;
 import org.chocosolver.solver.constraints.Propagator;
 import org.chocosolver.solver.constraints.PropagatorPriority;
@@ -22,14 +22,14 @@ import java.util.Set;
  */
 public class PropIncrementalAdjacencyUndirectedMatrix extends Propagator<Variable> {
 
-	private IUndirectedGraphVar graph;
+	private UndirectedGraphVar graph;
 	private IGraphDeltaMonitor gdm;
 	private PairProcedure enforce;
 	private PairProcedure remove;
 	private int n;
 	private BoolVar[] t;
 
-	public PropIncrementalAdjacencyUndirectedMatrix(IUndirectedGraphVar graphVar, BoolVar[] t) {
+	public PropIncrementalAdjacencyUndirectedMatrix(UndirectedGraphVar graphVar, BoolVar[] t) {
 		super(ArrayUtils.append(new Variable[]{graphVar}, t), PropagatorPriority.LINEAR, true);
 		graph = graphVar;
 		gdm = graph.monitorDelta(this);

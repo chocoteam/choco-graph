@@ -28,7 +28,7 @@
 package org.chocosolver.graphsolver.cstrs.connectivity;
 
 import org.chocosolver.graphsolver.util.ConnectivityFinder;
-import org.chocosolver.graphsolver.variables.IUndirectedGraphVar;
+import org.chocosolver.graphsolver.variables.UndirectedGraphVar;
 import org.chocosolver.solver.constraints.Propagator;
 import org.chocosolver.solver.constraints.PropagatorPriority;
 import org.chocosolver.solver.exception.ContradictionException;
@@ -49,7 +49,7 @@ public class PropNbCC extends Propagator {
 	// VARIABLES
 	//***********************************************************************************
 
-	private IUndirectedGraphVar g;
+	private UndirectedGraphVar g;
 	private IntVar k;
 	private ConnectivityFinder env_CC_finder, ker_CC_finder;
 
@@ -57,7 +57,7 @@ public class PropNbCC extends Propagator {
 	// CONSTRUCTORS
 	//***********************************************************************************
 
-	public PropNbCC(IUndirectedGraphVar graph, IntVar k) {
+	public PropNbCC(UndirectedGraphVar graph, IntVar k) {
 		super(new Variable[]{graph, k}, PropagatorPriority.LINEAR, false);
 		this.g = graph;
 		this.k = k;

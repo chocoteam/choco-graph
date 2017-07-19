@@ -2,7 +2,7 @@ package org.chocosolver.checked;
 
 
 import org.chocosolver.graphsolver.GraphModel;
-import org.chocosolver.graphsolver.variables.IUndirectedGraphVar;
+import org.chocosolver.graphsolver.variables.UndirectedGraphVar;
 import org.chocosolver.solver.Model;
 import org.chocosolver.solver.variables.BoolVar;
 import org.chocosolver.solver.variables.IntVar;
@@ -51,7 +51,7 @@ public class GraphTest {
         for (int i = 0; i < 3; i++) {
             UB.addEdge(edges[i][0], edges[i][1]);
         }
-        final IUndirectedGraphVar sol = model.graphVar("solution", LB, UB);
+        final UndirectedGraphVar sol = model.graphVar("solution", LB, UB);
         model.connected(sol).post();
         model.nodesChanneling(sol, isVertexPresent).post();
         for (int i = 0; i < 3; i++) {

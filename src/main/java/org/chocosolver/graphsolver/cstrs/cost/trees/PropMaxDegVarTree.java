@@ -27,7 +27,7 @@
 
 package org.chocosolver.graphsolver.cstrs.cost.trees;
 
-import org.chocosolver.graphsolver.variables.IUndirectedGraphVar;
+import org.chocosolver.graphsolver.variables.UndirectedGraphVar;
 import org.chocosolver.solver.exception.ContradictionException;
 import org.chocosolver.solver.variables.IntVar;
 
@@ -52,7 +52,7 @@ public class PropMaxDegVarTree extends PropMaxDegTree {
     // CONSTRUCTORS
     //***********************************************************************************
 
-    public PropMaxDegVarTree(IUndirectedGraphVar g, IntVar[] degrees) {
+    public PropMaxDegVarTree(UndirectedGraphVar g, IntVar[] degrees) {
         super(g,new int[degrees.length]);
         deg = degrees;
     }

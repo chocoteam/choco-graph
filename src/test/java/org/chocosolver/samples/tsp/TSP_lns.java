@@ -30,7 +30,7 @@ package org.chocosolver.samples.tsp;
 import gnu.trove.list.array.TIntArrayList;
 import org.chocosolver.graphsolver.GraphModel;
 import org.chocosolver.graphsolver.search.strategy.GraphStrategies;
-import org.chocosolver.graphsolver.variables.IUndirectedGraphVar;
+import org.chocosolver.graphsolver.variables.UndirectedGraphVar;
 import org.chocosolver.solver.Model;
 import org.chocosolver.solver.Solution;
 import org.chocosolver.solver.Solver;
@@ -97,7 +97,7 @@ public class TSP_lns {
 				GUB.addEdge(i, j);
 			}
 		}
-		IUndirectedGraphVar graph = model.graphVar("G", GLB, GUB);
+		UndirectedGraphVar graph = model.graphVar("G", GLB, GUB);
 
 		// constraints (TSP basic model + lagrangian relaxation)
 		model.tsp(graph, totalCost, costMatrix, 2).post();
@@ -157,9 +157,9 @@ public class TSP_lns {
 		UndirectedGraph solution;
 		int nbFreeEdges = 15;
 		LNSDecision metaDec = new LNSDecision();
-		IUndirectedGraphVar graph;
+		UndirectedGraphVar graph;
 
-		protected SubpathLNS(IUndirectedGraphVar graph) {
+		protected SubpathLNS(UndirectedGraphVar graph) {
 			this.graph = graph;
 			this.n = graph.getNbMaxNodes();
 			this.solution = new UndirectedGraph(n,SetType.LINKED_LIST,true);

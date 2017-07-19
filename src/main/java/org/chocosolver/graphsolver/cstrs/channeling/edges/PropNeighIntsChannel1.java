@@ -27,7 +27,7 @@
 
 package org.chocosolver.graphsolver.cstrs.channeling.edges;
 
-import org.chocosolver.graphsolver.variables.IUndirectedGraphVar;
+import org.chocosolver.graphsolver.variables.UndirectedGraphVar;
 import org.chocosolver.solver.constraints.Propagator;
 import org.chocosolver.solver.constraints.PropagatorPriority;
 import org.chocosolver.solver.exception.ContradictionException;
@@ -38,7 +38,7 @@ import org.chocosolver.util.objects.setDataStructures.ISet;
 /**
  * @author Jean-Guillaume Fages
  */
-public class PropNeighIntsChannel1 extends Propagator<IUndirectedGraphVar> {
+public class PropNeighIntsChannel1 extends Propagator<UndirectedGraphVar> {
 
 	//***********************************************************************************
 	// VARIABLES
@@ -46,14 +46,14 @@ public class PropNeighIntsChannel1 extends Propagator<IUndirectedGraphVar> {
 
 	private int n;
 	private IntVar[] succs;
-	private IUndirectedGraphVar g;
+	private UndirectedGraphVar g;
 
 	//***********************************************************************************
 	// CONSTRUCTORS
 	//***********************************************************************************
 
-	public PropNeighIntsChannel1(final IntVar[] succs, IUndirectedGraphVar gV) {
-		super(new IUndirectedGraphVar[]{gV}, PropagatorPriority.LINEAR, false);
+	public PropNeighIntsChannel1(final IntVar[] succs, UndirectedGraphVar gV) {
+		super(new UndirectedGraphVar[]{gV}, PropagatorPriority.LINEAR, false);
 		this.succs = succs;
 		n = succs.length;
 		this.g = gV;

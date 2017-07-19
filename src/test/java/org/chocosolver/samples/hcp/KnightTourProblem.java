@@ -30,7 +30,7 @@ package org.chocosolver.samples.hcp;
 import org.chocosolver.graphsolver.GraphModel;
 import org.chocosolver.graphsolver.search.strategy.ArcStrategy;
 import org.chocosolver.graphsolver.search.strategy.GraphStrategy;
-import org.chocosolver.graphsolver.variables.IUndirectedGraphVar;
+import org.chocosolver.graphsolver.variables.UndirectedGraphVar;
 import org.chocosolver.solver.Solver;
 import org.chocosolver.util.objects.graphs.UndirectedGraph;
 import org.chocosolver.util.objects.setDataStructures.ISet;
@@ -79,7 +79,7 @@ public class KnightTourProblem {
 			}
 		}
 		// creates the graph variable
-		IUndirectedGraphVar graph = model.graphVar("G", GLB, GUB);
+		UndirectedGraphVar graph = model.graphVar("G", GLB, GUB);
 
 		// hamiltonian cycle constraint
 		model.hamiltonianCycle(graph).post();
@@ -97,10 +97,10 @@ public class KnightTourProblem {
 	// HEURISTICS
 	//***********************************************************************************
 
-	private static class MinNeigh extends ArcStrategy<IUndirectedGraphVar> {
+	private static class MinNeigh extends ArcStrategy<UndirectedGraphVar> {
 		int n;
 
-		public MinNeigh(IUndirectedGraphVar graphVar) {
+		public MinNeigh(UndirectedGraphVar graphVar) {
 			super(graphVar);
 			n = graphVar.getNbMaxNodes();
 		}

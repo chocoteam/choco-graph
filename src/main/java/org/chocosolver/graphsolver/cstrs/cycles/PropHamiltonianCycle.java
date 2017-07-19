@@ -28,7 +28,7 @@
 package org.chocosolver.graphsolver.cstrs.cycles;
 
 import org.chocosolver.graphsolver.variables.GraphEventType;
-import org.chocosolver.graphsolver.variables.IUndirectedGraphVar;
+import org.chocosolver.graphsolver.variables.UndirectedGraphVar;
 import org.chocosolver.graphsolver.variables.delta.IGraphDeltaMonitor;
 import org.chocosolver.memory.IEnvironment;
 import org.chocosolver.memory.IStateInt;
@@ -44,13 +44,13 @@ import org.chocosolver.util.procedure.PairProcedure;
  *
  * @author Jean-Guillaume Fages
  */
-public class PropHamiltonianCycle extends Propagator<IUndirectedGraphVar> {
+public class PropHamiltonianCycle extends Propagator<UndirectedGraphVar> {
 
 	//***********************************************************************************
 	// VARIABLES
 	//***********************************************************************************
 
-	private IUndirectedGraphVar g;
+	private UndirectedGraphVar g;
 	private IGraphDeltaMonitor gdm;
 	private int n;
 	private PairProcedure arcEnforced;
@@ -67,8 +67,8 @@ public class PropHamiltonianCycle extends Propagator<IUndirectedGraphVar> {
 	 *
 	 * @param graph
 	 */
-	public PropHamiltonianCycle(IUndirectedGraphVar graph){
-		super(new IUndirectedGraphVar[]{graph}, PropagatorPriority.LINEAR, true);
+	public PropHamiltonianCycle(UndirectedGraphVar graph){
+		super(new UndirectedGraphVar[]{graph}, PropagatorPriority.LINEAR, true);
 		g = graph;
 		gdm = g.monitorDelta(this);
 		this.n = g.getNbMaxNodes();

@@ -28,7 +28,7 @@
 package org.chocosolver.samples;
 
 import org.chocosolver.graphsolver.GraphModel;
-import org.chocosolver.graphsolver.variables.IUndirectedGraphVar;
+import org.chocosolver.graphsolver.variables.UndirectedGraphVar;
 import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.solver.variables.SetVar;
 import org.chocosolver.util.objects.graphs.UndirectedGraph;
@@ -73,7 +73,7 @@ public class CliqueEnumeration {
 		GLB.addNode(2);
 		GLB.addEdge(1,2);					// 1 and 2 must belong to the same clique
 		// graph variable
-		IUndirectedGraphVar graphvar = model.graphVar("G", GLB, GUB);
+		UndirectedGraphVar graphvar = model.graphVar("G", GLB, GUB);
 
 		final SetVar vertices = model.nodeSet(graphvar);
 		final IntVar card = vertices.getCard();

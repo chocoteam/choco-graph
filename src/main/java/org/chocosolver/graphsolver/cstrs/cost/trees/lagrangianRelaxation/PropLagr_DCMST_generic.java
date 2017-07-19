@@ -28,7 +28,7 @@ package org.chocosolver.graphsolver.cstrs.cost.trees.lagrangianRelaxation;
 
 import gnu.trove.list.array.TIntArrayList;
 import org.chocosolver.graphsolver.cstrs.cost.GraphLagrangianRelaxation;
-import org.chocosolver.graphsolver.variables.IUndirectedGraphVar;
+import org.chocosolver.graphsolver.variables.UndirectedGraphVar;
 import org.chocosolver.solver.constraints.Propagator;
 import org.chocosolver.solver.constraints.PropagatorPriority;
 import org.chocosolver.solver.exception.ContradictionException;
@@ -48,7 +48,7 @@ public class PropLagr_DCMST_generic extends Propagator implements GraphLagrangia
 	// VARIABLES
 	//***********************************************************************************
 
-	protected IUndirectedGraphVar gV;
+	protected UndirectedGraphVar gV;
 	protected UndirectedGraph g;
 	protected IntVar obj;
 	protected int n;
@@ -75,7 +75,7 @@ public class PropLagr_DCMST_generic extends Propagator implements GraphLagrangia
 	/**
 	 * Propagator performing the Lagrangian relaxation of the Degree Constrained Minimum Spanning Tree Problem
 	 */
-	public PropLagr_DCMST_generic(IUndirectedGraphVar graph, IntVar cost, IntVar[] degrees, int[][] costMatrix, boolean waitFirstSol) {
+	public PropLagr_DCMST_generic(UndirectedGraphVar graph, IntVar cost, IntVar[] degrees, int[][] costMatrix, boolean waitFirstSol) {
 		super(new Variable[]{graph, cost}, PropagatorPriority.CUBIC, false);
 		gV = graph;
 		n = gV.getNbMaxNodes();

@@ -28,7 +28,7 @@ package org.chocosolver.samples.dcmstp;
 
 import org.chocosolver.graphsolver.GraphModel;
 import org.chocosolver.graphsolver.search.strategy.GraphStrategies;
-import org.chocosolver.graphsolver.variables.IUndirectedGraphVar;
+import org.chocosolver.graphsolver.variables.UndirectedGraphVar;
 import org.chocosolver.solver.Model;
 import org.chocosolver.solver.Solver;
 import org.chocosolver.solver.objective.ObjectiveStrategy;
@@ -97,7 +97,7 @@ public class DCMST {
 				}
 			}
 		}
-		IUndirectedGraphVar graph = model.graphVar("G", GLB, GUB);
+		UndirectedGraphVar graph = model.graphVar("G", GLB, GUB);
 		IntVar[]degrees = model.degrees(graph);
 		for (int i = 0; i < n; i++) {
 			model.arithm(degrees[i], "<=", dMax[i]).post();

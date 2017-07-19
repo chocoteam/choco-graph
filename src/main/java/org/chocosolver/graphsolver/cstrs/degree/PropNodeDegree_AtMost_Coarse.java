@@ -74,12 +74,12 @@ public class PropNodeDegree_AtMost_Coarse extends Propagator<IGraphVar> {
         }
     }
 
-    public PropNodeDegree_AtMost_Coarse(IUndirectedGraphVar graph, int degree) {
+    public PropNodeDegree_AtMost_Coarse(UndirectedGraphVar graph, int degree) {
         this(graph, buildArray(degree, graph.getNbMaxNodes()));
     }
 
-    public PropNodeDegree_AtMost_Coarse(final IUndirectedGraphVar graph, int[] degrees) {
-        super(new IUndirectedGraphVar[]{graph}, PropagatorPriority.BINARY, false);
+    public PropNodeDegree_AtMost_Coarse(final UndirectedGraphVar graph, int[] degrees) {
+        super(new UndirectedGraphVar[]{graph}, PropagatorPriority.BINARY, false);
         target = new IncidentSet.SuccOrNeighSet();
         g = graph;
         this.degrees = degrees;

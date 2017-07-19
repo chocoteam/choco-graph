@@ -27,7 +27,7 @@
 
 package org.chocosolver.graphsolver.cstrs.basic;
 
-import org.chocosolver.graphsolver.variables.IUndirectedGraphVar;
+import org.chocosolver.graphsolver.variables.UndirectedGraphVar;
 import org.chocosolver.solver.constraints.Propagator;
 import org.chocosolver.solver.constraints.PropagatorPriority;
 import org.chocosolver.solver.constraints.nary.nValue.amnv.mis.F;
@@ -54,7 +54,7 @@ public class PropNbCliques extends Propagator<Variable> {
 	// VARIABLES
 	//***********************************************************************************
 
-	private IUndirectedGraphVar g;
+	private UndirectedGraphVar g;
 	private UndirectedGraph support;
 	private IntVar[] nb;
 	private R[] rules;
@@ -65,7 +65,7 @@ public class PropNbCliques extends Propagator<Variable> {
 	// CONSTRUCTORS
 	//***********************************************************************************
 
-	public PropNbCliques(IUndirectedGraphVar g, IntVar nb){
+	public PropNbCliques(UndirectedGraphVar g, IntVar nb){
 		super(new Variable[]{g,nb}, PropagatorPriority.QUADRATIC,false);
 		this.g = g;
 		this.support = new UndirectedGraph(g.getNbMaxNodes(), SetType.BITSET,false);

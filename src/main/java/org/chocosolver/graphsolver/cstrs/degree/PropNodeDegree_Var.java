@@ -29,7 +29,7 @@ package org.chocosolver.graphsolver.cstrs.degree;
 
 import org.chocosolver.graphsolver.variables.IDirectedGraphVar;
 import org.chocosolver.graphsolver.variables.IGraphVar;
-import org.chocosolver.graphsolver.variables.IUndirectedGraphVar;
+import org.chocosolver.graphsolver.variables.UndirectedGraphVar;
 import org.chocosolver.graphsolver.variables.IncidentSet;
 import org.chocosolver.solver.constraints.Propagator;
 import org.chocosolver.solver.constraints.PropagatorPriority;
@@ -77,7 +77,7 @@ public class PropNodeDegree_Var extends Propagator<Variable> {
 		}
 	}
 
-	public PropNodeDegree_Var(IUndirectedGraphVar graph, IntVar[] degrees) {
+	public PropNodeDegree_Var(UndirectedGraphVar graph, IntVar[] degrees) {
 		super(ArrayUtils.append(degrees,new Variable[]{graph}), PropagatorPriority.BINARY, false);
 		this.target = new IncidentSet.SuccOrNeighSet();
 		this.g = graph;

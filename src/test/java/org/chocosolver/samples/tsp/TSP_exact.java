@@ -29,7 +29,7 @@ package org.chocosolver.samples.tsp;
 
 import org.chocosolver.graphsolver.GraphModel;
 import org.chocosolver.graphsolver.search.strategy.GraphStrategies;
-import org.chocosolver.graphsolver.variables.IUndirectedGraphVar;
+import org.chocosolver.graphsolver.variables.UndirectedGraphVar;
 import org.chocosolver.solver.Model;
 import org.chocosolver.solver.Solver;
 import org.chocosolver.solver.variables.IntVar;
@@ -84,7 +84,7 @@ public class TSP_exact {
                 GUB.addEdge(i, j);
             }
         }
-		IUndirectedGraphVar graph = model.graphVar("G", GLB, GUB);
+		UndirectedGraphVar graph = model.graphVar("G", GLB, GUB);
 
         // constraints (TSP basic model + lagrangian relaxation)
 		model.tsp(graph, totalCost, costMatrix, 1).post();

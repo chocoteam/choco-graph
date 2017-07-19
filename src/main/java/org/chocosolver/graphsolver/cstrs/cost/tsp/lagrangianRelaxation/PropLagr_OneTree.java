@@ -31,7 +31,7 @@ import gnu.trove.list.array.TIntArrayList;
 import org.chocosolver.graphsolver.cstrs.cost.GraphLagrangianRelaxation;
 import org.chocosolver.graphsolver.cstrs.cost.trees.lagrangianRelaxation.AbstractTreeFinder;
 import org.chocosolver.graphsolver.variables.GraphEventType;
-import org.chocosolver.graphsolver.variables.IUndirectedGraphVar;
+import org.chocosolver.graphsolver.variables.UndirectedGraphVar;
 import org.chocosolver.solver.constraints.Propagator;
 import org.chocosolver.solver.constraints.PropagatorPriority;
 import org.chocosolver.solver.exception.ContradictionException;
@@ -56,7 +56,7 @@ public class PropLagr_OneTree extends Propagator implements GraphLagrangianRelax
     //***********************************************************************************
 
 	protected UndirectedGraph g;
-	protected IUndirectedGraphVar gV;
+	protected UndirectedGraphVar gV;
     protected IntVar obj;
     protected int n;
     protected int[][] originalCosts;
@@ -87,7 +87,7 @@ public class PropLagr_OneTree extends Propagator implements GraphLagrangianRelax
 		HKfilter = new KruskalOneTree_GAC(n, this);
 	}
 
-    public PropLagr_OneTree(IUndirectedGraphVar graph, IntVar cost, int[][] costMatrix) {
+    public PropLagr_OneTree(UndirectedGraphVar graph, IntVar cost, int[][] costMatrix) {
         this(new Variable[]{graph, cost}, costMatrix);
         g = graph.getUB();
 		gV = graph;

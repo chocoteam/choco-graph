@@ -35,7 +35,7 @@
 package org.chocosolver.graphsolver.cstrs.cost.trees;
 
 import org.chocosolver.graphsolver.variables.GraphEventType;
-import org.chocosolver.graphsolver.variables.IUndirectedGraphVar;
+import org.chocosolver.graphsolver.variables.UndirectedGraphVar;
 import org.chocosolver.graphsolver.variables.delta.IGraphDeltaMonitor;
 import org.chocosolver.memory.IEnvironment;
 import org.chocosolver.memory.IStateInt;
@@ -51,13 +51,13 @@ import java.util.BitSet;
 /**
  * Simple NoSubtour applied to (undirected) tree/forest
  */
-public class PropTreeNoSubtour extends Propagator<IUndirectedGraphVar> {
+public class PropTreeNoSubtour extends Propagator<UndirectedGraphVar> {
 
     //***********************************************************************************
     // VARIABLES
     //***********************************************************************************
 
-    private IUndirectedGraphVar g;
+    private UndirectedGraphVar g;
     private IGraphDeltaMonitor gdm;
     private int n;
     private PairProcedure arcEnforced;
@@ -77,8 +77,8 @@ public class PropTreeNoSubtour extends Propagator<IUndirectedGraphVar> {
      *
      * @param graph
      */
-    public PropTreeNoSubtour(IUndirectedGraphVar graph) {
-        super(new IUndirectedGraphVar[]{graph}, PropagatorPriority.LINEAR, true);
+    public PropTreeNoSubtour(UndirectedGraphVar graph) {
+        super(new UndirectedGraphVar[]{graph}, PropagatorPriority.LINEAR, true);
         g = graph;
         gdm = g.monitorDelta(this);
         this.n = g.getNbMaxNodes();

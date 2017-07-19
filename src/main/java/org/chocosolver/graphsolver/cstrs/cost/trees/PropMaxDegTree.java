@@ -28,7 +28,7 @@
 package org.chocosolver.graphsolver.cstrs.cost.trees;
 
 import org.chocosolver.graphsolver.variables.GraphEventType;
-import org.chocosolver.graphsolver.variables.IUndirectedGraphVar;
+import org.chocosolver.graphsolver.variables.UndirectedGraphVar;
 import org.chocosolver.solver.constraints.Propagator;
 import org.chocosolver.solver.constraints.PropagatorPriority;
 import org.chocosolver.solver.exception.ContradictionException;
@@ -45,7 +45,7 @@ import java.util.BitSet;
  *
  * @author Jean-Guillaume Fages
  */
-public class PropMaxDegTree extends Propagator<IUndirectedGraphVar> {
+public class PropMaxDegTree extends Propagator<UndirectedGraphVar> {
 
 
 	//***********************************************************************************
@@ -62,8 +62,8 @@ public class PropMaxDegTree extends Propagator<IUndirectedGraphVar> {
 	// CONSTRUCTORS
 	//***********************************************************************************
 
-	public PropMaxDegTree(IUndirectedGraphVar g, int[] maxDegrees) {
-		super(new IUndirectedGraphVar[]{g}, PropagatorPriority.LINEAR, false);
+	public PropMaxDegTree(UndirectedGraphVar g, int[] maxDegrees) {
+		super(new UndirectedGraphVar[]{g}, PropagatorPriority.LINEAR, false);
 		n = maxDegrees.length;
 		oneNode = new BitSet(n);
 		counter = new int[n];
@@ -82,7 +82,7 @@ public class PropMaxDegTree extends Propagator<IUndirectedGraphVar> {
 	@Override
 	public void propagate(int evtmask) throws ContradictionException {
 		preprocessOneNodes();
-		IUndirectedGraphVar g = vars[0];
+		UndirectedGraphVar g = vars[0];
 		if (oneNode.cardinality() < n) {
 			for (int i = 0; i < n; i++) {
 				ISet nei = g.getPotNeighOf(i);
@@ -105,7 +105,7 @@ public class PropMaxDegTree extends Propagator<IUndirectedGraphVar> {
 		for (int i = 0; i < n; i++) {
 			counter[i] = 0;
 		}
-		IUndirectedGraphVar g = vars[0];
+		UndirectedGraphVar g = vars[0];
 		int[] maxDegree = dMax;
 		if (list == null) {
 			list = new int[n];

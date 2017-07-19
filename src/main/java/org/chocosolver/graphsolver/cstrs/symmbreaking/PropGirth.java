@@ -1,6 +1,6 @@
 package org.chocosolver.graphsolver.cstrs.symmbreaking;
 
-import org.chocosolver.graphsolver.variables.IUndirectedGraphVar;
+import org.chocosolver.graphsolver.variables.UndirectedGraphVar;
 import org.chocosolver.solver.constraints.Propagator;
 import org.chocosolver.solver.constraints.PropagatorPriority;
 import org.chocosolver.solver.exception.ContradictionException;
@@ -15,11 +15,11 @@ import java.util.HashSet;
  */
 public class PropGirth extends Propagator<Variable> {
 
-	private IUndirectedGraphVar graph;
+	private UndirectedGraphVar graph;
 	private int n;
 	private IntVar girth;
 
-	public PropGirth(IUndirectedGraphVar graphVar, IntVar girth) {
+	public PropGirth(UndirectedGraphVar graphVar, IntVar girth) {
 		super(new Variable[] {girth, graphVar}, PropagatorPriority.LINEAR, false);
 		graph = graphVar;
 		n = graphVar.getNbMaxNodes();

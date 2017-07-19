@@ -84,12 +84,12 @@ public class PropNodeDegree_AtLeast_Incr extends Propagator<IGraphVar> {
 		gdm = g.monitorDelta(this);
 	}
 
-	public PropNodeDegree_AtLeast_Incr(IUndirectedGraphVar graph, int degree) {
+	public PropNodeDegree_AtLeast_Incr(UndirectedGraphVar graph, int degree) {
 		this(graph, buildArray(degree, graph.getNbMaxNodes()));
 	}
 
-	public PropNodeDegree_AtLeast_Incr(IUndirectedGraphVar graph, int[] degrees) {
-		super(new IUndirectedGraphVar[]{graph}, PropagatorPriority.BINARY, true);
+	public PropNodeDegree_AtLeast_Incr(UndirectedGraphVar graph, int[] degrees) {
+		super(new UndirectedGraphVar[]{graph}, PropagatorPriority.BINARY, true);
 		target = new IncidentSet.SuccOrNeighSet();
 		g = graph;
 		this.degrees = degrees;

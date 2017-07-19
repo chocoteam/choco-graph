@@ -28,7 +28,7 @@
 package org.chocosolver.graphsolver.cstrs.cost.tsp;
 
 import org.chocosolver.graphsolver.variables.GraphEventType;
-import org.chocosolver.graphsolver.variables.IUndirectedGraphVar;
+import org.chocosolver.graphsolver.variables.UndirectedGraphVar;
 import org.chocosolver.solver.constraints.Propagator;
 import org.chocosolver.solver.constraints.PropagatorPriority;
 import org.chocosolver.solver.exception.ContradictionException;
@@ -51,7 +51,7 @@ public class PropCycleCostSimple extends Propagator {
     // VARIABLES
     //***********************************************************************************
 
-    protected IUndirectedGraphVar g;
+    protected UndirectedGraphVar g;
     protected int n;
     protected IntVar sum;
     protected int[][] distMatrix;
@@ -61,7 +61,7 @@ public class PropCycleCostSimple extends Propagator {
     // CONSTRUCTORS
     //***********************************************************************************
 
-    public PropCycleCostSimple(IUndirectedGraphVar graph, IntVar obj, int[][] costMatrix) {
+    public PropCycleCostSimple(UndirectedGraphVar graph, IntVar obj, int[][] costMatrix) {
         super(new Variable[]{graph, obj}, PropagatorPriority.LINEAR, false);
         g = graph;
         sum = obj;

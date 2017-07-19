@@ -34,7 +34,7 @@ import org.chocosolver.solver.exception.ContradictionException;
 import org.chocosolver.util.objects.graphs.UndirectedGraph;
 import org.chocosolver.util.objects.setDataStructures.ISet;
 
-public class UndirectedGraphVar extends GraphVar<UndirectedGraph> implements IUndirectedGraphVar {
+public class UndirectedGraphVar extends GraphVar<UndirectedGraph> {
 
 	//////////////////////////////// GRAPH PART /////////////////////////////////////////
 
@@ -98,12 +98,22 @@ public class UndirectedGraphVar extends GraphVar<UndirectedGraph> implements IUn
         return false;
     }
 
-	@Override
+	/**
+	 * Get the set of neighbors of vertex 'idx' in the lower bound graph
+	 * (mandatory incident edges)
+	 * @param idx	a vertex
+	 * @return The set of neighbors of 'idx' in LB
+	 */
 	public ISet getMandNeighOf(int idx) {
 		return getMandSuccOrNeighOf(idx);
 	}
 
-	@Override
+	/**
+	 * Get the set of neighbors of vertex 'idx' in the upper bound graph
+	 * (potential incident edges)
+	 * @param idx	a vertex
+	 * @return The set of neighbors of 'idx' in UB
+	 */
 	public ISet getPotNeighOf(int idx) {
 		return getPotSuccOrNeighOf(idx);
 	}

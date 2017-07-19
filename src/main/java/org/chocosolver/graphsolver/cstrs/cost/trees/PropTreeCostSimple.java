@@ -28,7 +28,7 @@
 package org.chocosolver.graphsolver.cstrs.cost.trees;
 
 import org.chocosolver.graphsolver.variables.GraphEventType;
-import org.chocosolver.graphsolver.variables.IUndirectedGraphVar;
+import org.chocosolver.graphsolver.variables.UndirectedGraphVar;
 import org.chocosolver.graphsolver.variables.delta.IGraphDeltaMonitor;
 import org.chocosolver.memory.IEnvironment;
 import org.chocosolver.memory.IStateInt;
@@ -44,13 +44,13 @@ import org.chocosolver.util.procedure.PairProcedure;
  * Compute the cost of the graph by summing edge costs
  * - For minimization problem
  */
-public class PropTreeCostSimple extends Propagator<IUndirectedGraphVar> {
+public class PropTreeCostSimple extends Propagator<UndirectedGraphVar> {
 
     //***********************************************************************************
     // VARIABLES
     //***********************************************************************************
 
-    protected IUndirectedGraphVar g;
+    protected UndirectedGraphVar g;
     private IGraphDeltaMonitor gdm;
     private PairProcedure edgeEnf, edgeRem;
     protected int n;
@@ -62,8 +62,8 @@ public class PropTreeCostSimple extends Propagator<IUndirectedGraphVar> {
     // CONSTRUCTORS
     //***********************************************************************************
 
-    public PropTreeCostSimple(IUndirectedGraphVar graph, IntVar obj, int[][] costMatrix) {
-        super(new IUndirectedGraphVar[]{graph}, PropagatorPriority.LINEAR, true);
+    public PropTreeCostSimple(UndirectedGraphVar graph, IntVar obj, int[][] costMatrix) {
+        super(new UndirectedGraphVar[]{graph}, PropagatorPriority.LINEAR, true);
         g = graph;
         sum = obj;
         n = g.getNbMaxNodes();

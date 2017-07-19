@@ -26,7 +26,7 @@ public interface IGraphVarFactory {
 	 * @param n		Maximum number of vertices
 	 * @return a graph variable having n vertices
 	 */
-	default IUndirectedGraphVar graphVar(String name, int n) {
+	default UndirectedGraphVar graphVar(String name, int n) {
 		return graphVar(name,n,false);
 	}
 
@@ -37,7 +37,7 @@ public interface IGraphVarFactory {
 	 * @param allNodes If true then every vertex in [0,n-1] belongs to every solution.
 	 * @return a graph variable having n vertices
 	 */
-	default IUndirectedGraphVar graphVar(String name, int n, boolean allNodes) {
+	default UndirectedGraphVar graphVar(String name, int n, boolean allNodes) {
 		UndirectedGraph lb = new UndirectedGraph(_me(), n,SetType.BITSET,allNodes);
 		UndirectedGraph ub = new UndirectedGraph(_me(), n,SetType.BITSET,allNodes);
 		for(int i=0;i<n;i++){
@@ -62,7 +62,7 @@ public interface IGraphVarFactory {
 	 * @param ub		Undirected graph representing possible nodes and edges
 	 * @return	An undirected graph variable
 	 */
-	default IUndirectedGraphVar graphVar(String name, UndirectedGraph lb, UndirectedGraph ub) {
+	default UndirectedGraphVar graphVar(String name, UndirectedGraph lb, UndirectedGraph ub) {
 		return new UndirectedGraphVar(name, _me(), lb, ub);
 	}
 
@@ -165,7 +165,7 @@ public interface IGraphVarFactory {
 	 * @param g	an undirected graph variable
 	 * @return An integer variable representing the number of nodes in g
 	 */
-	default IntVar nbEdges(IUndirectedGraphVar g){
+	default IntVar nbEdges(UndirectedGraphVar g){
 		IntVar nb = _me().intVar("nbEdges",0,g.getNbMaxNodes()*g.getNbMaxNodes(),true);
 		_me().nbEdges(g, nb).post();
 		return nb;
@@ -261,7 +261,7 @@ public interface IGraphVarFactory {
 	 * @param v2 index of a potential vertex of g
 	 * @return a boolean variable representing if the edge '(v1,v2)' is in g or not
 	 */
-	default BoolVar isEdge(IUndirectedGraphVar g, int v1, int v2){
+	default BoolVar isEdge(UndirectedGraphVar g, int v1, int v2){
 		BoolVar node = _me().boolVar("edge("+v1+","+v2+")");
 		_me().edgeChanneling(g, node, v1, v2).post();
 		return node;
@@ -277,7 +277,7 @@ public interface IGraphVarFactory {
 	 *          and for which every vertex is mandatory
 	 * @return an array of integer variables representing the unique successor of each vertex
 	 */
-	default IntVar[] neighInts(IUndirectedGraphVar g){
+	default IntVar[] neighInts(UndirectedGraphVar g){
 		int n = g.getNbMaxNodes();
 		IntVar[] successors = _me().intVarArray("neighOf",n,0,n-1,false);
 		_me().neighborsChanneling(g, successors).post();
@@ -290,7 +290,7 @@ public interface IGraphVarFactory {
 	 * @param g	an undirected graph variable
 	 * @return an array of set variables representing the neighborhood of every vertex
 	 */
-	default SetVar[] neighSets(IUndirectedGraphVar g){
+	default SetVar[] neighSets(UndirectedGraphVar g){
 		int n = g.getNbMaxNodes();
 		SetVar[] neighbors = new SetVar[n];
 		for(int i=0;i<n;i++){
@@ -306,7 +306,7 @@ public interface IGraphVarFactory {
 	 * @param g	an undirected graph variable
 	 * @return a matrix of boolean variables representing the adjacency matrix of g
 	 */
-	default BoolVar[][] adjacencyMatrix(IUndirectedGraphVar g){
+	default BoolVar[][] adjacencyMatrix(UndirectedGraphVar g){
 		int n = g.getNbMaxNodes();
 		BoolVar[][] neighbors = _me().boolVarMatrix("neighOf",n,n);
 		_me().neighborsChanneling(g, neighbors).post();
@@ -319,7 +319,7 @@ public interface IGraphVarFactory {
 	 * @param g	an undirected graph variable
 	 * @return a set variable representing the neighborhood of 'node' in g
 	 */
-	default SetVar neighSet(IUndirectedGraphVar g, int node){
+	default SetVar neighSet(UndirectedGraphVar g, int node){
 		int n = g.getNbMaxNodes();
 		SetVar neighborsOf = makeSetVar("neighOf("+node+")",0,n-1);
 		_me().neighborsChanneling(g, neighborsOf, node).post();
@@ -332,7 +332,7 @@ public interface IGraphVarFactory {
 	 * @param g	an undirected graph variable
 	 * @return an array of boolean variables representing the neighborhood of 'node' in g
 	 */
-	default BoolVar[] neighBools(IUndirectedGraphVar g, int node){
+	default BoolVar[] neighBools(UndirectedGraphVar g, int node){
 		BoolVar[] neighborsOf = _me().boolVarArray("neighOf("+node+")",g.getNbMaxNodes());
 		_me().neighborsChanneling(g, neighborsOf, node).post();
 		return neighborsOf;
@@ -446,7 +446,7 @@ public interface IGraphVarFactory {
 	 * @param g	an undirected graph variable
 	 * @return an array of integer variables representing the degree of each node in g
 	 */
-	default IntVar[] degrees(IUndirectedGraphVar g){
+	default IntVar[] degrees(UndirectedGraphVar g){
 		int n = g.getNbMaxNodes();
 		IntVar[] degrees = _me().intVarArray("degree",n,0,n,true);
 		_me().degrees(g,degrees).post();

@@ -32,6 +32,7 @@ import org.chocosolver.graphsolver.cstrs.channeling.edges.*;
 import org.chocosolver.graphsolver.cstrs.channeling.nodes.PropNodeBoolChannel;
 import org.chocosolver.graphsolver.cstrs.channeling.nodes.PropNodeBoolsChannel;
 import org.chocosolver.graphsolver.cstrs.channeling.nodes.PropNodeSetChannel;
+import org.chocosolver.graphsolver.cstrs.connectivity.PropBiconnected;
 import org.chocosolver.graphsolver.cstrs.connectivity.PropConnected;
 import org.chocosolver.graphsolver.cstrs.connectivity.PropNbCC;
 import org.chocosolver.graphsolver.cstrs.connectivity.PropNbSCC;
@@ -52,7 +53,7 @@ import org.chocosolver.graphsolver.cstrs.tree.PropArborescences;
 import org.chocosolver.graphsolver.cstrs.tree.PropReachability;
 import org.chocosolver.graphsolver.variables.IDirectedGraphVar;
 import org.chocosolver.graphsolver.variables.IGraphVar;
-import org.chocosolver.graphsolver.variables.IUndirectedGraphVar;
+import org.chocosolver.graphsolver.variables.UndirectedGraphVar;
 import org.chocosolver.graphsolver.variables.IncidentSet;
 import org.chocosolver.solver.Model;
 import org.chocosolver.solver.constraints.Constraint;
@@ -104,7 +105,7 @@ public interface IGraphConstraintFactory {
 	 * @param nb an integer variable indicating the expected number of edges in g
 	 * @return A constraint to force the number of edges in g to be equal to nb
 	 */
-	default Constraint nbEdges(IUndirectedGraphVar g, IntVar nb){
+	default Constraint nbEdges(UndirectedGraphVar g, IntVar nb){
 		return new Constraint("nbEdges", new PropNbArcs(g,nb));
 	}
 
@@ -171,7 +172,7 @@ public interface IGraphConstraintFactory {
 	 * @param g An undirected graph variable
 	 * @return A transitivity constraint
 	 */
-	default Constraint transitivity(IUndirectedGraphVar g){
+	default Constraint transitivity(UndirectedGraphVar g){
 		return new Constraint("transitivity",new PropTransitivity(g));
 	}
 
@@ -202,7 +203,7 @@ public interface IGraphConstraintFactory {
 	 * @param g2 An undirected graph variable
 	 * @return a constraint which ensures that g1 is a subGraph of g2
 	 */
-	default Constraint subGraph(IUndirectedGraphVar g1, IUndirectedGraphVar g2){
+	default Constraint subGraph(UndirectedGraphVar g1, UndirectedGraphVar g2){
 		return new Constraint("subGraph",new PropInclusion(g1,g2));
 	}
 
@@ -285,7 +286,7 @@ public interface IGraphConstraintFactory {
 	 * @param i
 	 * @param j
 	 */
-	default Constraint edgeChanneling(IUndirectedGraphVar g, BoolVar isEdge, int i, int j){
+	default Constraint edgeChanneling(UndirectedGraphVar g, BoolVar isEdge, int i, int j){
 		return new Constraint("arcChanneling",
 				new PropArcBoolChannel(isEdge,i,j,g));
 	}
@@ -298,7 +299,7 @@ public interface IGraphConstraintFactory {
 	 * @param g
 	 * @param successors
 	 */
-	default Constraint neighborsChanneling(IUndirectedGraphVar g, IntVar[] successors){
+	default Constraint neighborsChanneling(UndirectedGraphVar g, IntVar[] successors){
 		return new Constraint("neighIntsChanneling",
 				new PropNeighIntsChannel1(successors,g),new PropNeighIntsChannel2(successors,g));
 	}
@@ -309,7 +310,7 @@ public interface IGraphConstraintFactory {
 	 * @param g
 	 * @param neighbors
 	 */
-	default Constraint neighborsChanneling(IUndirectedGraphVar g, SetVar[] neighbors){
+	default Constraint neighborsChanneling(UndirectedGraphVar g, SetVar[] neighbors){
 		return new Constraint("neighSetsChanneling",
 				new PropNeighSetsChannel1(neighbors,g),new PropNeighSetsChannel2(neighbors,g));
 
@@ -321,7 +322,7 @@ public interface IGraphConstraintFactory {
 	 * @param g
 	 * @param neighbors
 	 */
-	default Constraint neighborsChanneling(IUndirectedGraphVar g, BoolVar[][] neighbors){
+	default Constraint neighborsChanneling(UndirectedGraphVar g, BoolVar[][] neighbors){
 		return new Constraint("neighBoolsChanneling",
 				new PropNeighBoolsChannel1(neighbors,g),new PropNeighBoolsChannel2(neighbors,g));
 	}
@@ -333,7 +334,7 @@ public interface IGraphConstraintFactory {
 	 * @param neighborsOf
 	 * @param node
 	 */
-	default Constraint neighborsChanneling(IUndirectedGraphVar g, SetVar neighborsOf, int node){
+	default Constraint neighborsChanneling(UndirectedGraphVar g, SetVar neighborsOf, int node){
 		return new Constraint("neighSetChanneling",
 				new PropNeighSetChannel(neighborsOf,node,g,new IncidentSet.SuccOrNeighSet()));
 	}
@@ -345,7 +346,7 @@ public interface IGraphConstraintFactory {
 	 * @param neighborsOf
 	 * @param node
 	 */
-	default Constraint neighborsChanneling(IUndirectedGraphVar g, BoolVar[] neighborsOf, int node){
+	default Constraint neighborsChanneling(UndirectedGraphVar g, BoolVar[] neighborsOf, int node){
 		return new Constraint("neighBoolChanneling",
 				new PropNeighBoolChannel(neighborsOf,node,g,new IncidentSet.SuccOrNeighSet()));
 	}
@@ -456,7 +457,7 @@ public interface IGraphConstraintFactory {
 	 * @param minDegree	integer minimum degree of every node
 	 * @return a minimum degree constraint
 	 */
-	default Constraint minDegrees(IUndirectedGraphVar g, int minDegree){
+	default Constraint minDegrees(UndirectedGraphVar g, int minDegree){
 		return new Constraint("minDegrees",new PropNodeDegree_AtLeast_Incr(g, minDegree));
 	}
 
@@ -468,7 +469,7 @@ public interface IGraphConstraintFactory {
 	 * @param minDegrees	integer array giving the minimum degree of each node
 	 * @return a minimum degree constraint
 	 */
-	default Constraint minDegrees(IUndirectedGraphVar g, int[] minDegrees){
+	default Constraint minDegrees(UndirectedGraphVar g, int[] minDegrees){
 		return new Constraint("minDegrees",new PropNodeDegree_AtLeast_Incr(g, minDegrees));
 	}
 
@@ -480,7 +481,7 @@ public interface IGraphConstraintFactory {
 	 * @param maxDegree	integer maximum degree
 	 * @return a maximum degree constraint
 	 */
-	default Constraint maxDegrees(IUndirectedGraphVar g, int maxDegree){
+	default Constraint maxDegrees(UndirectedGraphVar g, int maxDegree){
 		return new Constraint("maxDegrees",new PropNodeDegree_AtMost_Coarse(g, maxDegree));
 	}
 
@@ -492,7 +493,7 @@ public interface IGraphConstraintFactory {
 	 * @param maxDegrees	integer array giving the maximum degree of each node
 	 * @return a maximum degree constraint
 	 */
-	default Constraint maxDegrees(IUndirectedGraphVar g, int[] maxDegrees){
+	default Constraint maxDegrees(UndirectedGraphVar g, int[] maxDegrees){
 		return new Constraint("maxDegrees",new PropNodeDegree_AtMost_Coarse(g, maxDegrees));
 	}
 
@@ -505,7 +506,7 @@ public interface IGraphConstraintFactory {
 	 * @param degrees	integer array giving the degree of each node
 	 * @return a degree constraint
 	 */
-	default Constraint degrees(IUndirectedGraphVar g, IntVar[] degrees){
+	default Constraint degrees(UndirectedGraphVar g, IntVar[] degrees){
 		return new Constraint("degrees",new PropNodeDegree_Var(g, degrees));
 	}
 
@@ -652,7 +653,7 @@ public interface IGraphConstraintFactory {
 	 * @param g an undirected graph variable
 	 * @return a hamiltonian cycle constraint
 	 */
-	default Constraint hamiltonianCycle(IUndirectedGraphVar g) {
+	default Constraint hamiltonianCycle(UndirectedGraphVar g) {
 		int m = 0;
 		int n = g.getNbMaxNodes();
 		for(int i=0;i<n;i++){
@@ -673,7 +674,7 @@ public interface IGraphConstraintFactory {
 	 * @param g an undirected graph variable
 	 * @return a cycle constraint
 	 */
-	default Constraint cycle(IUndirectedGraphVar g) {
+	default Constraint cycle(UndirectedGraphVar g) {
 		if(g.getMandatoryNodes().size() == g.getNbMaxNodes()){
 			return hamiltonianCycle(g);
 		}
@@ -732,7 +733,7 @@ public interface IGraphConstraintFactory {
 	 * @param g	an undirected graph variable
 	 * @return A cycle elimination constraint
 	 */
-	default Constraint noCycle(IUndirectedGraphVar g){
+	default Constraint noCycle(UndirectedGraphVar g){
 		return new Constraint("noCycle",new PropACyclic(g));
 	}
 
@@ -763,8 +764,17 @@ public interface IGraphConstraintFactory {
 	 * @param g	an undirected graph variable
 	 * @return A connectedness constraint which ensures that g is connected
 	 */
-	default Constraint connected(IUndirectedGraphVar g){
+	default Constraint connected(UndirectedGraphVar g){
 		return new Constraint("connected",new PropConnected(g));
+	}
+
+	/**
+	 * Creates a connectedness constraint which ensures that g is connected
+	 * @param g	an undirected graph variable
+	 * @return A connectedness constraint which ensures that g is connected
+	 */
+	default Constraint biconnected(UndirectedGraphVar g){
+		return new Constraint("connected",new PropBiconnected(g));
 	}
 
 	/**
@@ -773,7 +783,9 @@ public interface IGraphConstraintFactory {
 	 * @param nb an integer variable indicating the expected number of connected components in g
 	 * @return A connectedness constraint which ensures that g has nb connected components
 	 */
-	default Constraint nbConnectedComponents(IUndirectedGraphVar g, IntVar nb){
+	default Constraint nbConnectedComponents(UndirectedGraphVar g, IntVar nb){
+		if(nb.isInstantiatedTo(1))return connected(g);
+		if(nb.isInstantiatedTo(2))return connected(g);
 		return new Constraint("NbCC",new PropNbCC(g,nb));
 	}
 	/**
@@ -810,7 +822,7 @@ public interface IGraphConstraintFactory {
 	 * @param g	an undirected graph variable
 	 * @return a tree constraint
 	 */
-	default Constraint tree(IUndirectedGraphVar g){
+	default Constraint tree(UndirectedGraphVar g){
 		return new Constraint("tree", new PropACyclic(g), new PropConnected(g));
 	}
 
@@ -819,7 +831,7 @@ public interface IGraphConstraintFactory {
 	 * @param g	an undirected graph variable
 	 * @return a forest constraint
 	 */
-	default Constraint forest(IUndirectedGraphVar g){
+	default Constraint forest(UndirectedGraphVar g){
 		return new Constraint("forest",new PropACyclic(g));
 	}
 
@@ -920,7 +932,7 @@ public interface IGraphConstraintFactory {
 	 * @param nb expected number of cliques in g
 	 * @return a constraint which partitions g into nb cliques
 	 */
-	default Constraint nbCliques(IUndirectedGraphVar g, IntVar nb) {
+	default Constraint nbCliques(UndirectedGraphVar g, IntVar nb) {
 		return new Constraint("NbCliques",
 				new PropTransitivity(g),
 				new PropNbCC(g, nb),
@@ -947,7 +959,7 @@ public interface IGraphConstraintFactory {
 	 * @param d	an integer variable
 	 * @return a constraint which states that d is the diameter of g
 	 */
-	default Constraint diameter(IUndirectedGraphVar g, IntVar d) {
+	default Constraint diameter(UndirectedGraphVar g, IntVar d) {
 		return new Constraint("NbCliques",
 				new PropConnected(g),
 				new PropDiameter(g, d)
@@ -994,7 +1006,7 @@ public interface IGraphConstraintFactory {
 	 *                   2:Lagrangian relaxation but wait a first solution before running it}
 	 * @return a tsp constraint
 	 */
-	default Constraint tsp(IUndirectedGraphVar GRAPHVAR, IntVar COSTVAR, int[][] EDGE_COSTS, int LAGR_MODE) {
+	default Constraint tsp(UndirectedGraphVar GRAPHVAR, IntVar COSTVAR, int[][] EDGE_COSTS, int LAGR_MODE) {
 		Propagator[] props = ArrayUtils.append(hamiltonianCycle(GRAPHVAR).getPropagators(),
 				new Propagator[]{new PropCycleCostSimple(GRAPHVAR, COSTVAR, EDGE_COSTS)});
 		if (LAGR_MODE > 0) {
@@ -1021,7 +1033,7 @@ public interface IGraphConstraintFactory {
 	 *                   2:Lagrangian relaxation but wait a first solution before running it}
 	 * @return a degree-constrained minimum spanning tree constraint
 	 */
-	default Constraint dcmst(IUndirectedGraphVar GRAPH, IntVar[] DEGREES,
+	default Constraint dcmst(UndirectedGraphVar GRAPH, IntVar[] DEGREES,
 													 IntVar COSTVAR, int[][] EDGE_COSTS,
 													 int LAGR_MODE){
 		Propagator[] props = ArrayUtils.append(
@@ -1106,7 +1118,7 @@ public interface IGraphConstraintFactory {
 	 *
 	 * @param graph graph to be constrainted
 	 */
-	default void postSymmetryBreaking(IUndirectedGraphVar graph) {
+	default void postSymmetryBreaking(UndirectedGraphVar graph) {
 		Model m = _me();
 		// ---------------------- variables ------------------------
 		int n = graph.getNbMaxNodes();
@@ -1157,7 +1169,7 @@ public interface IGraphConstraintFactory {
 	 *
 	 * @param graph graph to be constrainted
 	 */
-	default Constraint symmetryBreaking2(IUndirectedGraphVar graph) {
+	default Constraint symmetryBreaking2(UndirectedGraphVar graph) {
 		int n = graph.getNbMaxNodes();
 		BoolVar[] t = _me().boolVarArray("T[]", n * n);
 		return new Constraint("symmBreak",
@@ -1177,7 +1189,7 @@ public interface IGraphConstraintFactory {
 	 *
 	 * @param graph graph to be constrainted
 	 */
-	default Constraint symmetryBreaking3(IUndirectedGraphVar graph) {
+	default Constraint symmetryBreaking3(UndirectedGraphVar graph) {
 		int n = graph.getNbMaxNodes();
 		BoolVar[] t = _me().boolVarArray("T[]", n * n);
 		return new Constraint("symmBreakEx",

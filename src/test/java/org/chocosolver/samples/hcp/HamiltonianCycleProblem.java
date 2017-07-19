@@ -30,7 +30,7 @@ package org.chocosolver.samples.hcp;
 import org.chocosolver.graphsolver.GraphModel;
 import org.chocosolver.graphsolver.search.strategy.ArcStrategy;
 import org.chocosolver.graphsolver.search.strategy.GraphStrategy;
-import org.chocosolver.graphsolver.variables.IUndirectedGraphVar;
+import org.chocosolver.graphsolver.variables.UndirectedGraphVar;
 import org.chocosolver.solver.Solver;
 import org.chocosolver.solver.search.limits.FailCounter;
 import org.chocosolver.solver.search.restart.MonotonicRestartStrategy;
@@ -66,14 +66,14 @@ public class HamiltonianCycleProblem {
 				}
 			}
 		}
-		IUndirectedGraphVar graph = model.graphVar("G", GLB, GUB);
+		UndirectedGraphVar graph = model.graphVar("G", GLB, GUB);
 		// constraints
 		model.hamiltonianCycle(graph).post();
 
 
 		Solver solver = model.getSolver();
 		solver.setSearch(new GraphStrategy(graph, null,
-				new ArcStrategy<IUndirectedGraphVar>(graph){
+				new ArcStrategy<UndirectedGraphVar>(graph){
 					@Override
 					public boolean computeNextArc() {
 						ISet suc;

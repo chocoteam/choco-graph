@@ -29,7 +29,7 @@ package org.chocosolver.graphsolver.cstrs.connectivity;
 
 import org.chocosolver.graphsolver.util.ConnectivityFinder;
 import org.chocosolver.graphsolver.variables.GraphEventType;
-import org.chocosolver.graphsolver.variables.IUndirectedGraphVar;
+import org.chocosolver.graphsolver.variables.UndirectedGraphVar;
 import org.chocosolver.solver.constraints.Propagator;
 import org.chocosolver.solver.constraints.PropagatorPriority;
 import org.chocosolver.solver.exception.ContradictionException;
@@ -45,7 +45,7 @@ import java.util.BitSet;
  *
  * @author Jean-Guillaume Fages
  */
-public class PropConnected extends Propagator<IUndirectedGraphVar> {
+public class PropConnected extends Propagator<UndirectedGraphVar> {
 
 
 	//***********************************************************************************
@@ -55,7 +55,7 @@ public class PropConnected extends Propagator<IUndirectedGraphVar> {
 	private int n;
 	private BitSet visited;
 	private int[] fifo;
-	private IUndirectedGraphVar g;
+	private UndirectedGraphVar g;
 	private ConnectivityFinder env_CC_finder;
 	private boolean checkerOnly;
 
@@ -63,12 +63,12 @@ public class PropConnected extends Propagator<IUndirectedGraphVar> {
 	// CONSTRUCTORS
 	//***********************************************************************************
 
-	public PropConnected(IUndirectedGraphVar graph) {
+	public PropConnected(UndirectedGraphVar graph) {
 		this(graph,false);
 	}
 
-	public PropConnected(IUndirectedGraphVar graph, boolean checkerOnly) {
-		super(new IUndirectedGraphVar[]{graph}, PropagatorPriority.LINEAR, false);
+	public PropConnected(UndirectedGraphVar graph, boolean checkerOnly) {
+		super(new UndirectedGraphVar[]{graph}, PropagatorPriority.LINEAR, false);
 		this.g = graph;
 		this.n = graph.getNbMaxNodes();
 		this.visited = new BitSet(n);

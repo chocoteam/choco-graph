@@ -1,7 +1,7 @@
 package org.chocosolver.checked;
 
 import org.chocosolver.graphsolver.GraphModel;
-import org.chocosolver.graphsolver.variables.IUndirectedGraphVar;
+import org.chocosolver.graphsolver.variables.UndirectedGraphVar;
 import org.chocosolver.util.ESat;
 import org.chocosolver.util.objects.graphs.UndirectedGraph;
 import org.chocosolver.util.objects.setDataStructures.SetType;
@@ -27,7 +27,7 @@ public class ConnectedTest {
         GUB.addNode(1);
         GUB.addEdge(0,1);
 
-        IUndirectedGraphVar graph = model.graphVar("G", GLB, GUB);
+        UndirectedGraphVar graph = model.graphVar("G", GLB, GUB);
 
         assertEquals(model.connected(graph).isSatisfied(), ESat.UNDEFINED);
 
@@ -46,7 +46,7 @@ public class ConnectedTest {
         UndirectedGraph GUB = new UndirectedGraph(model, 2,SetType.BITSET,false);
 
         //empty graphs are traditionally *not* connected.
-        IUndirectedGraphVar graph = model.graphVar("G", GLB, GUB);
+        UndirectedGraphVar graph = model.graphVar("G", GLB, GUB);
 
         assertEquals(model.connected(graph).isSatisfied(), ESat.FALSE);
 
@@ -65,7 +65,7 @@ public class ConnectedTest {
         UB.addNode(0);
         UB.addNode(1);
         UB.addEdge(0, 1);
-        IUndirectedGraphVar g = m.graphVar("g", LB, UB);
+        UndirectedGraphVar g = m.graphVar("g", LB, UB);
 
         m.connected(g).post();
 

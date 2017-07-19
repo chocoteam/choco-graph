@@ -4,7 +4,7 @@ import org.chocosolver.graphsolver.GraphModel;
 import org.chocosolver.graphsolver.cstrs.symmbreaking.Pair;
 import org.chocosolver.graphsolver.cstrs.symmbreaking.PropGirth;
 import org.chocosolver.graphsolver.search.strategy.GraphStrategy;
-import org.chocosolver.graphsolver.variables.IUndirectedGraphVar;
+import org.chocosolver.graphsolver.variables.UndirectedGraphVar;
 import org.chocosolver.solver.constraints.Constraint;
 import org.chocosolver.util.objects.graphs.UndirectedGraph;
 import org.chocosolver.util.objects.setDataStructures.SetType;
@@ -14,9 +14,9 @@ import org.testng.annotations.Test;
 import java.util.HashSet;
 
 /**
- * Tests for {@code GraphConstraintFactory#postSymmetryBreaking(IUndirectedGraphVar, Solver) postSymmetryBreaking},
- * {@code GraphConstraintFactory#symmetryBreaking2(IUndirectedGraphVar, Solver) symmetryBreaking2} and
- * {@code GraphConstraintFactory#symmetryBreaking3(IUndirectedGraphVar, Solver) symmetryBreaking3}.
+ * Tests for {@code GraphConstraintFactory#postSymmetryBreaking(UndirectedGraphVar, Solver) postSymmetryBreaking},
+ * {@code GraphConstraintFactory#symmetryBreaking2(UndirectedGraphVar, Solver) symmetryBreaking2} and
+ * {@code GraphConstraintFactory#symmetryBreaking3(UndirectedGraphVar, Solver) symmetryBreaking3}.
  * Symmetry breaking is using in next problem: given n, m and l – integers.
  * <br/>
  * Find whether exists undirected connected graph with n nodes, m edges
@@ -35,7 +35,7 @@ public class SymmetryBreakingTest {
      * @param graph given graph
      * @return girth of {@code graph}
      */
-    private static int getGraphGirth(IUndirectedGraphVar graph) {
+    private static int getGraphGirth(UndirectedGraphVar graph) {
         int n = graph.getNbMaxNodes();
         int g = n + 1;
         for (int i = 0; i < n; i++) {
@@ -47,7 +47,7 @@ public class SymmetryBreakingTest {
         return g;
     }
 
-    private static int getGraphVertexGirth(IUndirectedGraphVar graph, int vertex) {
+    private static int getGraphVertexGirth(UndirectedGraphVar graph, int vertex) {
         int n = graph.getNbMaxNodes();
         HashSet<Pair<Integer, Integer>> reachable = new HashSet<>();
         reachable.add(new Pair<>(vertex, -1));
@@ -87,7 +87,7 @@ public class SymmetryBreakingTest {
                 GUB.addEdge(i, j);
             }
         }
-        IUndirectedGraphVar graph = model.graphVar("G", GLB, GUB);
+        UndirectedGraphVar graph = model.graphVar("G", GLB, GUB);
         // graph mush contains n nodes, m edges and have girth exactly l
         model.getSolver().setSearch(new GraphStrategy(graph));
         model.nbEdges(graph, model.intVar(m)).post();
