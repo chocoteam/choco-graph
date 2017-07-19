@@ -22,6 +22,14 @@
 \usepackage{xcolor}
 \usepackage{listings}
 \usepackage{authblk}
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks,
+    citecolor=black,
+    filecolor=black,
+    linkcolor=black,
+    urlcolor=black
+}
 
 % Tikz
 \usepackage{pgfplots}
@@ -44,17 +52,17 @@
 \author[1]{Jean-Guillaume Fages}
 \author[2]{Charles Prud'homme}
 \author[2]{Xavier Lorca}
-\affil[1]{\small{COSLING S.A.S., https://www.cosling.com/}}
-\affil[2]{\small{TASC research team, Ecole des Mines de Nantes, http://www.mines-nantes.fr/}}                      
-\title{Choco-Graph : a module for graph variables in Choco Solver \large{(version 4.0.0)}}
+\affil[1]{\small{\href{https://www.cosling.com/}{COSLING} S.A.S., https://www.cosling.com/}}
+\affil[2]{\small{\href{http://web.emn.fr/x-info/ppc/index_en.html}{TASC} research team, IMT Atlantique, https://www.imt-atlantique.fr/}}                      
+\title{Choco Graph Documentation \\ \large{Choco Solver module for graph variables (version 4.2.0)}}
 \maketitle
-%
-%\begin{abstract}
-%This document describes the API  of Choco-Graph, a module of the Choco solver which enables to search for a graph subject to constraints. 
-%It explains how to create graph variables and uses available graph constraints and search procedures. It also describes how to build your own ones. Finally, a few examples are provided.
-%\end{abstract}
 
-%\newpage{}
+\begin{abstract}
+This document describes the API  of Choco-Graph, a module of the Choco Solver which enables to search for a graph subject to constraints. 
+It explains how to create graph variables and uses available graph constraints and search procedures. It also describes how to build your own ones. Finally, a few examples are provided.
+\end{abstract}
+
+\newpage{}
 {\scriptsize\tableofcontents{}}
 \newpage{}
 
@@ -62,31 +70,16 @@
 \newcommand{\GLB}{\ensuremath{\underline{\mathcal{G}}}}
 \newcommand{\GUB}{\ensuremath{\overline{\mathcal{G}}}}
 
-\lstset{language=Java} 
-
 \definecolor{javared}{rgb}{0.6,0,0} % for strings
 \definecolor{javagreen}{rgb}{0.25,0.5,0.35} % comments
 \definecolor{javapurple}{rgb}{0.5,0,0.35} % keywords
 \definecolor{javadocblue}{rgb}{0.25,0.35,0.75} % javadoc
- 
-\lstset{language=Java,
-basicstyle=\scriptsize{},
-keywordstyle=\color{javapurple}\bfseries,
-stringstyle=\color{javared},
-commentstyle=\color{javagreen},
-morecomment=[s][\color{javadocblue}]{/**}{*/},
-numbers=left,
-frame=single,
-numberstyle=\tiny\color{black},
-stepnumber=0,
-numbersep=10pt,
-tabsize=4,
-showspaces=false,
-showstringspaces=false}
 
-\section{Overview}
+\section{Introduction}
 
-This Choco module allows you to search for a graph\footnote{Either directed or undirected, with at most one arc/edge between any two vertices. }, which may be subject to constraints. 
+\subsection{Overview}
+
+This \href{http://www.choco-solver.org/}{Choco Solver} module allows you to search for a graph\footnote{Either directed or undirected, with at most one arc/edge between any two vertices. }, which may be subject to constraints. 
 %
 The domain of a graph variable \GV{} is a graph interval $[\GLB{},\GUB{}]$. \GLB{} is the graph representing vertices and edges which must belong to any single solution whereas \GUB{} is the graph representing vertices and edges which may belong to one solution. Therefore, any value $\GV{}^*$ must satisfy the graph inclusion $\GLB{} \subseteq \GV{}^* \subseteq \GUB{}$. One may see a strong connection with set variables.
 %
@@ -113,7 +106,54 @@ The solving process consists of removing nodes and edges from \GUB{} and adding 
 
 This module can be seen as a CP framework for graph theory. In that sense, it is closer to Operations Research than Artificial Intelligence. With a minimum background in graph algorithms, this manual will help you to build your own models, constraints and search procedures so that you effectively solve your problems. 
 
-This module has been introduced in 2011 but it has been deeply refactored in September 2014. In case some bugs have been introduced during that step, please inform us. 
+%This module has been introduced in 2011 but it has been deeply refactored in September 2014. 
+
+
+\subsection{How to cite Choco Graph?}
+
+A reference to this manual, or more generally to Choco Graph, is made like this:
+\lstset{language=Java,
+basicstyle=\scriptsize{},
+numbers=left,
+frame=single,
+numberstyle=\tiny\color{black},
+stepnumber=0,
+numbersep=10pt,
+tabsize=4,
+showspaces=false,
+showstringspaces=false}
+\begin{lstlisting}
+@manual{chocograph,
+  author        = {Jean-Guillaume Fages and Charles Prud'homme and Xavier Lorca},
+  title         = {Choco Graph Documentation},
+  year          = {2017},
+  organization  = {COSLING S.A.S., IMT Atlantique},
+  timestamp     = {Wed, 19 Jul 2017},
+  url           = {https://github.com/chocoteam/choco-graph/},
+}
+\end{lstlisting}
+\lstset{language=Java,
+basicstyle=\scriptsize{},
+keywordstyle=\color{javapurple}\bfseries,
+stringstyle=\color{javared},
+commentstyle=\color{javagreen},
+morecomment=[s][\color{javadocblue}]{/**}{*/},
+numbers=left,
+frame=single,
+numberstyle=\tiny\color{black},
+stepnumber=0,
+numbersep=10pt,
+tabsize=4,
+showspaces=false,
+showstringspaces=false}
+
+\subsection{Need support?}
+
+The company \href{https://www.cosling.com/}{COSLING} can provide you with professional support and specific software development related to Choco Graph and Choco Solver. Feel free to contact our consultants at contact@cosling.com to discuss your upcoming projects.
+
+
+
+If you encounter any bug, please feel free to open an issue on \href{https://github.com/chocoteam/choco-graph/}{GitHub}.
 
 \newpage{}
 \section{Defining a graph variable}
@@ -178,7 +218,7 @@ Graph variables can be created through the \texttt{GraphModel}. The domain of su
  * @param ub		Undirected graph representing possible nodes and edges
  * @return	An undirected graph variable
  */
-default IUndirectedGraphVar graphVar(String name, 
+default UndirectedGraphVar graphVar(String name, 
 								UndirectedGraph lb, 
 								UndirectedGraph ub) {
 	return new UndirectedGraphVar(name, _me(), lb, ub);
@@ -195,7 +235,7 @@ default IUndirectedGraphVar graphVar(String name,
  * @param ub		Directed graph representing possible nodes and edges
  * @return	An undirected graph variable
  */
-default IDirectedGraphVar digraphVar(String name, 
+default DirectedGraphVar digraphVar(String name, 
 								DirectedGraph lb, 
 								DirectedGraph ub) {
 	return new DirectedGraphVar(name, _me(), lb, ub);
@@ -468,7 +508,7 @@ Let us now investigate how to implement such a propagator. There are basically t
 The simplest is the non-incremental approach, but it is also the slower. As we can see, every time the constraint is propagated, we perform an iteration over every mandatory arc (to remove its opposite if it has not been already done). 
 
 \begin{lstlisting}
-public class PropAntiSymmetric_coarse extends Propagator<IDirectedGraphVar> {
+public class PropAntiSymmetric_coarse extends Propagator<DirectedGraphVar> {
 
     //*****************************************************************************
     // VARIABLES
@@ -481,7 +521,7 @@ public class PropAntiSymmetric_coarse extends Propagator<IDirectedGraphVar> {
     // CONSTRUCTORS
     //*****************************************************************************
 
-    public PropAntiSymmetric_coarse(IDirectedGraphVar graph) {
+    public PropAntiSymmetric_coarse(DirectedGraphVar graph) {
         super(graph);
         g = graph;
         n = g.getNbMaxNodes();
@@ -533,16 +573,16 @@ public int getPropagationConditions(int vIdx) {
 
 In an incremental approach, then we can run in constant time per newly enforce arc, with the following implementation:
 \begin{lstlisting}
-public class PropAntiSymmetric extends Propagator<IDirectedGraphVar> {
+public class PropAntiSymmetric extends Propagator<DirectedGraphVar> {
 
     //***********************************************************************
     // VARIABLES
     //***********************************************************************
 
-    IDirectedGraphVar g;
+    DirectedGraphVar g;
     int n;
     // object enabling to iterate over enforced/removed nodes/arcs
-    IGraphDeltaMonitor gdm;
+    GraphDeltaMonitor gdm;
     // procedure to apply to every enforced arc (a, b) in order to remove (b, a)
     PairProcedure enf = (from, to) -> {
         if (from != to) {
@@ -554,8 +594,8 @@ public class PropAntiSymmetric extends Propagator<IDirectedGraphVar> {
     // CONSTRUCTORS
     //***********************************************************************
 
-    public PropAntiSymmetric(IDirectedGraphVar graph) {
-        super(new IDirectedGraphVar[]{graph}, PropagatorPriority.UNARY, true);
+    public PropAntiSymmetric(DirectedGraphVar graph) {
+        super(new DirectedGraphVar[]{graph}, PropagatorPriority.UNARY, true);
         g = graph;
         gdm = g.monitorDelta(this);
         n = g.getNbMaxNodes();
@@ -607,7 +647,7 @@ public class PropAntiSymmetric extends Propagator<IDirectedGraphVar> {
 \end{lstlisting}
 
 Note that the super constructor is no longer the same : \\
-\texttt{super(new IDirectedGraphVar[]{graph}, PropagatorPriority.UNARY, true);}. 
+\texttt{super(new DirectedGraphVar[]{graph}, PropagatorPriority.UNARY, true);}. 
 The first argument is the array of variables this propagator involves. The second one is an indicator of the runtime of the algorithm (here constant time). Finally, the last boolean argument states whether of not this propagator should be incremental or not. Therefore, it should be set to \texttt{true}.
 
 \newpage{}
@@ -625,7 +665,7 @@ For that, the user need to create a search procedure for each variable type and 
 Solver solver = model.getSolver();
 AbstractStrategy<IntVar> intSearch = Search.intVarSearch(card);
 AbstractStrategy<SetVar> setSearch = Search.setVarSearch(vertices);
-AbstractStrategy<IUndirectedGraphVar> graphSearch = GraphStrategyFactory.lexico(graphvar);
+AbstractStrategy<UndirectedGraphVar> graphSearch = GraphStrategyFactory.lexico(graphvar);
 // this implicitly use a sequencer composite strategy
 solver.setSearch(intSearch,setSearch,graphSearch); 
 \end{lstlisting}
@@ -746,6 +786,24 @@ There are two options for \texttt{NodeArcPriority}:
 \item \texttt{NodeArcPriority.ARCS}: Fixes every arc (forcing an arc automatically forces its incident nodes). Note that potential nodes with no incident arcs may remain unfixed. 
 \end{itemize}
 
+\subsection{Built-in search heuristics}
+
+You can retrieve many built-in heuristics in \texttt{GraphSearch}:
+
+\begin{lstlisting}
+solver.setSearch(new GraphSearch(graph).configure(GraphSearch.MIN_P_DEGREE).useLastConflict());
+\end{lstlisting}
+
+This example allows to branch on the \texttt{graph} by selecting arcs for which the sum of the potential degree of its two ending nodes is minimal. 
+It also plugs a graph adaptation of the last conflict of Lecoutre et. al. 
+
+\section{Visualization}
+
+Graph variables can be exported into the \href{http://www.webgraphviz.com/}{GraphViz} format in order to view their domain, through method \texttt{graphVar.graphVizExport()}. 
+Mandatory (LB) nodes and arcs will be displayed in red whereas potential (UB) nodes and arcs will appear in black: 
+
+\includegraphics[width=4cm]{graphViz}
+
 %\subsection{Large Neighborhood Search}
 %
 %Large Neighborhood Search (LNS) is most powerful technique to solve large scale optimization problems. It may not be able to prove optimality but is designed to provide very good solutions in a reasonable runtime. Another interesting motivation for setting up an LNS is that the output solution may not be easy to improve by hand. 
@@ -832,8 +890,11 @@ There are two options for \texttt{NodeArcPriority}:
 %The main methods to implement are \texttt{recordSolution()} which requires to copy some part of the current solution in internal data structure in order to be able to freeze some edges later. 
 %The method \texttt{fixSomeVariables} is called after a restart in order to freeze some variables (here some edges). The method \texttt{restrictLess} does not need to be implemented. It is called some times to suggest considering a larger neighborhood (variable neighborhood search). Finally, \texttt{isSearchComplete} asks whether the search is complete or not. The answer should be \texttt{false} in the general case, unless no variable has been frozen (which may occur in variable large neighborhood search). 
 
+
 \newpage{}
-\section{Practical examples}
+\section{Appendix : Practical examples}
+
+Examples may be found in the source code in package \texttt{org.chocosolver.samples} 
 
 \subsection{Large scale Hamiltonian cycle : The Knight's Tour Problem}
 
@@ -843,7 +904,7 @@ The Knight's Tour Problem (KTP) is defined over a chessboard and consists of mak
 import org.chocosolver.graphsolver.GraphModel;
 import org.chocosolver.graphsolver.search.strategy.ArcStrategy;
 import org.chocosolver.graphsolver.search.strategy.GraphStrategy;
-import org.chocosolver.graphsolver.variables.IUndirectedGraphVar;
+import org.chocosolver.graphsolver.variables.UndirectedGraphVar;
 import org.chocosolver.solver.Solver;
 import org.chocosolver.util.objects.graphs.UndirectedGraph;
 import org.chocosolver.util.objects.setDataStructures.ISet;
@@ -912,10 +973,10 @@ public class KnightTourProblem {
 	// HEURISTICS
 	//***********************************************************************************
 
-	private static class MinNeigh extends ArcStrategy<IUndirectedGraphVar> {
+	private static class MinNeigh extends ArcStrategy<UndirectedGraphVar> {
 		int n;
 
-		public MinNeigh(IUndirectedGraphVar graphVar) {
+		public MinNeigh(UndirectedGraphVar graphVar) {
 			super(graphVar);
 			n = graphVar.getNbMaxNodes();
 		}
@@ -1278,7 +1339,7 @@ We now consider the problem of finding a DAG comprised between two input graphs 
 This problem can be stated through the following program:
 \begin{lstlisting}
 import org.chocosolver.graphsolver.GraphModel;
-import org.chocosolver.graphsolver.variables.IDirectedGraphVar;
+import org.chocosolver.graphsolver.variables.DirectedGraphVar;
 import org.chocosolver.solver.Model;
 import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.util.objects.graphs.DirectedGraph;
@@ -1304,7 +1365,7 @@ public class DAGProblem {
 			}
 		}
 
-		IDirectedGraphVar dag = model.digraphVar("dag", GLB, GUB);
+		DirectedGraphVar dag = model.digraphVar("dag", GLB, GUB);
 
 		// CONSTRAINTS
 		model.noCircuit(dag).post();
@@ -1352,18 +1413,5 @@ successors :
 
 Process finished with exit code 0
 \end{lstlisting}
-
-\section{How to contribute?}
-
-You can contribute to this project in vert different ways. The first simple thing you can do is to just use it and send us some feedback about your experience. 
-We are interested in understanding what can be improved in the module and the kind of applications you are doing with it. 
-Feel also free to advertise around you.  
-
-You can also contribute to choco-graph with your work by sending us some code (models, tests, constraints...) in order to improve the library. 
-We have a GitHub repository at \texttt{https://github.com/chocoteam}.
-
-You can also fund us directly so that we develop some features you need for your application or research activities. 
-
-Last but not least, you can contact us for partnerships on industrial or academic projects. 
 
 \end{document}

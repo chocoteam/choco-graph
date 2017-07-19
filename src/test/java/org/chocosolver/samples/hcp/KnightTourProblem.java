@@ -52,7 +52,7 @@ public class KnightTourProblem {
 	public static void main(String[] args) {
 		boolean[][] matrix;
 		boolean closedTour = true; //Open tour (path instead of cycle)
-		int boardLength = 8;
+		int boardLength = 6;
 		// This generates the boolean incidence matrix of the chessboard graph
 		// It is responsible of the high memory consumption of this example
 		// and could be replaced by lighter data structure
@@ -89,7 +89,9 @@ public class KnightTourProblem {
 		solver.setSearch(new GraphStrategy(graph, null, new MinNeigh(graph), GraphStrategy.NodeArcPriority.ARCS));
 		solver.limitTime("20s");
 
-		solver.solve();
+		if(solver.solve()){
+			System.out.println(graph.graphVizExport());
+		}
 		solver.printStatistics();
 	}
 

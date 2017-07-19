@@ -28,14 +28,12 @@
 package org.chocosolver.samples.hcp;
 
 import org.chocosolver.graphsolver.GraphModel;
-import org.chocosolver.graphsolver.search.strategy.ArcStrategy;
-import org.chocosolver.graphsolver.search.strategy.GraphStrategy;
+import org.chocosolver.graphsolver.search.strategy.GraphSearch;
 import org.chocosolver.graphsolver.variables.UndirectedGraphVar;
 import org.chocosolver.solver.Solver;
 import org.chocosolver.solver.search.limits.FailCounter;
 import org.chocosolver.solver.search.restart.MonotonicRestartStrategy;
 import org.chocosolver.util.objects.graphs.UndirectedGraph;
-import org.chocosolver.util.objects.setDataStructures.ISet;
 import org.chocosolver.util.objects.setDataStructures.SetType;
 
 /**
@@ -72,30 +70,7 @@ public class HamiltonianCycleProblem {
 
 
 		Solver solver = model.getSolver();
-		solver.setSearch(new GraphStrategy(graph, null,
-				new ArcStrategy<UndirectedGraphVar>(graph){
-					@Override
-					public boolean computeNextArc() {
-						ISet suc;
-						to = -1;
-						int size = 2*n+2;
-						for (int i = 0; i < n; i++) {
-							suc = g.getPotNeighOf(i);
-							int deltai = g.getPotNeighOf(i).size() - g.getMandNeighOf(i).size();
-							for (int j : suc) {
-								if(!g.getMandNeighOf(i).contains(j)){
-									int deltaj = g.getPotNeighOf(i).size() - g.getMandNeighOf(i).size();
-									if (deltai+deltaj < size && deltai+deltaj > 0) {
-										from = i;
-										to = j;
-										size = deltai+deltaj;
-									}
-								}
-							}
-						}
-						return to != -1;
-					}
-				}, GraphStrategy.NodeArcPriority.ARCS));
+		solver.setSearch(new GraphSearch(graph).configure(GraphSearch.MIN_P_DEGREE).useLastConflict());
 		solver.limitTime("10s");
 		solver.showStatistics();
 		// restart search every 100 fails

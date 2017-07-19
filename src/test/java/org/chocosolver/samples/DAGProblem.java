@@ -61,9 +61,9 @@ public class DAGProblem {
 		model.nbArcs(dag, nbArcs).post();
 
 		model.setObjective(Model.MAXIMIZE,nbArcs);
-		while (model.getSolver().solve()){
-			System.out.println("new solution found : "+nbArcs);
-			System.out.println(dag);
+		if (model.getSolver().solve()){
+			System.out.println("solution found : "+nbArcs);
+			System.out.println(dag.graphVizExport());
 		}
 		model.getSolver().printStatistics();
 	}

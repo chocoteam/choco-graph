@@ -67,13 +67,22 @@ public class GraphSearch extends GraphStrategy {
 	private boolean useLC;
 	private int lastFrom=-1;
 
-    /**
-     * Search strategy for graphs
-     *
-     * @param graphVar   varriable to branch on
-     * @param costMatrix can be null
-     */
-    public GraphSearch(GraphVar graphVar, int[][] costMatrix) {
+	/**
+	 * Search strategy for graphs
+	 *
+	 * @param graphVar   varriable to branch on
+	 */
+	public GraphSearch(GraphVar graphVar) {
+		this(graphVar,null);
+	}
+
+	/**
+	 * Search strategy for graphs
+	 *
+	 * @param graphVar   varriable to branch on
+	 * @param costMatrix can be null
+	 */
+	public GraphSearch(GraphVar graphVar, int[][] costMatrix) {
         super(graphVar, null, null, NodeArcPriority.ARCS);
         costs = costMatrix;
         n = g.getNbMaxNodes();

@@ -376,4 +376,40 @@ public abstract class GraphVar<E extends IGraph> extends AbstractVariable implem
             }
         }
     }
+
+	//***********************************************************************************
+	// GraphViz
+	//***********************************************************************************
+
+	/**
+	 * Export domain to graphviz format, see http://www.webgraphviz.com/
+	 * Mandatory elements are in red whereas potential elements are in black
+	 * @return a String encoding the domain of the variable
+	 */
+	public String graphVizExport(){
+		boolean directed = isDirected();
+		String arc = directed?" -> ":" -- ";
+		StringBuilder sb =new StringBuilder();
+		sb.append(directed?"digraph ":"graph ").append(getName()+ "{\n");
+		sb.append("node [color = red, fontcolor=red]; ");
+		for(int i:getMandatoryNodes())sb.append(i+" ");
+		sb.append(";\n");
+		for(int i:getMandatoryNodes()){
+			for(int j:getMandSuccOrNeighOf(i)){
+				if(directed || i<j)sb.append(i+arc+j+" [color=red] ;\n");
+			}
+		}
+		if(getMandatoryNodes().size()<getPotentialNodes().size()){
+			sb.append("node [color = black, fontcolor=black]; ");
+			for(int i:getPotentialNodes())if(!getMandatoryNodes().contains(i))sb.append(i+" ");
+			sb.append(";\n");
+		}
+		for(int i:getPotentialNodes()){
+			for(int j:getPotSuccOrNeighOf(i)){
+				if((directed || i<j) && !getMandSuccOrNeighOf(i).contains(j))sb.append(i+arc+j+" ;\n");
+			}
+		}
+		sb.append("}");
+		return sb.toString();
+	}
 }
