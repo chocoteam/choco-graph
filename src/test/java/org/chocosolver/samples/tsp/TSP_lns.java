@@ -29,7 +29,7 @@ package org.chocosolver.samples.tsp;
 
 import gnu.trove.list.array.TIntArrayList;
 import org.chocosolver.graphsolver.GraphModel;
-import org.chocosolver.graphsolver.search.strategy.GraphStrategies;
+import org.chocosolver.graphsolver.search.strategy.GraphSearch;
 import org.chocosolver.graphsolver.variables.UndirectedGraphVar;
 import org.chocosolver.solver.Model;
 import org.chocosolver.solver.Solution;
@@ -103,8 +103,7 @@ public class TSP_lns {
 		model.tsp(graph, totalCost, costMatrix, 2).post();
 
 		// intuitive heuristic (cheapest edges first)
-		final GraphStrategies search = new GraphStrategies(graph, costMatrix);
-		search.configure(GraphStrategies.MIN_COST, true);
+		final GraphSearch search = new GraphSearch(graph, costMatrix).configure(GraphSearch.MIN_COST);
 		Solver solver = model.getSolver();
 		solver.setSearch(search);
 		solver.limitTime(LIMIT+"s");
@@ -116,7 +115,7 @@ public class TSP_lns {
 		model.setObjective(Model.MINIMIZE, totalCost);
 
 		while (solver.solve()){
-			search.configure(GraphStrategies.MIN_DELTA_DEGREE, true);
+			search.configure(GraphSearch.MIN_DELTA_DEGREE);
 			System.out.println("solution found : " + totalCost);
 			bestSolutionValue = totalCost.getValue();
 		}

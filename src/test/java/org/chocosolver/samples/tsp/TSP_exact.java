@@ -28,7 +28,7 @@
 package org.chocosolver.samples.tsp;
 
 import org.chocosolver.graphsolver.GraphModel;
-import org.chocosolver.graphsolver.search.strategy.GraphStrategies;
+import org.chocosolver.graphsolver.search.strategy.GraphSearch;
 import org.chocosolver.graphsolver.variables.UndirectedGraphVar;
 import org.chocosolver.solver.Model;
 import org.chocosolver.solver.Solver;
@@ -92,10 +92,7 @@ public class TSP_exact {
 
 		Solver solver = model.getSolver();
 		// Fail first principle (requires a very good initial upper bound)
-		GraphStrategies strategy = new GraphStrategies(graph, costMatrix);
-		strategy.configure(GraphStrategies.MAX_COST, true);
-		strategy.useLastConflict();
-		solver.setSearch(strategy);
+		solver.setSearch(new GraphSearch(graph, costMatrix).configure(GraphSearch.MAX_COST).useLastConflict());
 		solver.limitTime(LIMIT+"s");
 
 		model.setObjective(Model.MINIMIZE,totalCost);

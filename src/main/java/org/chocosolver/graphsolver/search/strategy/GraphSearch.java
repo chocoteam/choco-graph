@@ -39,7 +39,7 @@ import org.chocosolver.graphsolver.search.GraphDecision;
 import org.chocosolver.graphsolver.variables.GraphVar;
 import org.chocosolver.util.objects.setDataStructures.ISet;
 
-public class GraphStrategies extends GraphStrategy {
+public class GraphSearch extends GraphStrategy {
 
 
     //***********************************************************************************
@@ -73,30 +73,41 @@ public class GraphStrategies extends GraphStrategy {
      * @param graphVar   varriable to branch on
      * @param costMatrix can be null
      */
-    public GraphStrategies(GraphVar graphVar, int[][] costMatrix) {
+    public GraphSearch(GraphVar graphVar, int[][] costMatrix) {
         super(graphVar, null, null, NodeArcPriority.ARCS);
         costs = costMatrix;
         n = g.getNbMaxNodes();
     }
 
+	/**
+	 * Configures the search
+	 *
+	 * @param policy  way to select arcs
+	 */
+	public GraphSearch configure(int policy) {
+		return configure(policy,true);
+	}
+
     /**
-     * Configure the search
+     * Configures the search
      *
      * @param policy  way to select arcs
      * @param enforce true if a decision is an arc enforcing
      *                false if a decision is an arc removal
      */
-    public void configure(int policy, boolean enforce) {
+    public GraphSearch configure(int policy, boolean enforce) {
         if (enforce) {
             decisionType = GraphAssignment.graph_enforcer;
         } else {
             decisionType = GraphAssignment.graph_remover;
         }
         mode = policy;
+		return this;
     }
 
-	public void useLastConflict(){
+	public GraphSearch useLastConflict(){
 		useLC = true;
+		return this;
 	}
 
     @Override
