@@ -171,7 +171,7 @@ public class ConnectivityFinder {
 	 */
 	public boolean isBiconnected() {
 		assert (!graph.isDirected());
-		if (nodeOfNum == null) {
+		if (inf == null) {
 			nodeOfNum = new int[n];
 			numOfNode = new int[n];
 			inf = new int[n];
@@ -232,7 +232,7 @@ public class ConnectivityFinder {
 	 */
 	public TIntArrayList getArticulationPoints(){
 		if(articulations==null) articulations = new TIntArrayList();
-		if (nodeOfNum == null) {
+		if (inf == null) {
 			nodeOfNum = new int[n];
 			numOfNode = new int[n];
 			inf = new int[n];
