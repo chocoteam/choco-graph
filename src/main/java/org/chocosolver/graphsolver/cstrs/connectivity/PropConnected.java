@@ -27,6 +27,7 @@
 
 package org.chocosolver.graphsolver.cstrs.connectivity;
 
+import gnu.trove.list.array.TIntArrayList;
 import org.chocosolver.graphsolver.util.ConnectivityFinder;
 import org.chocosolver.graphsolver.variables.GraphEventType;
 import org.chocosolver.graphsolver.variables.UndirectedGraphVar;
@@ -98,6 +99,14 @@ public class PropConnected extends Propagator<UndirectedGraphVar> {
 			for (int o = visited.nextClearBit(0); o < n; o = visited.nextClearBit(o + 1)) {
 				g.removeNode(o,this);
 			}
+			// force articulation points
+			if(g.getLB().getNodes().size()<g.getUB().getNodes().size()) {
+				TIntArrayList articulations = env_CC_finder.getArticulationPoints();
+				for (int k = 0; k < articulations.size(); k++) {
+					g.enforceNode(articulations.get(k), this);
+				}
+			}
+
 			// force isthma in case vertices are fixed
 			if (g.getMandatoryNodes().size() == g.getPotentialNodes().size() && !checkerOnly) {
 				if (!env_CC_finder.isConnectedAndFindIsthma()) {

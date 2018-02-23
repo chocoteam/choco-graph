@@ -43,6 +43,7 @@ package org.chocosolver.graphsolver.util;
 import gnu.trove.list.array.TIntArrayList;
 import org.chocosolver.util.objects.graphs.IGraph;
 import org.chocosolver.util.objects.setDataStructures.ISet;
+import org.chocosolver.util.objects.setDataStructures.ISetIterator;
 
 import java.util.Iterator;
 
@@ -219,6 +220,73 @@ public class ConnectivityFinder {
 				if (q >= numOfNode[i] && i != start) {
 					return false;
 				} // ARTICULATION POINT DETECTED
+			}
+		}
+	}
+
+	TIntArrayList articulations;
+
+	/**
+	 * Computes articulation points of the graph (must be connected)
+	 * @return the list of articulation points
+	 */
+	public TIntArrayList getArticulationPoints(){
+		if(articulations==null) articulations = new TIntArrayList();
+		if (nodeOfNum == null) {
+			nodeOfNum = new int[n];
+			numOfNode = new int[n];
+			inf = new int[n];
+		}
+		articulations.clear();
+		ISet act = graph.getNodes();
+		ISetIterator iter = act.iterator();
+		while(iter.hasNext()){
+			int i = iter.next();
+			inf[i] = Integer.MAX_VALUE;
+			p[i] = -1;
+			iterators[i] = graph.getSuccOrNeighOf(i).iterator();
+		}
+		//algo
+		int start = act.iterator().next();
+		int i = start;
+		int k = 0;
+		numOfNode[start] = k;
+		nodeOfNum[k] = start;
+		p[start] = start;
+		int j, q;
+		int nbRootChildren = 0;
+		while (true) {
+			if (iterators[i].hasNext()) {
+				j = iterators[i].next();
+				if (p[j] == -1) {
+					p[j] = i;
+					if (i == start) {
+						nbRootChildren++;
+						if (nbRootChildren > 1) {
+							articulations.add(i); // ARTICULATION POINT DETECTED
+						}
+					}
+					i = j;
+					k++;
+					numOfNode[i] = k;
+					nodeOfNum[k] = i;
+					inf[i] = numOfNode[i];
+				} else if (p[i] != j) {
+					inf[i] = Math.min(inf[i], numOfNode[j]);
+				}
+			}else {
+				if (i == start) {
+					if(k < act.size() - 1){
+						throw new UnsupportedOperationException("disconnected graph");
+					}
+					return articulations;
+				}
+				q = inf[i];
+				i = p[i];
+				inf[i] = Math.min(q, inf[i]);
+				if (q >= numOfNode[i] && i != start) {
+					articulations.add(i); // ARTICULATION POINT DETECTED
+				}
 			}
 		}
 	}
