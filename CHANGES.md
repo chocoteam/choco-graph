@@ -5,6 +5,12 @@ Module to manipulate graph variables
 
 CHANGES
 
+02/18:
+- release 4.2.1
+- Improved connectivity constraint by enforcing articulation points
+- update to choco solver 4.0.6
+- minor updates
+
 19/07/17:
 - Remove interfaces: IGraphVar, IUndirectedGraphVar, IDirectedGraphVar, IGraphDelta, IGraphDeltaMonitor
 -> Use class (without I prefix) directly instead
