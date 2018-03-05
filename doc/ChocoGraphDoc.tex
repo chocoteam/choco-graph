@@ -54,12 +54,16 @@
 \author[2]{Xavier Lorca}
 \affil[1]{\small{\href{https://www.cosling.com/}{COSLING} S.A.S., https://www.cosling.com/}}
 \affil[2]{\small{\href{http://web.emn.fr/x-info/ppc/index_en.html}{TASC} research team, IMT Atlantique, https://www.imt-atlantique.fr/}}                      
-\title{Choco Graph Documentation \\ \large{Choco Solver module for graph variables (version 4.2.1)}}
+\title{Choco Graph Documentation \\ \large{Choco Solver module for graph variables (version 4.2.2)}}
 \maketitle
 
 \begin{abstract}
-This document describes the API  of Choco-Graph, a module of the Choco Solver which enables to search for a graph subject to constraints. 
+This document describes the API  of Choco-Graph, a module of the Choco Solver \cite{choco} which enables to search for a graph subject to constraints. 
 It explains how to create graph variables and uses available graph constraints and search procedures. It also describes how to build your own ones. Finally, a few examples are provided.
+
+This solver is an output of the PhD Thesis of \cite{FagesPhD,FagesPhDFr}. Other references to graph variables may be found in the litterature \cite{Beldiceanu00,LorcaBook11,ReginSlides04,QuesadaPhD,DoomsPhD} but they are based on a different implementation. 
+
+\emph{This document assumes the reader is already familiar with the concepts of Constraint-Programming \cite{CPhandbook} and the Choco Solver.}
 \end{abstract}
 
 \newpage{}
@@ -377,7 +381,7 @@ model.noCircuit(g).post();
 
 \subsubsection{Connectivity}
 
-It is possible to force an undirected (resp. directed) graph variable to be connected (resp. strongly connected) or even to control its number of connected (resp. strongly connected) components with an integer variable. The filtering of such constraint is quite weak but fast.
+It is possible to force an undirected (resp. directed) graph variable to be connected (resp. strongly connected) \cite{Tarjan72} or even to control its number of connected (resp. strongly connected) components with an integer variable. The filtering of such constraint is quite weak but fast.
 
 Here is an example :
 \begin{lstlisting}
@@ -400,7 +404,7 @@ model.directedTree(graphvar,root).post();
 model.directedForest(graphvar).post();
 \end{lstlisting}
 
-Note that the \texttt{directed\_tree} constraint requires an integer variable denoting the root of the tree, i.e. the vertex which has no predecessor and from which all nodes can be reached. 
+Note that the \texttt{directed\_tree} constraint \cite{FagesCP11} requires an integer variable denoting the root of the tree, i.e. the vertex which has no predecessor and from which all nodes can be reached. 
 
 \subsubsection{Cliques}
 
@@ -417,7 +421,7 @@ We have included two minimum spanning tree relaxations : the one-tree Lagrangian
 
 \subsubsection{The TSP constraint}
 
-The TSP constraint enables to find a Hamiltonian cycle of minimum cost. It is built as follows:
+The TSP constraint enables to find a Hamiltonian cycle of minimum cost \cite{Benchimol12}. It is built as follows:
 \begin{lstlisting}
 // constraints (TSP basic model + Lagrangian relaxation)
 model.tsp(graph, totalCost, costMatrix, 1));
@@ -712,6 +716,7 @@ solver.setSearch(randomSelector);
 
 \subsection{Branching on a graph variable}
 
+Has for other variable types, the search heuristic over a graph variable has a strong impact on results \cite{GraphSearch}. 
 Let us now investigate how to modify the domain of a graph variable in a search decision. 
 The \texttt{getDecision()} method of \texttt{AbstractStrategy<IGraphVar>} should return a \texttt{GraphDecision} object. Let call $dec$ this decision object. 
 There are basically four options:
@@ -1418,5 +1423,9 @@ successors :
 
 Process finished with exit code 0
 \end{lstlisting}
+
+
+\bibliographystyle{elsarticle-num}
+\bibliography{ChocoGraph}
 
 \end{document}
