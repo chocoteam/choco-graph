@@ -27,7 +27,6 @@
 
 package org.chocosolver.graphsolver.cstrs.connectivity;
 
-import gnu.trove.list.array.TIntArrayList;
 import org.chocosolver.graphsolver.util.ConnectivityFinder;
 import org.chocosolver.graphsolver.variables.GraphEventType;
 import org.chocosolver.graphsolver.variables.UndirectedGraphVar;
@@ -35,6 +34,8 @@ import org.chocosolver.solver.constraints.Propagator;
 import org.chocosolver.solver.constraints.PropagatorPriority;
 import org.chocosolver.solver.exception.ContradictionException;
 import org.chocosolver.util.ESat;
+import org.chocosolver.util.objects.setDataStructures.ISet;
+import org.chocosolver.util.objects.setDataStructures.ISetIterator;
 
 import java.util.BitSet;
 
@@ -101,10 +102,7 @@ public class PropConnected extends Propagator<UndirectedGraphVar> {
 			}
 			// force articulation points
 			if(g.getLB().getNodes().size()<g.getUB().getNodes().size()) {
-				TIntArrayList articulations = env_CC_finder.getArticulationPoints();
-				for (int k = 0; k < articulations.size(); k++) {
-					g.enforceNode(articulations.get(k), this);
-				}
+				forceArticulationPoints();
 			}
 
 			// force isthma in case vertices are fixed
@@ -117,7 +115,6 @@ public class PropConnected extends Propagator<UndirectedGraphVar> {
 					g.enforceArc(env_CC_finder.isthmusFrom.get(i), env_CC_finder.isthmusTo.get(i), this);
 				}
 			}
-			// one could force nodes which are necessary to connect mandatory nodes together (dominator algo)
 		}
 	}
 
@@ -159,6 +156,77 @@ public class PropConnected extends Propagator<UndirectedGraphVar> {
 				if (!visited.get(j)) {
 					visited.set(j);
 					fifo[last++] = j;
+				}
+			}
+		}
+	}
+
+	int[] numOfNode;
+	int[] nodeOfNum;
+	int[] inf, p;
+	ISetIterator[] iterators;
+	boolean[] mandInSub;
+
+	public void forceArticulationPoints() throws ContradictionException {
+		if (inf == null) {
+			nodeOfNum = new int[n];
+			numOfNode = new int[n];
+			inf = new int[n];
+			p = new int[n];
+			iterators = new ISetIterator[n];
+			mandInSub = new boolean[n];
+		}
+		int start = -1;
+		int nNodes = g.getUB().getNodes().size();
+		ISet mandNodes = g.getLB().getNodes();
+		ISet act = g.getUB().getNodes();
+		ISetIterator iter = act.iterator();
+		while (iter.hasNext()) {
+			int i = iter.next();
+			inf[i] = Integer.MAX_VALUE;
+			p[i] = -1;
+			iterators[i] = g.getUB().getSuccOrNeighOf(i).iterator();
+			mandInSub[i] = false;
+			if (start == -1 && mandNodes.contains(i)) start = i;
+		}
+		if (start == -1) return;
+		//algo
+		int i = start;
+		int k = 0;
+		numOfNode[start] = k;
+		nodeOfNum[k] = start;
+		p[start] = start;
+		int j, q;
+		while (true) {
+			if (iterators[i].hasNext()) {
+				j = iterators[i].next();
+				if (p[j] == -1) { // no need to know if root is articulation (already mandatory node)
+					p[j] = i;
+					i = j;
+					k++;
+					numOfNode[i] = k;
+					nodeOfNum[k] = i;
+					inf[i] = numOfNode[i];
+					mandInSub[i] = mandNodes.contains(i);
+				} else if (p[i] != j) {
+					inf[i] = Math.min(inf[i], numOfNode[j]);
+					mandInSub[i] |= mandNodes.contains(j);
+				}
+			} else {
+				if (i == start) {
+					if (k < nNodes - 1) {
+						throw new UnsupportedOperationException("disconnected graph");
+					}
+					return ;
+				}
+				q = inf[i];
+				boolean mis = mandInSub[i];
+				i = p[i];
+				mandInSub[i] |= mis;
+				inf[i] = Math.min(q, inf[i]);
+				if (q >= numOfNode[i] && i != start) {
+					if (mandInSub[i] && !mandNodes.contains(i)) // must contain a mandatory node in subtree
+						g.enforceNode(i, this); // ARTICULATION POINT DETECTED
 				}
 			}
 		}

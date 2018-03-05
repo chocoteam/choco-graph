@@ -5,6 +5,10 @@ Module to manipulate graph variables
 
 CHANGES
 
+01/03/18:
+- release 4.2.2
+- fix connectivity constraint by enforcing articulation points
+
 02/18:
 - release 4.2.1
 - Improved connectivity constraint by enforcing articulation points
