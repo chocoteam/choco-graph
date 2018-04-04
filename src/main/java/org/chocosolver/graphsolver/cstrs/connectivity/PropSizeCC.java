@@ -29,6 +29,7 @@ public class PropSizeCC extends Propagator<Variable> {
 
     public PropSizeCC(UndirectedGraphVar graph, int minNCC, int maxNCC) {
         super(new Variable[] {graph}, PropagatorPriority.LINEAR, false);
+        assert minNCC <= maxNCC;
         this.g = graph;
         this.minNCC = minNCC;
         this.maxNCC = maxNCC;
