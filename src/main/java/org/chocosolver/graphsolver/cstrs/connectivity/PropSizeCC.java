@@ -64,7 +64,9 @@ public class PropSizeCC extends Propagator<Variable> {
         GubCCFinder.findAllCC();
         int nbGubCC = GubCCFinder.getNBCC();
 
-        // Step 1: If the largest GUB CC has less nodes than minNCC and the GLB is not empty => fail.
+        // Step 1:
+        //     - Remove nodes from CC whose size is strictly less than minNCC.
+        //     - If the largest GUB CC has strictly less nodes than minNCC and the GLB is not empty => fail.
         int largest = 0;
         for (int cc = 0; cc < nbGubCC; cc++) {
             Set<Integer> currentCCNodes = getGubCCNodes(cc);
