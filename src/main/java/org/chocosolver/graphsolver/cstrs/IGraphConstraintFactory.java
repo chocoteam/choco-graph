@@ -32,10 +32,7 @@ import org.chocosolver.graphsolver.cstrs.channeling.edges.*;
 import org.chocosolver.graphsolver.cstrs.channeling.nodes.PropNodeBoolChannel;
 import org.chocosolver.graphsolver.cstrs.channeling.nodes.PropNodeBoolsChannel;
 import org.chocosolver.graphsolver.cstrs.channeling.nodes.PropNodeSetChannel;
-import org.chocosolver.graphsolver.cstrs.connectivity.PropBiconnected;
-import org.chocosolver.graphsolver.cstrs.connectivity.PropConnected;
-import org.chocosolver.graphsolver.cstrs.connectivity.PropNbCC;
-import org.chocosolver.graphsolver.cstrs.connectivity.PropNbSCC;
+import org.chocosolver.graphsolver.cstrs.connectivity.*;
 import org.chocosolver.graphsolver.cstrs.cost.trees.PropMaxDegVarTree;
 import org.chocosolver.graphsolver.cstrs.cost.trees.PropTreeCostSimple;
 import org.chocosolver.graphsolver.cstrs.cost.trees.lagrangianRelaxation.PropLagr_DCMST_generic;
@@ -51,6 +48,7 @@ import org.chocosolver.graphsolver.cstrs.symmbreaking.PropSymmetryBreakingEx;
 import org.chocosolver.graphsolver.cstrs.tree.PropArborescence;
 import org.chocosolver.graphsolver.cstrs.tree.PropArborescences;
 import org.chocosolver.graphsolver.cstrs.tree.PropReachability;
+import org.chocosolver.graphsolver.util.ConnectivityFinder;
 import org.chocosolver.graphsolver.variables.DirectedGraphVar;
 import org.chocosolver.graphsolver.variables.GraphVar;
 import org.chocosolver.graphsolver.variables.IncidentSet;
@@ -62,6 +60,7 @@ import org.chocosolver.solver.variables.BoolVar;
 import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.solver.variables.SetVar;
 import org.chocosolver.util.objects.graphs.Orientation;
+import org.chocosolver.util.objects.graphs.UndirectedGraph;
 import org.chocosolver.util.tools.ArrayUtils;
 
 /**
@@ -787,6 +786,18 @@ public interface IGraphConstraintFactory {
 		if(nb.isInstantiatedTo(1))return connected(g);
 		if(nb.isInstantiatedTo(2))return connected(g);
 		return new Constraint("NbCC",new PropNbCC(g,nb));
+	}
+
+	/**
+	 * Creates a constraint which ensures that every connected component of g has a number of nodes bounded by
+	 * minNCC and maxNCC.
+	 * @param g an undirected graph variable
+	 * @param minNCC the minimum number of nodes of every connected components of g
+	 * @param maxNCC the maximum number of nodes of every connected components of g
+	 * @return A SizeCC constraint, which ensures that every connected component of g has a bounded number of nodes.
+	 */
+	default Constraint sizeConnectedComponents(UndirectedGraphVar g, int minNCC, int maxNCC) {
+		return new Constraint("SizeCC", new PropSizeCC(g, minNCC, maxNCC));
 	}
 	/**
 	 * Creates a strong connectedness constraint which ensures that g has exactly one strongly connected component
