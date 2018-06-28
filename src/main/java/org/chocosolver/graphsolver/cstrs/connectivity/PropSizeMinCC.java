@@ -85,7 +85,7 @@ public class PropSizeMinCC extends Propagator<Variable> {
         // Compute |V_T|, |V_U| and |V_TU|
         int nbNodesT = g.getMandatoryNodes().size();
         int nbNodesTU = g.getPotentialNodes().size();
-        int nbNodesU = g.getNodes(GraphVar.NodeSet.U).size();
+        int nbNodesU = nbNodesTU - nbNodesT;
         // Compute MIN_NCC(g) lower and upper bounds from g
         int minNCC_LB = getMinNCC_LB(nbNodesT, nbNodesU);
         int minNCC_UB = getMinNCC_UB(nbNodesT);
@@ -168,7 +168,7 @@ public class PropSizeMinCC extends Propagator<Variable> {
             // Recompute minNCC_LB
             this.GLBCCFinder.findAllCC();
             nbNodesT = g.getMandatoryNodes().size();
-            nbNodesU = g.getNodes(GraphVar.NodeSet.U).size();
+            nbNodesU = nbNodesTU - nbNodesT;
             minNCC_LB = getMinNCC_LB(nbNodesT, nbNodesU);
             // Repeat 4. and 5.
             if (minNCC_LB > sizeMinCC.getUB()) {
@@ -346,7 +346,8 @@ public class PropSizeMinCC extends Propagator<Variable> {
         this.GUBCCFinder.findAllCC();
         // Compute |V_T|, |V_U| and |V_TU|
         int nbNodesT = g.getNodes(GraphVar.NodeSet.T).size();
-        int nbNodesU = g.getNodes(GraphVar.NodeSet.U).size();
+        int nbNodesTU = g.getNodes(GraphVar.NodeSet.TU).size();
+        int nbNodesU = nbNodesTU - nbNodesT;
         // Compute MIN_NCC(g) lower bound from g
         int minNCC_LB = getMinNCC_LB(nbNodesT, nbNodesU);
         // Compute MIN_NCC(g) upper bound from g

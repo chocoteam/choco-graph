@@ -74,11 +74,7 @@ public abstract class GraphVar<E extends IGraph> extends AbstractVariable implem
         Field f = null; //NoSuchFieldException
         try {
             AbstractVariable me = this;
-            if (me instanceof UndirectedGraphVarU) {
-                f = me.getClass().getSuperclass().getSuperclass().getSuperclass().getDeclaredField("scheduler");
-            } else {
-                f = me.getClass().getSuperclass().getSuperclass().getDeclaredField("scheduler");
-            }
+            f = me.getClass().getSuperclass().getSuperclass().getDeclaredField("scheduler");
             f.setAccessible(true);
             f.set(me, new GraphEvtScheduler());
         } catch (NoSuchFieldException | IllegalAccessException e) {

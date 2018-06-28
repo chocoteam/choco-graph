@@ -67,21 +67,6 @@ public interface IGraphVarFactory {
 	}
 
 	/**
-	 * Create an undirected graph U variable named name
-	 * and whose domain is the graph interval [lb,ub]
-	 * BEWARE: lb and ub graphs must be backtrackable
-	 * (use the solver as an argument in their constructor)!
-	 *
-	 * @param name		name of the variable
-	 * @param lb		Undirected graph representing mandatory nodes and edges
-	 * @param ub		Undirected graph representing possible nodes and edges
-	 * @return	An undirected graph variable
-	 */
-	default UndirectedGraphVarU graphVarU(String name, UndirectedGraph lb, UndirectedGraph ub) {
-		return new UndirectedGraphVarU(name, _me(), lb, ub);
-	}
-
-	/**
 	 * Creates a directed graph variable comprised between an empty graph and K_n (complete graph of n vertices)
 	 * @param name	name of the variable
 	 * @param n		Maximum number of vertices
