@@ -48,7 +48,6 @@ import org.chocosolver.graphsolver.cstrs.symmbreaking.PropSymmetryBreakingEx;
 import org.chocosolver.graphsolver.cstrs.tree.PropArborescence;
 import org.chocosolver.graphsolver.cstrs.tree.PropArborescences;
 import org.chocosolver.graphsolver.cstrs.tree.PropReachability;
-import org.chocosolver.graphsolver.util.ConnectivityFinder;
 import org.chocosolver.graphsolver.variables.DirectedGraphVar;
 import org.chocosolver.graphsolver.variables.GraphVar;
 import org.chocosolver.graphsolver.variables.IncidentSet;
@@ -56,11 +55,11 @@ import org.chocosolver.graphsolver.variables.UndirectedGraphVar;
 import org.chocosolver.solver.Model;
 import org.chocosolver.solver.constraints.Constraint;
 import org.chocosolver.solver.constraints.Propagator;
+import org.chocosolver.solver.constraints.binary.PropGreaterOrEqualX_Y;
 import org.chocosolver.solver.variables.BoolVar;
 import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.solver.variables.SetVar;
 import org.chocosolver.util.objects.graphs.Orientation;
-import org.chocosolver.util.objects.graphs.UndirectedGraph;
 import org.chocosolver.util.tools.ArrayUtils;
 
 /**
@@ -790,15 +789,41 @@ public interface IGraphConstraintFactory {
 
 	/**
 	 * Creates a constraint which ensures that every connected component of g has a number of nodes bounded by
-	 * minNCC and maxNCC.
-	 * @param g an undirected graph variable
-	 * @param minNCC the minimum number of nodes of every connected components of g
-	 * @param maxNCC the maximum number of nodes of every connected components of g
-	 * @return A SizeCC constraint, which ensures that every connected component of g has a bounded number of nodes.
+	 * sizeMinCC and sizeMaxCC.
+	 * @param g an undirected graph variable.
+	 * @param sizeMinCC An IntVar to be equal to the smallest connected component of g.
+	 * @param sizeMaxCC An IntVar to be equal to the largest connected component of g.
+	 * @return A SizeCC constraint.
 	 */
-	default Constraint sizeConnectedComponents(UndirectedGraphVar g, int minNCC, int maxNCC) {
-		return new Constraint("SizeCC", new PropSizeCC(g, minNCC, maxNCC));
+	default Constraint sizeConnectedComponents(UndirectedGraphVar g, IntVar sizeMinCC, IntVar sizeMaxCC) {
+		return new Constraint("SizeCC",
+				new PropGreaterOrEqualX_Y(new IntVar[]{sizeMaxCC, sizeMinCC}),
+				new PropSizeMinCC(g, sizeMinCC),
+				new PropSizeMaxCC(g, sizeMaxCC));
 	}
+
+	/**
+	 * Creates a constraint which ensures that every connected component of g has a minimum number of
+	 * nodes equal to sizeMinCC.
+	 * @param g an undirected graph variable.
+	 * @param sizeMinCC An IntVar to be equal to the smallest connected component of g.
+	 * @return A SizeMinCC constraint.
+	 */
+	default Constraint sizeMinConnectedComponents(UndirectedGraphVar g, IntVar sizeMinCC) {
+		return new Constraint("SizeMinCC", new PropSizeMinCC(g, sizeMinCC));
+	}
+
+	/**
+	 * Creates a constraint which ensures that every connected component of g has a maximum number of
+	 * nodes equal to sizeMaxCC.
+	 * @param g an undirected graph variable
+	 * @param sizeMaxCC An IntVar to be equal to the largest connected component of g.
+	 * @return A SizeMaxCC constraint.
+	 */
+	default Constraint sizeMaxConnectedComponents(UndirectedGraphVar g, IntVar sizeMaxCC) {
+		return new Constraint("SizeMaxCC", new PropSizeMaxCC(g, sizeMaxCC));
+	}
+
 	/**
 	 * Creates a strong connectedness constraint which ensures that g has exactly one strongly connected component
 	 * @param g	a directed graph variable

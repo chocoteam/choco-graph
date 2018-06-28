@@ -61,8 +61,8 @@ public class ConnectivityFinder {
 
 	private int n;
 	private IGraph graph;
-	private int[] CC_firstNode, CC_nextNode, node_CC, p, fifo;
-	private int nbCC;
+	private int[] CC_firstNode, CC_nextNode, node_CC, p, fifo, size_CC;
+	private int nbCC, sizeMinCC, sizeMaxCC;
 	//bonus biconnection
 	private int[] numOfNode, nodeOfNum, inf;
 	private Iterator<Integer>[] iterators;
@@ -91,6 +91,25 @@ public class ConnectivityFinder {
 		return nbCC;
 	}
 
+	/**
+	 * Get the size (number of nodes) of the smallest CC in g.
+	 * Beware you should call method findAllCC() first.
+	 * @return sizeMinCC the size of the smallest CC in g.
+	 */
+	public int getSizeMinCC() { return sizeMinCC; }
+
+	/**
+	 * Get the size (number of nodes) of the largest CC in g.
+	 * Beware you should call method findAllCC() first.
+	 * @return sizeMaxCC the size of the largest CC in g.
+	 */
+	public int getSizeMaxCC() { return sizeMaxCC; }
+
+	/**
+	 * @return The size of the CCs as an int array.
+	 */
+	public int[] getSizeCC() { return size_CC; }
+
 	public int[] getCC_firstNode() {
 		return CC_firstNode;
 	}
@@ -112,18 +131,28 @@ public class ConnectivityFinder {
 			CC_firstNode = new int[n];
 			CC_nextNode = new int[n];
 			node_CC = new int[n];
+			size_CC = new int[n];
 		}
+		sizeMinCC = 0;
+		sizeMaxCC = 0;
 		ISet act = graph.getNodes();
 		for (int i : act) {
 			p[i] = -1;
 		}
 		for(int i=0;i<CC_firstNode.length;i++){
 			CC_firstNode[i] = -1;
+			size_CC[i] = -1;
 		}
 		int cc = 0;
 		for(int i:act){
 			if(p[i]==-1){
 				findCC(i, cc);
+				if (sizeMinCC == 0 || sizeMinCC > size_CC[cc]) {
+					sizeMinCC = size_CC[cc];
+				}
+				if (sizeMaxCC < size_CC[cc]) {
+					sizeMaxCC = size_CC[cc];
+				}
 				cc++;
 			}
 		}
@@ -133,6 +162,7 @@ public class ConnectivityFinder {
 	private void findCC(int start, int cc) {
 		int first= 0;
 		int last = 0;
+		int size = 1;
 		fifo[last++] = start;
 		p[start] = start;
 		add(start,cc);
@@ -142,6 +172,7 @@ public class ConnectivityFinder {
 				if(p[j]==-1){
 					p[j] = i;
 					add(j,cc);
+					size++;
 					fifo[last++] = j;
 				}
 			}
@@ -150,12 +181,15 @@ public class ConnectivityFinder {
 					if(p[j]==-1){
 						p[j] = i;
 						add(j,cc);
+						size++;
 						fifo[last++] = j;
 					}
 				}
 			}
 		}
+		size_CC[cc] = size;
 	}
+
 
 	private void add(int node, int cc) {
 		node_CC[node] = cc;

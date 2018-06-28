@@ -37,6 +37,7 @@ import org.chocosolver.solver.variables.events.IEventType;
 import org.chocosolver.solver.variables.impl.AbstractVariable;
 import org.chocosolver.util.objects.graphs.IGraph;
 import org.chocosolver.util.objects.setDataStructures.ISet;
+import org.chocosolver.util.objects.setDataStructures.SetFactory;
 
 import java.lang.reflect.Field;
 
@@ -73,7 +74,11 @@ public abstract class GraphVar<E extends IGraph> extends AbstractVariable implem
         Field f = null; //NoSuchFieldException
         try {
             AbstractVariable me = this;
-            f = me.getClass().getSuperclass().getSuperclass().getDeclaredField("scheduler");
+            if (me instanceof UndirectedGraphVarU) {
+                f = me.getClass().getSuperclass().getSuperclass().getSuperclass().getDeclaredField("scheduler");
+            } else {
+                f = me.getClass().getSuperclass().getSuperclass().getDeclaredField("scheduler");
+            }
             f.setAccessible(true);
             f.set(me, new GraphEvtScheduler());
         } catch (NoSuchFieldException | IllegalAccessException e) {
@@ -272,6 +277,51 @@ public abstract class GraphVar<E extends IGraph> extends AbstractVariable implem
 	 * @return true iff the graph is directed. It is undirected otherwise.
 	 */
     public abstract boolean isDirected();
+
+    //***********************************************************************************
+    // {T, U, F} GRAPH VAR REPRESENTATION
+    // cf. Beldiceanu et al. 2006 (https://link.springer.com/chapter/10.1007/11889205_7)
+    //***********************************************************************************
+
+    public enum NodeSet {
+        T, U, TU
+    }
+
+    /**
+     * @return The T-nodes of the graph variable.
+     */
+    public ISet getNodes(NodeSet nodeSet) {
+        switch (nodeSet) {
+            case T:
+                return getTNodes();
+            case TU:
+                return getTUNodes();
+            case U:
+                return getUNodes();
+            default:
+                return getTUNodes();
+        }
+    }
+
+    protected ISet getTNodes() {
+        return LB.getNodes();
+    }
+
+    protected ISet getUNodes() {
+        ISet tNodes = getTNodes();
+        ISet tuNodes = getTUNodes();
+        ISet uNodes = SetFactory.makeBitSet(0);
+        for (int e : tuNodes) {
+            if (!tNodes.contains(e)) {
+                uNodes.add(e);
+            }
+        }
+        return uNodes;
+    }
+
+    protected ISet getTUNodes() {
+        return UB.getNodes();
+    }
 
     //***********************************************************************************
     // VARIABLE STUFF
