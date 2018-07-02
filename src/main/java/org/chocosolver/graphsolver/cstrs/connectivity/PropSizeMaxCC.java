@@ -153,7 +153,7 @@ public class PropSizeMaxCC extends Propagator<Variable> {
         int size = 0;
         for (int cc = 0; cc < GUBCCFinder.getNBCC(); cc++) {
             int s = GUBCCFinder.getSizeCC()[cc];
-            if (s >= sizeMaxCC.getLB() && s <= sizeMaxCC.getUB()) {
+            if (s >= sizeMaxCC.getLB()) {
                 nb_candidates ++;
                 candidate = cc;
                 size = s;
