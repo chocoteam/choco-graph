@@ -274,50 +274,6 @@ public abstract class GraphVar<E extends IGraph> extends AbstractVariable implem
 	 */
 	public abstract boolean isDirected();
 
-	//***********************************************************************************
-	// {T, U, F} GRAPH VAR REPRESENTATION
-	// cf. Beldiceanu et al. 2006 (https://link.springer.com/chapter/10.1007/11889205_7)
-	//***********************************************************************************
-
-	public enum NodeSet {
-		T, U, TU
-	}
-
-	/**
-	 * @return The T-nodes of the graph variable.
-	 */
-	public ISet getNodes(NodeSet nodeSet) {
-		switch (nodeSet) {
-			case T:
-				return getTNodes();
-			case TU:
-				return getTUNodes();
-			case U:
-				return getUNodes();
-			default:
-				return getTUNodes();
-		}
-	}
-
-	protected ISet getTNodes() {
-		return LB.getNodes();
-	}
-
-	protected ISet getUNodes() {
-		ISet tNodes = getTNodes();
-		ISet tuNodes = getTUNodes();
-		ISet uNodes = SetFactory.makeBitSet(0);
-		for (int e : tuNodes) {
-			if (!tNodes.contains(e)) {
-				uNodes.add(e);
-			}
-		}
-		return uNodes;
-	}
-
-	protected ISet getTUNodes() {
-		return UB.getNodes();
-	}
 
 	//***********************************************************************************
 	// VARIABLE STUFF

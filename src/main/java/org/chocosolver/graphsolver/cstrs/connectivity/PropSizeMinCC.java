@@ -345,8 +345,8 @@ public class PropSizeMinCC extends Propagator<Variable> {
 		this.GLBCCFinder.findAllCC();
 		this.GUBCCFinder.findAllCC();
 		// Compute |V_T|, |V_U| and |V_TU|
-		int nbNodesT = g.getNodes(GraphVar.NodeSet.T).size();
-		int nbNodesTU = g.getNodes(GraphVar.NodeSet.TU).size();
+		int nbNodesT = g.getMandatoryNodes().size();
+		int nbNodesTU = g.getPotentialNodes().size();
 		int nbNodesU = nbNodesTU - nbNodesT;
 		// Compute MIN_NCC(g) lower bound from g
 		int minNCC_LB = getMinNCC_LB(nbNodesT, nbNodesU);

@@ -2,6 +2,7 @@ package org.chocosolver.checked;
 
 import org.chocosolver.GraphGenerator;
 import org.chocosolver.graphsolver.GraphModel;
+import org.chocosolver.graphsolver.util.ConnectivityFinder;
 import org.chocosolver.graphsolver.variables.UndirectedGraphVar;
 import org.chocosolver.solver.Solution;
 import org.chocosolver.solver.exception.ContradictionException;
@@ -13,6 +14,8 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.IntStream;
 
 /**
  * Test class for the SizeMaxCC constraint.
@@ -58,7 +61,19 @@ public class SizeMaxCCTest {
 			// Post the constraint
 			model.sizeMaxConnectedComponents(g, sizeMaxCC).post();
 		}
+
+		public AbstractTestModel(GraphModel model, int N, int maxNCC_LB, int maxNCC_UB, UndirectedGraph GLB,
+								 UndirectedGraph GUB) {
+			this.N = N;
+			this.model = model;
+			this.sizeMaxCC = this.model.intVar(maxNCC_LB, maxNCC_UB);
+			// Create the graph variable
+			this.g = model.graphVar("g",GLB, GUB);
+			// Post the constraint
+			model.sizeMaxConnectedComponents(g, sizeMaxCC).post();
+		}
 	}
+
 
 	/* --------------- */
 	/* Fail test cases */
@@ -214,5 +229,34 @@ public class SizeMaxCCTest {
 		AbstractTestModel test = new AbstractTestModel(N, maxNCC_LB, maxNCC_UB, GlbNodes, GubNodes, GlbEdges, GubEdges);
 		List<Solution> solutions = test.model.getSolver().findAllSolutions();
 		Assert.assertEquals(solutions.size(), 2);
+	}
+
+	@Test
+	public void batchTest() {
+		int N = 20;
+		for (int k : IntStream.range(0, 1).toArray()) {
+			GraphModel model = new GraphModel();
+			int nbCC1 = ThreadLocalRandom.current().nextInt(3, 6);
+			int nbCC2 = ThreadLocalRandom.current().nextInt(3, 6);
+			UndirectedGraph GLB = GraphGenerator.makeRandomUndirectedGraphFromNbCC(model, N, SetType.BITSET, nbCC1, 0.3, 10);
+			UndirectedGraph GUB = GraphGenerator.makeRandomUndirectedGraphFromNbCC(model, N, SetType.BITSET, nbCC2, 0.1, 5);
+			for (int i : GLB.getNodes()) {
+				GUB.addNode(i);
+				for (int j : GLB.getNeighOf(i)) {
+					GUB.addEdge(i, j);
+				}
+			}
+			ConnectivityFinder glbCf = new ConnectivityFinder(GLB);
+			glbCf.findAllCC();
+			ConnectivityFinder gubCf = new ConnectivityFinder(GUB);
+			gubCf.findAllCC();
+			AbstractTestModel test = new AbstractTestModel(model, N, 5, 10, GLB, GUB);
+			if (test.model.getSolver().findSolution() != null) {
+				Assert.assertTrue(test.g.isInstantiated() && test.sizeMaxCC.isInstantiated());
+				ConnectivityFinder cFinder = new ConnectivityFinder(test.g.getUB());
+				cFinder.findAllCC();
+				Assert.assertEquals(cFinder.getSizeMaxCC(), test.sizeMaxCC.getValue());
+			}
+		}
 	}
 }
