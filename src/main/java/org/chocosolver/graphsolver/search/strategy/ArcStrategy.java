@@ -31,24 +31,24 @@ import org.chocosolver.util.objects.setDataStructures.ISet;
 
 public abstract class ArcStrategy<G extends GraphVar> {
 
-    protected G g;
-    protected ISet envNodes;
+	protected G g;
+	protected ISet envNodes;
 
-    protected int from, to;
+	protected int from, to;
 
 
-    public ArcStrategy(G g) {
-        this.g = g;
-        this.envNodes = g.getPotentialNodes();
-    }
+	public ArcStrategy(G g) {
+		this.g = g;
+		this.envNodes = g.getPotentialNodes();
+	}
 
-    public abstract boolean computeNextArc();
+	public abstract boolean computeNextArc();
 
-    public int getFrom() {
-        return from;
-    }
+	public int getFrom() {
+		return from;
+	}
 
-    public int getTo() {
-        return to;
-    }
+	public int getTo() {
+		return to;
+	}
 }

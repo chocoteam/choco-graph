@@ -63,13 +63,13 @@ public class PropIncrementalAdjacencyMatrix extends Propagator<Variable> {
 
 	private void propagateTChanged() throws ContradictionException {
 		for (int u = 0; u < n; u++) {
-			for (int v: graph.getMandSuccOf(u)) {
+			for (int v : graph.getMandSuccOf(u)) {
 				t[u + v * n].instantiateTo(1, this);
 			}
 		}
 		for (int u = 0; u < n; u++) {
 			Set<Integer> set = new HashSet<>();
-			for (int v: graph.getPotSuccOf(u)) {
+			for (int v : graph.getPotSuccOf(u)) {
 				set.add(v);
 			}
 			for (int v = 0; v < n; v++) {
@@ -107,7 +107,7 @@ public class PropIncrementalAdjacencyMatrix extends Propagator<Variable> {
 		for (int i = 0; i < n; i++) {
 			ISet children = graph.getMandSuccOf(i);
 			for (int j = 0; j < n; j++) {
-				if (t[i + j * n].isInstantiatedTo(0)  && children.contains(j)) {
+				if (t[i + j * n].isInstantiatedTo(0) && children.contains(j)) {
 					return ESat.FALSE;
 				}
 			}

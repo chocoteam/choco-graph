@@ -28,6 +28,11 @@
  * User: Jean-Guillaume Fages
  * Date: 28/01/2016
  * Time: 13:29
+ * <p>
+ * Created by IntelliJ IDEA.
+ * User: Jean-Guillaume Fages
+ * Date: 28/01/2016
+ * Time: 13:29
  */
 
 /**
@@ -62,7 +67,7 @@ public class GraphEvtScheduler implements EvtScheduler<GraphEventType> {
 
 	@Override
 	public int next() {
-		if(done) return 1;
+		if (done) return 1;
 		done = true;
 		return 0;
 	}

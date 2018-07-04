@@ -28,6 +28,11 @@
  * User: Jean-Guillaume Fages
  * Date: 17/04/2016
  * Time: 13:11
+ * <p>
+ * Created by IntelliJ IDEA.
+ * User: Jean-Guillaume Fages
+ * Date: 17/04/2016
+ * Time: 13:11
  */
 
 /**
@@ -96,19 +101,25 @@ public class ConnectivityFinder {
 	 * Beware you should call method findAllCC() first.
 	 * @return sizeMinCC the size of the smallest CC in g.
 	 */
-	public int getSizeMinCC() { return sizeMinCC; }
+	public int getSizeMinCC() {
+		return sizeMinCC;
+	}
 
 	/**
 	 * Get the size (number of nodes) of the largest CC in g.
 	 * Beware you should call method findAllCC() first.
 	 * @return sizeMaxCC the size of the largest CC in g.
 	 */
-	public int getSizeMaxCC() { return sizeMaxCC; }
+	public int getSizeMaxCC() {
+		return sizeMaxCC;
+	}
 
 	/**
 	 * @return The size of the CCs as an int array.
 	 */
-	public int[] getSizeCC() { return size_CC; }
+	public int[] getSizeCC() {
+		return size_CC;
+	}
 
 	public int[] getCC_firstNode() {
 		return CC_firstNode;
@@ -139,13 +150,13 @@ public class ConnectivityFinder {
 		for (int i : act) {
 			p[i] = -1;
 		}
-		for(int i=0;i<CC_firstNode.length;i++){
+		for (int i = 0; i < CC_firstNode.length; i++) {
 			CC_firstNode[i] = -1;
 			size_CC[i] = -1;
 		}
 		int cc = 0;
-		for(int i:act){
-			if(p[i]==-1){
+		for (int i : act) {
+			if (p[i] == -1) {
 				findCC(i, cc);
 				if (sizeMinCC == 0 || sizeMinCC > size_CC[cc]) {
 					sizeMinCC = size_CC[cc];
@@ -160,27 +171,27 @@ public class ConnectivityFinder {
 	}
 
 	private void findCC(int start, int cc) {
-		int first= 0;
+		int first = 0;
 		int last = 0;
 		int size = 1;
 		fifo[last++] = start;
 		p[start] = start;
-		add(start,cc);
-		while(first<last){
+		add(start, cc);
+		while (first < last) {
 			int i = fifo[first++];
-			for(int j:graph.getSuccOrNeighOf(i)){
-				if(p[j]==-1){
+			for (int j : graph.getSuccOrNeighOf(i)) {
+				if (p[j] == -1) {
 					p[j] = i;
-					add(j,cc);
+					add(j, cc);
 					size++;
 					fifo[last++] = j;
 				}
 			}
-			if(graph.isDirected()){
-				for(int j:graph.getPredOrNeighOf(i)){
-					if(p[j]==-1){
+			if (graph.isDirected()) {
+				for (int j : graph.getPredOrNeighOf(i)) {
+					if (p[j] == -1) {
 						p[j] = i;
-						add(j,cc);
+						add(j, cc);
 						size++;
 						fifo[last++] = j;
 					}
@@ -244,7 +255,7 @@ public class ConnectivityFinder {
 				} else if (p[i] != j) {
 					inf[i] = Math.min(inf[i], numOfNode[j]);
 				}
-			}else {
+			} else {
 				if (i == start) {
 					return k >= act.size() - 1;
 				}
@@ -264,8 +275,8 @@ public class ConnectivityFinder {
 	 * Computes articulation points of the graph (must be connected)
 	 * @return the list of articulation points
 	 */
-	public TIntArrayList getArticulationPoints(){
-		if(articulations==null) articulations = new TIntArrayList();
+	public TIntArrayList getArticulationPoints() {
+		if (articulations == null) articulations = new TIntArrayList();
 		if (inf == null) {
 			nodeOfNum = new int[n];
 			numOfNode = new int[n];
@@ -274,7 +285,7 @@ public class ConnectivityFinder {
 		articulations.clear();
 		ISet act = graph.getNodes();
 		ISetIterator iter = act.iterator();
-		while(iter.hasNext()){
+		while (iter.hasNext()) {
 			int i = iter.next();
 			inf[i] = Integer.MAX_VALUE;
 			p[i] = -1;
@@ -308,9 +319,9 @@ public class ConnectivityFinder {
 				} else if (p[i] != j) {
 					inf[i] = Math.min(inf[i], numOfNode[j]);
 				}
-			}else {
+			} else {
 				if (i == start) {
-					if(k < act.size() - 1){
+					if (k < act.size() - 1) {
 						throw new UnsupportedOperationException("disconnected graph");
 					}
 					return articulations;
@@ -352,7 +363,7 @@ public class ConnectivityFinder {
 			p[i] = -1;
 			iterators[i] = graph.getSuccOrNeighOf(i).iterator();
 		}
-		for(int i=0;i<CC_firstNode.length;i++){
+		for (int i = 0; i < CC_firstNode.length; i++) {
 			CC_firstNode[i] = -1;
 		}
 		//algo
@@ -374,7 +385,7 @@ public class ConnectivityFinder {
 					numOfNode[i] = k;
 					nodeOfNum[k] = i;
 				}
-			}else {
+			} else {
 				if (i == start) {
 					if (k < act.size() - 1) {
 						return false;

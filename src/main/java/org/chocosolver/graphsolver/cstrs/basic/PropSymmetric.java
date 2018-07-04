@@ -40,80 +40,80 @@ import org.chocosolver.util.procedure.PairProcedure;
 /**
  * Ensures that the final graph is symmetric
  * i.e. if G has arc (x,y) then it also has (y,x)
- *
+ * <p>
  * Note that it may be preferable to use an undirected graph variable instead!
  *
  * @author Jean-Guillaume Fages
  */
 public class PropSymmetric extends Propagator<DirectedGraphVar> {
 
-    //***********************************************************************************
-    // VARIABLES
-    //***********************************************************************************
+	//***********************************************************************************
+	// VARIABLES
+	//***********************************************************************************
 
-    private DirectedGraphVar g;
-    private GraphDeltaMonitor gdm;
-    private PairProcedure enf;
+	private DirectedGraphVar g;
+	private GraphDeltaMonitor gdm;
+	private PairProcedure enf;
 
-    //***********************************************************************************
-    // CONSTRUCTORS
-    //***********************************************************************************
+	//***********************************************************************************
+	// CONSTRUCTORS
+	//***********************************************************************************
 
-    public PropSymmetric(DirectedGraphVar graph) {
-        super(new DirectedGraphVar[]{graph}, PropagatorPriority.UNARY, true);
-        g = graph;
-        gdm = g.monitorDelta(this);
-        enf = (from, to) -> {
+	public PropSymmetric(DirectedGraphVar graph) {
+		super(new DirectedGraphVar[]{graph}, PropagatorPriority.UNARY, true);
+		g = graph;
+		gdm = g.monitorDelta(this);
+		enf = (from, to) -> {
 			if (from != to) {
 				g.enforceArc(to, from, PropSymmetric.this);
 			}
 		};
-    }
+	}
 
-    //***********************************************************************************
-    // METHODS
-    //***********************************************************************************
+	//***********************************************************************************
+	// METHODS
+	//***********************************************************************************
 
-    @Override
-    public void propagate(int evtmask) throws ContradictionException {
-        ISet ker = g.getMandatoryNodes();
-        ISet succ;
-        for (int i : ker) {
-            succ = g.getMandSuccOf(i);
-            for (int j : succ) {
-                g.enforceArc(j, i, this);
-            }
-        }
-        gdm.unfreeze();
-    }
+	@Override
+	public void propagate(int evtmask) throws ContradictionException {
+		ISet ker = g.getMandatoryNodes();
+		ISet succ;
+		for (int i : ker) {
+			succ = g.getMandSuccOf(i);
+			for (int j : succ) {
+				g.enforceArc(j, i, this);
+			}
+		}
+		gdm.unfreeze();
+	}
 
-    @Override
-    public void propagate(int idxVarInProp, int mask) throws ContradictionException {
-        gdm.freeze();
-        gdm.forEachArc(enf, GraphEventType.ADD_ARC);
-        gdm.unfreeze();
-    }
+	@Override
+	public void propagate(int idxVarInProp, int mask) throws ContradictionException {
+		gdm.freeze();
+		gdm.forEachArc(enf, GraphEventType.ADD_ARC);
+		gdm.unfreeze();
+	}
 
-    @Override
-    public int getPropagationConditions(int vIdx) {
-        return GraphEventType.ADD_ARC.getMask();
-    }
+	@Override
+	public int getPropagationConditions(int vIdx) {
+		return GraphEventType.ADD_ARC.getMask();
+	}
 
-    @Override
-    public ESat isEntailed() {
-        ISet ker = g.getMandatoryNodes();
-        ISet succ;
-        for (int i : ker) {
-            succ = g.getMandSuccOf(i);
-            for (int j : succ) {
-                if (!g.getPotSuccOf(j).contains(i)) {
-                    return ESat.FALSE;
-                }
-            }
-        }
-        if (g.isInstantiated()) {
-            return ESat.TRUE;
-        }
-        return ESat.UNDEFINED;
-    }
+	@Override
+	public ESat isEntailed() {
+		ISet ker = g.getMandatoryNodes();
+		ISet succ;
+		for (int i : ker) {
+			succ = g.getMandSuccOf(i);
+			for (int j : succ) {
+				if (!g.getPotSuccOf(j).contains(i)) {
+					return ESat.FALSE;
+				}
+			}
+		}
+		if (g.isInstantiated()) {
+			return ESat.TRUE;
+		}
+		return ESat.UNDEFINED;
+	}
 }

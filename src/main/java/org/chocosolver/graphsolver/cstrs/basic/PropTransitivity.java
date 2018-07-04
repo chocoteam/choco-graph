@@ -94,27 +94,30 @@ public class PropTransitivity<V extends GraphVar> extends Propagator<V> {
 	@Override
 	public void propagate(int idxVarInProp, int mask) throws ContradictionException {
 		gdm.freeze();
-		rT.clear();rF.clear();eT.clear();eF.clear();
+		rT.clear();
+		rF.clear();
+		eT.clear();
+		eF.clear();
 		gdm.forEachArc(arcEnforced, GraphEventType.ADD_ARC);
 		gdm.forEachArc(arcRemoved, GraphEventType.REMOVE_ARC);
 		filter();
 		gdm.unfreeze();
 	}
 
-	private void filter() throws ContradictionException{
+	private void filter() throws ContradictionException {
 		// Fix point
 		assert eF.size() == eT.size();
-		while(!eF.isEmpty()){
+		while (!eF.isEmpty()) {
 			assert eF.size() == eT.size();
-			enfArc(eF.removeAt(eF.size()-1), eT.removeAt(eT.size()-1));
+			enfArc(eF.removeAt(eF.size() - 1), eT.removeAt(eT.size() - 1));
 		}
 		assert rF.size() == rT.size();
-		while(!rF.isEmpty()){
+		while (!rF.isEmpty()) {
 			assert rF.size() == rT.size();
-			remArc(rF.removeAt(rF.size()-1), rT.removeAt(rT.size()-1));
+			remArc(rF.removeAt(rF.size() - 1), rT.removeAt(rT.size() - 1));
 		}
 		assert eF.size() == eT.size();
-		if(!eF.isEmpty()){
+		if (!eF.isEmpty()) {
 			filter();
 		}
 	}
@@ -133,9 +136,9 @@ public class PropTransitivity<V extends GraphVar> extends Propagator<V> {
 		int n = g.getNbMaxNodes();
 		for (int i = 0; i < n; i++) {
 			for (int j : g.getMandSuccOrNeighOf(i)) {
-				if(i!=j){
+				if (i != j) {
 					for (int j2 : g.getMandSuccOrNeighOf(j)) {
-						if(j2!=i && !g.getPotSuccOrNeighOf(i).contains(j2)){
+						if (j2 != i && !g.getPotSuccOrNeighOf(i).contains(j2)) {
 							return ESat.FALSE;
 						}
 					}
@@ -152,12 +155,12 @@ public class PropTransitivity<V extends GraphVar> extends Propagator<V> {
 	// PROCEDURE
 	//***********************************************************************************
 
-	private void _enfArc(int x, int y){
+	private void _enfArc(int x, int y) {
 		eF.add(x);
 		eT.add(y);
 	}
 
-	private void _remArc(int x, int y){
+	private void _remArc(int x, int y) {
 		rF.add(x);
 		rT.add(y);
 	}
@@ -183,7 +186,7 @@ public class PropTransitivity<V extends GraphVar> extends Propagator<V> {
 			ker = g.getMandPredOrNeighOf(from);
 			env = g.getPotPredOrNeighOf(from);
 			for (int i : env) {
-				if(i!=to && i!=from) {
+				if (i != to && i != from) {
 					if (ker.contains(i)) {
 						if (g.enforceArc(i, to, this)) {
 							_enfArc(i, to);

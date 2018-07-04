@@ -45,104 +45,104 @@ import org.chocosolver.util.objects.setDataStructures.ISet;
  */
 public class PropNbArcs extends Propagator<Variable> {
 
-    //***********************************************************************************
-    // VARIABLES
-    //***********************************************************************************
+	//***********************************************************************************
+	// VARIABLES
+	//***********************************************************************************
 
-    protected GraphVar g;
-    protected IntVar k;
+	protected GraphVar g;
+	protected IntVar k;
 
-    //***********************************************************************************
-    // CONSTRUCTORS
-    //***********************************************************************************
+	//***********************************************************************************
+	// CONSTRUCTORS
+	//***********************************************************************************
 
-    public PropNbArcs(GraphVar graph, IntVar k) {
-        super(new Variable[]{graph, k}, PropagatorPriority.LINEAR, false);
-        this.g = graph;
-        this.k = k;
-    }
+	public PropNbArcs(GraphVar graph, IntVar k) {
+		super(new Variable[]{graph, k}, PropagatorPriority.LINEAR, false);
+		this.g = graph;
+		this.k = k;
+	}
 
-    //***********************************************************************************
-    // PROPAGATIONS
-    //***********************************************************************************
+	//***********************************************************************************
+	// PROPAGATIONS
+	//***********************************************************************************
 
-    @Override
-    public void propagate(int evtmask) throws ContradictionException {
-        int nbK = 0;
-        int nbE = 0;
-        ISet env = g.getPotentialNodes();
-        for (int i : env) {
-            nbE += g.getPotSuccOrNeighOf(i).size();
-            nbK += g.getMandSuccOrNeighOf(i).size();
-        }
-        if (!g.isDirected()) {
-            nbK /= 2;
-            nbE /= 2;
-        }
-        filter(nbK, nbE);
-    }
+	@Override
+	public void propagate(int evtmask) throws ContradictionException {
+		int nbK = 0;
+		int nbE = 0;
+		ISet env = g.getPotentialNodes();
+		for (int i : env) {
+			nbE += g.getPotSuccOrNeighOf(i).size();
+			nbK += g.getMandSuccOrNeighOf(i).size();
+		}
+		if (!g.isDirected()) {
+			nbK /= 2;
+			nbE /= 2;
+		}
+		filter(nbK, nbE);
+	}
 
-    private void filter(int nbK, int nbE) throws ContradictionException {
-        k.updateLowerBound(nbK, this);
-        k.updateUpperBound(nbE, this);
-        if (nbK != nbE && k.isInstantiated()) {
-            ISet nei;
-            ISet env = g.getPotentialNodes();
-            if (k.getValue() == nbE) {
-                for (int i : env) {
-                    nei = g.getUB().getSuccOrNeighOf(i);
-                    for (int j : nei) {
-                        g.enforceArc(i, j, this);
-                    }
-                }
-            }
-            if (k.getValue() == nbK) {
-                ISet neiKer;
-                for (int i : env) {
-                    nei = g.getUB().getSuccOrNeighOf(i);
-                    neiKer = g.getLB().getSuccOrNeighOf(i);
-                    for (int j : nei) {
-                        if (!neiKer.contains(j)) {
-                            g.removeArc(i, j, this);
-                        }
-                    }
-                }
-            }
-        }
-    }
+	private void filter(int nbK, int nbE) throws ContradictionException {
+		k.updateLowerBound(nbK, this);
+		k.updateUpperBound(nbE, this);
+		if (nbK != nbE && k.isInstantiated()) {
+			ISet nei;
+			ISet env = g.getPotentialNodes();
+			if (k.getValue() == nbE) {
+				for (int i : env) {
+					nei = g.getUB().getSuccOrNeighOf(i);
+					for (int j : nei) {
+						g.enforceArc(i, j, this);
+					}
+				}
+			}
+			if (k.getValue() == nbK) {
+				ISet neiKer;
+				for (int i : env) {
+					nei = g.getUB().getSuccOrNeighOf(i);
+					neiKer = g.getLB().getSuccOrNeighOf(i);
+					for (int j : nei) {
+						if (!neiKer.contains(j)) {
+							g.removeArc(i, j, this);
+						}
+					}
+				}
+			}
+		}
+	}
 
-    //***********************************************************************************
-    // INFO
-    //***********************************************************************************
+	//***********************************************************************************
+	// INFO
+	//***********************************************************************************
 
-    @Override
-    public int getPropagationConditions(int vIdx) {
-		if(vIdx==0) {
+	@Override
+	public int getPropagationConditions(int vIdx) {
+		if (vIdx == 0) {
 			return GraphEventType.REMOVE_ARC.getMask() + GraphEventType.ADD_ARC.getMask();
 		} else {
 			return IntEventType.boundAndInst();
 		}
-    }
+	}
 
-    @Override
-    public ESat isEntailed() {
-        int nbK = 0;
-        int nbE = 0;
-        ISet env = g.getPotentialNodes();
-        for (int i : env) {
-            nbE += g.getUB().getSuccOrNeighOf(i).size();
-            nbK += g.getLB().getSuccOrNeighOf(i).size();
-        }
-        if (!g.isDirected()) {
-            nbK /= 2;
-            nbE /= 2;
-        }
-        if (nbK > k.getUB() || nbE < k.getLB()) {
-            return ESat.FALSE;
-        }
-        if (k.isInstantiated() && g.isInstantiated()) {
-            return ESat.TRUE;
-        }
-        return ESat.UNDEFINED;
-    }
+	@Override
+	public ESat isEntailed() {
+		int nbK = 0;
+		int nbE = 0;
+		ISet env = g.getPotentialNodes();
+		for (int i : env) {
+			nbE += g.getUB().getSuccOrNeighOf(i).size();
+			nbK += g.getLB().getSuccOrNeighOf(i).size();
+		}
+		if (!g.isDirected()) {
+			nbK /= 2;
+			nbE /= 2;
+		}
+		if (nbK > k.getUB() || nbE < k.getLB()) {
+			return ESat.FALSE;
+		}
+		if (k.isInstantiated() && g.isInstantiated()) {
+			return ESat.TRUE;
+		}
+		return ESat.UNDEFINED;
+	}
 }

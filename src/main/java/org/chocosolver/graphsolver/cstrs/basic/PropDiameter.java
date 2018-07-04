@@ -76,12 +76,12 @@ public class PropDiameter extends Propagator<GraphVar> {
 	public void propagate(int evtmask) throws ContradictionException {
 		int max = -1;
 		for (int i : g.getPotentialNodes()) {
-			if(g.getMandatoryNodes().contains(i)) {
+			if (g.getMandatoryNodes().contains(i)) {
 				diameter.updateLowerBound(BFS(i, true), this);
 			}
-			max = Math.max(max,BFS(i,false));
+			max = Math.max(max, BFS(i, false));
 		}
-		diameter.updateUpperBound(max,this);
+		diameter.updateUpperBound(max, this);
 	}
 
 	private int BFS(int root, boolean min) {
@@ -102,7 +102,7 @@ public class PropDiameter extends Propagator<GraphVar> {
 					if (!visited.get(j)) {
 						visited.set(j);
 						nextSet.add(j);
-						if(min) {
+						if (min) {
 							if (g.getMandatoryNodes().contains(j)) {
 								count++;
 								if (count == nbMand) {

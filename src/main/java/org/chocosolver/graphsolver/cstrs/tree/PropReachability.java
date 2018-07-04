@@ -49,7 +49,7 @@ public class PropReachability extends PropArborescence {
 	}
 
 	public PropReachability(DirectedGraphVar graph, int root, boolean simple) {
-		super(graph,root,simple);
+		super(graph, root, simple);
 	}
 
 	//***********************************************************************************

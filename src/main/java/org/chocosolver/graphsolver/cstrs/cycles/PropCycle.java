@@ -62,7 +62,7 @@ public class PropCycle extends Propagator<UndirectedGraphVar> {
 	//***********************************************************************************
 
 
-	public PropCycle(UndirectedGraphVar graph){
+	public PropCycle(UndirectedGraphVar graph) {
 		super(new UndirectedGraphVar[]{graph}, PropagatorPriority.LINEAR, true);
 		g = graph;
 		gdm = g.monitorDelta(this);
@@ -85,7 +85,7 @@ public class PropCycle extends Propagator<UndirectedGraphVar> {
 
 	@Override
 	public void propagate(int evtmask) throws ContradictionException {
-		if(PropagatorEventType.isFullPropagation(evtmask)) {
+		if (PropagatorEventType.isFullPropagation(evtmask)) {
 			for (int i = 0; i < n; i++) {
 				e1[i].set(i);
 				e2[i].set(i);

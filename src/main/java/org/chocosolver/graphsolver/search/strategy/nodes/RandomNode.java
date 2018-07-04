@@ -33,29 +33,29 @@ import java.util.Random;
 
 public class RandomNode extends NodeStrategy<GraphVar> {
 
-    private Random rd;
+	private Random rd;
 
-    public RandomNode(GraphVar g, long seed) {
-        super(g);
-        this.rd = new Random(seed);
+	public RandomNode(GraphVar g, long seed) {
+		super(g);
+		this.rd = new Random(seed);
 
-    }
+	}
 
-    @Override
-    public int nextNode() {
-        int delta = envNodes.size() - kerNodes.size();
-        if (delta != 0) {
-            delta = rd.nextInt(delta);
-            for (int i : envNodes) {
-                if (!kerNodes.contains(i)) {
-                    if (delta == 0) {
-                        return i;
-                    } else {
-                        delta--;
-                    }
-                }
-            }
-        }
-        return -1;
-    }
+	@Override
+	public int nextNode() {
+		int delta = envNodes.size() - kerNodes.size();
+		if (delta != 0) {
+			delta = rd.nextInt(delta);
+			for (int i : envNodes) {
+				if (!kerNodes.contains(i)) {
+					if (delta == 0) {
+						return i;
+					} else {
+						delta--;
+					}
+				}
+			}
+		}
+		return -1;
+	}
 }

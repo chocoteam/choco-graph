@@ -1,28 +1,28 @@
 /**
- *  Copyright (c) 1999-2014, Ecole des Mines de Nantes
- *  All rights reserved.
- *  Redistribution and use in source and binary forms, with or without
- *  modification, are permitted provided that the following conditions are met:
- *
- *      * Redistributions of source code must retain the above copyright
- *        notice, this list of conditions and the following disclaimer.
- *      * Redistributions in binary form must reproduce the above copyright
- *        notice, this list of conditions and the following disclaimer in the
- *        documentation and/or other materials provided with the distribution.
- *      * Neither the name of the Ecole des Mines de Nantes nor the
- *        names of its contributors may be used to endorse or promote products
- *        derived from this software without specific prior written permission.
- *
- *  THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND ANY
- *  EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- *  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- *  DISCLAIMED. IN NO EVENT SHALL THE REGENTS AND CONTRIBUTORS BE LIABLE FOR ANY
- *  DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- *  (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- *  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
- *  ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- *  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Copyright (c) 1999-2014, Ecole des Mines de Nantes
+ * All rights reserved.
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ * <p>
+ * * Redistributions of source code must retain the above copyright
+ * notice, this list of conditions and the following disclaimer.
+ * * Redistributions in binary form must reproduce the above copyright
+ * notice, this list of conditions and the following disclaimer in the
+ * documentation and/or other materials provided with the distribution.
+ * * Neither the name of the Ecole des Mines de Nantes nor the
+ * names of its contributors may be used to endorse or promote products
+ * derived from this software without specific prior written permission.
+ * <p>
+ * THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE REGENTS AND CONTRIBUTORS BE LIABLE FOR ANY
+ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
 
@@ -63,8 +63,8 @@ public class PropACyclic extends Propagator<GraphVar> {
 	// CONSTRUCTORS
 	//***********************************************************************************
 
-	public PropACyclic(GraphVar g){
-		super(new GraphVar[]{g}, PropagatorPriority.LINEAR,true);
+	public PropACyclic(GraphVar g) {
+		super(new GraphVar[]{g}, PropagatorPriority.LINEAR, true);
 		this.g = g;
 		this.n = g.getNbMaxNodes();
 		this.fifo = new int[n];
@@ -79,17 +79,17 @@ public class PropACyclic extends Propagator<GraphVar> {
 	//***********************************************************************************
 
 	@Override
-	public int getPropagationConditions(int idx){
+	public int getPropagationConditions(int idx) {
 		return GraphEventType.ADD_ARC.getMask();
 	}
 
 	@Override
 	public void propagate(int evtmask) throws ContradictionException {
-		for(int i=0;i<n;i++){
-			g.removeArc(i,i,this);
-			if(g.getMandSuccOrNeighOf(i).size()>0) {
-				for(int j=0;j<n;j++){
-					if(g.getMandSuccOrNeighOf(i).contains(j)) {
+		for (int i = 0; i < n; i++) {
+			g.removeArc(i, i, this);
+			if (g.getMandSuccOrNeighOf(i).size() > 0) {
+				for (int j = 0; j < n; j++) {
+					if (g.getMandSuccOrNeighOf(i).contains(j)) {
 						propagateIJ(i, j);
 					}
 				}
@@ -107,8 +107,8 @@ public class PropACyclic extends Propagator<GraphVar> {
 
 
 	public void propagateIJ(int from, int to) throws ContradictionException {
-		if(g.isDirected()){
-			g.removeArc(to,from,this);
+		if (g.isDirected()) {
+			g.removeArc(to, from, this);
 		}
 		int first, last, ik;
 		// mark reachable from 'To'
@@ -118,11 +118,11 @@ public class PropACyclic extends Propagator<GraphVar> {
 		rfTo.clear();
 		fifo[last++] = ik;
 		rfTo.set(ik);
-		while(first<last){
+		while (first < last) {
 			ik = fifo[first++];
 			ISet nei = g.getMandSuccOrNeighOf(ik);
-			for(int j:nei){
-				if(j!=from && !rfTo.get(j)){
+			for (int j : nei) {
+				if (j != from && !rfTo.get(j)) {
 					rfTo.set(j);
 					fifo[last++] = j;
 				}
@@ -135,23 +135,23 @@ public class PropACyclic extends Propagator<GraphVar> {
 		rfFrom.clear();
 		fifo[last++] = ik;
 		rfFrom.set(ik);
-		while(first<last){
+		while (first < last) {
 			ik = fifo[first++];
 			ISet nei = g.getMandPredOrNeighOf(ik);
-			for(int j:nei){
-				if(j!=to && !rfFrom.get(j)){
+			for (int j : nei) {
+				if (j != to && !rfFrom.get(j)) {
 					rfFrom.set(j);
 					fifo[last++] = j;
 				}
 			}
 		}
 		// filter arcs that would create a circuit
-		for(int i: g.getPotentialNodes()){
-			if(rfTo.get(i)) {
+		for (int i : g.getPotentialNodes()) {
+			if (rfTo.get(i)) {
 				ISet nei = g.getPotSuccOrNeighOf(i);
 				for (int j : nei) {
 					if (rfFrom.get(j)) {
-						if((i!=from || j!=to) && (i!=to || j!=from)) {
+						if ((i != from || j != to) && (i != to || j != from)) {
 							g.removeArc(i, j, this);
 						}
 					}
@@ -162,9 +162,9 @@ public class PropACyclic extends Propagator<GraphVar> {
 
 	@Override
 	public ESat isEntailed() {
-		for(int from=0;from<n;from++){
+		for (int from = 0; from < n; from++) {
 			ISet neigh = g.getMandSuccOrNeighOf(from);
-			for(int to : neigh){
+			for (int to : neigh) {
 				int first, last, ik;
 				// mark reachable from 'To'
 				first = 0;
@@ -173,11 +173,11 @@ public class PropACyclic extends Propagator<GraphVar> {
 				rfTo.clear();
 				fifo[last++] = ik;
 				rfTo.set(ik);
-				while(first<last){
+				while (first < last) {
 					ik = fifo[first++];
 					ISet nei = g.getMandSuccOrNeighOf(ik);
-					for(int j:nei){
-						if(j!=from && !rfTo.get(j)){
+					for (int j : nei) {
+						if (j != from && !rfTo.get(j)) {
 							rfTo.set(j);
 							fifo[last++] = j;
 						}
@@ -190,23 +190,23 @@ public class PropACyclic extends Propagator<GraphVar> {
 				rfFrom.clear();
 				fifo[last++] = ik;
 				rfFrom.set(ik);
-				while(first<last){
+				while (first < last) {
 					ik = fifo[first++];
 					ISet nei = g.getMandPredOrNeighOf(ik);
-					for(int j:nei){
-						if(j!=to && !rfFrom.get(j)){
+					for (int j : nei) {
+						if (j != to && !rfFrom.get(j)) {
 							rfFrom.set(j);
 							fifo[last++] = j;
 						}
 					}
 				}
 				// filter arcs that would create a circuit
-				for(int i : g.getMandatoryNodes()){
-					if(rfTo.get(i)) {
+				for (int i : g.getMandatoryNodes()) {
+					if (rfTo.get(i)) {
 						ISet nei = g.getMandSuccOrNeighOf(i);
 						for (int j : nei) {
 							if (rfFrom.get(j)) {
-								if((i!=from || j!=to) && (i!=to || j!=from)) {
+								if ((i != from || j != to) && (i != to || j != from)) {
 									return ESat.FALSE;
 								}
 							}

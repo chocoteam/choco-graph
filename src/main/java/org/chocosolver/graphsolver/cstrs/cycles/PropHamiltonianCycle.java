@@ -67,7 +67,7 @@ public class PropHamiltonianCycle extends Propagator<UndirectedGraphVar> {
 	 *
 	 * @param graph
 	 */
-	public PropHamiltonianCycle(UndirectedGraphVar graph){
+	public PropHamiltonianCycle(UndirectedGraphVar graph) {
 		super(new UndirectedGraphVar[]{graph}, PropagatorPriority.LINEAR, true);
 		g = graph;
 		gdm = g.monitorDelta(this);
@@ -94,7 +94,7 @@ public class PropHamiltonianCycle extends Propagator<UndirectedGraphVar> {
 			e1[i].set(i);
 			e2[i].set(i);
 			size[i].set(1);
-			g.enforceNode(i,this);
+			g.enforceNode(i, this);
 		}
 		ISet nei;
 		for (int i = 0; i < n; i++) {

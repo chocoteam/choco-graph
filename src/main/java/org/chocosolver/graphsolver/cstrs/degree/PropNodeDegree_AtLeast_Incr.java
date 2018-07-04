@@ -95,9 +95,9 @@ public class PropNodeDegree_AtLeast_Incr extends Propagator<GraphVar> {
 		this.degrees = degrees;
 		gdm = g.monitorDelta(this);
 		proc = (i, j) -> {
-            checkAtLeast(i);
-            checkAtLeast(j);
-        };
+			checkAtLeast(i);
+			checkAtLeast(j);
+		};
 		nodeProc = this::checkAtLeast;
 	}
 
@@ -126,7 +126,7 @@ public class PropNodeDegree_AtLeast_Incr extends Propagator<GraphVar> {
 	public void propagate(int idxVarInProp, int mask) throws ContradictionException {
 		gdm.freeze();
 		gdm.forEachNode(nodeProc, GraphEventType.ADD_NODE);
-		gdm.forEachArc(proc,GraphEventType.REMOVE_ARC);
+		gdm.forEachArc(proc, GraphEventType.REMOVE_ARC);
 		gdm.unfreeze();
 	}
 

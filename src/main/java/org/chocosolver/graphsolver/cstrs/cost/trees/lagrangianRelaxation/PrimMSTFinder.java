@@ -38,112 +38,112 @@ import java.util.BitSet;
 
 public class PrimMSTFinder extends AbstractTreeFinder {
 
-    //***********************************************************************************
-    // VARIABLES
-    //***********************************************************************************
+	//***********************************************************************************
+	// VARIABLES
+	//***********************************************************************************
 
-    protected double[][] costs;
-    protected ISimpleHeap heap;
-    protected BitSet inTree;
-    protected int[] mate;
-    protected int tSize;
-    protected double minVal;
-    protected double maxTArc;
+	protected double[][] costs;
+	protected ISimpleHeap heap;
+	protected BitSet inTree;
+	protected int[] mate;
+	protected int tSize;
+	protected double minVal;
+	protected double maxTArc;
 
-    //***********************************************************************************
-    // CONSTRUCTORS
-    //***********************************************************************************
+	//***********************************************************************************
+	// CONSTRUCTORS
+	//***********************************************************************************
 
-    public PrimMSTFinder(int nbNodes, GraphLagrangianRelaxation propagator) {
-        super(nbNodes, propagator);
-        heap = new FastSimpleHeap(nbNodes);
+	public PrimMSTFinder(int nbNodes, GraphLagrangianRelaxation propagator) {
+		super(nbNodes, propagator);
+		heap = new FastSimpleHeap(nbNodes);
 //		heap = new FastArrayHeap(nbNodes);
-        inTree = new BitSet(n);
-        mate = new int[n];
-    }
+		inTree = new BitSet(n);
+		mate = new int[n];
+	}
 
-    //***********************************************************************************
-    // METHODS
-    //***********************************************************************************
+	//***********************************************************************************
+	// METHODS
+	//***********************************************************************************
 
-    public void computeMST(double[][] costs, UndirectedGraph graph) throws ContradictionException {
-        g = graph;
-        for (int i = 0; i < n; i++) {
-            Tree.getNeighOf(i).clear();
-        }
-        this.costs = costs;
-        heap.clear();
-        inTree.clear();
-        treeCost = 0;
-        tSize = 0;
-        prim();
-    }
+	public void computeMST(double[][] costs, UndirectedGraph graph) throws ContradictionException {
+		g = graph;
+		for (int i = 0; i < n; i++) {
+			Tree.getNeighOf(i).clear();
+		}
+		this.costs = costs;
+		heap.clear();
+		inTree.clear();
+		treeCost = 0;
+		tSize = 0;
+		prim();
+	}
 
-    protected void prim() throws ContradictionException {
-        minVal = propHK.getMinArcVal();
-        if (FILTER) {
-            maxTArc = minVal;
-        }
-        addNode(0);
-        int from, to;
-        while (tSize < n - 1 && !heap.isEmpty()) {
-            to = heap.removeFirstElement();
-            from = mate[to];
-            addArc(from, to);
-        }
-        if (tSize != n - 1) {
-            propHK.contradiction();
-        }
-    }
+	protected void prim() throws ContradictionException {
+		minVal = propHK.getMinArcVal();
+		if (FILTER) {
+			maxTArc = minVal;
+		}
+		addNode(0);
+		int from, to;
+		while (tSize < n - 1 && !heap.isEmpty()) {
+			to = heap.removeFirstElement();
+			from = mate[to];
+			addArc(from, to);
+		}
+		if (tSize != n - 1) {
+			propHK.contradiction();
+		}
+	}
 
-    protected void addArc(int from, int to) {
-        if (Tree.edgeExists(from, to)) {
-            throw new UnsupportedOperationException();
-        }
-        Tree.addEdge(from, to);
-        treeCost += costs[from][to];
-        if (FILTER) {
-            if (!propHK.isMandatory(from, to)) {
-                maxTArc = Math.max(maxTArc, costs[from][to]);
-            }
-        }
-        tSize++;
-        addNode(to);
-    }
+	protected void addArc(int from, int to) {
+		if (Tree.edgeExists(from, to)) {
+			throw new UnsupportedOperationException();
+		}
+		Tree.addEdge(from, to);
+		treeCost += costs[from][to];
+		if (FILTER) {
+			if (!propHK.isMandatory(from, to)) {
+				maxTArc = Math.max(maxTArc, costs[from][to]);
+			}
+		}
+		tSize++;
+		addNode(to);
+	}
 
-    protected void addNode(int i) {
-        if (!inTree.get(i)) {
-            inTree.set(i);
-            ISet nei = g.getNeighOf(i);
-            for (int j : nei) {
-                if (!inTree.get(j)) {
-                    if (propHK.isMandatory(i, j)) {
-                        heap.addOrUpdateElement(j, Integer.MIN_VALUE);
-                        mate[j] = i;
-                    } else {
-                        if (heap.addOrUpdateElement(j, costs[i][j])) {
-                            mate[j] = i;
-                        }
-                    }
-                }
-            }
-        }
-    }
+	protected void addNode(int i) {
+		if (!inTree.get(i)) {
+			inTree.set(i);
+			ISet nei = g.getNeighOf(i);
+			for (int j : nei) {
+				if (!inTree.get(j)) {
+					if (propHK.isMandatory(i, j)) {
+						heap.addOrUpdateElement(j, Integer.MIN_VALUE);
+						mate[j] = i;
+					} else {
+						if (heap.addOrUpdateElement(j, costs[i][j])) {
+							mate[j] = i;
+						}
+					}
+				}
+			}
+		}
+	}
 
-    public void performPruning(double UB) throws ContradictionException {
-        if (FILTER) {
-            double delta = UB - treeCost;
-            ISet nei;
-            for (int i = 0; i < n; i++) {
-                nei = g.getNeighOf(i);
-                for (int j : nei) {
-                    if (i < j && (!Tree.edgeExists(i, j)) && costs[i][j] - maxTArc > delta) {
-                        propHK.remove(i, j);
-                    }
-                }
-            }
-        } else {
-            throw new UnsupportedOperationException("bound computation only, no filtering!");
-        }
-    }
+	public void performPruning(double UB) throws ContradictionException {
+		if (FILTER) {
+			double delta = UB - treeCost;
+			ISet nei;
+			for (int i = 0; i < n; i++) {
+				nei = g.getNeighOf(i);
+				for (int j : nei) {
+					if (i < j && (!Tree.edgeExists(i, j)) && costs[i][j] - maxTArc > delta) {
+						propHK.remove(i, j);
+					}
+				}
+			}
+		} else {
+			throw new UnsupportedOperationException("bound computation only, no filtering!");
+		}
+	}
 }

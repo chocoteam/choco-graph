@@ -35,41 +35,41 @@ import java.util.Random;
 
 public class RandomArc extends ArcStrategy<GraphVar> {
 
-    private Random rd;
-    private TIntArrayList pFrom, pTo;
+	private Random rd;
+	private TIntArrayList pFrom, pTo;
 
-    public RandomArc(GraphVar g, long seed) {
-        super(g);
-        rd = new Random(seed);
-        pFrom = new TIntArrayList();
-        pTo = new TIntArrayList();
-    }
+	public RandomArc(GraphVar g, long seed) {
+		super(g);
+		rd = new Random(seed);
+		pFrom = new TIntArrayList();
+		pTo = new TIntArrayList();
+	}
 
-    @Override
-    public boolean computeNextArc() {
-        pFrom.clear();
-        pTo.clear();
-        ISet envSuc, kerSuc;
-        for (int i : envNodes) {
-            envSuc = g.getPotSuccOrNeighOf(i);
-            kerSuc = g.getMandSuccOrNeighOf(i);
-            if (envSuc.size() != kerSuc.size()) {
-                for (int j : envSuc) {
-                    if (!kerSuc.contains(j)) {
-                        pFrom.add(i);
-                        pTo.add(j);
-                    }
-                }
-            }
-        }
-        if (pFrom.isEmpty()) {
-            this.from = this.to = -1;
-            return false;
-        } else {
-            int idx = rd.nextInt(pFrom.size());
-            this.from = pFrom.get(idx);
-            this.to = pTo.get(idx);
-            return true;
-        }
-    }
+	@Override
+	public boolean computeNextArc() {
+		pFrom.clear();
+		pTo.clear();
+		ISet envSuc, kerSuc;
+		for (int i : envNodes) {
+			envSuc = g.getPotSuccOrNeighOf(i);
+			kerSuc = g.getMandSuccOrNeighOf(i);
+			if (envSuc.size() != kerSuc.size()) {
+				for (int j : envSuc) {
+					if (!kerSuc.contains(j)) {
+						pFrom.add(i);
+						pTo.add(j);
+					}
+				}
+			}
+		}
+		if (pFrom.isEmpty()) {
+			this.from = this.to = -1;
+			return false;
+		} else {
+			int idx = rd.nextInt(pFrom.size());
+			this.from = pFrom.get(idx);
+			this.to = pTo.get(idx);
+			return true;
+		}
+	}
 }

@@ -32,7 +32,7 @@ public class PropSizeMaxCC extends Propagator<Variable> {
 	/* Constructor */
 
 	public PropSizeMaxCC(UndirectedGraphVar graph, IntVar sizeMaxCC) {
-		super(new Variable[] {graph, sizeMaxCC}, PropagatorPriority.QUADRATIC, false);
+		super(new Variable[]{graph, sizeMaxCC}, PropagatorPriority.QUADRATIC, false);
 		this.g = graph;
 		this.sizeMaxCC = sizeMaxCC;
 		this.GLBCCFinder = new ConnectivityFinder(g.getLB());
@@ -155,7 +155,7 @@ public class PropSizeMaxCC extends Propagator<Variable> {
 		for (int cc = 0; cc < GUBCCFinder.getNBCC(); cc++) {
 			int s = GUBCCFinder.getSizeCC()[cc];
 			if (s >= sizeMaxCC.getLB()) {
-				nb_candidates ++;
+				nb_candidates++;
 				candidate = cc;
 				size = s;
 			}
@@ -175,6 +175,7 @@ public class PropSizeMaxCC extends Propagator<Variable> {
 
 	/**
 	 * Retrieve the nodes of a GLB CC.
+	 *
 	 * @param cc The GLB CC index.
 	 * @return The set of nodes of the GLB CC cc.
 	 */
@@ -188,14 +189,15 @@ public class PropSizeMaxCC extends Propagator<Variable> {
 
 	/**
 	 * Retrieve the potential CC neighbors (i.e. not in the CC) of a GLB CC.
+	 *
 	 * @param cc The GLB CC index.
 	 * @return A map with frontier nodes of the CC as keys (Integer), and their potential neighbors that are
 	 * outside the CC (Set<Integer>). Only the frontier nodes that have at least one potential neighbor outside the
 	 * CC are stored in the map.
 	 * {
-	 *     frontierNode1: {out-CC potential neighbors},
-	 *     frontierNode3: {...},
-	 *     ...
+	 * frontierNode1: {out-CC potential neighbors},
+	 * frontierNode3: {...},
+	 * ...
 	 * }
 	 */
 	private Map<Integer, Set<Integer>> getGLBCCPotentialNeighbors(int cc) {

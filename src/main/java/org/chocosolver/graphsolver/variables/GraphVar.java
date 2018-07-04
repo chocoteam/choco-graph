@@ -91,7 +91,7 @@ public abstract class GraphVar<E extends IGraph> extends AbstractVariable implem
 			return false;
 		}
 		ISet suc;
-		for (int i :getUB().getNodes()) {
+		for (int i : getUB().getNodes()) {
 			suc = UB.getSuccOrNeighOf(i);
 			if (suc.size() != getLB().getSuccOrNeighOf(i).size()) {
 				return false;
@@ -158,7 +158,7 @@ public abstract class GraphVar<E extends IGraph> extends AbstractVariable implem
 			}
 			return false;
 		}
-		this.contradiction(cause,"enforce node which is not in the domain");
+		this.contradiction(cause, "enforce node which is not in the domain");
 		return true;
 	}
 
@@ -206,7 +206,8 @@ public abstract class GraphVar<E extends IGraph> extends AbstractVariable implem
 	/**
 	 * Get the set of successors (if directed) or neighbors (if undirected) of vertex 'idx'
 	 * in the lower bound graph (mandatory outgoing arcs)
-	 * @param idx	a vertex
+	 *
+	 * @param idx a vertex
 	 * @return The set of successors (if directed) or neighbors (if undirected) of 'idx' in LB
 	 */
 	public ISet getMandSuccOrNeighOf(int idx) {
@@ -216,7 +217,8 @@ public abstract class GraphVar<E extends IGraph> extends AbstractVariable implem
 	/**
 	 * Get the set of successors (if directed) or neighbors (if undirected) of vertex 'idx'
 	 * in the upper bound graph (potential outgoing arcs)
-	 * @param idx	a vertex
+	 *
+	 * @param idx a vertex
 	 * @return The set of successors (if directed) or neighbors (if undirected) of 'idx' in UB
 	 */
 	public ISet getPotSuccOrNeighOf(int idx) {
@@ -226,7 +228,8 @@ public abstract class GraphVar<E extends IGraph> extends AbstractVariable implem
 	/**
 	 * Get the set of predecessors (if directed) or neighbors (if undirected) of vertex 'idx'
 	 * in the lower bound graph (mandatory ingoing arcs)
-	 * @param idx	a vertex
+	 *
+	 * @param idx a vertex
 	 * @return The set of predecessors (if directed) or neighbors (if undirected) of 'idx' in LB
 	 */
 	public ISet getMandPredOrNeighOf(int idx) {
@@ -236,7 +239,8 @@ public abstract class GraphVar<E extends IGraph> extends AbstractVariable implem
 	/**
 	 * Get the set of predecessors (if directed) or neighbors (if undirected) of vertex 'idx'
 	 * in the upper bound graph (potential ingoing arcs)
-	 * @param idx	a vertex
+	 *
+	 * @param idx a vertex
 	 * @return The set of predecessors (if directed) or neighbors (if undirected) of 'idx' in UB
 	 */
 	public ISet getPotPredOrNeighOf(int idx) {
@@ -315,6 +319,7 @@ public abstract class GraphVar<E extends IGraph> extends AbstractVariable implem
 
 	/**
 	 * Make the propagator 'prop' have an incremental filtering w.r.t. this graph variable
+	 *
 	 * @param propagator A propagator involving this graph variable
 	 * @return A new instance of GraphDeltaMonitor to make incremental propagators
 	 */
@@ -336,8 +341,8 @@ public abstract class GraphVar<E extends IGraph> extends AbstractVariable implem
 
 	/**
 	 * @return the value of the graph variable represented through an adjacency matrix
-	 *         plus a set of nodes (last row of the matrix).
-	 *         This method is not supposed to be used except for restoring solutions.
+	 * plus a set of nodes (last row of the matrix).
+	 * This method is not supposed to be used except for restoring solutions.
 	 */
 	public boolean[][] getValue() {
 		int n = getUB().getNbMaxNodes();
@@ -385,29 +390,30 @@ public abstract class GraphVar<E extends IGraph> extends AbstractVariable implem
 	/**
 	 * Export domain to graphviz format, see http://www.webgraphviz.com/
 	 * Mandatory elements are in red whereas potential elements are in black
+	 *
 	 * @return a String encoding the domain of the variable
 	 */
-	public String graphVizExport(){
+	public String graphVizExport() {
 		boolean directed = isDirected();
-		String arc = directed?" -> ":" -- ";
-		StringBuilder sb =new StringBuilder();
-		sb.append(directed?"digraph ":"graph ").append(getName()+ "{\n");
+		String arc = directed ? " -> " : " -- ";
+		StringBuilder sb = new StringBuilder();
+		sb.append(directed ? "digraph " : "graph ").append(getName() + "{\n");
 		sb.append("node [color = red, fontcolor=red]; ");
-		for(int i:getMandatoryNodes())sb.append(i+" ");
+		for (int i : getMandatoryNodes()) sb.append(i + " ");
 		sb.append(";\n");
-		for(int i:getMandatoryNodes()){
-			for(int j:getMandSuccOrNeighOf(i)){
-				if(directed || i<j)sb.append(i+arc+j+" [color=red] ;\n");
+		for (int i : getMandatoryNodes()) {
+			for (int j : getMandSuccOrNeighOf(i)) {
+				if (directed || i < j) sb.append(i + arc + j + " [color=red] ;\n");
 			}
 		}
-		if(getMandatoryNodes().size()<getPotentialNodes().size()){
+		if (getMandatoryNodes().size() < getPotentialNodes().size()) {
 			sb.append("node [color = black, fontcolor=black]; ");
-			for(int i:getPotentialNodes())if(!getMandatoryNodes().contains(i))sb.append(i+" ");
+			for (int i : getPotentialNodes()) if (!getMandatoryNodes().contains(i)) sb.append(i + " ");
 			sb.append(";\n");
 		}
-		for(int i:getPotentialNodes()){
-			for(int j:getPotSuccOrNeighOf(i)){
-				if((directed || i<j) && !getMandSuccOrNeighOf(i).contains(j))sb.append(i+arc+j+" ;\n");
+		for (int i : getPotentialNodes()) {
+			for (int j : getPotSuccOrNeighOf(i)) {
+				if ((directed || i < j) && !getMandSuccOrNeighOf(i).contains(j)) sb.append(i + arc + j + " ;\n");
 			}
 		}
 		sb.append("}");

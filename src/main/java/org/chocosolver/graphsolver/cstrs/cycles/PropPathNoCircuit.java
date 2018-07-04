@@ -96,11 +96,10 @@ public class PropPathNoCircuit extends Propagator<DirectedGraphVar> {
 		}
 		for (int i = 0; i < n; i++) {
 			ISet succs = g.getMandSuccOf(i);
-			if (succs.size()>0) {
-				if(succs.size()>1){
+			if (succs.size() > 0) {
+				if (succs.size() > 1) {
 					fails();
-				}
-				else {
+				} else {
 					enforce(i, g.getMandSuccOf(i).iterator().next());
 				}
 			}
@@ -122,7 +121,7 @@ public class PropPathNoCircuit extends Propagator<DirectedGraphVar> {
 
 	@Override
 	public ESat isEntailed() {
-		System.out.println("[WARNING] "+this.getClass().getSimpleName()+".isEntail() is not implemented yet " +
+		System.out.println("[WARNING] " + this.getClass().getSimpleName() + ".isEntail() is not implemented yet " +
 				"and returns true by default. Please do not reify this constraint ");
 		return ESat.TRUE;
 	}

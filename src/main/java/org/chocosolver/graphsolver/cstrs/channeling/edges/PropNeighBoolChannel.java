@@ -1,28 +1,28 @@
 /**
- *  Copyright (c) 1999-2014, Ecole des Mines de Nantes
- *  All rights reserved.
- *  Redistribution and use in source and binary forms, with or without
- *  modification, are permitted provided that the following conditions are met:
- *
- *      * Redistributions of source code must retain the above copyright
- *        notice, this list of conditions and the following disclaimer.
- *      * Redistributions in binary form must reproduce the above copyright
- *        notice, this list of conditions and the following disclaimer in the
- *        documentation and/or other materials provided with the distribution.
- *      * Neither the name of the Ecole des Mines de Nantes nor the
- *        names of its contributors may be used to endorse or promote products
- *        derived from this software without specific prior written permission.
- *
- *  THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND ANY
- *  EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- *  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- *  DISCLAIMED. IN NO EVENT SHALL THE REGENTS AND CONTRIBUTORS BE LIABLE FOR ANY
- *  DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- *  (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- *  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
- *  ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- *  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Copyright (c) 1999-2014, Ecole des Mines de Nantes
+ * All rights reserved.
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ * <p>
+ * * Redistributions of source code must retain the above copyright
+ * notice, this list of conditions and the following disclaimer.
+ * * Redistributions in binary form must reproduce the above copyright
+ * notice, this list of conditions and the following disclaimer in the
+ * documentation and/or other materials provided with the distribution.
+ * * Neither the name of the Ecole des Mines de Nantes nor the
+ * names of its contributors may be used to endorse or promote products
+ * derived from this software without specific prior written permission.
+ * <p>
+ * THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE REGENTS AND CONTRIBUTORS BE LIABLE FOR ANY
+ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
 package org.chocosolver.graphsolver.cstrs.channeling.edges;
@@ -58,7 +58,7 @@ public class PropNeighBoolChannel extends Propagator<Variable> {
 	//***********************************************************************************
 
 	public PropNeighBoolChannel(BoolVar[] neigh, final int vertex, GraphVar gV, IncidentSet incSet) {
-		super(ArrayUtils.append(neigh,new Variable[]{gV}), PropagatorPriority.LINEAR, true);
+		super(ArrayUtils.append(neigh, new Variable[]{gV}), PropagatorPriority.LINEAR, true);
 		this.vertex = vertex;
 		this.bools = neigh;
 		this.g = gV;
@@ -74,24 +74,24 @@ public class PropNeighBoolChannel extends Propagator<Variable> {
 	public int getPropagationConditions(int vIdx) {
 		if (vIdx == bools.length) {
 			return GraphEventType.ADD_ARC.getMask() + GraphEventType.REMOVE_ARC.getMask();
-		}else{
+		} else {
 			return IntEventType.all();
 		}
 	}
 
 	@Override
 	public void propagate(int evtmask) throws ContradictionException {
-		for(int i: inc.getPotSet(g,vertex)){
-			if(bools[i].getUB()==0){
-				inc.remove(g,vertex,i,this);
-			}else if(bools[i].getLB()==1){
-				inc.enforce(g,vertex,i,this);
+		for (int i : inc.getPotSet(g, vertex)) {
+			if (bools[i].getUB() == 0) {
+				inc.remove(g, vertex, i, this);
+			} else if (bools[i].getLB() == 1) {
+				inc.enforce(g, vertex, i, this);
 			}
 		}
-		for(int i=0;i<bools.length;i++){
-			if(!inc.getPotSet(g,vertex).contains(i)){
+		for (int i = 0; i < bools.length; i++) {
+			if (!inc.getPotSet(g, vertex).contains(i)) {
 				bools[i].setToFalse(this);
-			}else if(inc.getMandSet(g,vertex).contains(i)){
+			} else if (inc.getMandSet(g, vertex).contains(i)) {
 				bools[i].setToTrue(this);
 			}
 		}
@@ -100,16 +100,16 @@ public class PropNeighBoolChannel extends Propagator<Variable> {
 	@Override
 	public void propagate(int idxVarInProp, int mask) throws ContradictionException {
 		if (idxVarInProp < bools.length) {
-			if(bools[idxVarInProp].getLB()==1){
-				inc.enforce(g,vertex,idxVarInProp,this);
-			}else{
-				inc.remove(g,vertex,idxVarInProp,this);
+			if (bools[idxVarInProp].getLB() == 1) {
+				inc.enforce(g, vertex, idxVarInProp, this);
+			} else {
+				inc.remove(g, vertex, idxVarInProp, this);
 			}
 		} else {
-			for(int i=0;i<bools.length;i++){
-				if(!inc.getPotSet(g,vertex).contains(i)){
+			for (int i = 0; i < bools.length; i++) {
+				if (!inc.getPotSet(g, vertex).contains(i)) {
 					bools[i].setToFalse(this);
-				}else if(inc.getMandSet(g,vertex).contains(i)){
+				} else if (inc.getMandSet(g, vertex).contains(i)) {
 					bools[i].setToTrue(this);
 				}
 			}
@@ -118,17 +118,17 @@ public class PropNeighBoolChannel extends Propagator<Variable> {
 
 	@Override
 	public ESat isEntailed() {
-		for(int i=0;i<bools.length;i++){
-			if(bools[i].getLB()==1 && !inc.getPotSet(g, vertex).contains(i)){
+		for (int i = 0; i < bools.length; i++) {
+			if (bools[i].getLB() == 1 && !inc.getPotSet(g, vertex).contains(i)) {
 				return ESat.FALSE;
 			}
 		}
-		for(int i:inc.getMandSet(g, vertex)){
-			if(bools[i].getUB()==0){
+		for (int i : inc.getMandSet(g, vertex)) {
+			if (bools[i].getUB() == 0) {
 				return ESat.FALSE;
 			}
 		}
-		if(isCompletelyInstantiated()){
+		if (isCompletelyInstantiated()) {
 			return ESat.TRUE;
 		}
 		return ESat.UNDEFINED;

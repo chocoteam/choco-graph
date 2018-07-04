@@ -1,28 +1,28 @@
 /**
- *  Copyright (c) 1999-2014, Ecole des Mines de Nantes
- *  All rights reserved.
- *  Redistribution and use in source and binary forms, with or without
- *  modification, are permitted provided that the following conditions are met:
- *
- *      * Redistributions of source code must retain the above copyright
- *        notice, this list of conditions and the following disclaimer.
- *      * Redistributions in binary form must reproduce the above copyright
- *        notice, this list of conditions and the following disclaimer in the
- *        documentation and/or other materials provided with the distribution.
- *      * Neither the name of the Ecole des Mines de Nantes nor the
- *        names of its contributors may be used to endorse or promote products
- *        derived from this software without specific prior written permission.
- *
- *  THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND ANY
- *  EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- *  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- *  DISCLAIMED. IN NO EVENT SHALL THE REGENTS AND CONTRIBUTORS BE LIABLE FOR ANY
- *  DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- *  (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- *  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
- *  ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- *  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Copyright (c) 1999-2014, Ecole des Mines de Nantes
+ * All rights reserved.
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ * <p>
+ * * Redistributions of source code must retain the above copyright
+ * notice, this list of conditions and the following disclaimer.
+ * * Redistributions in binary form must reproduce the above copyright
+ * notice, this list of conditions and the following disclaimer in the
+ * documentation and/or other materials provided with the distribution.
+ * * Neither the name of the Ecole des Mines de Nantes nor the
+ * names of its contributors may be used to endorse or promote products
+ * derived from this software without specific prior written permission.
+ * <p>
+ * THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE REGENTS AND CONTRIBUTORS BE LIABLE FOR ANY
+ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
 package org.chocosolver.graphsolver.cstrs.inclusion;
@@ -51,26 +51,26 @@ public class PropInclusion extends Propagator<GraphVar> {
 	private GraphDeltaMonitor[] gdm;
 	private IntProcedure[] prNode;
 	private PairProcedure[] prArc;
-	private GraphEventType[] etNode,etArcs;
+	private GraphEventType[] etNode, etArcs;
 
 	//***********************************************************************************
 	// CONSTRUCTORS
 	//***********************************************************************************
 
-	public PropInclusion(GraphVar g1, GraphVar g2){
-		super(new GraphVar[]{g1,g2}, PropagatorPriority.LINEAR,true);
-		g = new GraphVar[]{g1,g2};
-		gdm = new GraphDeltaMonitor[]{g1.monitorDelta(this),g2.monitorDelta(this)};
+	public PropInclusion(GraphVar g1, GraphVar g2) {
+		super(new GraphVar[]{g1, g2}, PropagatorPriority.LINEAR, true);
+		g = new GraphVar[]{g1, g2};
+		gdm = new GraphDeltaMonitor[]{g1.monitorDelta(this), g2.monitorDelta(this)};
 		prNode = new IntProcedure[]{
-				i -> g[1].enforceNode(i,this),
-				i -> g[0].removeNode(i,this)
+				i -> g[1].enforceNode(i, this),
+				i -> g[0].removeNode(i, this)
 		};
 		prArc = new PairProcedure[]{
-				(i, j) -> g[1].enforceArc(i,j,this),
-				(i, j) -> g[0].removeArc(i,j,this)
+				(i, j) -> g[1].enforceArc(i, j, this),
+				(i, j) -> g[0].removeArc(i, j, this)
 		};
-		etNode = new GraphEventType[]{GraphEventType.ADD_NODE,GraphEventType.REMOVE_NODE};
-		etArcs = new GraphEventType[]{GraphEventType.ADD_ARC,GraphEventType.REMOVE_ARC};
+		etNode = new GraphEventType[]{GraphEventType.ADD_NODE, GraphEventType.REMOVE_NODE};
+		etArcs = new GraphEventType[]{GraphEventType.ADD_ARC, GraphEventType.REMOVE_ARC};
 	}
 
 	//***********************************************************************************
@@ -79,27 +79,27 @@ public class PropInclusion extends Propagator<GraphVar> {
 
 	@Override
 	public void propagate(int evtmask) throws ContradictionException {
-		if(g[0].getNbMaxNodes() != g[1].getNbMaxNodes()){
-			for(int i=g[1].getNbMaxNodes();i<g[0].getNbMaxNodes();i++){
-				g[0].removeNode(i,this);
+		if (g[0].getNbMaxNodes() != g[1].getNbMaxNodes()) {
+			for (int i = g[1].getNbMaxNodes(); i < g[0].getNbMaxNodes(); i++) {
+				g[0].removeNode(i, this);
 			}
 		}
 		ISet set = g[0].getMandatoryNodes();
-		for(int i: set){
-			g[1].enforceNode(i,this);
+		for (int i : set) {
+			g[1].enforceNode(i, this);
 			ISet suc = g[0].getMandSuccOrNeighOf(i);
-			for(int j: suc){
-				g[1].enforceArc(i,j,this);
+			for (int j : suc) {
+				g[1].enforceArc(i, j, this);
 			}
 		}
 		set = g[0].getPotentialNodes();
-		for(int i: set){
-			if(!g[1].getPotentialNodes().contains(i)){
+		for (int i : set) {
+			if (!g[1].getPotentialNodes().contains(i)) {
 				g[0].removeNode(i, this);
-			}else {
+			} else {
 				ISet suc = g[0].getPotSuccOrNeighOf(i);
 				for (int j : suc) {
-					if(!g[1].getPotSuccOrNeighOf(i).contains(j)) {
+					if (!g[1].getPotSuccOrNeighOf(i).contains(j)) {
 						g[1].removeArc(i, j, this);
 					}
 				}

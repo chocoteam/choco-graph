@@ -42,7 +42,7 @@ import java.util.BitSet;
 /**
  * Propagator checking that the graph is connected
  * can filter by forcing bridges
- *
+ * <p>
  * In case not all vertices are mandatory, the filtering could be improved
  *
  * @author Jean-Guillaume Fages
@@ -66,7 +66,7 @@ public class PropConnected extends Propagator<UndirectedGraphVar> {
 	//***********************************************************************************
 
 	public PropConnected(UndirectedGraphVar graph) {
-		this(graph,false);
+		this(graph, false);
 	}
 
 	public PropConnected(UndirectedGraphVar graph, boolean checkerOnly) {
@@ -93,15 +93,15 @@ public class PropConnected extends Propagator<UndirectedGraphVar> {
 		if (g.getPotentialNodes().size() == 0) {
 			fails();
 		}
-		if(g.getMandatoryNodes().size()>1) {
+		if (g.getMandatoryNodes().size() > 1) {
 			// explore the graph from the first mandatory node
 			explore();
 			// remove unreachable nodes
 			for (int o = visited.nextClearBit(0); o < n; o = visited.nextClearBit(o + 1)) {
-				g.removeNode(o,this);
+				g.removeNode(o, this);
 			}
 			// force articulation points
-			if(g.getLB().getNodes().size()<g.getUB().getNodes().size()) {
+			if (g.getLB().getNodes().size() < g.getUB().getNodes().size()) {
 				forceArticulationPoints();
 			}
 
@@ -120,16 +120,16 @@ public class PropConnected extends Propagator<UndirectedGraphVar> {
 
 	@Override
 	public ESat isEntailed() {
-		if(g.getPotentialNodes().size()==1){
+		if (g.getPotentialNodes().size() == 1) {
 			return ESat.TRUE;
 		}
 		//Graphs with zero nodes are not connected.
-		if(g.getMandatoryNodes().size() == 0){
+		if (g.getMandatoryNodes().size() == 0) {
 			return ESat.FALSE;
 		}
 		explore();
-		for(int i: g.getMandatoryNodes()){
-			if(!visited.get(i)){
+		for (int i : g.getMandatoryNodes()) {
+			if (!visited.get(i)) {
 				return ESat.FALSE;
 			}
 		}
@@ -144,7 +144,7 @@ public class PropConnected extends Propagator<UndirectedGraphVar> {
 		visited.clear();
 		int first = 0;
 		int last = 0;
-		if(g.getMandatoryNodes().size()<=0){
+		if (g.getMandatoryNodes().size() <= 0) {
 			return; // empty graph
 		}
 		int i = g.getMandatoryNodes().iterator().next();
@@ -217,7 +217,7 @@ public class PropConnected extends Propagator<UndirectedGraphVar> {
 					if (k < nNodes - 1) {
 						throw new UnsupportedOperationException("disconnected graph");
 					}
-					return ;
+					return;
 				}
 				q = inf[i];
 				boolean mis = mandInSub[i];

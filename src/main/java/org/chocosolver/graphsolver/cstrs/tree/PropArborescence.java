@@ -34,6 +34,7 @@ import java.util.BitSet;
 
 /**
  * Arborescence constraint (simplification from tree constraint) based on dominators
+ *
  * @author Jean-Guillaume Fages
  */
 public class PropArborescence extends PropArborescences {
@@ -52,11 +53,11 @@ public class PropArborescence extends PropArborescences {
 
 
 	public PropArborescence(DirectedGraphVar graph, int root) {
-		this(graph,root,false);
+		this(graph, root, false);
 	}
 
 	public PropArborescence(DirectedGraphVar graph, int root, boolean simple) {
-		super(graph,simple);
+		super(graph, simple);
 		this.root = root;
 		this.visited = new BitSet(n);
 		this.fifo = new int[n];
@@ -73,13 +74,13 @@ public class PropArborescence extends PropArborescences {
 		explore();
 		// remove unreachable nodes
 		for (int o = visited.nextClearBit(0); o < n; o = visited.nextClearBit(o + 1)) {
-			g.removeNode(o,this);
+			g.removeNode(o, this);
 		}
 		super.propagate(evt);
 	}
 
 	@Override
-	protected void reset(){
+	protected void reset() {
 		// reset data structure
 		for (int i = 0; i < n + 1; i++) {
 			connectedGraph.getSuccOf(i).clear();

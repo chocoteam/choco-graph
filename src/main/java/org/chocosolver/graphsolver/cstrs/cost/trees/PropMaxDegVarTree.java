@@ -42,30 +42,30 @@ import org.chocosolver.solver.variables.IntVar;
 public class PropMaxDegVarTree extends PropMaxDegTree {
 
 
-    //***********************************************************************************
-    // VARIABLES
-    //***********************************************************************************
+	//***********************************************************************************
+	// VARIABLES
+	//***********************************************************************************
 
-    protected IntVar[] deg;
+	protected IntVar[] deg;
 
-    //***********************************************************************************
-    // CONSTRUCTORS
-    //***********************************************************************************
+	//***********************************************************************************
+	// CONSTRUCTORS
+	//***********************************************************************************
 
-    public PropMaxDegVarTree(UndirectedGraphVar g, IntVar[] degrees) {
-        super(g,new int[degrees.length]);
-        deg = degrees;
-    }
+	public PropMaxDegVarTree(UndirectedGraphVar g, IntVar[] degrees) {
+		super(g, new int[degrees.length]);
+		deg = degrees;
+	}
 
-    //***********************************************************************************
-    // METHODS
-    //***********************************************************************************
+	//***********************************************************************************
+	// METHODS
+	//***********************************************************************************
 
-    @Override
-    public void propagate(int evtmask) throws ContradictionException {
-        for(int i=0;i<n;i++){
+	@Override
+	public void propagate(int evtmask) throws ContradictionException {
+		for (int i = 0; i < n; i++) {
 			dMax[i] = deg[i].getUB();
 		}
 		super.propagate(evtmask);
-    }
+	}
 }

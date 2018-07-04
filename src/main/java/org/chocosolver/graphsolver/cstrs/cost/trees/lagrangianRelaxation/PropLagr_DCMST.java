@@ -93,7 +93,7 @@ public class PropLagr_DCMST extends Propagator<Variable> implements GraphLagrang
 		this.waitFirstSol = waitFirstSol;
 		g = new UndirectedGraph(n, SetType.BITSET, true);
 		for (int i = 0; i < n; i++) {
-			for (int j = i+1; j < n; j++) {
+			for (int j = i + 1; j < n; j++) {
 				g.addEdge(i, j);
 			}
 		}
@@ -287,7 +287,7 @@ public class PropLagr_DCMST extends Propagator<Variable> implements GraphLagrang
 
 	@Override
 	public int getPropagationConditions(int vIdx) {
-		if(vIdx==0) {
+		if (vIdx == 0) {
 			return GraphEventType.REMOVE_ARC.getMask() + GraphEventType.ADD_ARC.getMask();
 		} else {
 			return IntEventType.boundAndInst();

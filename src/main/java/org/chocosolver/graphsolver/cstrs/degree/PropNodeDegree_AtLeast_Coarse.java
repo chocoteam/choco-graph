@@ -42,105 +42,105 @@ import org.chocosolver.util.objects.setDataStructures.ISet;
  */
 public class PropNodeDegree_AtLeast_Coarse extends Propagator<GraphVar> {
 
-    //***********************************************************************************
-    // VARIABLES
-    //***********************************************************************************
+	//***********************************************************************************
+	// VARIABLES
+	//***********************************************************************************
 
-    private GraphVar g;
-    private int[] degrees;
-    private IncidentSet target;
+	private GraphVar g;
+	private int[] degrees;
+	private IncidentSet target;
 
-    //***********************************************************************************
-    // CONSTRUCTORS
-    //***********************************************************************************
+	//***********************************************************************************
+	// CONSTRUCTORS
+	//***********************************************************************************
 
-    public PropNodeDegree_AtLeast_Coarse(DirectedGraphVar graph, Orientation setType, int degree) {
-        this(graph, setType, buildArray(degree, graph.getNbMaxNodes()));
-    }
+	public PropNodeDegree_AtLeast_Coarse(DirectedGraphVar graph, Orientation setType, int degree) {
+		this(graph, setType, buildArray(degree, graph.getNbMaxNodes()));
+	}
 
-    public PropNodeDegree_AtLeast_Coarse(DirectedGraphVar graph, Orientation setType, int[] degrees) {
-        super(new DirectedGraphVar[]{graph}, PropagatorPriority.BINARY, false);
-        g = graph;
+	public PropNodeDegree_AtLeast_Coarse(DirectedGraphVar graph, Orientation setType, int[] degrees) {
+		super(new DirectedGraphVar[]{graph}, PropagatorPriority.BINARY, false);
+		g = graph;
 		this.degrees = degrees;
-        switch (setType) {
-            case SUCCESSORS:
-                target = new IncidentSet.SuccOrNeighSet();
-                break;
-            case PREDECESSORS:
-                target = new IncidentSet.PredOrNeighSet();
-                break;
-            default:
-                throw new UnsupportedOperationException();
-        }
-    }
+		switch (setType) {
+			case SUCCESSORS:
+				target = new IncidentSet.SuccOrNeighSet();
+				break;
+			case PREDECESSORS:
+				target = new IncidentSet.PredOrNeighSet();
+				break;
+			default:
+				throw new UnsupportedOperationException();
+		}
+	}
 
-    public PropNodeDegree_AtLeast_Coarse(UndirectedGraphVar graph, int degree) {
-        this(graph, buildArray(degree, graph.getNbMaxNodes()));
-    }
+	public PropNodeDegree_AtLeast_Coarse(UndirectedGraphVar graph, int degree) {
+		this(graph, buildArray(degree, graph.getNbMaxNodes()));
+	}
 
-    public PropNodeDegree_AtLeast_Coarse(UndirectedGraphVar graph, int[] degrees) {
-        super(new UndirectedGraphVar[]{graph}, PropagatorPriority.BINARY, false);
-        target = new IncidentSet.SuccOrNeighSet();
-        g = graph;
+	public PropNodeDegree_AtLeast_Coarse(UndirectedGraphVar graph, int[] degrees) {
+		super(new UndirectedGraphVar[]{graph}, PropagatorPriority.BINARY, false);
+		target = new IncidentSet.SuccOrNeighSet();
+		g = graph;
 		this.degrees = degrees;
-    }
+	}
 
-    private static int[] buildArray(int degree, int n) {
-        int[] degrees = new int[n];
-        for (int i = 0; i < n; i++) {
-            degrees[i] = degree;
-        }
-        return degrees;
-    }
+	private static int[] buildArray(int degree, int n) {
+		int[] degrees = new int[n];
+		for (int i = 0; i < n; i++) {
+			degrees[i] = degree;
+		}
+		return degrees;
+	}
 
-    //***********************************************************************************
-    // PROPAGATIONS
-    //***********************************************************************************
+	//***********************************************************************************
+	// PROPAGATIONS
+	//***********************************************************************************
 
-    @Override
-    public void propagate(int evtmask) throws ContradictionException {
-        for (int node : g.getPotentialNodes()) {
-            checkAtLeast(node);
-        }
-    }
+	@Override
+	public void propagate(int evtmask) throws ContradictionException {
+		for (int node : g.getPotentialNodes()) {
+			checkAtLeast(node);
+		}
+	}
 
-    //***********************************************************************************
-    // INFO
-    //***********************************************************************************
+	//***********************************************************************************
+	// INFO
+	//***********************************************************************************
 
-    @Override
-    public int getPropagationConditions(int vIdx) {
-        return GraphEventType.REMOVE_ARC.getMask() + GraphEventType.ADD_NODE.getMask();
-    }
+	@Override
+	public int getPropagationConditions(int vIdx) {
+		return GraphEventType.REMOVE_ARC.getMask() + GraphEventType.ADD_NODE.getMask();
+	}
 
-    @Override
-    public ESat isEntailed() {
-        ISet act = g.getMandatoryNodes();
-        for (int i : act) {
-            if (target.getPotSet(g, i).size() < degrees[i]) {
-                return ESat.FALSE;
-            }
-        }
-        if (!g.isInstantiated()) {
-            return ESat.UNDEFINED;
-        }
-        return ESat.TRUE;
-    }
+	@Override
+	public ESat isEntailed() {
+		ISet act = g.getMandatoryNodes();
+		for (int i : act) {
+			if (target.getPotSet(g, i).size() < degrees[i]) {
+				return ESat.FALSE;
+			}
+		}
+		if (!g.isInstantiated()) {
+			return ESat.UNDEFINED;
+		}
+		return ESat.TRUE;
+	}
 
-    //***********************************************************************************
-    // PROCEDURES
-    //***********************************************************************************
+	//***********************************************************************************
+	// PROCEDURES
+	//***********************************************************************************
 
-    private void checkAtLeast(int i) throws ContradictionException {
-        ISet nei = target.getPotSet(g, i);
-        ISet ker = target.getMandSet(g, i);
-        int size = nei.size();
-        if (size < degrees[i]) {
-            g.removeNode(i, this);
-        } else if (size == degrees[i] && g.getMandatoryNodes().contains(i) && ker.size() < size) {
-            for (int s : nei) {
-                target.enforce(g, i, s, this);
-            }
-        }
-    }
+	private void checkAtLeast(int i) throws ContradictionException {
+		ISet nei = target.getPotSet(g, i);
+		ISet ker = target.getMandSet(g, i);
+		int size = nei.size();
+		if (size < degrees[i]) {
+			g.removeNode(i, this);
+		} else if (size == degrees[i] && g.getMandatoryNodes().contains(i) && ker.size() < size) {
+			for (int s : nei) {
+				target.enforce(g, i, s, this);
+			}
+		}
+	}
 }

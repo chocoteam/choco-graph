@@ -54,9 +54,9 @@ public class PropLagr_OneTree_IntVar extends PropLagr_OneTree {
 	//***********************************************************************************
 
 	public PropLagr_OneTree_IntVar(IntVar[] graph, IntVar cost, int[][] costMatrix, boolean waitFirstSol) {
-		super(ArrayUtils.append(graph,new IntVar[]{cost}), costMatrix);
+		super(ArrayUtils.append(graph, new IntVar[]{cost}), costMatrix);
 		this.succ = graph;
-		g = new UndirectedGraph(n, SetType.BIPARTITESET,true);
+		g = new UndirectedGraph(n, SetType.BIPARTITESET, true);
 		obj = cost;
 		this.waitFirstSol = waitFirstSol;
 		assert checkSymmetry(costMatrix) : "TSP matrix should be symmetric";
@@ -71,7 +71,7 @@ public class PropLagr_OneTree_IntVar extends PropLagr_OneTree {
 		mandatoryArcsList.clear();
 		for (int i = 0; i < n; i++) {
 			g.getNeighOf(i).clear();
-			if(succ[i].isInstantiated()){
+			if (succ[i].isInstantiated()) {
 				int j = succ[i].getValue();
 				mandatoryArcsList.add(i * n + j); // todo check no need to have i < j
 			}
@@ -79,25 +79,25 @@ public class PropLagr_OneTree_IntVar extends PropLagr_OneTree {
 		for (int i = 0; i < n; i++) {
 			IntVar v = succ[i];
 			int ub = v.getUB();
-			for(int j=v.getLB();j<=ub;j=v.nextValue(j)){
-				g.addEdge(i,j);
+			for (int j = v.getLB(); j <= ub; j = v.nextValue(j)) {
+				g.addEdge(i, j);
 			}
 		}
 	}
 
 	@Override
 	public void remove(int from, int to) throws ContradictionException {
-		succ[from].removeValue(to,this);
-		succ[to].removeValue(from,this);
+		succ[from].removeValue(to, this);
+		succ[to].removeValue(from, this);
 	}
 
 	@Override
 	public void enforce(int from, int to) throws ContradictionException {
-		if(!succ[from].contains(to)){
-			succ[to].instantiateTo(from,this);
+		if (!succ[from].contains(to)) {
+			succ[to].instantiateTo(from, this);
 		}
-		if(!succ[to].contains(from)){
-			succ[from].instantiateTo(to,this);
+		if (!succ[to].contains(from)) {
+			succ[from].instantiateTo(to, this);
 		}
 	}
 
@@ -111,11 +111,11 @@ public class PropLagr_OneTree_IntVar extends PropLagr_OneTree {
 		return succ[i].isInstantiatedTo(j) || succ[j].isInstantiatedTo(i);
 	}
 
-	public static boolean checkSymmetry(int[][] costMatrix){
+	public static boolean checkSymmetry(int[][] costMatrix) {
 		int n = costMatrix.length;
 		for (int i = 0; i < n; i++) {
-			for (int j = i+1; j < n; j++) {
-				if(costMatrix[i][j] != costMatrix[j][i]){
+			for (int j = i + 1; j < n; j++) {
+				if (costMatrix[i][j] != costMatrix[j][i]) {
 					return false;
 				}
 			}

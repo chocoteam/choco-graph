@@ -38,9 +38,9 @@ public class UndirectedGraphVar extends GraphVar<UndirectedGraph> {
 
 	//////////////////////////////// GRAPH PART /////////////////////////////////////////
 
-    //***********************************************************************************
-    // CONSTRUCTORS
-    //***********************************************************************************
+	//***********************************************************************************
+	// CONSTRUCTORS
+	//***********************************************************************************
 
 	/**
 	 * Creates a graph variable
@@ -54,54 +54,55 @@ public class UndirectedGraphVar extends GraphVar<UndirectedGraph> {
 		super(name, solver, LB, UB);
 	}
 
-    //***********************************************************************************
-    // METHODS
-    //***********************************************************************************
+	//***********************************************************************************
+	// METHODS
+	//***********************************************************************************
 
 	@Override
-    public boolean removeArc(int x, int y, ICause cause) throws ContradictionException {
-        assert cause != null;
-        if (LB.edgeExists(x, y)) {
-            this.contradiction(cause, "remove mandatory arc");
-            return false;
-        }
-        if (UB.removeEdge(x, y)) {
-            if (reactOnModification) {
-                delta.add(x, GraphDelta.AR_tail, cause);
-                delta.add(y, GraphDelta.AR_head, cause);
-            }
-            GraphEventType e = GraphEventType.REMOVE_ARC;
-            notifyPropagators(e, cause);
-            return true;
-        }
-        return false;
-    }
+	public boolean removeArc(int x, int y, ICause cause) throws ContradictionException {
+		assert cause != null;
+		if (LB.edgeExists(x, y)) {
+			this.contradiction(cause, "remove mandatory arc");
+			return false;
+		}
+		if (UB.removeEdge(x, y)) {
+			if (reactOnModification) {
+				delta.add(x, GraphDelta.AR_tail, cause);
+				delta.add(y, GraphDelta.AR_head, cause);
+			}
+			GraphEventType e = GraphEventType.REMOVE_ARC;
+			notifyPropagators(e, cause);
+			return true;
+		}
+		return false;
+	}
 
 	@Override
-    public boolean enforceArc(int x, int y, ICause cause) throws ContradictionException {
-        assert cause != null;
-        enforceNode(x, cause);
-        enforceNode(y, cause);
-        if (UB.edgeExists(x, y)) {
-            if (LB.addEdge(x, y)) {
-                if (reactOnModification) {
-                    delta.add(x, GraphDelta.AE_tail, cause);
-                    delta.add(y, GraphDelta.AE_head, cause);
-                }
+	public boolean enforceArc(int x, int y, ICause cause) throws ContradictionException {
+		assert cause != null;
+		enforceNode(x, cause);
+		enforceNode(y, cause);
+		if (UB.edgeExists(x, y)) {
+			if (LB.addEdge(x, y)) {
+				if (reactOnModification) {
+					delta.add(x, GraphDelta.AE_tail, cause);
+					delta.add(y, GraphDelta.AE_head, cause);
+				}
 				GraphEventType e = GraphEventType.ADD_ARC;
-                notifyPropagators(e, cause);
-                return true;
-            }
-            return false;
-        }
-        this.contradiction(cause, "enforce arc which is not in the domain");
-        return false;
-    }
+				notifyPropagators(e, cause);
+				return true;
+			}
+			return false;
+		}
+		this.contradiction(cause, "enforce arc which is not in the domain");
+		return false;
+	}
 
 	/**
 	 * Get the set of neighbors of vertex 'idx' in the lower bound graph
 	 * (mandatory incident edges)
-	 * @param idx	a vertex
+	 *
+	 * @param idx a vertex
 	 * @return The set of neighbors of 'idx' in LB
 	 */
 	public ISet getMandNeighOf(int idx) {
@@ -111,15 +112,16 @@ public class UndirectedGraphVar extends GraphVar<UndirectedGraph> {
 	/**
 	 * Get the set of neighbors of vertex 'idx' in the upper bound graph
 	 * (potential incident edges)
-	 * @param idx	a vertex
+	 *
+	 * @param idx a vertex
 	 * @return The set of neighbors of 'idx' in UB
 	 */
 	public ISet getPotNeighOf(int idx) {
 		return getPotSuccOrNeighOf(idx);
 	}
 
-    @Override
-    public boolean isDirected() {
-        return false;
-    }
+	@Override
+	public boolean isDirected() {
+		return false;
+	}
 }
