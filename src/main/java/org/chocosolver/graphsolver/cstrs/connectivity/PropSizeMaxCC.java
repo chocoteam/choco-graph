@@ -1,6 +1,5 @@
 package org.chocosolver.graphsolver.cstrs.connectivity;
 
-
 import org.chocosolver.graphsolver.util.ConnectivityFinder;
 import org.chocosolver.graphsolver.variables.GraphEventType;
 import org.chocosolver.graphsolver.variables.UndirectedGraphVar;
@@ -19,6 +18,8 @@ import java.util.Set;
 /**
  * Propagator ensuring that the number of vertices of the largest connected is maxSizeCC
  * (cf. MAX_NCC graph property, http://www.emn.fr/x-info/sdemasse/gccat/sec2.2.2.4.html#uid922).
+ *
+ * @author Dimitri Justeau-Allaire
  */
 public class PropSizeMaxCC extends Propagator<Variable> {
 
@@ -31,7 +32,7 @@ public class PropSizeMaxCC extends Propagator<Variable> {
 	/* Constructor */
 
 	public PropSizeMaxCC(UndirectedGraphVar graph, IntVar sizeMaxCC) {
-		super(new Variable[] {graph, sizeMaxCC}, PropagatorPriority.QUADRATIC, false);
+		super(new Variable[]{graph, sizeMaxCC}, PropagatorPriority.QUADRATIC, false);
 		this.g = graph;
 		this.sizeMaxCC = sizeMaxCC;
 		this.GLBCCFinder = new ConnectivityFinder(g.getLB());
@@ -96,8 +97,8 @@ public class PropSizeMaxCC extends Propagator<Variable> {
 			boolean recomputeMaxNCC_UB = false;
 			// a.
 			if (sizeMaxCC.getUB() == 1) {
-				for (int i = 0; i < g.getPotentialNodes().size(); i++) {
-					for (int j = i + 1; j < g.getPotentialNodes().size(); j++) {
+				for (int i : g.getPotentialNodes()) {
+					for (int j : g.getPotNeighOf(i)) {
 						g.removeArc(i, j, this);
 					}
 				}
@@ -154,7 +155,7 @@ public class PropSizeMaxCC extends Propagator<Variable> {
 		for (int cc = 0; cc < GUBCCFinder.getNBCC(); cc++) {
 			int s = GUBCCFinder.getSizeCC()[cc];
 			if (s >= sizeMaxCC.getLB()) {
-				nb_candidates ++;
+				nb_candidates++;
 				candidate = cc;
 				size = s;
 			}
@@ -174,6 +175,7 @@ public class PropSizeMaxCC extends Propagator<Variable> {
 
 	/**
 	 * Retrieve the nodes of a GLB CC.
+	 *
 	 * @param cc The GLB CC index.
 	 * @return The set of nodes of the GLB CC cc.
 	 */
@@ -187,14 +189,15 @@ public class PropSizeMaxCC extends Propagator<Variable> {
 
 	/**
 	 * Retrieve the potential CC neighbors (i.e. not in the CC) of a GLB CC.
+	 *
 	 * @param cc The GLB CC index.
 	 * @return A map with frontier nodes of the CC as keys (Integer), and their potential neighbors that are
 	 * outside the CC (Set<Integer>). Only the frontier nodes that have at least one potential neighbor outside the
 	 * CC are stored in the map.
 	 * {
-	 *     frontierNode1: {out-CC potential neighbors},
-	 *     frontierNode3: {...},
-	 *     ...
+	 * frontierNode1: {out-CC potential neighbors},
+	 * frontierNode3: {...},
+	 * ...
 	 * }
 	 */
 	private Map<Integer, Set<Integer>> getGLBCCPotentialNeighbors(int cc) {

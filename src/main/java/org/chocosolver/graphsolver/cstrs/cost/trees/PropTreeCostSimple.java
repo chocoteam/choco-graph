@@ -46,99 +46,99 @@ import org.chocosolver.util.procedure.PairProcedure;
  */
 public class PropTreeCostSimple extends Propagator<UndirectedGraphVar> {
 
-    //***********************************************************************************
-    // VARIABLES
-    //***********************************************************************************
+	//***********************************************************************************
+	// VARIABLES
+	//***********************************************************************************
 
-    protected UndirectedGraphVar g;
-    private GraphDeltaMonitor gdm;
-    private PairProcedure edgeEnf, edgeRem;
-    protected int n;
-    protected IntVar sum;
-    protected int[][] distMatrix;
-    private IStateInt minSum, maxSum;
+	protected UndirectedGraphVar g;
+	private GraphDeltaMonitor gdm;
+	private PairProcedure edgeEnf, edgeRem;
+	protected int n;
+	protected IntVar sum;
+	protected int[][] distMatrix;
+	private IStateInt minSum, maxSum;
 
-    //***********************************************************************************
-    // CONSTRUCTORS
-    //***********************************************************************************
+	//***********************************************************************************
+	// CONSTRUCTORS
+	//***********************************************************************************
 
-    public PropTreeCostSimple(UndirectedGraphVar graph, IntVar obj, int[][] costMatrix) {
-        super(new UndirectedGraphVar[]{graph}, PropagatorPriority.LINEAR, true);
-        g = graph;
-        sum = obj;
-        n = g.getNbMaxNodes();
-        distMatrix = costMatrix;
+	public PropTreeCostSimple(UndirectedGraphVar graph, IntVar obj, int[][] costMatrix) {
+		super(new UndirectedGraphVar[]{graph}, PropagatorPriority.LINEAR, true);
+		g = graph;
+		sum = obj;
+		n = g.getNbMaxNodes();
+		distMatrix = costMatrix;
 		IEnvironment environment = graph.getEnvironment();
-        minSum = environment.makeInt(0);
-        maxSum = environment.makeInt(0);
-        gdm = g.monitorDelta(this);
-        edgeEnf = (i, j) -> minSum.add(distMatrix[i][j]);
-        edgeRem = (i, j) -> maxSum.add(-distMatrix[i][j]);
-    }
+		minSum = environment.makeInt(0);
+		maxSum = environment.makeInt(0);
+		gdm = g.monitorDelta(this);
+		edgeEnf = (i, j) -> minSum.add(distMatrix[i][j]);
+		edgeRem = (i, j) -> maxSum.add(-distMatrix[i][j]);
+	}
 
-    //***********************************************************************************
-    // METHODS
-    //***********************************************************************************
+	//***********************************************************************************
+	// METHODS
+	//***********************************************************************************
 
-    @Override
-    public void propagate(int evtmask) throws ContradictionException {
-        int min = 0;
-        int max = 0;
-        for (int i = 0; i < n; i++) {
-            ISet nei = g.getPotNeighOf(i);
-            for (int j : nei) {
-                if (i <= j) {
-                    max += distMatrix[i][j];
-                    if (g.getMandNeighOf(i).contains(j)) {
-                        min += distMatrix[i][j];
-                    }
-                }
-            }
-        }
+	@Override
+	public void propagate(int evtmask) throws ContradictionException {
+		int min = 0;
+		int max = 0;
+		for (int i = 0; i < n; i++) {
+			ISet nei = g.getPotNeighOf(i);
+			for (int j : nei) {
+				if (i <= j) {
+					max += distMatrix[i][j];
+					if (g.getMandNeighOf(i).contains(j)) {
+						min += distMatrix[i][j];
+					}
+				}
+			}
+		}
 		gdm.unfreeze();
-        minSum.set(min);
-        maxSum.set(max);
-        sum.updateLowerBound(min, this);
-        sum.updateUpperBound(max, this);
-    }
+		minSum.set(min);
+		maxSum.set(max);
+		sum.updateLowerBound(min, this);
+		sum.updateUpperBound(max, this);
+	}
 
-    @Override
-    public void propagate(int idxVarInProp, int mask) throws ContradictionException {
+	@Override
+	public void propagate(int idxVarInProp, int mask) throws ContradictionException {
 		gdm.freeze();
 		gdm.forEachArc(edgeEnf, GraphEventType.ADD_ARC);
 		gdm.forEachArc(edgeRem, GraphEventType.REMOVE_ARC);
 		gdm.unfreeze();
-        sum.updateLowerBound(minSum.get(), this);
-        sum.updateUpperBound(maxSum.get(), this);
-    }
+		sum.updateLowerBound(minSum.get(), this);
+		sum.updateUpperBound(maxSum.get(), this);
+	}
 
-    @Override
-    public int getPropagationConditions(int vIdx) {
+	@Override
+	public int getPropagationConditions(int vIdx) {
 		return GraphEventType.REMOVE_ARC.getMask() + GraphEventType.ADD_ARC.getMask();
-    }
+	}
 
-    @Override
-    public ESat isEntailed() {
-        int min = 0;
-        int max = 0;
-        for (int i = 0; i < n; i++) {
-            ISet nei = g.getPotNeighOf(i);
-            for (int j : nei) {
-                if (i <= j) {
-                    max += distMatrix[i][j];
-                    if (g.getMandNeighOf(i).contains(j)) {
-                        min += distMatrix[i][j];
-                    }
-                }
-            }
-        }
-        if (min > sum.getUB() || max < sum.getLB()) {
-            return ESat.FALSE;
-        }
-        if (min == max) {
-            return ESat.TRUE;
-        } else {
-            return ESat.UNDEFINED;
-        }
-    }
+	@Override
+	public ESat isEntailed() {
+		int min = 0;
+		int max = 0;
+		for (int i = 0; i < n; i++) {
+			ISet nei = g.getPotNeighOf(i);
+			for (int j : nei) {
+				if (i <= j) {
+					max += distMatrix[i][j];
+					if (g.getMandNeighOf(i).contains(j)) {
+						min += distMatrix[i][j];
+					}
+				}
+			}
+		}
+		if (min > sum.getUB() || max < sum.getLB()) {
+			return ESat.FALSE;
+		}
+		if (min == max) {
+			return ESat.TRUE;
+		} else {
+			return ESat.UNDEFINED;
+		}
+	}
 }

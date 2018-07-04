@@ -30,15 +30,17 @@ package org.chocosolver.checked;
 import org.chocosolver.graphsolver.GraphModel;
 import org.chocosolver.graphsolver.search.strategy.GraphStrategy;
 import org.chocosolver.graphsolver.variables.DirectedGraphVar;
-import org.chocosolver.samples.input.GraphGenerator;
 import org.chocosolver.solver.Cause;
 import org.chocosolver.solver.Solver;
 import org.chocosolver.solver.exception.ContradictionException;
 import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.util.objects.graphs.DirectedGraph;
 import org.chocosolver.util.objects.setDataStructures.SetType;
+import org.chocosolver.utils.GraphGenerator;
 import org.testng.Assert;
 import org.testng.annotations.Test;
+
+import java.util.Random;
 
 public class HamiltonianPathTest2 {
 
@@ -94,8 +96,12 @@ public class HamiltonianPathTest2 {
 			for (double d : densities) {
 				for (int s : seeds) {
 					System.out.println("n:" + n + " d:" + d + " s:" + s);
-					GraphGenerator gg = new GraphGenerator(n, s, GraphGenerator.InitialProperty.HamiltonianCircuit);
-					matrix = gg.arcBasedGenerator(d);
+					matrix = GraphGenerator.arcBasedGenerator(
+							n,
+							d,
+							GraphGenerator.InitialProperty.HamiltonianCircuit,
+							new Random(s)
+					);
 					testModels(matrix, s);
 				}
 			}
@@ -144,8 +150,12 @@ public class HamiltonianPathTest2 {
 			for (double d : densities) {
 				for (int s : seeds) {
 					System.out.println("n:" + n + " d:" + d + " s:" + s);
-					GraphGenerator gg = new GraphGenerator(n, s, GraphGenerator.InitialProperty.HamiltonianCircuit);
-					matrix = gg.arcBasedGenerator(d);
+					matrix = GraphGenerator.arcBasedGenerator(
+							n,
+							d,
+							GraphGenerator.InitialProperty.HamiltonianCircuit,
+							new Random(s)
+					);
 					testModels(matrix, s);
 				}
 			}
@@ -162,8 +172,12 @@ public class HamiltonianPathTest2 {
 				for (int ks = 0; ks < 10; ks++) {
 					long s = System.currentTimeMillis();
 					System.out.println("n:" + n + " d:" + d + " s:" + s);
-					GraphGenerator gg = new GraphGenerator(n, s, GraphGenerator.InitialProperty.HamiltonianCircuit);
-					matrix = gg.arcBasedGenerator(d);
+					matrix = GraphGenerator.arcBasedGenerator(
+							n,
+							d,
+							GraphGenerator.InitialProperty.HamiltonianCircuit,
+							new Random(s)
+					);
 					testModels(matrix, s);
 				}
 			}

@@ -95,7 +95,7 @@ public class PropLagr_DCMST_generic extends Propagator<Variable> implements Grap
 		this.waitFirstSol = waitFirstSol;
 		g = new UndirectedGraph(n, SetType.BITSET, true);
 		for (int i = 0; i < n; i++) {
-			for (int j = i+1; j < n; j++) {
+			for (int j = i + 1; j < n; j++) {
 				g.addEdge(i, j);
 			}
 		}
@@ -214,17 +214,17 @@ public class PropLagr_DCMST_generic extends Propagator<Variable> implements Grap
 			deg = mst.getNeighOf(i).size();
 			lambdaMin[i] += (deg - Dmin[i]) * K;
 			lambdaMax[i] += (deg - Dmax[i]) * K;
-			if(lambdaMin[i]>0){
+			if (lambdaMin[i] > 0) {
 				lambdaMin[i] = 0;
 			}
 			lambdaMin[i] = 0;
-			if(lambdaMax[i]<0){
+			if (lambdaMax[i] < 0) {
 				lambdaMax[i] = 0;
 			}
 			if (gV.getPotNeighOf(i).size() <= Dmax[i]) {
 				lambdaMax[i] = 0;
 			}
-			if (gV.getMandNeighOf(i).size() >= Dmin[i] || Dmin[i]<=1) {
+			if (gV.getMandNeighOf(i).size() >= Dmin[i] || Dmin[i] <= 1) {
 				lambdaMin[i] = 0;
 			}
 			if (lambdaMin[i] < -maxPen) {
@@ -313,7 +313,7 @@ public class PropLagr_DCMST_generic extends Propagator<Variable> implements Grap
 
 	@Override
 	public double getMinArcVal() {
-		return Integer.MIN_VALUE/10;
+		return Integer.MIN_VALUE / 10;
 	}
 
 	@Override

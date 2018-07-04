@@ -1,28 +1,28 @@
 /**
- *  Copyright (c) 1999-2014, Ecole des Mines de Nantes
- *  All rights reserved.
- *  Redistribution and use in source and binary forms, with or without
- *  modification, are permitted provided that the following conditions are met:
- *
- *      * Redistributions of source code must retain the above copyright
- *        notice, this list of conditions and the following disclaimer.
- *      * Redistributions in binary form must reproduce the above copyright
- *        notice, this list of conditions and the following disclaimer in the
- *        documentation and/or other materials provided with the distribution.
- *      * Neither the name of the Ecole des Mines de Nantes nor the
- *        names of its contributors may be used to endorse or promote products
- *        derived from this software without specific prior written permission.
- *
- *  THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND ANY
- *  EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- *  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- *  DISCLAIMED. IN NO EVENT SHALL THE REGENTS AND CONTRIBUTORS BE LIABLE FOR ANY
- *  DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- *  (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- *  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
- *  ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- *  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Copyright (c) 1999-2014, Ecole des Mines de Nantes
+ * All rights reserved.
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ * <p>
+ * * Redistributions of source code must retain the above copyright
+ * notice, this list of conditions and the following disclaimer.
+ * * Redistributions in binary form must reproduce the above copyright
+ * notice, this list of conditions and the following disclaimer in the
+ * documentation and/or other materials provided with the distribution.
+ * * Neither the name of the Ecole des Mines de Nantes nor the
+ * names of its contributors may be used to endorse or promote products
+ * derived from this software without specific prior written permission.
+ * <p>
+ * THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE REGENTS AND CONTRIBUTORS BE LIABLE FOR ANY
+ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
 package org.chocosolver.graphsolver.cstrs.basic;
@@ -65,13 +65,13 @@ public class PropNbCliques extends Propagator<Variable> {
 	// CONSTRUCTORS
 	//***********************************************************************************
 
-	public PropNbCliques(UndirectedGraphVar g, IntVar nb){
-		super(new Variable[]{g,nb}, PropagatorPriority.QUADRATIC,false);
+	public PropNbCliques(UndirectedGraphVar g, IntVar nb) {
+		super(new Variable[]{g, nb}, PropagatorPriority.QUADRATIC, false);
 		this.g = g;
-		this.support = new UndirectedGraph(g.getNbMaxNodes(), SetType.BITSET,false);
+		this.support = new UndirectedGraph(g.getNbMaxNodes(), SetType.BITSET, false);
 		this.nb = new IntVar[]{nb};
 		this.rules = new R[]{new Rcustom()};
-		this.heur = new MDRk(support,30);
+		this.heur = new MDRk(support, 30);
 	}
 
 	//***********************************************************************************
@@ -83,30 +83,30 @@ public class PropNbCliques extends Propagator<Variable> {
 		// reset
 		int n = g.getNbMaxNodes();
 		support.getNodes().clear();
-		for(int i=0;i<n;i++){
+		for (int i = 0; i < n; i++) {
 			support.getNeighOf(i).clear();
 		}
 		ISet nodes = g.getMandatoryNodes();
-		for(int i: nodes){
+		for (int i : nodes) {
 			support.addNode(i);
 		}
-		for(int i: nodes){
+		for (int i : nodes) {
 			ISet nei = g.getPotNeighOf(i);
-			for(int j:nei){
-				if(i<j){
-					support.addEdge(i,j);
+			for (int j : nei) {
+				if (i < j) {
+					support.addEdge(i, j);
 				}
 			}
 		}
-		delta = n-g.getMandatoryNodes().size();
+		delta = n - g.getMandatoryNodes().size();
 		// algorithm
 		heur.prepare();
-		do{
+		do {
 			heur.computeMIS();
-			for(R rule:rules){
-				rule.filter(nb,support,heur,this);
+			for (R rule : rules) {
+				rule.filter(nb, support, heur, this);
 			}
-		}while(heur.hasNextMIS());
+		} while (heur.hasNextMIS());
 	}
 
 	@Override
@@ -114,17 +114,17 @@ public class PropNbCliques extends Propagator<Variable> {
 		return ESat.TRUE; // redundant propagator (in addition to transitivity and nbConnectedComponents
 	}
 
-	class Rcustom implements R{
+	class Rcustom implements R {
 		@Override
-		public void filter(IntVar[] nbCliques, UndirectedGraph graph, F heur, Propagator aCause) throws ContradictionException{
+		public void filter(IntVar[] nbCliques, UndirectedGraph graph, F heur, Propagator aCause) throws ContradictionException {
 			assert nbCliques.length == 1;
 			int n = graph.getNbMaxNodes();
 			BitSet mis = heur.getMIS();
-			int LB = heur.getMIS().cardinality()-delta;
+			int LB = heur.getMIS().cardinality() - delta;
 			nbCliques[0].updateLowerBound(LB, aCause);
-			if(LB==nbCliques[0].getUB()){
+			if (LB == nbCliques[0].getUB()) {
 				ISet nei;
-				for (int i = mis.nextClearBit(0); i>=0 && i < n; i = mis.nextClearBit(i + 1)) {
+				for (int i = mis.nextClearBit(0); i >= 0 && i < n; i = mis.nextClearBit(i + 1)) {
 					int mate = -1;
 					nei = graph.getNeighOf(i);
 					for (int j : nei) {
@@ -132,7 +132,8 @@ public class PropNbCliques extends Propagator<Variable> {
 							if (mate == -1) {
 								mate = j;
 							} else if (mate >= 0) {
-								mate = -2;break;
+								mate = -2;
+								break;
 							}
 						}
 					}

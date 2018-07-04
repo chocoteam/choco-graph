@@ -38,25 +38,25 @@ import org.chocosolver.util.objects.graphs.IGraph;
 
 public interface IGraphRelaxation {
 
-    /**
-     * @return true iff arc (i,j) belongs to the current solution of the relaxation
-     */
-    boolean contains(int i, int j);
+	/**
+	 * @return true iff arc (i,j) belongs to the current solution of the relaxation
+	 */
+	boolean contains(int i, int j);
 
-    /**
-     * @return the cost augmentation induced by the removal of arc (i,j)
-     *         assumes that (i,j) belongs to the current solution of the relaxation
-     */
-    double getReplacementCost(int i, int j);
+	/**
+	 * @return the cost augmentation induced by the removal of arc (i,j)
+	 * assumes that (i,j) belongs to the current solution of the relaxation
+	 */
+	double getReplacementCost(int i, int j);
 
-    /**
-     * @return the cost augmentation induced by the enforcing of arc (i,j)
-     *         assumes that (i,j) does not belong to the current solution of the relaxation
-     */
-    double getMarginalCost(int i, int j);
+	/**
+	 * @return the cost augmentation induced by the enforcing of arc (i,j)
+	 * assumes that (i,j) does not belong to the current solution of the relaxation
+	 */
+	double getMarginalCost(int i, int j);
 
-    /**
-     * @return the (graph) support of the relaxation
-     */
-    IGraph getSupport();
+	/**
+	 * @return the (graph) support of the relaxation
+	 */
+	IGraph getSupport();
 }

@@ -34,102 +34,102 @@ import org.chocosolver.util.objects.setDataStructures.ISet;
 
 public class PrimOneTreeFinder extends PrimMSTFinder {
 
-    //***********************************************************************************
-    // CONSTRUCTORS
-    //***********************************************************************************
+	//***********************************************************************************
+	// CONSTRUCTORS
+	//***********************************************************************************
 
-    protected int oneNode;
+	protected int oneNode;
 
-    //***********************************************************************************
-    // CONSTRUCTORS
-    //***********************************************************************************
+	//***********************************************************************************
+	// CONSTRUCTORS
+	//***********************************************************************************
 
-    public PrimOneTreeFinder(int nbNodes, GraphLagrangianRelaxation propagator) {
-        super(nbNodes, propagator);
-    }
+	public PrimOneTreeFinder(int nbNodes, GraphLagrangianRelaxation propagator) {
+		super(nbNodes, propagator);
+	}
 
-    //***********************************************************************************
-    // METHODS
-    //***********************************************************************************
+	//***********************************************************************************
+	// METHODS
+	//***********************************************************************************
 
-    @Override
-    protected void prim() throws ContradictionException {
-        minVal = propHK.getMinArcVal();
-        if (FILTER) {
-            maxTArc = minVal;
-        }
-        chooseOneNode();
-        inTree.set(oneNode);
-        ISet nei = g.getNeighOf(oneNode);
-        int min1 = -1;
-        int min2 = -1;
-        boolean b1 = false, b2 = false;
-        for (int j : nei) {
-            if (!b1) {
-                if (min1 == -1) {
-                    min1 = j;
-                }
-                if (costs[oneNode][j] < costs[oneNode][min1]) {
-                    min2 = min1;
-                    min1 = j;
-                }
-                if (propHK.isMandatory(oneNode, j)) {
-                    if (min1 != j) {
-                        min2 = min1;
-                    }
-                    min1 = j;
-                    b1 = true;
-                }
-            }
-            if (min1 != j && !b2) {
-                if (min2 == -1 || costs[oneNode][j] < costs[oneNode][min2]) {
-                    min2 = j;
-                }
-                if (propHK.isMandatory(oneNode, j)) {
-                    min2 = j;
-                    b2 = true;
-                }
-            }
-        }
-        if (min1 == -1 || min2 == -1) {
-            propHK.contradiction();
-        }
-        if (FILTER) {
-            if (!propHK.isMandatory(oneNode, min1)) {
-                maxTArc = Math.max(maxTArc, costs[oneNode][min1]);
-            }
-            if (!propHK.isMandatory(oneNode, min2)) {
-                maxTArc = Math.max(maxTArc, costs[oneNode][min2]);
-            }
-        }
-        int first = -1, sizeFirst = n + 1;
-        for (int i = 0; i < n; i++) {
-            if (i != oneNode && g.getNeighOf(i).size() < sizeFirst) {
-                first = i;
-                sizeFirst = g.getNeighOf(i).size();
-            }
-        }
-        if (first == -1) {
-            propHK.contradiction();
-        }
-        addNode(first);
-        int from, to;
-        while (tSize < n - 2 && !heap.isEmpty()) {
-            to = heap.removeFirstElement();
-            from = mate[to];
-            addArc(from, to);
-        }
-        if (tSize != n - 2) {
-            propHK.contradiction();
-        }
-        addArc(oneNode, min1);
-        addArc(oneNode, min2);
-        if (Tree.getNeighOf(oneNode).size() != 2) {
-            throw new UnsupportedOperationException();
-        }
-    }
+	@Override
+	protected void prim() throws ContradictionException {
+		minVal = propHK.getMinArcVal();
+		if (FILTER) {
+			maxTArc = minVal;
+		}
+		chooseOneNode();
+		inTree.set(oneNode);
+		ISet nei = g.getNeighOf(oneNode);
+		int min1 = -1;
+		int min2 = -1;
+		boolean b1 = false, b2 = false;
+		for (int j : nei) {
+			if (!b1) {
+				if (min1 == -1) {
+					min1 = j;
+				}
+				if (costs[oneNode][j] < costs[oneNode][min1]) {
+					min2 = min1;
+					min1 = j;
+				}
+				if (propHK.isMandatory(oneNode, j)) {
+					if (min1 != j) {
+						min2 = min1;
+					}
+					min1 = j;
+					b1 = true;
+				}
+			}
+			if (min1 != j && !b2) {
+				if (min2 == -1 || costs[oneNode][j] < costs[oneNode][min2]) {
+					min2 = j;
+				}
+				if (propHK.isMandatory(oneNode, j)) {
+					min2 = j;
+					b2 = true;
+				}
+			}
+		}
+		if (min1 == -1 || min2 == -1) {
+			propHK.contradiction();
+		}
+		if (FILTER) {
+			if (!propHK.isMandatory(oneNode, min1)) {
+				maxTArc = Math.max(maxTArc, costs[oneNode][min1]);
+			}
+			if (!propHK.isMandatory(oneNode, min2)) {
+				maxTArc = Math.max(maxTArc, costs[oneNode][min2]);
+			}
+		}
+		int first = -1, sizeFirst = n + 1;
+		for (int i = 0; i < n; i++) {
+			if (i != oneNode && g.getNeighOf(i).size() < sizeFirst) {
+				first = i;
+				sizeFirst = g.getNeighOf(i).size();
+			}
+		}
+		if (first == -1) {
+			propHK.contradiction();
+		}
+		addNode(first);
+		int from, to;
+		while (tSize < n - 2 && !heap.isEmpty()) {
+			to = heap.removeFirstElement();
+			from = mate[to];
+			addArc(from, to);
+		}
+		if (tSize != n - 2) {
+			propHK.contradiction();
+		}
+		addArc(oneNode, min1);
+		addArc(oneNode, min2);
+		if (Tree.getNeighOf(oneNode).size() != 2) {
+			throw new UnsupportedOperationException();
+		}
+	}
 
-    private void chooseOneNode() {
-        oneNode = 0;
-    }
+	private void chooseOneNode() {
+		oneNode = 0;
+	}
 }

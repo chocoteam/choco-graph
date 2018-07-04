@@ -38,9 +38,9 @@ public class DirectedGraphVar extends GraphVar<DirectedGraph> {
 
 	////////////////////////////////// GRAPH PART ///////////////////////////////////////
 
-    //***********************************************************************************
-    // CONSTRUCTORS
-    //***********************************************************************************
+	//***********************************************************************************
+	// CONSTRUCTORS
+	//***********************************************************************************
 
 	/**
 	 * Creates a graph variable
@@ -54,54 +54,55 @@ public class DirectedGraphVar extends GraphVar<DirectedGraph> {
 		super(name, solver, LB, UB);
 	}
 
-    //***********************************************************************************
-    // METHODS
-    //***********************************************************************************
+	//***********************************************************************************
+	// METHODS
+	//***********************************************************************************
 
-    @Override
-    public boolean removeArc(int x, int y, ICause cause) throws ContradictionException {
-        assert cause != null;
-        if (LB.arcExists(x, y)) {
-            this.contradiction(cause, "remove mandatory arc " + x + "->" + y);
-            return false;
-        }
-        if (UB.removeArc(x, y)) {
-            if (reactOnModification) {
-                delta.add(x, GraphDelta.AR_tail, cause);
-                delta.add(y, GraphDelta.AR_head, cause);
-            }
+	@Override
+	public boolean removeArc(int x, int y, ICause cause) throws ContradictionException {
+		assert cause != null;
+		if (LB.arcExists(x, y)) {
+			this.contradiction(cause, "remove mandatory arc " + x + "->" + y);
+			return false;
+		}
+		if (UB.removeArc(x, y)) {
+			if (reactOnModification) {
+				delta.add(x, GraphDelta.AR_tail, cause);
+				delta.add(y, GraphDelta.AR_head, cause);
+			}
 			GraphEventType e = GraphEventType.REMOVE_ARC;
-            notifyPropagators(e, cause);
-            return true;
-        }
-        return false;
-    }
+			notifyPropagators(e, cause);
+			return true;
+		}
+		return false;
+	}
 
-    @Override
-    public boolean enforceArc(int x, int y, ICause cause) throws ContradictionException {
-        assert cause != null;
-        enforceNode(x, cause);
-        enforceNode(y, cause);
-        if (UB.arcExists(x, y)) {
-            if (LB.addArc(x, y)) {
-                if (reactOnModification) {
-                    delta.add(x, GraphDelta.AE_tail, cause);
-                    delta.add(y, GraphDelta.AE_head, cause);
-                }
+	@Override
+	public boolean enforceArc(int x, int y, ICause cause) throws ContradictionException {
+		assert cause != null;
+		enforceNode(x, cause);
+		enforceNode(y, cause);
+		if (UB.arcExists(x, y)) {
+			if (LB.addArc(x, y)) {
+				if (reactOnModification) {
+					delta.add(x, GraphDelta.AE_tail, cause);
+					delta.add(y, GraphDelta.AE_head, cause);
+				}
 				GraphEventType e = GraphEventType.ADD_ARC;
-                notifyPropagators(e, cause);
-                return true;
-            }
-            return false;
-        }
-        this.contradiction(cause, "enforce arc which is not in the domain");
-        return false;
-    }
+				notifyPropagators(e, cause);
+				return true;
+			}
+			return false;
+		}
+		this.contradiction(cause, "enforce arc which is not in the domain");
+		return false;
+	}
 
 	/**
 	 * Get the set of successors of vertex 'idx' in the lower bound graph
 	 * (mandatory outgoing arcs)
-	 * @param idx	a vertex
+	 *
+	 * @param idx a vertex
 	 * @return The set of successors of 'idx' in LB
 	 */
 	public ISet getMandSuccOf(int idx) {
@@ -111,7 +112,8 @@ public class DirectedGraphVar extends GraphVar<DirectedGraph> {
 	/**
 	 * Get the set of predecessors of vertex 'idx' in the lower bound graph
 	 * (mandatory ingoing arcs)
-	 * @param idx	a vertex
+	 *
+	 * @param idx a vertex
 	 * @return The set of predecessors of 'idx' in LB
 	 */
 	public ISet getMandPredOf(int idx) {
@@ -121,7 +123,8 @@ public class DirectedGraphVar extends GraphVar<DirectedGraph> {
 	/**
 	 * Get the set of predecessors of vertex 'idx'
 	 * in the upper bound graph (potential ingoing arcs)
-	 * @param idx	a vertex
+	 *
+	 * @param idx a vertex
 	 * @return The set of predecessors of 'idx' in UB
 	 */
 	public ISet getPotPredOf(int idx) {
@@ -131,15 +134,16 @@ public class DirectedGraphVar extends GraphVar<DirectedGraph> {
 	/**
 	 * Get the set of successors of vertex 'idx'
 	 * in the upper bound graph (potential outgoing arcs)
-	 * @param idx	a vertex
+	 *
+	 * @param idx a vertex
 	 * @return The set of successors of 'idx' in UB
 	 */
 	public ISet getPotSuccOf(int idx) {
 		return getPotSuccOrNeighOf(idx);
 	}
 
-    @Override
-    public boolean isDirected() {
-        return true;
-    }
+	@Override
+	public boolean isDirected() {
+		return true;
+	}
 }

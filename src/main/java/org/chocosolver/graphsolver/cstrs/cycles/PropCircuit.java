@@ -61,7 +61,7 @@ public class PropCircuit extends Propagator<DirectedGraphVar> {
 	//***********************************************************************************
 
 
-	public PropCircuit(DirectedGraphVar graph){
+	public PropCircuit(DirectedGraphVar graph) {
 		super(new DirectedGraphVar[]{graph}, PropagatorPriority.LINEAR, true);
 		g = graph;
 		gdm = g.monitorDelta(this);
@@ -115,7 +115,7 @@ public class PropCircuit extends Propagator<DirectedGraphVar> {
 
 	@Override
 	public ESat isEntailed() {
-		System.out.println("[WARNING] "+this.getClass().getSimpleName()+".isEntail() is not implemented yet " +
+		System.out.println("[WARNING] " + this.getClass().getSimpleName() + ".isEntail() is not implemented yet " +
 				"and returns true by default. Please do not reify this constraint ");
 		return ESat.TRUE;
 	}
@@ -128,7 +128,7 @@ public class PropCircuit extends Propagator<DirectedGraphVar> {
 		setExt(ext2, ext1);
 		size[ext1].set(t);
 		size[ext2].set(t);
-		if (t > 2 && t <= n && t < n && t<g.getMandatoryNodes().size()) {
+		if (t > 2 && t <= n && t < n && t < g.getMandatoryNodes().size()) {
 			g.removeArc(ext1, ext2, this);
 			g.removeArc(ext2, ext1, this);
 		}

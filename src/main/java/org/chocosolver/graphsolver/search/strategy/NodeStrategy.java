@@ -31,14 +31,14 @@ import org.chocosolver.util.objects.setDataStructures.ISet;
 
 public abstract class NodeStrategy<G extends GraphVar> {
 
-    protected G g;
-    protected ISet envNodes, kerNodes;
+	protected G g;
+	protected ISet envNodes, kerNodes;
 
-    public NodeStrategy(G g) {
-        this.g = g;
-        this.envNodes = g.getPotentialNodes();
-        this.kerNodes = g.getMandatoryNodes();
-    }
+	public NodeStrategy(G g) {
+		this.g = g;
+		this.envNodes = g.getPotentialNodes();
+		this.kerNodes = g.getMandatoryNodes();
+	}
 
-    public abstract int nextNode();
+	public abstract int nextNode();
 }

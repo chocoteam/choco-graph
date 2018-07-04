@@ -20,7 +20,7 @@ public class PropGirth extends Propagator<Variable> {
 	private IntVar girth;
 
 	public PropGirth(UndirectedGraphVar graphVar, IntVar girth) {
-		super(new Variable[] {girth, graphVar}, PropagatorPriority.LINEAR, false);
+		super(new Variable[]{girth, graphVar}, PropagatorPriority.LINEAR, false);
 		graph = graphVar;
 		n = graphVar.getNbMaxNodes();
 		this.girth = girth;
@@ -87,8 +87,8 @@ public class PropGirth extends Propagator<Variable> {
 		reachable.add(new Pair<>(vertex, -1));
 		for (int i = 1; i <= n; i++) {
 			HashSet<Pair<Integer, Integer>> set = new HashSet<>();
-			for (Pair<Integer, Integer> u: reachable) {
-				for (int v: graph.getMandNeighOf(u.getA())) {
+			for (Pair<Integer, Integer> u : reachable) {
+				for (int v : graph.getMandNeighOf(u.getA())) {
 					if (v != u.getB()) {
 						if (v == vertex) {
 							return i;
@@ -107,8 +107,8 @@ public class PropGirth extends Propagator<Variable> {
 		reachable.add(new Pair<>(vertex, -1));
 		for (int i = 1; i <= n; i++) {
 			HashSet<Pair<Integer, Integer>> set = new HashSet<>();
-			for (Pair<Integer, Integer> u: reachable) {
-				for (int v: graph.getPotNeighOf(u.getA())) {
+			for (Pair<Integer, Integer> u : reachable) {
+				for (int v : graph.getPotNeighOf(u.getA())) {
 					if (v != u.getB()) {
 						if (v == vertex) {
 							return i;

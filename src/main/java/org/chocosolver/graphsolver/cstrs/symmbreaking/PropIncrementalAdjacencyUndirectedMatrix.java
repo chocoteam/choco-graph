@@ -72,13 +72,13 @@ public class PropIncrementalAdjacencyUndirectedMatrix extends Propagator<Variabl
 
 	private void propagateTChanged() throws ContradictionException {
 		for (int u = 0; u < n; u++) {
-			for (int v: graph.getMandNeighOf(u)) {
+			for (int v : graph.getMandNeighOf(u)) {
 				t[u + v * n].instantiateTo(1, this);
 			}
 		}
 		for (int u = 0; u < n; u++) {
 			Set<Integer> set = new HashSet<>();
-			for (int v: graph.getPotNeighOf(u)) {
+			for (int v : graph.getPotNeighOf(u)) {
 				set.add(v);
 			}
 			for (int v = 0; v < n; v++) {

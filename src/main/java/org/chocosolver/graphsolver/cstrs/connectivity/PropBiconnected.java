@@ -43,54 +43,54 @@ import org.chocosolver.util.ESat;
  */
 public class PropBiconnected extends Propagator<UndirectedGraphVar> {
 
-    //***********************************************************************************
-    // VARIABLES
-    //***********************************************************************************
+	//***********************************************************************************
+	// VARIABLES
+	//***********************************************************************************
 
-    private UndirectedGraphVar g;
-    private ConnectivityFinder env_CC_finder;
+	private UndirectedGraphVar g;
+	private ConnectivityFinder env_CC_finder;
 
-    //***********************************************************************************
-    // CONSTRUCTORS
-    //***********************************************************************************
+	//***********************************************************************************
+	// CONSTRUCTORS
+	//***********************************************************************************
 
-    public PropBiconnected(UndirectedGraphVar graph) {
-        super(new UndirectedGraphVar[]{graph}, PropagatorPriority.LINEAR, false);
-        this.g = graph;
-        env_CC_finder = new ConnectivityFinder(g.getUB());
-    }
+	public PropBiconnected(UndirectedGraphVar graph) {
+		super(new UndirectedGraphVar[]{graph}, PropagatorPriority.LINEAR, false);
+		this.g = graph;
+		env_CC_finder = new ConnectivityFinder(g.getUB());
+	}
 
-    //***********************************************************************************
-    // PROPAGATIONS
-    //***********************************************************************************
+	//***********************************************************************************
+	// PROPAGATIONS
+	//***********************************************************************************
 
-    @Override
-    public void propagate(int evtmask) throws ContradictionException {
-        if (g.getPotentialNodes().size() == g.getMandatoryNodes().size() && !env_CC_finder.isBiconnected()) {
-            fails();
-        }
-    }
+	@Override
+	public void propagate(int evtmask) throws ContradictionException {
+		if (g.getPotentialNodes().size() == g.getMandatoryNodes().size() && !env_CC_finder.isBiconnected()) {
+			fails();
+		}
+	}
 
-    //***********************************************************************************
-    // INFO
-    //***********************************************************************************
+	//***********************************************************************************
+	// INFO
+	//***********************************************************************************
 
-    @Override
-    public int getPropagationConditions(int vIdx) {
-        return GraphEventType.REMOVE_NODE.getMask() + GraphEventType.REMOVE_ARC.getMask() + GraphEventType.ADD_NODE.getMask();
-    }
+	@Override
+	public int getPropagationConditions(int vIdx) {
+		return GraphEventType.REMOVE_NODE.getMask() + GraphEventType.REMOVE_ARC.getMask() + GraphEventType.ADD_NODE.getMask();
+	}
 
-    @Override
-    public ESat isEntailed() {
-		if (g.getPotentialNodes().size() == g.getMandatoryNodes().size()){
+	@Override
+	public ESat isEntailed() {
+		if (g.getPotentialNodes().size() == g.getMandatoryNodes().size()) {
 			return ESat.UNDEFINED;
 		}
-        if (!env_CC_finder.isBiconnected()) {
-            return ESat.FALSE;
-        }
-        if (g.isInstantiated()) {
-            return ESat.TRUE;
-        }
-        return ESat.UNDEFINED;
-    }
+		if (!env_CC_finder.isBiconnected()) {
+			return ESat.FALSE;
+		}
+		if (g.isInstantiated()) {
+			return ESat.TRUE;
+		}
+		return ESat.UNDEFINED;
+	}
 }

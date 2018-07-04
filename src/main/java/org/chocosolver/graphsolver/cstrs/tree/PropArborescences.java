@@ -44,6 +44,7 @@ import java.util.BitSet;
 /**
  * Arborescences constraint (simplification from tree constraint) based on dominators
  * CONSIDERS THAT EACH NODE WITH NO PREDECESSOR IS A ROOT (needs at least one such node)
+ *
  * @author Jean-Guillaume Fages
  */
 public class PropArborescences extends Propagator<DirectedGraphVar> {
@@ -67,7 +68,7 @@ public class PropArborescences extends Propagator<DirectedGraphVar> {
 	//***********************************************************************************
 
 	public PropArborescences(DirectedGraphVar graph) {
-		this(graph,false);
+		this(graph, false);
 	}
 
 	public PropArborescences(DirectedGraphVar graph, boolean simple) {
@@ -103,7 +104,7 @@ public class PropArborescences extends Propagator<DirectedGraphVar> {
 		}
 	}
 
-	protected void reset(){
+	protected void reset() {
 		// reset data structure
 		for (int i = 0; i < n + 1; i++) {
 			connectedGraph.getSuccOf(i).clear();
@@ -139,7 +140,7 @@ public class PropArborescences extends Propagator<DirectedGraphVar> {
 		for (int x : g.getMandatoryNodes()) {
 			mandVert.set(x);
 		}
-		while(mandVert.nextSetBit(0)>=0){
+		while (mandVert.nextSetBit(0) >= 0) {
 			enforceDominatorsFrom(mandVert.nextSetBit(0));
 		}
 	}
@@ -147,17 +148,17 @@ public class PropArborescences extends Propagator<DirectedGraphVar> {
 	protected void enforceDominatorsFrom(int j) throws ContradictionException {
 		mandVert.clear(j);
 		int i = domFinder.getImmediateDominatorsOf(j);
-		if(i!=n) {
+		if (i != n) {
 			if (!domFinder.isDomminatedBy(j, i)) {
 				throw new UnsupportedOperationException();
 			}
 			// DOMINATOR enforcing
-			if(g.enforceNode(i, this)){
+			if (g.enforceNode(i, this)) {
 				mandVert.set(i);
 			}
 			// ARC-DOMINATOR enforcing
 			ISet pred = g.getPotPredOf(j);
-			if(pred.contains(i) && !g.getMandPredOf(j).contains(i)) {
+			if (pred.contains(i) && !g.getMandPredOf(j).contains(i)) {
 				boolean arcDom = true;
 				for (int p : pred) {
 					if (p != i && !domFinder.isDomminatedBy(p, j)) {
@@ -173,7 +174,7 @@ public class PropArborescences extends Propagator<DirectedGraphVar> {
 
 	@Override
 	public ESat isEntailed() {
-		System.out.println("[WARNING] "+this.getClass().getSimpleName()+".isEntail() is not implemented yet " +
+		System.out.println("[WARNING] " + this.getClass().getSimpleName() + ".isEntail() is not implemented yet " +
 				"and returns true by default. Please do not reify this constraint ");
 		return ESat.TRUE;
 	}

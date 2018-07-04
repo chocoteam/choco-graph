@@ -51,28 +51,28 @@ import org.chocosolver.util.objects.setDataStructures.ISet;
  */
 public class PropLagr_OneTree extends Propagator<Variable> implements GraphLagrangianRelaxation {
 
-    //***********************************************************************************
-    // VARIABLES
-    //***********************************************************************************
+	//***********************************************************************************
+	// VARIABLES
+	//***********************************************************************************
 
 	protected UndirectedGraph g;
 	protected UndirectedGraphVar gV;
-    protected IntVar obj;
-    protected int n;
-    protected int[][] originalCosts;
-    protected double[][] costs;
-    protected double[] penalities;
-    protected double totalPenalities;
-    protected UndirectedGraph mst;
-    protected TIntArrayList mandatoryArcsList;
-    protected double step;
-    protected AbstractTreeFinder HKfilter, HK;
-    protected boolean waitFirstSol;
-    protected int nbSprints;
+	protected IntVar obj;
+	protected int n;
+	protected int[][] originalCosts;
+	protected double[][] costs;
+	protected double[] penalities;
+	protected double totalPenalities;
+	protected UndirectedGraph mst;
+	protected TIntArrayList mandatoryArcsList;
+	protected double step;
+	protected AbstractTreeFinder HKfilter, HK;
+	protected boolean waitFirstSol;
+	protected int nbSprints;
 
-    //***********************************************************************************
-    // CONSTRUCTORS
-    //***********************************************************************************
+	//***********************************************************************************
+	// CONSTRUCTORS
+	//***********************************************************************************
 
 	protected PropLagr_OneTree(Variable[] vars, int[][] costMatrix) {
 		super(vars, PropagatorPriority.CUBIC, false);
@@ -87,223 +87,223 @@ public class PropLagr_OneTree extends Propagator<Variable> implements GraphLagra
 		HKfilter = new KruskalOneTree_GAC(n, this);
 	}
 
-    public PropLagr_OneTree(UndirectedGraphVar graph, IntVar cost, int[][] costMatrix) {
-        this(new Variable[]{graph, cost}, costMatrix);
-        g = graph.getUB();
+	public PropLagr_OneTree(UndirectedGraphVar graph, IntVar cost, int[][] costMatrix) {
+		this(new Variable[]{graph, cost}, costMatrix);
+		g = graph.getUB();
 		gV = graph;
-        obj = cost;
-    }
+		obj = cost;
+	}
 
-    //***********************************************************************************
-    // HK Algorithm(s)
-    //***********************************************************************************
+	//***********************************************************************************
+	// HK Algorithm(s)
+	//***********************************************************************************
 
 	public void propagate(int evtmask) throws ContradictionException {
-        if (waitFirstSol && getModel().getSolver().getSolutionCount() == 0) {
-            return;//the UB does not allow to prune
-        }
-        // initialisation
-        rebuild();
-        setCosts();
-        int lb;
-        do {
-            lb = obj.getLB();
-            lagrangianRelaxation();
-        } while (lb < obj.getLB());
-    }
+		if (waitFirstSol && getModel().getSolver().getSolutionCount() == 0) {
+			return;//the UB does not allow to prune
+		}
+		// initialisation
+		rebuild();
+		setCosts();
+		int lb;
+		do {
+			lb = obj.getLB();
+			lagrangianRelaxation();
+		} while (lb < obj.getLB());
+	}
 
-    protected void lagrangianRelaxation() throws ContradictionException {
-        double hkb;
-        double alpha = 2;
-        double beta = 0.5;
-        double bestHKB;
-        bestHKB = 0;
-        HKfilter.computeMST(costs, g);
-        hkb = HKfilter.getBound() - totalPenalities;
-        bestHKB = hkb;
-        mst = HKfilter.getMST();
-        if (hkb - Math.floor(hkb) < 0.001) {
-            hkb = Math.floor(hkb);
-        }
-        obj.updateLowerBound((int) Math.ceil(hkb), this);
-        HKfilter.performPruning((double) (obj.getUB()) + totalPenalities + 0.001);
-        for (int iter = 5; iter > 0; iter--) {
-            for (int i = nbSprints; i > 0; i--) {
-                HK.computeMST(costs, g);
-                hkb = HK.getBound() - totalPenalities;
-                if (hkb > bestHKB + 1) {
-                    bestHKB = hkb;
-                }
-                mst = HK.getMST();
-                if (hkb - Math.floor(hkb) < 0.001) {
-                    hkb = Math.floor(hkb);
-                }
-                obj.updateLowerBound((int) Math.ceil(hkb), this);
-                // HK.performPruning((double) (obj.getUB()) + totalPenalities + 0.001);
-                //	DO NOT FILTER HERE TO SPEED UP CONVERGENCE (not always true)
-                updateStep(hkb, alpha);
-                HKPenalities();
-                updateCostMatrix();
-            }
-            HKfilter.computeMST(costs, g);
-            hkb = HKfilter.getBound() - totalPenalities;
-            if (hkb > bestHKB + 1) {
-                bestHKB = hkb;
-            }
-            mst = HKfilter.getMST();
-            if (hkb - Math.floor(hkb) < 0.001) {
-                hkb = Math.floor(hkb);
-            }
-            obj.updateLowerBound((int) Math.ceil(hkb), this);
-            HKfilter.performPruning((double) (obj.getUB()) + totalPenalities + 0.001);
-            updateStep(hkb, alpha);
-            HKPenalities();
-            updateCostMatrix();
-            alpha *= beta;
-            beta /= 2;
-        }
-    }
+	protected void lagrangianRelaxation() throws ContradictionException {
+		double hkb;
+		double alpha = 2;
+		double beta = 0.5;
+		double bestHKB;
+		bestHKB = 0;
+		HKfilter.computeMST(costs, g);
+		hkb = HKfilter.getBound() - totalPenalities;
+		bestHKB = hkb;
+		mst = HKfilter.getMST();
+		if (hkb - Math.floor(hkb) < 0.001) {
+			hkb = Math.floor(hkb);
+		}
+		obj.updateLowerBound((int) Math.ceil(hkb), this);
+		HKfilter.performPruning((double) (obj.getUB()) + totalPenalities + 0.001);
+		for (int iter = 5; iter > 0; iter--) {
+			for (int i = nbSprints; i > 0; i--) {
+				HK.computeMST(costs, g);
+				hkb = HK.getBound() - totalPenalities;
+				if (hkb > bestHKB + 1) {
+					bestHKB = hkb;
+				}
+				mst = HK.getMST();
+				if (hkb - Math.floor(hkb) < 0.001) {
+					hkb = Math.floor(hkb);
+				}
+				obj.updateLowerBound((int) Math.ceil(hkb), this);
+				// HK.performPruning((double) (obj.getUB()) + totalPenalities + 0.001);
+				//	DO NOT FILTER HERE TO SPEED UP CONVERGENCE (not always true)
+				updateStep(hkb, alpha);
+				HKPenalities();
+				updateCostMatrix();
+			}
+			HKfilter.computeMST(costs, g);
+			hkb = HKfilter.getBound() - totalPenalities;
+			if (hkb > bestHKB + 1) {
+				bestHKB = hkb;
+			}
+			mst = HKfilter.getMST();
+			if (hkb - Math.floor(hkb) < 0.001) {
+				hkb = Math.floor(hkb);
+			}
+			obj.updateLowerBound((int) Math.ceil(hkb), this);
+			HKfilter.performPruning((double) (obj.getUB()) + totalPenalities + 0.001);
+			updateStep(hkb, alpha);
+			HKPenalities();
+			updateCostMatrix();
+			alpha *= beta;
+			beta /= 2;
+		}
+	}
 
-    //***********************************************************************************
-    // DETAILS
-    //***********************************************************************************
+	//***********************************************************************************
+	// DETAILS
+	//***********************************************************************************
 
-    protected void rebuild() {
-        mandatoryArcsList.clear();
-        ISet nei;
-        for (int i = 0; i < n; i++) {
-            nei = gV.getMandNeighOf(i);
-            for (int j : nei) {
-                if (i < j) {
-                    mandatoryArcsList.add(i * n + j);
-                }
-            }
-        }
-    }
+	protected void rebuild() {
+		mandatoryArcsList.clear();
+		ISet nei;
+		for (int i = 0; i < n; i++) {
+			nei = gV.getMandNeighOf(i);
+			for (int j : nei) {
+				if (i < j) {
+					mandatoryArcsList.add(i * n + j);
+				}
+			}
+		}
+	}
 
-    protected void setCosts() {
-        ISet nei;
-        for (int i = 0; i < n; i++) {
-            nei = g.getNeighOf(i);
-            for (int j : nei) {
-                if (i < j) {
-                    costs[i][j] = originalCosts[i][j] + penalities[i] + penalities[j];
-                    costs[j][i] = costs[i][j];
-                }
-            }
-        }
-    }
+	protected void setCosts() {
+		ISet nei;
+		for (int i = 0; i < n; i++) {
+			nei = g.getNeighOf(i);
+			for (int j : nei) {
+				if (i < j) {
+					costs[i][j] = originalCosts[i][j] + penalities[i] + penalities[j];
+					costs[j][i] = costs[i][j];
+				}
+			}
+		}
+	}
 
-    protected void updateStep(double hkb, double alpha) {
-        double nb2viol = 0;
-        double target = obj.getUB();
-        if (target - hkb < 0) {
-            target = hkb + 0.1;
-        }
-        int deg;
-        for (int i = 0; i < n; i++) {
-            deg = mst.getNeighOf(i).size();
-            nb2viol += (2 - deg) * (2 - deg);
-        }
-        if (nb2viol == 0) {
-            step = 0;
-        } else {
-            step = alpha * (target - hkb) / nb2viol;
-        }
-    }
+	protected void updateStep(double hkb, double alpha) {
+		double nb2viol = 0;
+		double target = obj.getUB();
+		if (target - hkb < 0) {
+			target = hkb + 0.1;
+		}
+		int deg;
+		for (int i = 0; i < n; i++) {
+			deg = mst.getNeighOf(i).size();
+			nb2viol += (2 - deg) * (2 - deg);
+		}
+		if (nb2viol == 0) {
+			step = 0;
+		} else {
+			step = alpha * (target - hkb) / nb2viol;
+		}
+	}
 
-    protected void HKPenalities() {
-        if (step == 0) {
-            return;
-        }
-        double sumPenalities = 0;
-        int deg;
-        for (int i = 0; i < n; i++) {
-            deg = mst.getNeighOf(i).size();
-            penalities[i] += (deg - 2) * step;
+	protected void HKPenalities() {
+		if (step == 0) {
+			return;
+		}
+		double sumPenalities = 0;
+		int deg;
+		for (int i = 0; i < n; i++) {
+			deg = mst.getNeighOf(i).size();
+			penalities[i] += (deg - 2) * step;
 			assert !(penalities[i] > Double.MAX_VALUE / (n - 1) || penalities[i] < -Double.MAX_VALUE / (n - 1)) :
 					"Extreme-value lagrangian multipliers. Numerical issue may happen";
-            sumPenalities += penalities[i];
-        }
-        this.totalPenalities = 2 * sumPenalities;
-    }
+			sumPenalities += penalities[i];
+		}
+		this.totalPenalities = 2 * sumPenalities;
+	}
 
-    protected void updateCostMatrix() {
-        ISet nei;
-        for (int i = 0; i < n; i++) {
-            nei = g.getNeighOf(i);
-            for (int j : nei) {
-                if (i < j) {
-                    costs[i][j] = originalCosts[i][j] + penalities[i] + penalities[j];
-                    costs[j][i] = costs[i][j];
-                }
-            }
-        }
-    }
+	protected void updateCostMatrix() {
+		ISet nei;
+		for (int i = 0; i < n; i++) {
+			nei = g.getNeighOf(i);
+			for (int j : nei) {
+				if (i < j) {
+					costs[i][j] = originalCosts[i][j] + penalities[i] + penalities[j];
+					costs[j][i] = costs[i][j];
+				}
+			}
+		}
+	}
 
-    //***********************************************************************************
-    // INFERENCE
-    //***********************************************************************************
+	//***********************************************************************************
+	// INFERENCE
+	//***********************************************************************************
 
-    public void remove(int from, int to) throws ContradictionException {
-        gV.removeArc(from, to, this);
-    }
+	public void remove(int from, int to) throws ContradictionException {
+		gV.removeArc(from, to, this);
+	}
 
-    public void enforce(int from, int to) throws ContradictionException {
-        gV.enforceArc(from, to, this);
-    }
+	public void enforce(int from, int to) throws ContradictionException {
+		gV.enforceArc(from, to, this);
+	}
 
-    public void contradiction() throws ContradictionException {
-        fails();
-    }
+	public void contradiction() throws ContradictionException {
+		fails();
+	}
 
-    //***********************************************************************************
-    // PROP METHODS
-    //***********************************************************************************
+	//***********************************************************************************
+	// PROP METHODS
+	//***********************************************************************************
 
-    @Override
-    public int getPropagationConditions(int vIdx) {
-		if(vIdx==0) {
+	@Override
+	public int getPropagationConditions(int vIdx) {
+		if (vIdx == 0) {
 			return GraphEventType.REMOVE_ARC.getMask() + GraphEventType.ADD_ARC.getMask();
 		} else {
 			return IntEventType.boundAndInst();
 		}
-    }
+	}
 
-    @Override
-    public ESat isEntailed() {
-        return ESat.TRUE;// it is just implied filtering
-    }
+	@Override
+	public ESat isEntailed() {
+		return ESat.TRUE;// it is just implied filtering
+	}
 
-    public double getMinArcVal() {
-        return -(((double) obj.getUB()) + totalPenalities);
-    }
+	public double getMinArcVal() {
+		return -(((double) obj.getUB()) + totalPenalities);
+	}
 
-    public TIntArrayList getMandatoryArcsList() {
-        return mandatoryArcsList;
-    }
+	public TIntArrayList getMandatoryArcsList() {
+		return mandatoryArcsList;
+	}
 
-    public boolean isMandatory(int i, int j) {
-        return gV.getMandNeighOf(i).contains(j);
-    }
+	public boolean isMandatory(int i, int j) {
+		return gV.getMandNeighOf(i).contains(j);
+	}
 
-    public void waitFirstSolution(boolean b) {
-        waitFirstSol = b;
-    }
+	public void waitFirstSolution(boolean b) {
+		waitFirstSol = b;
+	}
 
-    public boolean contains(int i, int j) {
-        return mst == null || mst.edgeExists(i, j);
-    }
+	public boolean contains(int i, int j) {
+		return mst == null || mst.edgeExists(i, j);
+	}
 
-    public UndirectedGraph getSupport() {
-        return mst;
-    }
+	public UndirectedGraph getSupport() {
+		return mst;
+	}
 
-    public double getReplacementCost(int from, int to) {
-        return HKfilter.getRepCost(from, to);
-    }
+	public double getReplacementCost(int from, int to) {
+		return HKfilter.getRepCost(from, to);
+	}
 
-    public double getMarginalCost(int from, int to) {
-        return HKfilter.getRepCost(from, to);
-    }
+	public double getMarginalCost(int from, int to) {
+		return HKfilter.getRepCost(from, to);
+	}
 }

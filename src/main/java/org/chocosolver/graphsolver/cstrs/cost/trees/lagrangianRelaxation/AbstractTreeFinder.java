@@ -34,51 +34,51 @@ import org.chocosolver.util.objects.setDataStructures.SetType;
 
 public abstract class AbstractTreeFinder {
 
-    //***********************************************************************************
-    // VARIABLES
-    //***********************************************************************************
+	//***********************************************************************************
+	// VARIABLES
+	//***********************************************************************************
 
-    protected final static boolean FILTER = false;
-    // INPUT
-    protected UndirectedGraph g;    // graph
-    protected int n;                // number of nodes
-    // OUTPUT
-    protected UndirectedGraph Tree;
-    protected double treeCost;
-    // PROPAGATOR
-    protected GraphLagrangianRelaxation propHK;
+	protected final static boolean FILTER = false;
+	// INPUT
+	protected UndirectedGraph g;    // graph
+	protected int n;                // number of nodes
+	// OUTPUT
+	protected UndirectedGraph Tree;
+	protected double treeCost;
+	// PROPAGATOR
+	protected GraphLagrangianRelaxation propHK;
 
-    //***********************************************************************************
-    // CONSTRUCTORS
-    //***********************************************************************************
+	//***********************************************************************************
+	// CONSTRUCTORS
+	//***********************************************************************************
 
-    public AbstractTreeFinder(int nbNodes, GraphLagrangianRelaxation propagator) {
-        n = nbNodes;
-        Tree = new UndirectedGraph(n, SetType.LINKED_LIST, false);
-        propHK = propagator;
-    }
+	public AbstractTreeFinder(int nbNodes, GraphLagrangianRelaxation propagator) {
+		n = nbNodes;
+		Tree = new UndirectedGraph(n, SetType.LINKED_LIST, false);
+		propHK = propagator;
+	}
 
-    //***********************************************************************************
-    // METHODS
-    //***********************************************************************************
+	//***********************************************************************************
+	// METHODS
+	//***********************************************************************************
 
-    public abstract void computeMST(double[][] costMatrix, UndirectedGraph graph) throws ContradictionException;
+	public abstract void computeMST(double[][] costMatrix, UndirectedGraph graph) throws ContradictionException;
 
-    public abstract void performPruning(double UB) throws ContradictionException;
+	public abstract void performPruning(double UB) throws ContradictionException;
 
-    //***********************************************************************************
-    // ACCESSORS
-    //***********************************************************************************
+	//***********************************************************************************
+	// ACCESSORS
+	//***********************************************************************************
 
-    public UndirectedGraph getMST() {
-        return Tree;
-    }
+	public UndirectedGraph getMST() {
+		return Tree;
+	}
 
-    public double getBound() {
-        return treeCost;
-    }
+	public double getBound() {
+		return treeCost;
+	}
 
-    public double getRepCost(int from, int to) {
-        throw new UnsupportedOperationException("not implemented yet");
-    }
+	public double getRepCost(int from, int to) {
+		throw new UnsupportedOperationException("not implemented yet");
+	}
 }

@@ -41,6 +41,7 @@ import java.util.ArrayList;
 
 /**
  * An extension of Model that handles graph variables
+ *
  * @author Jean-Guillaume Fages
  */
 public class GraphModel extends Model implements IGraphVarFactory, IGraphConstraintFactory {
@@ -62,11 +63,11 @@ public class GraphModel extends Model implements IGraphVarFactory, IGraphConstra
 				// overrides default search strategy to handle graph vars
 				AbstractStrategy other = Search.defaultSearch(model);
 				GraphVar[] gvs = retrieveGraphVars();
-				if(gvs.length==0){
+				if (gvs.length == 0) {
 					return other;
-				}else{
-					AbstractStrategy[] gss = new AbstractStrategy[gvs.length+1];
-					for(int i=0; i<gvs.length; i++){
+				} else {
+					AbstractStrategy[] gss = new AbstractStrategy[gvs.length + 1];
+					for (int i = 0; i < gvs.length; i++) {
 						gss[i] = new GraphStrategy(gvs[i]);
 					}
 					gss[gvs.length] = other;
@@ -89,11 +90,12 @@ public class GraphModel extends Model implements IGraphVarFactory, IGraphConstra
 
 	/**
 	 * Iterate over the variable of <code>this</code> and build an array that contains the GraphVar only.
+	 *
 	 * @return array of GraphVar in <code>this</code> model
 	 */
 	public GraphVar[] retrieveGraphVars() {
 		ArrayList<GraphVar> gvars = new ArrayList<>();
-		for (Variable v:getVars()) {
+		for (Variable v : getVars()) {
 			if ((v.getTypeAndKind() & Variable.KIND) == GraphVar.GRAPH) {
 				gvars.add((GraphVar) v);
 			}

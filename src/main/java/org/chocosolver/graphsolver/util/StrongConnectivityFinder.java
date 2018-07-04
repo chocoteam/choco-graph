@@ -28,6 +28,11 @@
  * User: Jean-Guillaume Fages
  * Date: 17/04/2016
  * Time: 13:11
+ * <p>
+ * Created by IntelliJ IDEA.
+ * User: Jean-Guillaume Fages
+ * Date: 17/04/2016
+ * Time: 13:11
  */
 
 /**
@@ -45,7 +50,7 @@ import org.chocosolver.util.objects.setDataStructures.ISet;
 import java.util.BitSet;
 import java.util.Iterator;
 
-public class StrongConnectivityFinder  {
+public class StrongConnectivityFinder {
 
 	// input
 	private DirectedGraph graph;

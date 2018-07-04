@@ -40,23 +40,23 @@ import org.chocosolver.solver.exception.ContradictionException;
 public interface GraphLagrangianRelaxation extends IGraphRelaxation {
 
 
-    /**
-     * @param b true iff the relaxation should not be triggered before a first solution is found
-     */
-    void waitFirstSolution(boolean b);
+	/**
+	 * @param b true iff the relaxation should not be triggered before a first solution is found
+	 */
+	void waitFirstSolution(boolean b);
 
-    // mandatory arcs
-    boolean isMandatory(int i, int j);
+	// mandatory arcs
+	boolean isMandatory(int i, int j);
 
-    TIntArrayList getMandatoryArcsList();
+	TIntArrayList getMandatoryArcsList();
 
-    // get a default minimal value
-    double getMinArcVal();
+	// get a default minimal value
+	double getMinArcVal();
 
-    // some primitives
-    void contradiction() throws ContradictionException;
+	// some primitives
+	void contradiction() throws ContradictionException;
 
-    void remove(int i, int j) throws ContradictionException;
+	void remove(int i, int j) throws ContradictionException;
 
-    void enforce(int i, int j) throws ContradictionException;
+	void enforce(int i, int j) throws ContradictionException;
 }

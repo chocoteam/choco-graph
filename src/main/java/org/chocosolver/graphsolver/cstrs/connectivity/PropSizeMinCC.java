@@ -1,9 +1,7 @@
 package org.chocosolver.graphsolver.cstrs.connectivity;
 
-
 import org.chocosolver.graphsolver.util.ConnectivityFinder;
 import org.chocosolver.graphsolver.variables.GraphEventType;
-import org.chocosolver.graphsolver.variables.GraphVar;
 import org.chocosolver.graphsolver.variables.UndirectedGraphVar;
 import org.chocosolver.solver.constraints.Propagator;
 import org.chocosolver.solver.constraints.PropagatorPriority;
@@ -20,6 +18,8 @@ import java.util.Set;
 /**
  * Propagator ensuring that the number of vertices of the smallest connected is equal to sizeMinCC
  * (cf. MIN_NCC graph property http://www.emn.fr/x-info/sdemasse/gccat/sec2.2.2.4.html#uid940).
+ *
+ * @author Dimitri Justeau-Allaire
  */
 public class PropSizeMinCC extends Propagator<Variable> {
 
@@ -32,7 +32,7 @@ public class PropSizeMinCC extends Propagator<Variable> {
 	/* Constructor */
 
 	public PropSizeMinCC(UndirectedGraphVar graph, IntVar sizeMinCC) {
-		super(new Variable[] {graph, sizeMinCC}, PropagatorPriority.QUADRATIC, false);
+		super(new Variable[]{graph, sizeMinCC}, PropagatorPriority.QUADRATIC, false);
 		this.g = graph;
 		this.sizeMinCC = sizeMinCC;
 		this.GLBCCFinder = new ConnectivityFinder(g.getLB());
@@ -218,7 +218,9 @@ public class PropSizeMinCC extends Propagator<Variable> {
 				}
 				nbCandidates++;
 			}
-			if (nbCandidates > 2) { break; }
+			if (nbCandidates > 2) {
+				break;
+			}
 		}
 		// 11.
 		if (nbCandidates == 1 && nbNodesU == 0) {
@@ -284,6 +286,7 @@ public class PropSizeMinCC extends Propagator<Variable> {
 
 	/**
 	 * Retrieve the nodes of a GUB CC.
+	 *
 	 * @param cc The GUB CC index.
 	 * @return The set of nodes of the GUB CC cc.
 	 */
@@ -297,6 +300,7 @@ public class PropSizeMinCC extends Propagator<Variable> {
 
 	/**
 	 * Retrieve the nodes of a GLB CC.
+	 *
 	 * @param cc The GLB CC index.
 	 * @return The set of nodes of the GLB CC cc.
 	 */
@@ -310,14 +314,15 @@ public class PropSizeMinCC extends Propagator<Variable> {
 
 	/**
 	 * Retrieve the potential CC neighbors (i.e. in GUB and not in the CC) of a GLB CC.
+	 *
 	 * @param cc The GLB CC index.
 	 * @return A map with frontier nodes of the CC as keys (Integer), and their potential neighbors that are
 	 * outside the CC (Set<Integer>). Only the frontier nodes that have at least one potential neighbor outside the
 	 * CC are stored in the map.
 	 * {
-	 *     frontierNode1: {out-CC potential neighbors},
-	 *     frontierNode3: {...},
-	 *     ...
+	 * frontierNode1: {out-CC potential neighbors},
+	 * frontierNode3: {...},
+	 * ...
 	 * }
 	 */
 	private Map<Integer, Set<Integer>> getGLBCCPotentialNeighbors(int cc) {

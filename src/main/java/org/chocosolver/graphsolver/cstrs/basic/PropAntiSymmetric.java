@@ -45,73 +45,73 @@ import org.chocosolver.util.procedure.PairProcedure;
  */
 public class PropAntiSymmetric extends Propagator<DirectedGraphVar> {
 
-    //***********************************************************************************
-    // VARIABLES
-    //***********************************************************************************
+	//***********************************************************************************
+	// VARIABLES
+	//***********************************************************************************
 
 	private DirectedGraphVar g;
-    private GraphDeltaMonitor gdm;
-    private PairProcedure enf;
+	private GraphDeltaMonitor gdm;
+	private PairProcedure enf;
 
-    //***********************************************************************************
-    // CONSTRUCTORS
-    //***********************************************************************************
+	//***********************************************************************************
+	// CONSTRUCTORS
+	//***********************************************************************************
 
-    public PropAntiSymmetric(DirectedGraphVar graph) {
-        super(graph);
-        g = graph;
-        gdm = g.monitorDelta(this);
-        enf = (from, to) -> {
+	public PropAntiSymmetric(DirectedGraphVar graph) {
+		super(graph);
+		g = graph;
+		gdm = g.monitorDelta(this);
+		enf = (from, to) -> {
 			if (from != to) {
 				g.removeArc(to, from, PropAntiSymmetric.this);
 			}
 		};
-    }
+	}
 
-    //***********************************************************************************
-    // METHODS
-    //***********************************************************************************
+	//***********************************************************************************
+	// METHODS
+	//***********************************************************************************
 
-    @Override
-    public void propagate(int evtmask) throws ContradictionException {
-        ISet ker = g.getMandatoryNodes();
-        ISet succ;
-        for (int i : ker) {
-            succ = g.getMandSuccOf(i);
-            for (int j : succ) {
-                g.removeArc(j, i, this);
-            }
-        }
-        gdm.unfreeze();
-    }
+	@Override
+	public void propagate(int evtmask) throws ContradictionException {
+		ISet ker = g.getMandatoryNodes();
+		ISet succ;
+		for (int i : ker) {
+			succ = g.getMandSuccOf(i);
+			for (int j : succ) {
+				g.removeArc(j, i, this);
+			}
+		}
+		gdm.unfreeze();
+	}
 
-    @Override
-    public void propagate(int idxVarInProp, int mask) throws ContradictionException {
-        gdm.freeze();
-        gdm.forEachArc(enf, GraphEventType.ADD_ARC);
-        gdm.unfreeze();
-    }
+	@Override
+	public void propagate(int idxVarInProp, int mask) throws ContradictionException {
+		gdm.freeze();
+		gdm.forEachArc(enf, GraphEventType.ADD_ARC);
+		gdm.unfreeze();
+	}
 
-    @Override
-    public int getPropagationConditions(int vIdx) {
-        return GraphEventType.ADD_ARC.getMask();
-    }
+	@Override
+	public int getPropagationConditions(int vIdx) {
+		return GraphEventType.ADD_ARC.getMask();
+	}
 
-    @Override
-    public ESat isEntailed() {
-        ISet ker = g.getMandatoryNodes();
-        ISet succ;
-        for (int i : ker) {
-            succ = g.getMandSuccOf(i);
-            for (int j : succ) {
-                if (g.getMandSuccOf(j).contains(i)) {
-                    return ESat.FALSE;
-                }
-            }
-        }
-        if (g.isInstantiated()) {
-            return ESat.TRUE;
-        }
-        return ESat.UNDEFINED;
-    }
+	@Override
+	public ESat isEntailed() {
+		ISet ker = g.getMandatoryNodes();
+		ISet succ;
+		for (int i : ker) {
+			succ = g.getMandSuccOf(i);
+			for (int j : succ) {
+				if (g.getMandSuccOf(j).contains(i)) {
+					return ESat.FALSE;
+				}
+			}
+		}
+		if (g.isInstantiated()) {
+			return ESat.TRUE;
+		}
+		return ESat.UNDEFINED;
+	}
 }

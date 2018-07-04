@@ -72,14 +72,14 @@ public class PropNbCC extends Propagator<Variable> {
 	@Override
 	public void propagate(int evtmask) throws ContradictionException {
 		// trivial case
-		k.updateLowerBound(0,this);
-		if(g.getPotentialNodes().size() == 0){
-			k.instantiateTo(0,this);
+		k.updateLowerBound(0, this);
+		if (g.getPotentialNodes().size() == 0) {
+			k.instantiateTo(0, this);
 			return;
 		}
-		if(k.getUB() == 0){
-			for(int i : g.getPotentialNodes()){
-				g.removeNode(i,this);
+		if (k.getUB() == 0) {
+			for (int i : g.getPotentialNodes()) {
+				g.removeNode(i, this);
 			}
 			return;
 		}
@@ -88,10 +88,10 @@ public class PropNbCC extends Propagator<Variable> {
 		int min = minCC();
 		int max = maxCC();
 		k.updateLowerBound(min, this);
-		k.updateUpperBound(max,this);
+		k.updateUpperBound(max, this);
 
 		// A bit of pruning (removes unreachable nodes)
-		if(k.getUB() == min && min != max){
+		if (k.getUB() == min && min != max) {
 			int ccs = env_CC_finder.getNBCC();
 			boolean pot = true;
 			for (int cc = 0; cc < ccs; cc++) {
@@ -100,16 +100,16 @@ public class PropNbCC extends Propagator<Variable> {
 						pot = false;
 					}
 				}
-				if(pot){
+				if (pot) {
 					for (int i = env_CC_finder.getCC_firstNode()[cc]; i >= 0; i = env_CC_finder.getCC_nextNode()[i]) {
-						g.removeNode(i,this);
+						g.removeNode(i, this);
 					}
 				}
 			}
 		}
 
 		// Force isthma in case of 1 CC and if vertices are fixed
-		if(k.isInstantiatedTo(1) && g.getMandatoryNodes().size()==g.getPotentialNodes().size()){
+		if (k.isInstantiatedTo(1) && g.getMandatoryNodes().size() == g.getPotentialNodes().size()) {
 			if (!env_CC_finder.isConnectedAndFindIsthma()) {
 				throw new UnsupportedOperationException("connectivity has been checked");
 			}
@@ -138,8 +138,8 @@ public class PropNbCC extends Propagator<Variable> {
 	public int maxCC() {
 		ker_CC_finder.findAllCC();
 		int nbK = ker_CC_finder.getNBCC();
-		int delta = g.getPotentialNodes().size()-g.getMandatoryNodes().size();
-		return nbK+delta;
+		int delta = g.getPotentialNodes().size() - g.getMandatoryNodes().size();
+		return nbK + delta;
 	}
 
 	//***********************************************************************************
@@ -148,7 +148,7 @@ public class PropNbCC extends Propagator<Variable> {
 
 	@Override
 	public ESat isEntailed() {
-		if (k.getUB() < minCC() || k.getLB()>maxCC()) {
+		if (k.getUB() < minCC() || k.getLB() > maxCC()) {
 			return ESat.FALSE;
 		}
 		if (isCompletelyInstantiated()) {
