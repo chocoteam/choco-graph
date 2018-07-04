@@ -1,9 +1,7 @@
 package org.chocosolver.graphsolver.cstrs.connectivity;
 
-
 import org.chocosolver.graphsolver.util.ConnectivityFinder;
 import org.chocosolver.graphsolver.variables.GraphEventType;
-import org.chocosolver.graphsolver.variables.GraphVar;
 import org.chocosolver.graphsolver.variables.UndirectedGraphVar;
 import org.chocosolver.solver.constraints.Propagator;
 import org.chocosolver.solver.constraints.PropagatorPriority;
@@ -20,6 +18,8 @@ import java.util.Set;
 /**
  * Propagator ensuring that the number of vertices of the smallest connected is equal to sizeMinCC
  * (cf. MIN_NCC graph property http://www.emn.fr/x-info/sdemasse/gccat/sec2.2.2.4.html#uid940).
+ *
+ * @author Dimitri Justeau-Allaire
  */
 public class PropSizeMinCC extends Propagator<Variable> {
 

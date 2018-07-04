@@ -37,7 +37,6 @@ import org.chocosolver.solver.variables.events.IEventType;
 import org.chocosolver.solver.variables.impl.AbstractVariable;
 import org.chocosolver.util.objects.graphs.IGraph;
 import org.chocosolver.util.objects.setDataStructures.ISet;
-import org.chocosolver.util.objects.setDataStructures.SetFactory;
 
 import java.lang.reflect.Field;
 

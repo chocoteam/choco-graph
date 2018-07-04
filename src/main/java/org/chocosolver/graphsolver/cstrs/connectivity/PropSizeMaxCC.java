@@ -1,6 +1,5 @@
 package org.chocosolver.graphsolver.cstrs.connectivity;
 
-
 import org.chocosolver.graphsolver.util.ConnectivityFinder;
 import org.chocosolver.graphsolver.variables.GraphEventType;
 import org.chocosolver.graphsolver.variables.UndirectedGraphVar;
@@ -19,6 +18,8 @@ import java.util.Set;
 /**
  * Propagator ensuring that the number of vertices of the largest connected is maxSizeCC
  * (cf. MAX_NCC graph property, http://www.emn.fr/x-info/sdemasse/gccat/sec2.2.2.4.html#uid922).
+ *
+ * @author Dimitri Justeau-Allaire
  */
 public class PropSizeMaxCC extends Propagator<Variable> {
 
@@ -96,8 +97,8 @@ public class PropSizeMaxCC extends Propagator<Variable> {
 			boolean recomputeMaxNCC_UB = false;
 			// a.
 			if (sizeMaxCC.getUB() == 1) {
-				for (int i = 0; i < g.getPotentialNodes().size(); i++) {
-					for (int j = i + 1; j < g.getPotentialNodes().size(); j++) {
+				for (int i : g.getPotentialNodes()) {
+					for (int j : g.getPotNeighOf(i)) {
 						g.removeArc(i, j, this);
 					}
 				}

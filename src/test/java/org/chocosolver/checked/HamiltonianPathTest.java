@@ -31,13 +31,15 @@ import gnu.trove.list.array.TIntArrayList;
 import org.chocosolver.graphsolver.GraphModel;
 import org.chocosolver.graphsolver.search.strategy.GraphStrategy;
 import org.chocosolver.graphsolver.variables.DirectedGraphVar;
-import org.chocosolver.samples.input.GraphGenerator;
 import org.chocosolver.solver.search.strategy.Search;
 import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.util.objects.graphs.DirectedGraph;
 import org.chocosolver.util.objects.setDataStructures.SetType;
+import org.chocosolver.utils.GraphGenerator;
 import org.testng.Assert;
 import org.testng.annotations.Test;
+
+import java.util.Random;
 
 /**
  * @author Jean-Guillaume Fages
@@ -58,8 +60,13 @@ public class HamiltonianPathTest {
 				for (int ks = 0; ks < 2; ks++) {
 					s = ks;//System.currentTimeMillis();
 					System.out.println("n:" + n + " nbVoisins:" + nb + " s:" + s);
-					GraphGenerator gg = new GraphGenerator(n, s, GraphGenerator.InitialProperty.HamiltonianCircuit);
-					matrix = transformMatrix(gg.neighborBasedGenerator(nb));
+					boolean[][] g = GraphGenerator.neighborBasedGenerator(
+							n,
+							nb,
+							GraphGenerator.InitialProperty.HamiltonianCircuit,
+							new Random(s)
+					);
+					matrix = transformMatrix(g);
 					testProblem(matrix, s, true, false);
 					testProblem(matrix, s, false, false);
 					testProblem(matrix, s, true, true);

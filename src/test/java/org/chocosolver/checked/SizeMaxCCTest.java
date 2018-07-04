@@ -1,6 +1,6 @@
 package org.chocosolver.checked;
 
-import org.chocosolver.GraphGenerator;
+import org.chocosolver.utils.GraphGenerator;
 import org.chocosolver.graphsolver.GraphModel;
 import org.chocosolver.graphsolver.util.ConnectivityFinder;
 import org.chocosolver.graphsolver.variables.UndirectedGraphVar;
@@ -19,6 +19,8 @@ import java.util.stream.IntStream;
 
 /**
  * Test class for the SizeMaxCC constraint.
+ *
+ * @author Dimitri Justeau-Allaire
  */
 public class SizeMaxCCTest {
 
@@ -238,8 +240,8 @@ public class SizeMaxCCTest {
 			GraphModel model = new GraphModel();
 			int nbCC1 = ThreadLocalRandom.current().nextInt(3, 6);
 			int nbCC2 = ThreadLocalRandom.current().nextInt(3, 6);
-			UndirectedGraph GLB = GraphGenerator.makeRandomUndirectedGraphFromNbCC(model, N, SetType.BITSET, nbCC1, 0.3, 10);
-			UndirectedGraph GUB = GraphGenerator.makeRandomUndirectedGraphFromNbCC(model, N, SetType.BITSET, nbCC2, 0.1, 5);
+			UndirectedGraph GLB = GraphGenerator.generateRandomUndirectedGraphFromNbCC(model, N, SetType.BITSET, nbCC1, 0.3, 10);
+			UndirectedGraph GUB = GraphGenerator.generateRandomUndirectedGraphFromNbCC(model, N, SetType.BITSET, nbCC2, 0.1, 5);
 			for (int i : GLB.getNodes()) {
 				GUB.addNode(i);
 				for (int j : GLB.getNeighOf(i)) {
