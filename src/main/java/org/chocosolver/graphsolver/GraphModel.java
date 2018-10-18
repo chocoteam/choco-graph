@@ -31,6 +31,7 @@ import org.chocosolver.graphsolver.cstrs.IGraphConstraintFactory;
 import org.chocosolver.graphsolver.search.strategy.GraphStrategy;
 import org.chocosolver.graphsolver.variables.GraphVar;
 import org.chocosolver.graphsolver.variables.IGraphVarFactory;
+import org.chocosolver.solver.DefaultSettings;
 import org.chocosolver.solver.Model;
 import org.chocosolver.solver.Settings;
 import org.chocosolver.solver.search.strategy.Search;
@@ -56,25 +57,7 @@ public class GraphModel extends Model implements IGraphVarFactory, IGraphConstra
 	 * @param name label of the model
 	 */
 	public GraphModel(String name) {
-		super(name);
-		set(new Settings() {
-			@Override
-			public AbstractStrategy makeDefaultSearch(Model model) {
-				// overrides default search strategy to handle graph vars
-				AbstractStrategy other = Search.defaultSearch(model);
-				GraphVar[] gvs = retrieveGraphVars();
-				if (gvs.length == 0) {
-					return other;
-				} else {
-					AbstractStrategy[] gss = new AbstractStrategy[gvs.length + 1];
-					for (int i = 0; i < gvs.length; i++) {
-						gss[i] = new GraphStrategy(gvs[i]);
-					}
-					gss[gvs.length] = other;
-					return Search.sequencer(gss);
-				}
-			}
-		});
+		super(name, new GraphDefaultSettings());
 	}
 
 	/**
@@ -106,5 +89,28 @@ public class GraphModel extends Model implements IGraphVarFactory, IGraphConstra
 	@Override
 	public GraphModel _me() {
 		return this;
+	}
+
+	//***********************************************************************************
+	// DEFAULT SETTINGS CLASS
+	//***********************************************************************************
+
+	private static class GraphDefaultSettings extends DefaultSettings {
+		@Override
+		public AbstractStrategy makeDefaultSearch(Model model) {
+			// overrides default search strategy to handle graph vars
+			AbstractStrategy other = Search.defaultSearch(model);
+			GraphVar[] gvs = ((GraphModel) model).retrieveGraphVars();
+			if (gvs.length == 0) {
+				return other;
+			} else {
+				AbstractStrategy[] gss = new AbstractStrategy[gvs.length + 1];
+				for (int i = 0; i < gvs.length; i++) {
+					gss[i] = new GraphStrategy(gvs[i]);
+				}
+				gss[gvs.length] = other;
+				return Search.sequencer(gss);
+			}
+		}
 	}
 }

@@ -51,7 +51,7 @@ public class GraphEvtScheduler implements EvtScheduler<GraphEventType> {
 	private boolean done = true;
 
 	@Override
-	public void init(GraphEventType type) {
+	public void init(int mask) {
 		done = false;
 	}
 

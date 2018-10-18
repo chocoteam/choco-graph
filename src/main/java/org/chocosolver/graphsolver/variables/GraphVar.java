@@ -35,6 +35,7 @@ import org.chocosolver.solver.exception.ContradictionException;
 import org.chocosolver.solver.variables.Variable;
 import org.chocosolver.solver.variables.events.IEventType;
 import org.chocosolver.solver.variables.impl.AbstractVariable;
+import org.chocosolver.util.iterators.EvtScheduler;
 import org.chocosolver.util.objects.graphs.IGraph;
 import org.chocosolver.util.objects.setDataStructures.ISet;
 
@@ -70,15 +71,6 @@ public abstract class GraphVar<E extends IGraph> extends AbstractVariable implem
 		this.UB = UB;
 		this.n = UB.getNbMaxNodes();
 		assert n == LB.getNbMaxNodes();
-		Field f = null; //NoSuchFieldException
-		try {
-			AbstractVariable me = this;
-			f = me.getClass().getSuperclass().getSuperclass().getDeclaredField("scheduler");
-			f.setAccessible(true);
-			f.set(me, new GraphEvtScheduler());
-		} catch (NoSuchFieldException | IllegalAccessException e) {
-			e.printStackTrace();
-		}
 	}
 
 	//***********************************************************************************
@@ -291,6 +283,11 @@ public abstract class GraphVar<E extends IGraph> extends AbstractVariable implem
 	@Override
 	public int getTypeAndKind() {
 		return VAR | GRAPH;
+	}
+
+	@Override
+	public EvtScheduler createScheduler() {
+		return new GraphEvtScheduler();
 	}
 
 	@Override
