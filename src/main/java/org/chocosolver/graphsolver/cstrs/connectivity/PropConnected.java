@@ -124,7 +124,7 @@ public class PropConnected extends Propagator<UndirectedGraphVar> {
 			return ESat.TRUE;
 		}
 		//Graphs with zero nodes are not connected.
-		if (g.getMandatoryNodes().size() == 0) {
+		if (g.getPotentialNodes().size() == 0) {
 			return ESat.FALSE;
 		}
 		explore();

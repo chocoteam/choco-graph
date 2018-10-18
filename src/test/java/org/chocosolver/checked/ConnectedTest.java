@@ -192,4 +192,19 @@ public class ConnectedTest {
             System.out.println(g);
         }
     }
+
+    @Test(groups = "10s")
+    public void testChocoConnected4() {
+        GraphModel model = new GraphModel();
+        // build model
+        UndirectedGraph GLB = new UndirectedGraph(model, 2, SetType.BITSET,false);
+        UndirectedGraph GUB = new UndirectedGraph(model, 2,SetType.BITSET,false);
+
+        GUB.addNode(0);
+        GUB.addNode(1);
+
+        UndirectedGraphVar graph = model.graphVar("G", GLB, GUB);
+
+        assertEquals(model.connected(graph).isSatisfied(), ESat.UNDEFINED);
+    }
 }
