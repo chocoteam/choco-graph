@@ -90,7 +90,7 @@ public class LCAGraphManager {
 	//***********************************************************************************
 
 	public int getLCA(int x, int y) {
-		return nodeOfDfsNumber[getDFS_LCA(dfsNumberOfNode[x], dfsNumberOfNode[y])];
+		return nodeOfDfsNumber[getLCADFS(dfsNumberOfNode[x], dfsNumberOfNode[y])];
 	}
 
 	//***********************************************************************************
@@ -229,7 +229,7 @@ public class LCAGraphManager {
 	 * @param y node dfs number
 	 * @return the dfs number of the lowest common ancestor of a and b in the dfs tree
 	 */
-	private int getDFS_LCA(int x, int y) {
+	private int getLCADFS(int x, int y) {
 		// trivial cases
 		if (x == y || x == father[y]) {
 			return x;
@@ -277,33 +277,5 @@ public class LCAGraphManager {
 			IW--;
 			return father[L[IW]];
 		}
-	}
-
-	//***********************************************************************************
-	// ACCESSORS
-	//***********************************************************************************
-
-	/**
-	 * Get the parent of x in the dfs tree
-	 *
-	 * @param x the focused node
-	 * @return the parent of x in the dfs tree
-	 */
-	public int getParentOf(int x) {
-		return nodeOfDfsNumber[father[dfsNumberOfNode[x]]];
-	}
-
-	/**
-	 * @return an array containing the nodes sorted according to the dfs order
-	 */
-	public int[] getNodeOfDfsNumber() {
-		return nodeOfDfsNumber;
-	}
-
-	/**
-	 * @return an array containing the dfs numbers of nodes
-	 */
-	public int[] getDfsNumberOfNode() {
-		return dfsNumberOfNode;
 	}
 }

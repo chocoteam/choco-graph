@@ -25,15 +25,15 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.chocosolver.graphsolver.cstrs.cost.tsp.lagrangianRelaxation;
+package org.chocosolver.graphsolver.cstrs.cost.tsp.lagrangian;
 
 import org.chocosolver.graphsolver.cstrs.cost.GraphLagrangianRelaxation;
-import org.chocosolver.graphsolver.cstrs.cost.trees.lagrangianRelaxation.KruskalMSTFinder;
+import org.chocosolver.graphsolver.cstrs.cost.trees.lagrangian.KruskalMSTFinder;
 import org.chocosolver.solver.exception.ContradictionException;
 import org.chocosolver.util.objects.graphs.UndirectedGraph;
 import org.chocosolver.util.objects.setDataStructures.ISet;
 
-public class KruskalOneTree_GAC extends KruskalMSTFinder {
+public class KruskalOneTreeGAC extends KruskalMSTFinder {
 
 	//***********************************************************************************
 	// VARIABLES
@@ -48,7 +48,7 @@ public class KruskalOneTree_GAC extends KruskalMSTFinder {
 	// CONSTRUCTORS
 	//***********************************************************************************
 
-	public KruskalOneTree_GAC(int nbNodes, GraphLagrangianRelaxation propagator) {
+	public KruskalOneTreeGAC(int nbNodes, GraphLagrangianRelaxation propagator) {
 		super(nbNodes, propagator);
 		map = new int[n][n];
 		marginalCosts = new double[n][n];

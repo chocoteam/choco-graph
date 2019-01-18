@@ -25,60 +25,101 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.chocosolver.graphsolver.cstrs.cost.trees.lagrangianRelaxation;
+package org.chocosolver.graphsolver.cstrs.cost.tsp.lagrangian;
 
-import org.chocosolver.graphsolver.cstrs.cost.GraphLagrangianRelaxation;
 import org.chocosolver.solver.exception.ContradictionException;
+import org.chocosolver.solver.variables.IntVar;
+import org.chocosolver.util.ESat;
 import org.chocosolver.util.objects.graphs.UndirectedGraph;
 import org.chocosolver.util.objects.setDataStructures.SetType;
+import org.chocosolver.util.tools.ArrayUtils;
 
-public abstract class AbstractTreeFinder {
+/**
+ * TSP Lagrangian relaxation
+ * Inspired from the work of Held & Karp
+ * and Benchimol et. al. (Constraints 2012)
+ *
+ * @author Jean-Guillaume Fages
+ */
+public class PropLagrOneTreeIntVar extends PropLagrOneTree {
 
 	//***********************************************************************************
 	// VARIABLES
 	//***********************************************************************************
 
-	protected final static boolean FILTER = false;
-	// INPUT
-	protected UndirectedGraph g;    // graph
-	protected int n;                // number of nodes
-	// OUTPUT
-	protected UndirectedGraph Tree;
-	protected double treeCost;
-	// PROPAGATOR
-	protected GraphLagrangianRelaxation propHK;
+	private IntVar[] succ;
 
 	//***********************************************************************************
 	// CONSTRUCTORS
 	//***********************************************************************************
 
-	public AbstractTreeFinder(int nbNodes, GraphLagrangianRelaxation propagator) {
-		n = nbNodes;
-		Tree = new UndirectedGraph(n, SetType.LINKED_LIST, false);
-		propHK = propagator;
+	public PropLagrOneTreeIntVar(IntVar[] graph, IntVar cost, int[][] costMatrix, boolean waitFirstSol) {
+		super(ArrayUtils.append(graph, new IntVar[]{cost}), costMatrix);
+		this.succ = graph;
+		g = new UndirectedGraph(n, SetType.BIPARTITESET, true);
+		obj = cost;
+		this.waitFirstSol = waitFirstSol;
+		assert checkSymmetry(costMatrix) : "TSP matrix should be symmetric";
 	}
 
 	//***********************************************************************************
 	// METHODS
 	//***********************************************************************************
 
-	public abstract void computeMST(double[][] costMatrix, UndirectedGraph graph) throws ContradictionException;
-
-	public abstract void performPruning(double UB) throws ContradictionException;
-
-	//***********************************************************************************
-	// ACCESSORS
-	//***********************************************************************************
-
-	public UndirectedGraph getMST() {
-		return Tree;
+	@Override
+	protected void rebuild() {
+		mandatoryArcsList.clear();
+		for (int i = 0; i < n; i++) {
+			g.getNeighOf(i).clear();
+			if (succ[i].isInstantiated()) {
+				int j = succ[i].getValue();
+				mandatoryArcsList.add(i * n + j); // todo check no need to have i < j
+			}
+		}
+		for (int i = 0; i < n; i++) {
+			IntVar v = succ[i];
+			int ub = v.getUB();
+			for (int j = v.getLB(); j <= ub; j = v.nextValue(j)) {
+				g.addEdge(i, j);
+			}
+		}
 	}
 
-	public double getBound() {
-		return treeCost;
+	@Override
+	public void remove(int from, int to) throws ContradictionException {
+		succ[from].removeValue(to, this);
+		succ[to].removeValue(from, this);
 	}
 
-	public double getRepCost(int from, int to) {
-		throw new UnsupportedOperationException("not implemented yet");
+	@Override
+	public void enforce(int from, int to) throws ContradictionException {
+		if (!succ[from].contains(to)) {
+			succ[to].instantiateTo(from, this);
+		}
+		if (!succ[to].contains(from)) {
+			succ[from].instantiateTo(to, this);
+		}
+	}
+
+	@Override
+	public ESat isEntailed() {
+		return ESat.TRUE;// it is just implied filtering
+	}
+
+	@Override
+	public boolean isMandatory(int i, int j) {
+		return succ[i].isInstantiatedTo(j) || succ[j].isInstantiatedTo(i);
+	}
+
+	private static boolean checkSymmetry(int[][] costMatrix) {
+		int n = costMatrix.length;
+		for (int i = 0; i < n; i++) {
+			for (int j = i + 1; j < n; j++) {
+				if (costMatrix[i][j] != costMatrix[j][i]) {
+					return false;
+				}
+			}
+		}
+		return true;
 	}
 }

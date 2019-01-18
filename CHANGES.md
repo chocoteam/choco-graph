@@ -5,7 +5,9 @@ Module to manipulate graph variables
 
 CHANGES
 
-TODO : ConnectivityFinder from changes of PropConnected
+
+18/01/18:
+- code quality review
 
 17/01/18:
 - release 4.2.3

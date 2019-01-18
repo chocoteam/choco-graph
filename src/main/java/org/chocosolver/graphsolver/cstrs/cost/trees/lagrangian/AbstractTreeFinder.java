@@ -25,109 +25,60 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.chocosolver.graphsolver.cstrs.basic;
+package org.chocosolver.graphsolver.cstrs.cost.trees.lagrangian;
 
-import gnu.trove.list.array.TIntArrayList;
-import org.chocosolver.graphsolver.variables.GraphVar;
-import org.chocosolver.solver.constraints.Propagator;
-import org.chocosolver.solver.constraints.PropagatorPriority;
+import org.chocosolver.graphsolver.cstrs.cost.GraphLagrangianRelaxation;
 import org.chocosolver.solver.exception.ContradictionException;
-import org.chocosolver.solver.variables.IntVar;
-import org.chocosolver.util.ESat;
-import org.chocosolver.util.objects.setDataStructures.ISet;
+import org.chocosolver.util.objects.graphs.UndirectedGraph;
+import org.chocosolver.util.objects.setDataStructures.SetType;
 
-import java.util.BitSet;
-
-/**
- * Propagator for the diameter constraint
- *
- * @author Jean-Guillaume Fages
- */
-public class PropDiameter extends Propagator<GraphVar> {
+public abstract class AbstractTreeFinder {
 
 	//***********************************************************************************
 	// VARIABLES
 	//***********************************************************************************
 
-	private GraphVar g;
-	private IntVar diameter;
-	private BitSet visited;
-	private TIntArrayList set, nextSet;
-
+	protected final static boolean FILTER = false;
+	// INPUT
+	protected UndirectedGraph g;    // graph
+	protected int n;                // number of nodes
+	// OUTPUT
+	protected UndirectedGraph Tree;
+	protected double treeCost;
+	// PROPAGATOR
+	protected GraphLagrangianRelaxation propHK;
 
 	//***********************************************************************************
 	// CONSTRUCTORS
 	//***********************************************************************************
 
-	public PropDiameter(GraphVar graph, IntVar maxDiam) {
-		super(new GraphVar[]{graph}, PropagatorPriority.LINEAR, false);
-		this.g = graph;
-		this.diameter = maxDiam;
-		visited = new BitSet(g.getNbMaxNodes());
-		set = new TIntArrayList();
-		nextSet = new TIntArrayList();
+	public AbstractTreeFinder(int nbNodes, GraphLagrangianRelaxation propagator) {
+		n = nbNodes;
+		Tree = new UndirectedGraph(n, SetType.LINKED_LIST, false);
+		propHK = propagator;
 	}
 
 	//***********************************************************************************
-	// PROPAGATIONS
+	// METHODS
 	//***********************************************************************************
 
-	@Override
-	public void propagate(int evtmask) throws ContradictionException {
-		int max = -1;
-		for (int i : g.getPotentialNodes()) {
-			if (g.getMandatoryNodes().contains(i)) {
-				diameter.updateLowerBound(depthBFS(i, true), this);
-			}
-			max = Math.max(max, depthBFS(i, false));
-		}
-		diameter.updateUpperBound(max, this);
+	public abstract void computeMST(double[][] costMatrix, UndirectedGraph graph) throws ContradictionException;
+
+	public abstract void performPruning(double UB) throws ContradictionException;
+
+	//***********************************************************************************
+	// ACCESSORS
+	//***********************************************************************************
+
+	public UndirectedGraph getMST() {
+		return Tree;
 	}
 
-	private int depthBFS(int root, boolean min) {
-		nextSet.clear();
-		set.clear();
-		visited.clear();
-		int i = root;
-		set.add(i);
-		visited.set(i);
-		ISet nei;
-		int depth = 0;
-		int nbMand = g.getMandatoryNodes().size();
-		int count = 1;
-		while (!set.isEmpty()) {
-			for (i = set.size() - 1; i >= 0; i--) {
-				nei = g.getPotSuccOrNeighOf(set.get(i));
-				for (int j : nei) {
-					if (!visited.get(j)) {
-						visited.set(j);
-						nextSet.add(j);
-						if (min) {
-							if (g.getMandatoryNodes().contains(j)) {
-								count++;
-								if (count == nbMand) {
-									return depth + 1;
-								}
-							}
-						}
-					}
-				}
-			}
-			depth++;
-			TIntArrayList tmp = nextSet;
-			nextSet = set;
-			set = tmp;
-			nextSet.clear();
-		}
-		return depth;
+	public double getBound() {
+		return treeCost;
 	}
 
-	//***********************************************************************************
-	// INFO
-	//***********************************************************************************
-
-	@Override
-	public ESat isEntailed() {
-		throw new UnsupportedOperationException("isEntail() not implemented yet");
+	public double getRepCost(int from, int to) {
+		throw new UnsupportedOperationException("not implemented yet");
 	}
 }

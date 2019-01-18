@@ -25,41 +25,27 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.chocosolver.graphsolver.cstrs.cost.tsp.lagrangianRelaxation;
+package org.chocosolver.graphsolver.cstrs.cost.tsp.lagrangian;
 
+import org.chocosolver.graphsolver.cstrs.cost.GraphLagrangianRelaxation;
+import org.chocosolver.graphsolver.cstrs.cost.trees.lagrangian.PrimMSTFinder;
 import org.chocosolver.solver.exception.ContradictionException;
-import org.chocosolver.solver.variables.IntVar;
-import org.chocosolver.util.ESat;
-import org.chocosolver.util.objects.graphs.UndirectedGraph;
-import org.chocosolver.util.objects.setDataStructures.SetType;
-import org.chocosolver.util.tools.ArrayUtils;
+import org.chocosolver.util.objects.setDataStructures.ISet;
 
-/**
- * TSP Lagrangian relaxation
- * Inspired from the work of Held & Karp
- * and Benchimol et. al. (Constraints 2012)
- *
- * @author Jean-Guillaume Fages
- */
-public class PropLagr_OneTree_IntVar extends PropLagr_OneTree {
-
-	//***********************************************************************************
-	// VARIABLES
-	//***********************************************************************************
-
-	protected IntVar[] succ;
+public class PrimOneTreeFinder extends PrimMSTFinder {
 
 	//***********************************************************************************
 	// CONSTRUCTORS
 	//***********************************************************************************
 
-	public PropLagr_OneTree_IntVar(IntVar[] graph, IntVar cost, int[][] costMatrix, boolean waitFirstSol) {
-		super(ArrayUtils.append(graph, new IntVar[]{cost}), costMatrix);
-		this.succ = graph;
-		g = new UndirectedGraph(n, SetType.BIPARTITESET, true);
-		obj = cost;
-		this.waitFirstSol = waitFirstSol;
-		assert checkSymmetry(costMatrix) : "TSP matrix should be symmetric";
+	private int oneNode;
+
+	//***********************************************************************************
+	// CONSTRUCTORS
+	//***********************************************************************************
+
+	public PrimOneTreeFinder(int nbNodes, GraphLagrangianRelaxation propagator) {
+		super(nbNodes, propagator);
 	}
 
 	//***********************************************************************************
@@ -67,59 +53,83 @@ public class PropLagr_OneTree_IntVar extends PropLagr_OneTree {
 	//***********************************************************************************
 
 	@Override
-	protected void rebuild() {
-		mandatoryArcsList.clear();
-		for (int i = 0; i < n; i++) {
-			g.getNeighOf(i).clear();
-			if (succ[i].isInstantiated()) {
-				int j = succ[i].getValue();
-				mandatoryArcsList.add(i * n + j); // todo check no need to have i < j
+	protected void prim() throws ContradictionException {
+		minVal = propHK.getMinArcVal();
+		if (FILTER) {
+			maxTArc = minVal;
+		}
+		chooseOneNode();
+		inTree.set(oneNode);
+		ISet nei = g.getNeighOf(oneNode);
+		int min1 = -1;
+		int min2 = -1;
+		boolean b1 = false, b2 = false;
+		for (int j : nei) {
+			if (!b1) {
+				if (min1 == -1) {
+					min1 = j;
+				}
+				if (costs[oneNode][j] < costs[oneNode][min1]) {
+					min2 = min1;
+					min1 = j;
+				}
+				if (propHK.isMandatory(oneNode, j)) {
+					if (min1 != j) {
+						min2 = min1;
+					}
+					min1 = j;
+					b1 = true;
+				}
 			}
-		}
-		for (int i = 0; i < n; i++) {
-			IntVar v = succ[i];
-			int ub = v.getUB();
-			for (int j = v.getLB(); j <= ub; j = v.nextValue(j)) {
-				g.addEdge(i, j);
-			}
-		}
-	}
-
-	@Override
-	public void remove(int from, int to) throws ContradictionException {
-		succ[from].removeValue(to, this);
-		succ[to].removeValue(from, this);
-	}
-
-	@Override
-	public void enforce(int from, int to) throws ContradictionException {
-		if (!succ[from].contains(to)) {
-			succ[to].instantiateTo(from, this);
-		}
-		if (!succ[to].contains(from)) {
-			succ[from].instantiateTo(to, this);
-		}
-	}
-
-	@Override
-	public ESat isEntailed() {
-		return ESat.TRUE;// it is just implied filtering
-	}
-
-	@Override
-	public boolean isMandatory(int i, int j) {
-		return succ[i].isInstantiatedTo(j) || succ[j].isInstantiatedTo(i);
-	}
-
-	public static boolean checkSymmetry(int[][] costMatrix) {
-		int n = costMatrix.length;
-		for (int i = 0; i < n; i++) {
-			for (int j = i + 1; j < n; j++) {
-				if (costMatrix[i][j] != costMatrix[j][i]) {
-					return false;
+			if (min1 != j && !b2) {
+				if (min2 == -1 || costs[oneNode][j] < costs[oneNode][min2]) {
+					min2 = j;
+				}
+				if (propHK.isMandatory(oneNode, j)) {
+					min2 = j;
+					b2 = true;
 				}
 			}
 		}
-		return true;
+		if (min1 == -1 || min2 == -1) {
+			propHK.contradiction();
+		}
+		if (FILTER) {
+			if (!propHK.isMandatory(oneNode, min1)) {
+				maxTArc = Math.max(maxTArc, costs[oneNode][min1]);
+			}
+			if (!propHK.isMandatory(oneNode, min2)) {
+				maxTArc = Math.max(maxTArc, costs[oneNode][min2]);
+			}
+		}
+		int first = -1, sizeFirst = n + 1;
+		for (int i = 0; i < n; i++) {
+			if (i != oneNode && g.getNeighOf(i).size() < sizeFirst) {
+				first = i;
+				sizeFirst = g.getNeighOf(i).size();
+			}
+		}
+		if (first == -1) {
+			propHK.contradiction();
+		}
+		addNode(first);
+		int from, to;
+		while (tSize < n - 2 && !heap.isEmpty()) {
+			to = heap.removeFirstElement();
+			from = mate[to];
+			addArc(from, to);
+		}
+		if (tSize != n - 2) {
+			propHK.contradiction();
+		}
+		addArc(oneNode, min1);
+		addArc(oneNode, min2);
+		if (Tree.getNeighOf(oneNode).size() != 2) {
+			throw new UnsupportedOperationException();
+		}
+	}
+
+	private void chooseOneNode() {
+		oneNode = 0;
 	}
 }

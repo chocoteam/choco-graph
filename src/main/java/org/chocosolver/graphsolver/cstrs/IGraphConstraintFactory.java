@@ -40,9 +40,9 @@ import org.chocosolver.graphsolver.cstrs.connectivity.PropSizeMinCC;
 import org.chocosolver.graphsolver.cstrs.connectivity.PropSizeMaxCC;
 import org.chocosolver.graphsolver.cstrs.cost.trees.PropMaxDegVarTree;
 import org.chocosolver.graphsolver.cstrs.cost.trees.PropTreeCostSimple;
-import org.chocosolver.graphsolver.cstrs.cost.trees.lagrangianRelaxation.PropLagr_DCMST_generic;
+import org.chocosolver.graphsolver.cstrs.cost.trees.lagrangian.PropGenericLagrDCMST;
 import org.chocosolver.graphsolver.cstrs.cost.tsp.PropCycleCostSimple;
-import org.chocosolver.graphsolver.cstrs.cost.tsp.lagrangianRelaxation.PropLagr_OneTree;
+import org.chocosolver.graphsolver.cstrs.cost.tsp.lagrangian.PropLagrOneTree;
 import org.chocosolver.graphsolver.cstrs.cycles.*;
 import org.chocosolver.graphsolver.cstrs.degree.*;
 import org.chocosolver.graphsolver.cstrs.inclusion.PropInclusion;
@@ -1086,7 +1086,7 @@ public interface IGraphConstraintFactory {
 		Propagator[] props = ArrayUtils.append(hamiltonianCycle(GRAPHVAR).getPropagators(),
 				new Propagator[]{new PropCycleCostSimple(GRAPHVAR, COSTVAR, EDGE_COSTS)});
 		if (LAGR_MODE > 0) {
-			PropLagr_OneTree hk = new PropLagr_OneTree(GRAPHVAR, COSTVAR, EDGE_COSTS);
+			PropLagrOneTree hk = new PropLagrOneTree(GRAPHVAR, COSTVAR, EDGE_COSTS);
 			hk.waitFirstSolution(LAGR_MODE == 2);
 			props = ArrayUtils.append(props, new Propagator[]{hk});
 		}
@@ -1120,7 +1120,7 @@ public interface IGraphConstraintFactory {
 				}
 		);
 		if (LAGR_MODE > 0) {
-			PropLagr_DCMST_generic hk = new PropLagr_DCMST_generic(GRAPH, COSTVAR, DEGREES, EDGE_COSTS, LAGR_MODE == 2);
+			PropGenericLagrDCMST hk = new PropGenericLagrDCMST(GRAPH, COSTVAR, DEGREES, EDGE_COSTS, LAGR_MODE == 2);
 			props = ArrayUtils.append(props, new Propagator[]{hk});
 		}
 		return new Constraint("dcmst", props);

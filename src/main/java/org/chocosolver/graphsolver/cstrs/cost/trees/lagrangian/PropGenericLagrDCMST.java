@@ -1,4 +1,4 @@
-package org.chocosolver.graphsolver.cstrs.cost.trees.lagrangianRelaxation;
+package org.chocosolver.graphsolver.cstrs.cost.trees.lagrangian;
 /*
  * Copyright (c) 1999-2014, Ecole des Mines de Nantes
  * All rights reserved.
@@ -42,31 +42,31 @@ import org.chocosolver.util.objects.setDataStructures.SetType;
 /**
  * Lagrangian relaxation of the DCMST problem
  */
-public class PropLagr_DCMST_generic extends Propagator<Variable> implements GraphLagrangianRelaxation {
+public class PropGenericLagrDCMST extends Propagator<Variable> implements GraphLagrangianRelaxation {
 
 	//***********************************************************************************
 	// VARIABLES
 	//***********************************************************************************
 
-	protected UndirectedGraphVar gV;
-	protected UndirectedGraph g;
-	protected IntVar obj;
-	protected int n;
-	protected int[][] originalCosts;
-	protected double[][] costs;
-	protected UndirectedGraph mst;
-	protected TIntArrayList mandatoryArcsList;
-	protected AbstractTreeFinder HKfilter, HK;
-	protected long nbRem;
-	protected boolean waitFirstSol;
-	protected int nbSprints;
-	protected IntVar[] D;
-	protected int[] Dmax;
-	protected int[] Dmin;
-	protected double[] lambdaMin, lambdaMax;
-	protected double C;
-	protected double K;
-	protected boolean firstPropag = true;
+	private final UndirectedGraphVar gV;
+	private UndirectedGraph g;
+	private final IntVar obj;
+	private final int n;
+	private final int[][] originalCosts;
+	private final double[][] costs;
+	private UndirectedGraph mst;
+	private final TIntArrayList mandatoryArcsList;
+	private final AbstractTreeFinder HKfilter, HK;
+	private long nbRem;
+	private boolean waitFirstSol;
+	private int nbSprints;
+	private final IntVar[] D;
+	private final int[] Dmax;
+	private final int[] Dmin;
+	private final double[] lambdaMin, lambdaMax;
+	private double C;
+	private double K;
+	private boolean firstPropag = true;
 
 	//***********************************************************************************
 	// CONSTRUCTORS
@@ -75,7 +75,7 @@ public class PropLagr_DCMST_generic extends Propagator<Variable> implements Grap
 	/**
 	 * Propagator performing the Lagrangian relaxation of the Degree Constrained Minimum Spanning Tree Problem
 	 */
-	public PropLagr_DCMST_generic(UndirectedGraphVar graph, IntVar cost, IntVar[] degrees, int[][] costMatrix, boolean waitFirstSol) {
+	public PropGenericLagrDCMST(UndirectedGraphVar graph, IntVar cost, IntVar[] degrees, int[][] costMatrix, boolean waitFirstSol) {
 		super(new Variable[]{graph, cost}, PropagatorPriority.CUBIC, false);
 		gV = graph;
 		n = gV.getNbMaxNodes();
@@ -91,7 +91,7 @@ public class PropLagr_DCMST_generic extends Propagator<Variable> implements Grap
 		this.Dmin = new int[n];
 		this.Dmax = new int[n];
 		HK = new PrimMSTFinder(n, this);
-		HKfilter = new KruskalMST_GAC(n, this);
+		HKfilter = new KruskalMSTGAC(n, this);
 		this.waitFirstSol = waitFirstSol;
 		g = new UndirectedGraph(n, SetType.BITSET, true);
 		for (int i = 0; i < n; i++) {
@@ -105,10 +105,10 @@ public class PropLagr_DCMST_generic extends Propagator<Variable> implements Grap
 	// HK Algorithm(s)
 	//***********************************************************************************
 
-	protected long nbSols = 0;
-	protected int objUB = -1;
+	private long nbSols = 0;
+	private int objUB = -1;
 
-	protected void lagrangianRelaxation() throws ContradictionException {
+	private void lagrangianRelaxation() throws ContradictionException {
 		int lb = obj.getLB();
 		nbSprints = 30;
 		if (nbSols != model.getSolver().getSolutionCount()
@@ -127,7 +127,7 @@ public class PropLagr_DCMST_generic extends Propagator<Variable> implements Grap
 		}
 	}
 
-	protected void fastRun(double coef) throws ContradictionException {
+	private void fastRun(double coef) throws ContradictionException {
 		convergeFast(coef);
 		HKfilter.computeMST(costs, g);
 		double hkb = HKfilter.getBound() - C;
@@ -139,7 +139,7 @@ public class PropLagr_DCMST_generic extends Propagator<Variable> implements Grap
 		HKfilter.performPruning((double) (obj.getUB()) + C + 0.001);
 	}
 
-	protected void convergeAndFilter() throws ContradictionException {
+	private void convergeAndFilter() throws ContradictionException {
 		double hkb;
 		double alpha = 2;
 		double beta = 0.5;
@@ -163,7 +163,7 @@ public class PropLagr_DCMST_generic extends Propagator<Variable> implements Grap
 		}
 	}
 
-	protected void convergeFast(double alpha) throws ContradictionException {
+	private void convergeFast(double alpha) throws ContradictionException {
 		double besthkb = 0;
 		double oldhkb = -20;
 		while (oldhkb + 0.1 < besthkb) {
@@ -184,7 +184,7 @@ public class PropLagr_DCMST_generic extends Propagator<Variable> implements Grap
 		}
 	}
 
-	protected boolean updateStep(double hkb, double alpha) {
+	private boolean updateStep(double hkb, double alpha) {
 		double nb2viol = 0;
 		double target = obj.getUB();
 		assert (target - hkb >= 0);
@@ -240,7 +240,7 @@ public class PropLagr_DCMST_generic extends Propagator<Variable> implements Grap
 		return false;
 	}
 
-	protected void updateCosts() {
+	private void updateCosts() {
 		C = 0;
 		for (int i = 0; i < n; i++) {
 			C += Dmax[i] * lambdaMax[i];

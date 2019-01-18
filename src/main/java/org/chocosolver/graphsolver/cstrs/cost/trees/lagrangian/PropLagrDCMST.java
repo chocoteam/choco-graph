@@ -1,3 +1,4 @@
+package org.chocosolver.graphsolver.cstrs.cost.trees.lagrangian;
 /*
  * Copyright (c) 1999-2014, Ecole des Mines de Nantes
  * All rights reserved.
@@ -25,11 +26,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.chocosolver.graphsolver.cstrs.cost.tsp.lagrangianRelaxation;
-
 import gnu.trove.list.array.TIntArrayList;
 import org.chocosolver.graphsolver.cstrs.cost.GraphLagrangianRelaxation;
-import org.chocosolver.graphsolver.cstrs.cost.trees.lagrangianRelaxation.AbstractTreeFinder;
 import org.chocosolver.graphsolver.variables.GraphEventType;
 import org.chocosolver.graphsolver.variables.UndirectedGraphVar;
 import org.chocosolver.solver.constraints.Propagator;
@@ -41,204 +39,194 @@ import org.chocosolver.solver.variables.events.IntEventType;
 import org.chocosolver.util.ESat;
 import org.chocosolver.util.objects.graphs.UndirectedGraph;
 import org.chocosolver.util.objects.setDataStructures.ISet;
+import org.chocosolver.util.objects.setDataStructures.SetType;
 
 /**
- * TSP Lagrangian relaxation
- * Inspired from the work of Held & Karp
- * and Benchimol et. al. (Constraints 2012)
- *
- * @author Jean-Guillaume Fages
+ * Lagrangian relaxation of the DCMST problem
  */
-public class PropLagr_OneTree extends Propagator<Variable> implements GraphLagrangianRelaxation {
+public class PropLagrDCMST extends Propagator<Variable> implements GraphLagrangianRelaxation {
 
 	//***********************************************************************************
 	// VARIABLES
 	//***********************************************************************************
 
-	protected UndirectedGraph g;
-	protected UndirectedGraphVar gV;
-	protected IntVar obj;
-	protected int n;
-	protected int[][] originalCosts;
-	protected double[][] costs;
-	protected double[] penalities;
-	protected double totalPenalities;
-	protected UndirectedGraph mst;
-	protected TIntArrayList mandatoryArcsList;
-	protected double step;
-	protected AbstractTreeFinder HKfilter, HK;
-	protected boolean waitFirstSol;
-	protected int nbSprints;
+	private final UndirectedGraphVar gV;
+	private UndirectedGraph g;
+	private final IntVar obj;
+	private final int n;
+	private final int[][] originalCosts;
+	private final double[][] costs;
+	private final double[] penalities;
+	private double totalPenalities;
+	private UndirectedGraph mst;
+	private final TIntArrayList mandatoryArcsList;
+	private final AbstractTreeFinder HKfilter, HK;
+	private boolean waitFirstSol;
+	private int nbSprints;
+	private final int[] maxDegree;
+	private double step;
+	private boolean firstPropag = true;
 
 	//***********************************************************************************
 	// CONSTRUCTORS
 	//***********************************************************************************
 
-	protected PropLagr_OneTree(Variable[] vars, int[][] costMatrix) {
-		super(vars, PropagatorPriority.CUBIC, false);
+	/**
+	 * Propagator performing the Lagrangian relaxation of the Degree Constrained Minimum Spanning Tree Problem
+	 */
+	public PropLagrDCMST(UndirectedGraphVar graph, IntVar cost, int[] maxDegree, int[][] costMatrix, boolean waitFirstSol) {
+		super(new Variable[]{graph, cost}, PropagatorPriority.CUBIC, false);
+		gV = graph;
+		n = gV.getNbMaxNodes();
+		obj = cost;
 		originalCosts = costMatrix;
-		n = originalCosts.length;
 		costs = new double[n][n];
-		totalPenalities = 0;
 		penalities = new double[n];
+		totalPenalities = 0;
 		mandatoryArcsList = new TIntArrayList();
 		nbSprints = 30;
-		HK = new PrimOneTreeFinder(n, this);
-		HKfilter = new KruskalOneTree_GAC(n, this);
-	}
-
-	public PropLagr_OneTree(UndirectedGraphVar graph, IntVar cost, int[][] costMatrix) {
-		this(new Variable[]{graph, cost}, costMatrix);
-		g = graph.getUB();
-		gV = graph;
-		obj = cost;
+		this.maxDegree = maxDegree;
+		HK = new PrimMSTFinder(n, this);
+		HKfilter = new KruskalMSTGAC(n, this);
+		this.waitFirstSol = waitFirstSol;
+		g = new UndirectedGraph(n, SetType.BITSET, true);
+		for (int i = 0; i < n; i++) {
+			for (int j = i + 1; j < n; j++) {
+				g.addEdge(i, j);
+			}
+		}
 	}
 
 	//***********************************************************************************
 	// HK Algorithm(s)
 	//***********************************************************************************
 
-	public void propagate(int evtmask) throws ContradictionException {
-		if (waitFirstSol && getModel().getSolver().getSolutionCount() == 0) {
-			return;//the UB does not allow to prune
+	private long nbSols = 0;
+	private int objUB = -1;
+
+	private void lagrangianRelaxation() throws ContradictionException {
+		int lb = obj.getLB();
+		nbSprints = 30;
+		if (nbSols != model.getSolver().getSolutionCount()
+				|| obj.getUB() < objUB
+				|| (firstPropag && !waitFirstSol)) {
+			nbSols = model.getSolver().getSolutionCount();
+			objUB = obj.getUB();
+			convergeAndFilter();
+			firstPropag = false;
+			g = gV.getUB();
+		} else {
+			fastRun(2);
 		}
-		// initialisation
-		rebuild();
-		setCosts();
-		int lb;
-		do {
-			lb = obj.getLB();
+		if (lb < obj.getLB()) {
 			lagrangianRelaxation();
-		} while (lb < obj.getLB());
+		}
 	}
 
-	protected void lagrangianRelaxation() throws ContradictionException {
-		double hkb;
-		double alpha = 2;
-		double beta = 0.5;
-		double bestHKB;
-		bestHKB = 0;
+	private void fastRun(double coef) throws ContradictionException {
+		convergeFast(coef);
 		HKfilter.computeMST(costs, g);
-		hkb = HKfilter.getBound() - totalPenalities;
-		bestHKB = hkb;
+		double hkb = HKfilter.getBound() - totalPenalities;
 		mst = HKfilter.getMST();
 		if (hkb - Math.floor(hkb) < 0.001) {
 			hkb = Math.floor(hkb);
 		}
 		obj.updateLowerBound((int) Math.ceil(hkb), this);
 		HKfilter.performPruning((double) (obj.getUB()) + totalPenalities + 0.001);
-		for (int iter = 5; iter > 0; iter--) {
-			for (int i = nbSprints; i > 0; i--) {
-				HK.computeMST(costs, g);
-				hkb = HK.getBound() - totalPenalities;
-				if (hkb > bestHKB + 1) {
-					bestHKB = hkb;
-				}
-				mst = HK.getMST();
-				if (hkb - Math.floor(hkb) < 0.001) {
-					hkb = Math.floor(hkb);
-				}
-				obj.updateLowerBound((int) Math.ceil(hkb), this);
-				// HK.performPruning((double) (obj.getUB()) + totalPenalities + 0.001);
-				//	DO NOT FILTER HERE TO SPEED UP CONVERGENCE (not always true)
-				updateStep(hkb, alpha);
-				HKPenalities();
-				updateCostMatrix();
-			}
+	}
+
+	private void convergeAndFilter() throws ContradictionException {
+		double hkb;
+		double alpha = 2;
+		double beta = 0.5;
+		double besthkb = -9999998;
+		double oldhkb = -9999999;
+		while (oldhkb + 0.001 < besthkb || alpha > 0.01) {
+			oldhkb = besthkb;
+			convergeFast(alpha);
 			HKfilter.computeMST(costs, g);
 			hkb = HKfilter.getBound() - totalPenalities;
-			if (hkb > bestHKB + 1) {
-				bestHKB = hkb;
+			if (hkb > besthkb) {
+				besthkb = hkb;
 			}
 			mst = HKfilter.getMST();
-			if (hkb - Math.floor(hkb) < 0.001) {
+			if (hkb - Math.floor(hkb) < 0.00001) {
 				hkb = Math.floor(hkb);
 			}
 			obj.updateLowerBound((int) Math.ceil(hkb), this);
 			HKfilter.performPruning((double) (obj.getUB()) + totalPenalities + 0.001);
-			updateStep(hkb, alpha);
-			HKPenalities();
-			updateCostMatrix();
 			alpha *= beta;
-			beta /= 2;
 		}
 	}
 
-	//***********************************************************************************
-	// DETAILS
-	//***********************************************************************************
-
-	protected void rebuild() {
-		mandatoryArcsList.clear();
-		ISet nei;
-		for (int i = 0; i < n; i++) {
-			nei = gV.getMandNeighOf(i);
-			for (int j : nei) {
-				if (i < j) {
-					mandatoryArcsList.add(i * n + j);
+	private void convergeFast(double alpha) throws ContradictionException {
+		double besthkb = 0;
+		double oldhkb = -20;
+		while (oldhkb + 0.1 < besthkb) {
+			oldhkb = besthkb;
+			for (int i = 0; i < nbSprints; i++) {
+				HK.computeMST(costs, g);
+				mst = HK.getMST();
+				double hkb = HK.getBound() - totalPenalities;
+				if (hkb - Math.floor(hkb) < 0.001) {
+					hkb = Math.floor(hkb);
 				}
+				if (hkb > besthkb) {
+					besthkb = hkb;
+				}
+				obj.updateLowerBound((int) Math.ceil(hkb), this);
+				if (updateStep(hkb, alpha)) return;
 			}
 		}
 	}
 
-	protected void setCosts() {
-		ISet nei;
-		for (int i = 0; i < n; i++) {
-			nei = g.getNeighOf(i);
-			for (int j : nei) {
-				if (i < j) {
-					costs[i][j] = originalCosts[i][j] + penalities[i] + penalities[j];
-					costs[j][i] = costs[i][j];
-				}
-			}
-		}
-	}
-
-	protected void updateStep(double hkb, double alpha) {
+	private boolean updateStep(double hkb, double alpha) {
 		double nb2viol = 0;
 		double target = obj.getUB();
-		if (target - hkb < 0) {
-			target = hkb + 0.1;
+		assert (target - hkb >= 0);
+		if (target - hkb < 0.001) {
+			target = hkb + 0.001;
 		}
 		int deg;
 		for (int i = 0; i < n; i++) {
 			deg = mst.getNeighOf(i).size();
-			nb2viol += (2 - deg) * (2 - deg);
+			if (deg > maxDegree[i] || penalities[i] > 0) {
+				nb2viol += (maxDegree[i] - deg) * (maxDegree[i] - deg);
+			}
 		}
 		if (nb2viol == 0) {
-			step = 0;
+			return true;
 		} else {
 			step = alpha * (target - hkb) / nb2viol;
 		}
-	}
-
-	protected void HKPenalities() {
-		if (step == 0) {
-			return;
+		if (step < 0.0001) {
+			return true;
 		}
-		double sumPenalities = 0;
-		int deg;
+		double maxPen = 2 * obj.getUB();
+		totalPenalities = 0;
 		for (int i = 0; i < n; i++) {
 			deg = mst.getNeighOf(i).size();
-			penalities[i] += (deg - 2) * step;
-			assert !(penalities[i] > Double.MAX_VALUE / (n - 1) || penalities[i] < -Double.MAX_VALUE / (n - 1)) :
-					"Extreme-value lagrangian multipliers. Numerical issue may happen";
-			sumPenalities += penalities[i];
+			penalities[i] += (deg - maxDegree[i]) * step;
+			if (penalities[i] < 0 || g.getNeighOf(i).size() <= maxDegree[i]) {
+				penalities[i] = 0;
+			}
+			if (penalities[i] > maxPen) {
+				penalities[i] = maxPen;
+			}
+			assert !(penalities[i] > Double.MAX_VALUE / (n - 1) || penalities[i] < 0);
+			totalPenalities += penalities[i] * maxDegree[i];
 		}
-		this.totalPenalities = 2 * sumPenalities;
-	}
-
-	protected void updateCostMatrix() {
+		assert !(totalPenalities > Double.MAX_VALUE / (n - 1) || totalPenalities < 0);
 		ISet nei;
 		for (int i = 0; i < n; i++) {
 			nei = g.getNeighOf(i);
 			for (int j : nei) {
 				if (i < j) {
-					costs[i][j] = originalCosts[i][j] + penalities[i] + penalities[j];
-					costs[j][i] = costs[i][j];
+					costs[j][i] = costs[i][j] = originalCosts[i][j] + penalities[i] + penalities[j];
 				}
 			}
 		}
+		return false;
 	}
 
 	//***********************************************************************************
@@ -247,6 +235,9 @@ public class PropLagr_OneTree extends Propagator<Variable> implements GraphLagra
 
 	public void remove(int from, int to) throws ContradictionException {
 		gV.removeArc(from, to, this);
+		if (firstPropag) {
+			g.removeEdge(from, to);
+		}
 	}
 
 	public void enforce(int from, int to) throws ContradictionException {
@@ -262,6 +253,36 @@ public class PropLagr_OneTree extends Propagator<Variable> implements GraphLagra
 	//***********************************************************************************
 
 	@Override
+	public void propagate(int evtmask) throws ContradictionException {
+		if (waitFirstSol && model.getSolver().getSolutionCount() == 0) {
+			return;//the UB does not allow to prune
+		}
+		// initialisation
+		mandatoryArcsList.clear();
+		ISet nei;
+		totalPenalities = 0;
+		for (int i = 0; i < n; i++) {
+			totalPenalities += penalities[i] * maxDegree[i];
+			nei = gV.getMandNeighOf(i);
+			for (int j : nei) {
+				if (i < j) {
+					mandatoryArcsList.add(i * n + j);
+				}
+			}
+			nei = g.getNeighOf(i);
+			for (int j : nei) {
+				if (i < j) {
+					costs[j][i] = costs[i][j] = originalCosts[i][j] + penalities[i] + penalities[j];
+					if (costs[i][j] < 0) {
+						throw new UnsupportedOperationException();
+					}
+				}
+			}
+		}
+		lagrangianRelaxation();
+	}
+
+	@Override
 	public int getPropagationConditions(int vIdx) {
 		if (vIdx == 0) {
 			return GraphEventType.REMOVE_ARC.getMask() + GraphEventType.ADD_ARC.getMask();
@@ -272,11 +293,11 @@ public class PropLagr_OneTree extends Propagator<Variable> implements GraphLagra
 
 	@Override
 	public ESat isEntailed() {
-		return ESat.TRUE;// it is just implied filtering
+		return ESat.TRUE;
 	}
 
 	public double getMinArcVal() {
-		return -(((double) obj.getUB()) + totalPenalities);
+		return -1;
 	}
 
 	public TIntArrayList getMandatoryArcsList() {

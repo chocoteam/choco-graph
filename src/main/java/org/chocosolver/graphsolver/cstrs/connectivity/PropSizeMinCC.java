@@ -285,20 +285,6 @@ public class PropSizeMinCC extends Propagator<Variable> {
 	}
 
 	/**
-	 * Retrieve the nodes of a GUB CC.
-	 *
-	 * @param cc The GUB CC index.
-	 * @return The set of nodes of the GUB CC cc.
-	 */
-	private Set<Integer> getGUBCCNodes(int cc) {
-		Set<Integer> ccNodes = new HashSet<>();
-		for (int i = GUBCCFinder.getCC_firstNode()[cc]; i >= 0; i = GUBCCFinder.getCC_nextNode()[i]) {
-			ccNodes.add(i);
-		}
-		return ccNodes;
-	}
-
-	/**
 	 * Retrieve the nodes of a GLB CC.
 	 *
 	 * @param cc The GLB CC index.

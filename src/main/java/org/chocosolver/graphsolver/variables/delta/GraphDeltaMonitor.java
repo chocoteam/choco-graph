@@ -43,7 +43,7 @@ import org.chocosolver.util.procedure.PairProcedure;
 public class GraphDeltaMonitor extends TimeStampedObject implements IDeltaMonitor {
 
 	private final GraphDelta delta;
-	private int[] first, last; // references, in variable delta value to propagate, to un propagated values
+	private int[] first; // references, in variable delta value to propagate, to un propagated values
 	private int[] frozenFirst, frozenLast; // same as previous while the recorder is frozen, to allow "concurrent modifications"
 	private ICause propagator;
 
@@ -51,7 +51,6 @@ public class GraphDeltaMonitor extends TimeStampedObject implements IDeltaMonito
 		super(delta.getEnvironment());
 		this.delta = delta;
 		this.first = new int[4];
-		this.last = new int[4];
 		this.frozenFirst = new int[4];
 		this.frozenLast = new int[4];
 		this.propagator = propagator;
@@ -61,16 +60,16 @@ public class GraphDeltaMonitor extends TimeStampedObject implements IDeltaMonito
 	public void freeze() {
 		if (needReset()) {
 			for (int i = 0; i < 4; i++) {
-				first[i] = last[i] = 0;
+				first[i] = 0;
 			}
 			resetStamp();
 		}
 		for (int i = 0; i < 3; i++) {
 			frozenFirst[i] = first[i]; // freeze indices
-			first[i] = frozenLast[i] = last[i] = delta.getSize(i);
+			first[i] = frozenLast[i] = delta.getSize(i);
 		}
 		frozenFirst[3] = first[3]; // freeze indices
-		first[3] = frozenLast[3] = last[3] = delta.getSize(GraphDelta.AE_tail);
+		first[3] = frozenLast[3] = delta.getSize(GraphDelta.AE_tail);
 	}
 
 	@Override
@@ -78,9 +77,9 @@ public class GraphDeltaMonitor extends TimeStampedObject implements IDeltaMonito
 		delta.lazyClear();    // fix 27/07/12
 		resetStamp();
 		for (int i = 0; i < 3; i++) {
-			first[i] = last[i] = delta.getSize(i);
+			first[i] = delta.getSize(i);
 		}
-		first[3] = last[3] = delta.getSize(GraphDelta.AE_tail);
+		first[3] = delta.getSize(GraphDelta.AE_tail);
 	}
 
 	/**
