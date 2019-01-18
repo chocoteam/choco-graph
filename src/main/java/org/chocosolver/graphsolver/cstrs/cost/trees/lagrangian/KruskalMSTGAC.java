@@ -318,10 +318,10 @@ public class KruskalMSTGAC extends AbstractTreeFinder {
 			arc = ma.get(i);
 			from = arc / n;
 			to = arc % n;
-			rFrom = FIND(from);
-			rTo = FIND(to);
+			rFrom = findUF(from);
+			rTo = findUF(to);
 			if (rFrom != rTo) {
-				LINK(rFrom, rTo);
+				linkUF(rFrom, rTo);
 				Tree.addEdge(from, to);
 				updateCCTree(rFrom, rTo, val);
 				treeCost += costs[arc];
@@ -345,10 +345,10 @@ public class KruskalMSTGAC extends AbstractTreeFinder {
 			}
 			from = sortedArcs[idx] / n;
 			to = sortedArcs[idx] % n;
-			rFrom = FIND(from);
-			rTo = FIND(to);
+			rFrom = findUF(from);
+			rTo = findUF(to);
 			if (rFrom != rTo) {
-				LINK(rFrom, rTo);
+				linkUF(rFrom, rTo);
 				Tree.addEdge(from, to);
 				cost = costs[sortedArcs[idx]];
 				updateCCTree(rFrom, rTo, cost);
@@ -376,7 +376,7 @@ public class KruskalMSTGAC extends AbstractTreeFinder {
 		ccTEdgeCost[newNode] = cost;
 	}
 
-	private void LINK(int x, int y) {
+	private void linkUF(int x, int y) {
 		if (rank[x] > rank[y]) {
 			p[y] = p[x];
 		} else {
@@ -387,9 +387,9 @@ public class KruskalMSTGAC extends AbstractTreeFinder {
 		}
 	}
 
-	private int FIND(int i) {
+	private int findUF(int i) {
 		if (p[i] != i) {
-			p[i] = FIND(p[i]);
+			p[i] = findUF(p[i]);
 		}
 		return p[i];
 	}

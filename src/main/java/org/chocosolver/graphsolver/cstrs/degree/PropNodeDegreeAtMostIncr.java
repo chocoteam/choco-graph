@@ -28,25 +28,29 @@
 package org.chocosolver.graphsolver.cstrs.degree;
 
 import org.chocosolver.graphsolver.variables.*;
+import org.chocosolver.graphsolver.variables.delta.GraphDeltaMonitor;
 import org.chocosolver.solver.constraints.Propagator;
 import org.chocosolver.solver.constraints.PropagatorPriority;
 import org.chocosolver.solver.exception.ContradictionException;
 import org.chocosolver.util.ESat;
 import org.chocosolver.util.objects.graphs.Orientation;
 import org.chocosolver.util.objects.setDataStructures.ISet;
+import org.chocosolver.util.procedure.PairProcedure;
 
 /**
  * Propagator that ensures that a node has at most N successors/predecessors/neighbors
  *
  * @author Jean-Guillaume Fages
  */
-public class PropNodeDegree_AtMost_Coarse extends Propagator<GraphVar> {
+public class PropNodeDegreeAtMostIncr extends Propagator<GraphVar> {
 
 	//***********************************************************************************
 	// VARIABLES
 	//***********************************************************************************
 
 	private GraphVar g;
+	private GraphDeltaMonitor gdm;
+	private PairProcedure enf_proc;
 	private int[] degrees;
 	private IncidentSet target;
 
@@ -54,35 +58,43 @@ public class PropNodeDegree_AtMost_Coarse extends Propagator<GraphVar> {
 	// CONSTRUCTORS
 	//***********************************************************************************
 
-	public PropNodeDegree_AtMost_Coarse(DirectedGraphVar graph, Orientation setType, int degree) {
+	public PropNodeDegreeAtMostIncr(DirectedGraphVar graph, Orientation setType, int degree) {
 		this(graph, setType, buildArray(degree, graph.getNbMaxNodes()));
 	}
 
-	public PropNodeDegree_AtMost_Coarse(DirectedGraphVar graph, Orientation setType, int[] degrees) {
-		super(new DirectedGraphVar[]{graph}, PropagatorPriority.BINARY, false);
+	public PropNodeDegreeAtMostIncr(DirectedGraphVar graph, Orientation setType, int[] degrees) {
+		super(new DirectedGraphVar[]{graph}, PropagatorPriority.BINARY, true);
 		g = graph;
+		gdm = g.monitorDelta(this);
 		this.degrees = degrees;
 		switch (setType) {
 			case SUCCESSORS:
 				target = new IncidentSet.SuccOrNeighSet();
+				enf_proc = (i, j) -> checkAtMost(i);
 				break;
 			case PREDECESSORS:
 				target = new IncidentSet.PredOrNeighSet();
+				enf_proc = (i, j) -> checkAtMost(j);
 				break;
 			default:
 				throw new UnsupportedOperationException("wrong parameter: use either PREDECESSORS or SUCCESSORS");
 		}
 	}
 
-	public PropNodeDegree_AtMost_Coarse(UndirectedGraphVar graph, int degree) {
+	public PropNodeDegreeAtMostIncr(UndirectedGraphVar graph, int degree) {
 		this(graph, buildArray(degree, graph.getNbMaxNodes()));
 	}
 
-	public PropNodeDegree_AtMost_Coarse(final UndirectedGraphVar graph, int[] degrees) {
-		super(new UndirectedGraphVar[]{graph}, PropagatorPriority.BINARY, false);
+	public PropNodeDegreeAtMostIncr(final UndirectedGraphVar graph, int[] degrees) {
+		super(new UndirectedGraphVar[]{graph}, PropagatorPriority.BINARY, true);
 		target = new IncidentSet.SuccOrNeighSet();
 		g = graph;
+		gdm = g.monitorDelta(this);
 		this.degrees = degrees;
+		enf_proc = (i, j) -> {
+			checkAtMost(i);
+			checkAtMost(j);
+		};
 	}
 
 	private static int[] buildArray(int degree, int n) {
@@ -103,6 +115,14 @@ public class PropNodeDegree_AtMost_Coarse extends Propagator<GraphVar> {
 		for (int node : act) {
 			checkAtMost(node);
 		}
+		gdm.unfreeze();
+	}
+
+	@Override
+	public void propagate(int idxVarInProp, int mask) throws ContradictionException {
+		gdm.freeze();
+		gdm.forEachArc(enf_proc, GraphEventType.ADD_ARC);
+		gdm.unfreeze();
 	}
 
 	//***********************************************************************************

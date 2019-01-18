@@ -43,7 +43,7 @@ import org.chocosolver.util.procedure.PairProcedure;
  *
  * @author Jean-Guillaume Fages
  */
-public class PropNodeDegree_AtLeast_Incr extends Propagator<GraphVar> {
+public class PropNodeDegreeAtLeastIncr extends Propagator<GraphVar> {
 
 	//***********************************************************************************
 	// VARIABLES
@@ -60,11 +60,11 @@ public class PropNodeDegree_AtLeast_Incr extends Propagator<GraphVar> {
 	// CONSTRUCTORS
 	//***********************************************************************************
 
-	public PropNodeDegree_AtLeast_Incr(DirectedGraphVar graph, Orientation setType, int degree) {
+	public PropNodeDegreeAtLeastIncr(DirectedGraphVar graph, Orientation setType, int degree) {
 		this(graph, setType, buildArray(degree, graph.getNbMaxNodes()));
 	}
 
-	public PropNodeDegree_AtLeast_Incr(DirectedGraphVar graph, Orientation setType, int[] degrees) {
+	public PropNodeDegreeAtLeastIncr(DirectedGraphVar graph, Orientation setType, int[] degrees) {
 		super(new DirectedGraphVar[]{graph}, PropagatorPriority.BINARY, true);
 		g = graph;
 		this.degrees = degrees;
@@ -84,11 +84,11 @@ public class PropNodeDegree_AtLeast_Incr extends Propagator<GraphVar> {
 		gdm = g.monitorDelta(this);
 	}
 
-	public PropNodeDegree_AtLeast_Incr(UndirectedGraphVar graph, int degree) {
+	public PropNodeDegreeAtLeastIncr(UndirectedGraphVar graph, int degree) {
 		this(graph, buildArray(degree, graph.getNbMaxNodes()));
 	}
 
-	public PropNodeDegree_AtLeast_Incr(UndirectedGraphVar graph, int[] degrees) {
+	public PropNodeDegreeAtLeastIncr(UndirectedGraphVar graph, int[] degrees) {
 		super(new UndirectedGraphVar[]{graph}, PropagatorPriority.BINARY, true);
 		target = new IncidentSet.SuccOrNeighSet();
 		g = graph;

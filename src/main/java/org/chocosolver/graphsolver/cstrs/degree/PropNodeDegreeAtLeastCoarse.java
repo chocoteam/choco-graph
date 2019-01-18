@@ -40,7 +40,7 @@ import org.chocosolver.util.objects.setDataStructures.ISet;
  *
  * @author Jean-Guillaume Fages
  */
-public class PropNodeDegree_AtLeast_Coarse extends Propagator<GraphVar> {
+public class PropNodeDegreeAtLeastCoarse extends Propagator<GraphVar> {
 
 	//***********************************************************************************
 	// VARIABLES
@@ -54,11 +54,11 @@ public class PropNodeDegree_AtLeast_Coarse extends Propagator<GraphVar> {
 	// CONSTRUCTORS
 	//***********************************************************************************
 
-	public PropNodeDegree_AtLeast_Coarse(DirectedGraphVar graph, Orientation setType, int degree) {
+	public PropNodeDegreeAtLeastCoarse(DirectedGraphVar graph, Orientation setType, int degree) {
 		this(graph, setType, buildArray(degree, graph.getNbMaxNodes()));
 	}
 
-	public PropNodeDegree_AtLeast_Coarse(DirectedGraphVar graph, Orientation setType, int[] degrees) {
+	public PropNodeDegreeAtLeastCoarse(DirectedGraphVar graph, Orientation setType, int[] degrees) {
 		super(new DirectedGraphVar[]{graph}, PropagatorPriority.BINARY, false);
 		g = graph;
 		this.degrees = degrees;
@@ -74,11 +74,11 @@ public class PropNodeDegree_AtLeast_Coarse extends Propagator<GraphVar> {
 		}
 	}
 
-	public PropNodeDegree_AtLeast_Coarse(UndirectedGraphVar graph, int degree) {
+	public PropNodeDegreeAtLeastCoarse(UndirectedGraphVar graph, int degree) {
 		this(graph, buildArray(degree, graph.getNbMaxNodes()));
 	}
 
-	public PropNodeDegree_AtLeast_Coarse(UndirectedGraphVar graph, int[] degrees) {
+	public PropNodeDegreeAtLeastCoarse(UndirectedGraphVar graph, int[] degrees) {
 		super(new UndirectedGraphVar[]{graph}, PropagatorPriority.BINARY, false);
 		target = new IncidentSet.SuccOrNeighSet();
 		g = graph;

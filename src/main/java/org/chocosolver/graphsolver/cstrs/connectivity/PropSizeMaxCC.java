@@ -46,22 +46,6 @@ public class PropSizeMaxCC extends Propagator<Variable> {
 		return GraphEventType.ALL_EVENTS;
 	}
 
-	/**
-	 * @return The lower bound of the graph variable MAX_NCC property.
-	 * Beware that this.GLBCCFinder.findAllCC() and this.GLBCCFinder.findCCSizes() must be called before.
-	 */
-	private int getMaxNCC_LB() {
-		return GLBCCFinder.getSizeMaxCC();
-	}
-
-	/**
-	 * @return The upper bound of the graph variable MAX_NCC property.
-	 * Beware that this.GUBCCFinder.findAllCC() and this.GUBCCFinder.findCCSizes() must be called before.
-	 */
-	private int getMaxNCC_UB() {
-		return GUBCCFinder.getSizeMaxCC();
-	}
-
 	@Override
 	public void propagate(int evtmask) throws ContradictionException {
 		// Find CCs and their sizes
@@ -69,8 +53,8 @@ public class PropSizeMaxCC extends Propagator<Variable> {
 		this.GUBCCFinder.findAllCC();
 		int nbCC_GLB = GLBCCFinder.getNBCC();
 		// Retrieve MAX_NCC(g) lower and upper bounds from g
-		int maxNCC_LB = getMaxNCC_LB();
-		int maxNCC_UB = getMaxNCC_UB();
+		int maxNCC_LB = GLBCCFinder.getSizeMaxCC();
+		int maxNCC_UB = GUBCCFinder.getSizeMaxCC();
 		// 1. Trivial case
 		if (sizeMaxCC.getLB() > g.getUB().getNodes().size()) {
 			fails();
@@ -139,7 +123,7 @@ public class PropSizeMaxCC extends Propagator<Variable> {
 			// e.
 			if (recomputeMaxNCC_UB) {
 				this.GUBCCFinder.findAllCC();
-				maxNCC_UB = getMaxNCC_UB();
+				maxNCC_UB = GUBCCFinder.getSizeMaxCC();
 				if (maxNCC_UB < sizeMaxCC.getLB()) {
 					fails();
 				}
@@ -164,10 +148,10 @@ public class PropSizeMaxCC extends Propagator<Variable> {
 			}
 		}
 		if (nb_candidates == 1 && size == sizeMaxCC.getLB()) {
-			int i = GUBCCFinder.getCC_firstNode()[candidate];
+			int i = GUBCCFinder.getCCFirstNode()[candidate];
 			while (i != -1) {
 				g.enforceNode(i, this);
-				i = GUBCCFinder.getCC_nextNode()[i];
+				i = GUBCCFinder.getCCNextNode()[i];
 			}
 			sizeMaxCC.instantiateTo(sizeMaxCC.getLB(), this);
 		}
@@ -181,7 +165,7 @@ public class PropSizeMaxCC extends Propagator<Variable> {
 	 */
 	private Set<Integer> getGLBCCNodes(int cc) {
 		Set<Integer> ccNodes = new HashSet<>();
-		for (int i = GLBCCFinder.getCC_firstNode()[cc]; i >= 0; i = GLBCCFinder.getCC_nextNode()[i]) {
+		for (int i = GLBCCFinder.getCCFirstNode()[cc]; i >= 0; i = GLBCCFinder.getCCNextNode()[i]) {
 			ccNodes.add(i);
 		}
 		return ccNodes;
@@ -226,8 +210,8 @@ public class PropSizeMaxCC extends Propagator<Variable> {
 		this.GLBCCFinder.findAllCC();
 		this.GUBCCFinder.findAllCC();
 		// Retrieve MAX_NCC(g) lower and upper bounds from g
-		int maxNCC_LB = getMaxNCC_LB();
-		int maxNCC_UB = getMaxNCC_UB();
+		int maxNCC_LB = GLBCCFinder.getSizeMaxCC();
+		int maxNCC_UB = GUBCCFinder.getSizeMaxCC();
 		// Check entailment
 		if (maxNCC_UB < sizeMaxCC.getLB() || maxNCC_LB > sizeMaxCC.getUB()) {
 			return ESat.FALSE;

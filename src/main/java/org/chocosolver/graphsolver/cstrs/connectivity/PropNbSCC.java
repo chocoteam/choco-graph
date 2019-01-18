@@ -51,7 +51,7 @@ public class PropNbSCC extends Propagator<Variable> {
 
 	private DirectedGraphVar g;
 	private IntVar k;
-	private StrongConnectivityFinder env_CC_finder, ker_CC_finder;
+	private StrongConnectivityFinder envCCFinder, kerCCFinder;
 
 	//***********************************************************************************
 	// CONSTRUCTORS
@@ -61,8 +61,8 @@ public class PropNbSCC extends Propagator<Variable> {
 		super(new Variable[]{graph, k}, PropagatorPriority.LINEAR, false);
 		this.g = graph;
 		this.k = k;
-		env_CC_finder = new StrongConnectivityFinder(g.getUB());
-		ker_CC_finder = new StrongConnectivityFinder(g.getLB());
+		envCCFinder = new StrongConnectivityFinder(g.getUB());
+		kerCCFinder = new StrongConnectivityFinder(g.getLB());
 	}
 
 	//***********************************************************************************
@@ -92,16 +92,16 @@ public class PropNbSCC extends Propagator<Variable> {
 
 		// A bit of pruning (removes unreachable nodes)
 		if (k.getUB() == min && min != max) {
-			int ccs = env_CC_finder.getNbSCC();
+			int ccs = envCCFinder.getNbSCC();
 			boolean pot = true;
 			for (int cc = 0; cc < ccs; cc++) {
-				for (int i = env_CC_finder.getSCCFirstNode(cc); i >= 0 && pot; i = env_CC_finder.getNextNode(i)) {
+				for (int i = envCCFinder.getSCCFirstNode(cc); i >= 0 && pot; i = envCCFinder.getNextNode(i)) {
 					if (g.getMandatoryNodes().contains(i)) {
 						pot = false;
 					}
 				}
 				if (pot) {
-					for (int i = env_CC_finder.getSCCFirstNode(cc); i >= 0; i = env_CC_finder.getNextNode(i)) {
+					for (int i = envCCFinder.getSCCFirstNode(cc); i >= 0; i = envCCFinder.getNextNode(i)) {
 						g.removeNode(i, this);
 					}
 				}
@@ -110,11 +110,11 @@ public class PropNbSCC extends Propagator<Variable> {
 	}
 
 	public int minCC() {
-		env_CC_finder.findAllSCC();
-		int ccs = env_CC_finder.getNbSCC();
+		envCCFinder.findAllSCC();
+		int ccs = envCCFinder.getNbSCC();
 		int minCC = 0;
 		for (int cc = 0; cc < ccs; cc++) {
-			for (int i = env_CC_finder.getSCCFirstNode(cc); i >= 0; i = env_CC_finder.getNextNode(i)) {
+			for (int i = envCCFinder.getSCCFirstNode(cc); i >= 0; i = envCCFinder.getNextNode(i)) {
 				if (g.getMandatoryNodes().contains(i)) {
 					minCC++;
 					break;
@@ -125,8 +125,8 @@ public class PropNbSCC extends Propagator<Variable> {
 	}
 
 	public int maxCC() {
-		ker_CC_finder.findAllSCC();
-		int nbK = ker_CC_finder.getNbSCC();
+		kerCCFinder.findAllSCC();
+		int nbK = kerCCFinder.getNbSCC();
 		int delta = g.getPotentialNodes().size() - g.getMandatoryNodes().size();
 		return nbK + delta;
 	}

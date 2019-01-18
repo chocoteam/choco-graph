@@ -55,15 +55,15 @@ public class FastArrayHeap extends ArrayHeap {
 	}
 
 	@Override
-	public boolean addOrUpdateElement(int element, double element_key) {
-		if (isEmpty() || element_key < bestVal) {
-			bestVal = element_key;
+	public boolean addOrUpdateElement(int element, double elementKey) {
+		if (isEmpty() || elementKey < bestVal) {
+			bestVal = elementKey;
 			bestSize = 0;
 			best[bestSize++] = element;
-		} else if (element_key == bestVal && element_key < value[element]) {
+		} else if (elementKey == bestVal && elementKey < value[element]) {
 			best[bestSize++] = element;
 		}
-		return super.addOrUpdateElement(element, element_key);
+		return super.addOrUpdateElement(element, elementKey);
 	}
 
 	@Override

@@ -67,8 +67,8 @@ public class DirectedGraphVar extends GraphVar<DirectedGraph> {
 		}
 		if (UB.removeArc(x, y)) {
 			if (reactOnModification) {
-				delta.add(x, GraphDelta.AR_tail, cause);
-				delta.add(y, GraphDelta.AR_head, cause);
+				delta.add(x, GraphDelta.AR_TAIL, cause);
+				delta.add(y, GraphDelta.AR_HEAD, cause);
 			}
 			GraphEventType e = GraphEventType.REMOVE_ARC;
 			notifyPropagators(e, cause);
@@ -85,8 +85,8 @@ public class DirectedGraphVar extends GraphVar<DirectedGraph> {
 		if (UB.arcExists(x, y)) {
 			if (LB.addArc(x, y)) {
 				if (reactOnModification) {
-					delta.add(x, GraphDelta.AE_tail, cause);
-					delta.add(y, GraphDelta.AE_head, cause);
+					delta.add(x, GraphDelta.AE_TAIL, cause);
+					delta.add(y, GraphDelta.AE_HEAD, cause);
 				}
 				GraphEventType e = GraphEventType.ADD_ARC;
 				notifyPropagators(e, cause);

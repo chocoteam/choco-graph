@@ -206,10 +206,10 @@ public class KruskalOneTreeGAC extends KruskalMSTFinder {
 			from = arc / n;
 			to = arc % n;
 			if (from != 0 && to != 0) {
-				rFrom = FIND(from);
-				rTo = FIND(to);
+				rFrom = findUF(from);
+				rTo = findUF(to);
 				if (rFrom != rTo) {
-					LINK(rFrom, rTo);
+					linkUF(rFrom, rTo);
 					Tree.addEdge(from, to);
 					updateCCTree(rFrom, rTo, val);
 					treeCost += costs[arc];
@@ -235,10 +235,10 @@ public class KruskalOneTreeGAC extends KruskalMSTFinder {
 			}
 			from = sortedArcs[idx] / n;
 			to = sortedArcs[idx] % n;
-			rFrom = FIND(from);
-			rTo = FIND(to);
+			rFrom = findUF(from);
+			rTo = findUF(to);
 			if (rFrom != rTo) {
-				LINK(rFrom, rTo);
+				linkUF(rFrom, rTo);
 				Tree.addEdge(from, to);
 				cost = costs[sortedArcs[idx]];
 				updateCCTree(rFrom, rTo, cost);

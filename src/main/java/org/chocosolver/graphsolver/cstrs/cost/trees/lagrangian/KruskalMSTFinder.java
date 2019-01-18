@@ -101,7 +101,7 @@ public class KruskalMSTFinder extends AbstractTreeFinder {
 	}
 
 	//***********************************************************************************
-	// FIND MST
+	// findUF MST
 	//***********************************************************************************
 
 	public void computeMST(double[][] costs, UndirectedGraph graph) throws ContradictionException {
@@ -286,10 +286,10 @@ public class KruskalMSTFinder extends AbstractTreeFinder {
 			arc = ma.get(i);
 			from = arc / n;
 			to = arc % n;
-			rFrom = FIND(from);
-			rTo = FIND(to);
+			rFrom = findUF(from);
+			rTo = findUF(to);
 			if (rFrom != rTo) {
-				LINK(rFrom, rTo);
+				linkUF(rFrom, rTo);
 				Tree.addEdge(from, to);
 				updateCCTree(rFrom, rTo, val);
 				treeCost += costs[arc];
@@ -314,10 +314,10 @@ public class KruskalMSTFinder extends AbstractTreeFinder {
 			}
 			from = sortedArcs[idx] / n;
 			to = sortedArcs[idx] % n;
-			rFrom = FIND(from);
-			rTo = FIND(to);
+			rFrom = findUF(from);
+			rTo = findUF(to);
 			if (rFrom != rTo) {
-				LINK(rFrom, rTo);
+				linkUF(rFrom, rTo);
 				Tree.addEdge(from, to);
 				cost = costs[sortedArcs[idx]];
 				updateCCTree(rFrom, rTo, cost);
@@ -345,7 +345,7 @@ public class KruskalMSTFinder extends AbstractTreeFinder {
 		ccTEdgeCost[newNode] = cost;
 	}
 
-	protected void LINK(int x, int y) {
+	protected void linkUF(int x, int y) {
 		if (rank[x] > rank[y]) {
 			p[y] = p[x];
 		} else {
@@ -356,9 +356,9 @@ public class KruskalMSTFinder extends AbstractTreeFinder {
 		}
 	}
 
-	protected int FIND(int i) {
+	protected int findUF(int i) {
 		if (p[i] != i) {
-			p[i] = FIND(p[i]);
+			p[i] = findUF(p[i]);
 		}
 		return p[i];
 	}

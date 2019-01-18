@@ -142,7 +142,7 @@ public class PropLagrOneTree extends Propagator<Variable> implements GraphLagran
 				// HK.performPruning((double) (obj.getUB()) + totalPenalities + 0.001);
 				//	DO NOT FILTER HERE TO SPEED UP CONVERGENCE (not always true)
 				updateStep(hkb, alpha);
-				HKPenalities();
+				penalitiesHK();
 				updateCostMatrix();
 			}
 			HKfilter.computeMST(costs, g);
@@ -157,7 +157,7 @@ public class PropLagrOneTree extends Propagator<Variable> implements GraphLagran
 			obj.updateLowerBound((int) Math.ceil(hkb), this);
 			HKfilter.performPruning((double) (obj.getUB()) + totalPenalities + 0.001);
 			updateStep(hkb, alpha);
-			HKPenalities();
+			penalitiesHK();
 			updateCostMatrix();
 			alpha *= beta;
 			beta /= 2;
@@ -212,7 +212,7 @@ public class PropLagrOneTree extends Propagator<Variable> implements GraphLagran
 		}
 	}
 
-	private void HKPenalities() {
+	private void penalitiesHK() {
 		if (step == 0) {
 			return;
 		}

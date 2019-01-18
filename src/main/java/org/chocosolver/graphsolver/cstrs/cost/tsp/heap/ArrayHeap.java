@@ -60,14 +60,14 @@ public class ArrayHeap implements ISimpleHeap {
 	}
 
 	@Override
-	public boolean addOrUpdateElement(int element, double element_key) {
+	public boolean addOrUpdateElement(int element, double elementKey) {
 		if (!in.get(element)) {
 			in.set(element);
 			size++;
-			value[element] = element_key;
+			value[element] = elementKey;
 			return true;
-		} else if (element_key < value[element]) {
-			value[element] = element_key;
+		} else if (elementKey < value[element]) {
+			value[element] = elementKey;
 			return true;
 		}
 		return false;

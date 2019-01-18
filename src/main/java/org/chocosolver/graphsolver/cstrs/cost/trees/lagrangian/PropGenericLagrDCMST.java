@@ -57,7 +57,6 @@ public class PropGenericLagrDCMST extends Propagator<Variable> implements GraphL
 	private UndirectedGraph mst;
 	private final TIntArrayList mandatoryArcsList;
 	private final AbstractTreeFinder HKfilter, HK;
-	private long nbRem;
 	private boolean waitFirstSol;
 	private int nbSprints;
 	private final IntVar[] D;
@@ -85,7 +84,6 @@ public class PropGenericLagrDCMST extends Propagator<Variable> implements GraphL
 		lambdaMin = new double[n];
 		lambdaMax = new double[n];
 		mandatoryArcsList = new TIntArrayList();
-		nbRem = 0;
 		nbSprints = 30;
 		this.D = degrees;
 		this.Dmin = new int[n];
@@ -266,7 +264,6 @@ public class PropGenericLagrDCMST extends Propagator<Variable> implements GraphL
 		if (firstPropag) {
 			g.removeEdge(from, to);
 		}
-		nbRem++;
 	}
 
 	@Override

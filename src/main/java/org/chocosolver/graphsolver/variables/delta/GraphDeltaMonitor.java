@@ -69,7 +69,7 @@ public class GraphDeltaMonitor extends TimeStampedObject implements IDeltaMonito
 			first[i] = frozenLast[i] = delta.getSize(i);
 		}
 		frozenFirst[3] = first[3]; // freeze indices
-		first[3] = frozenLast[3] = delta.getSize(GraphDelta.AE_tail);
+		first[3] = frozenLast[3] = delta.getSize(GraphDelta.AE_TAIL);
 	}
 
 	@Override
@@ -79,7 +79,7 @@ public class GraphDeltaMonitor extends TimeStampedObject implements IDeltaMonito
 		for (int i = 0; i < 3; i++) {
 			first[i] = delta.getSize(i);
 		}
-		first[3] = delta.getSize(GraphDelta.AE_tail);
+		first[3] = delta.getSize(GraphDelta.AE_TAIL);
 	}
 
 	/**
@@ -118,14 +118,14 @@ public class GraphDeltaMonitor extends TimeStampedObject implements IDeltaMonito
 	public void forEachArc(PairProcedure proc, GraphEventType evt) throws ContradictionException {
 		if (evt == GraphEventType.REMOVE_ARC) {
 			for (int i = frozenFirst[2]; i < frozenLast[2]; i++) {
-				if (delta.getCause(i, GraphDelta.AR_tail) != propagator) {
-					proc.execute(delta.get(i, GraphDelta.AR_tail), delta.get(i, GraphDelta.AR_head));
+				if (delta.getCause(i, GraphDelta.AR_TAIL) != propagator) {
+					proc.execute(delta.get(i, GraphDelta.AR_TAIL), delta.get(i, GraphDelta.AR_HEAD));
 				}
 			}
 		} else if (evt == GraphEventType.ADD_ARC) {
 			for (int i = frozenFirst[3]; i < frozenLast[3]; i++) {
-				if (delta.getCause(i, GraphDelta.AE_tail) != propagator) {
-					proc.execute(delta.get(i, GraphDelta.AE_tail), delta.get(i, GraphDelta.AE_head));
+				if (delta.getCause(i, GraphDelta.AE_TAIL) != propagator) {
+					proc.execute(delta.get(i, GraphDelta.AE_TAIL), delta.get(i, GraphDelta.AE_HEAD));
 				}
 			}
 		} else {

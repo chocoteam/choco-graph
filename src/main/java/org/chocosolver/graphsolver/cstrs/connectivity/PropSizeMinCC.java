@@ -52,7 +52,7 @@ public class PropSizeMinCC extends Propagator<Variable> {
 	 * @return The lower bound of the graph variable MIN_NCC property.
 	 * Beware that this.GLBCCFinder.findAllCC() and this.GLBCCFinder.findCCSizes() must be called before.
 	 */
-	private int getMinNCC_LB(int nbNodesT, int nbNodesU) {
+	private int getLBMinNCC(int nbNodesT, int nbNodesU) {
 		if (nbNodesT == 0) {
 			return 0;
 		} else {
@@ -69,7 +69,7 @@ public class PropSizeMinCC extends Propagator<Variable> {
 	 * @return The upper bound of the graph variable MIN_NCC property.
 	 * Beware that this.GUBCCFinder.findAllCC() and this.GUBCCFinder.findCCSizes() must be called before.
 	 */
-	private int getMinNCC_UB(int nbNodesT) {
+	private int getUBMinNCC(int nbNodesT) {
 		if (nbNodesT > 0) {
 			return getGUBMandatoryCCs().stream().mapToInt(cc -> GUBCCFinder.getSizeCC()[cc]).min().getAsInt();
 		} else {
@@ -87,8 +87,8 @@ public class PropSizeMinCC extends Propagator<Variable> {
 		int nbNodesTU = g.getPotentialNodes().size();
 		int nbNodesU = nbNodesTU - nbNodesT;
 		// Compute MIN_NCC(g) lower and upper bounds from g
-		int minNCC_LB = getMinNCC_LB(nbNodesT, nbNodesU);
-		int minNCC_UB = getMinNCC_UB(nbNodesT);
+		int minNCC_LB = getLBMinNCC(nbNodesT, nbNodesU);
+		int minNCC_UB = getUBMinNCC(nbNodesT);
 		// 1. Trivial case
 		if (sizeMinCC.getLB() > nbNodesTU) {
 			fails();
@@ -113,10 +113,10 @@ public class PropSizeMinCC extends Propagator<Variable> {
 		// 7.
 		for (int cc : getGUBOptionalCCs()) {
 			if (GUBCCFinder.getSizeCC()[cc] < sizeMinCC.getLB()) {
-				int i = GUBCCFinder.getCC_firstNode()[cc];
+				int i = GUBCCFinder.getCCFirstNode()[cc];
 				while (i != -1) {
 					g.removeNode(i, this);
-					i = GUBCCFinder.getCC_nextNode()[i];
+					i = GUBCCFinder.getCCNextNode()[i];
 				}
 			}
 		}
@@ -127,10 +127,10 @@ public class PropSizeMinCC extends Propagator<Variable> {
 			// a
 			for (int cc : GUBMandatoryCCs) {
 				if (GUBCCFinder.getSizeCC()[cc] == sizeMinCC.getLB()) {
-					int i = GUBCCFinder.getCC_firstNode()[cc];
+					int i = GUBCCFinder.getCCFirstNode()[cc];
 					while (i != -1) {
 						g.enforceNode(i, this);
-						i = GUBCCFinder.getCC_nextNode()[i];
+						i = GUBCCFinder.getCCNextNode()[i];
 					}
 					sizeMinCC.instantiateTo(sizeMinCC.getLB(), this);
 				}
@@ -169,7 +169,7 @@ public class PropSizeMinCC extends Propagator<Variable> {
 			this.GLBCCFinder.findAllCC();
 			nbNodesT = g.getMandatoryNodes().size();
 			nbNodesU = nbNodesTU - nbNodesT;
-			minNCC_LB = getMinNCC_LB(nbNodesT, nbNodesU);
+			minNCC_LB = getLBMinNCC(nbNodesT, nbNodesU);
 			// Repeat 4. and 5.
 			if (minNCC_LB > sizeMinCC.getUB()) {
 				fails();
@@ -236,7 +236,7 @@ public class PropSizeMinCC extends Propagator<Variable> {
 			Map<Integer, Set<Integer>> cc1Neighbors = getGLBCCPotentialNeighbors(candidate1);
 			for (int i : cc1Neighbors.keySet()) {
 				for (int j : cc1Neighbors.get(i)) {
-					if (GLBCCFinder.getNode_CC()[j] == candidate2) {
+					if (GLBCCFinder.getNodeCC()[j] == candidate2) {
 						g.removeArc(i, j, this);
 					}
 				}
@@ -250,13 +250,13 @@ public class PropSizeMinCC extends Propagator<Variable> {
 	private Set<Integer> getGUBMandatoryCCs() {
 		Set<Integer> mandatoryCCs = new HashSet<>();
 		for (int cc = 0; cc < this.GUBCCFinder.getNBCC(); cc++) {
-			int i = GUBCCFinder.getCC_firstNode()[cc];
+			int i = GUBCCFinder.getCCFirstNode()[cc];
 			while (i != -1) {
 				if (g.getLB().getNodes().contains(i)) {
 					mandatoryCCs.add(cc);
 					break;
 				}
-				i = GUBCCFinder.getCC_nextNode()[i];
+				i = GUBCCFinder.getCCNextNode()[i];
 			}
 		}
 		return mandatoryCCs;
@@ -268,14 +268,14 @@ public class PropSizeMinCC extends Propagator<Variable> {
 	private Set<Integer> getGUBOptionalCCs() {
 		Set<Integer> optionalCCs = new HashSet<>();
 		for (int cc = 0; cc < this.GUBCCFinder.getNBCC(); cc++) {
-			int currentNode = GUBCCFinder.getCC_firstNode()[cc];
+			int currentNode = GUBCCFinder.getCCFirstNode()[cc];
 			boolean addCC = true;
 			while (currentNode != -1) {
 				if (g.getLB().getNodes().contains(currentNode)) {
 					addCC = false;
 					break;
 				}
-				currentNode = GUBCCFinder.getCC_nextNode()[currentNode];
+				currentNode = GUBCCFinder.getCCNextNode()[currentNode];
 			}
 			if (addCC) {
 				optionalCCs.add(cc);
@@ -292,7 +292,7 @@ public class PropSizeMinCC extends Propagator<Variable> {
 	 */
 	private Set<Integer> getGLBCCNodes(int cc) {
 		Set<Integer> ccNodes = new HashSet<>();
-		for (int i = GLBCCFinder.getCC_firstNode()[cc]; i >= 0; i = GLBCCFinder.getCC_nextNode()[i]) {
+		for (int i = GLBCCFinder.getCCFirstNode()[cc]; i >= 0; i = GLBCCFinder.getCCNextNode()[i]) {
 			ccNodes.add(i);
 		}
 		return ccNodes;
@@ -340,9 +340,9 @@ public class PropSizeMinCC extends Propagator<Variable> {
 		int nbNodesTU = g.getPotentialNodes().size();
 		int nbNodesU = nbNodesTU - nbNodesT;
 		// Compute MIN_NCC(g) lower bound from g
-		int minNCC_LB = getMinNCC_LB(nbNodesT, nbNodesU);
+		int minNCC_LB = getLBMinNCC(nbNodesT, nbNodesU);
 		// Compute MIN_NCC(g) upper bound from g
-		int minNCC_UB = getMinNCC_UB(nbNodesT);
+		int minNCC_UB = getUBMinNCC(nbNodesT);
 		// Check entailment
 		if (minNCC_UB < sizeMinCC.getLB() || minNCC_LB > sizeMinCC.getUB()) {
 			return ESat.FALSE;

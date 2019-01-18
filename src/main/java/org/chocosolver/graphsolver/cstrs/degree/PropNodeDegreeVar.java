@@ -49,7 +49,7 @@ import java.util.BitSet;
  *
  * @author Jean-Guillaume Fages
  */
-public class PropNodeDegree_Var extends Propagator<Variable> {
+public class PropNodeDegreeVar extends Propagator<Variable> {
 
 	//***********************************************************************************
 	// VARIABLES
@@ -65,7 +65,7 @@ public class PropNodeDegree_Var extends Propagator<Variable> {
 	// CONSTRUCTORS
 	//***********************************************************************************
 
-	public PropNodeDegree_Var(DirectedGraphVar graph, Orientation setType, IntVar[] degrees) {
+	public PropNodeDegreeVar(DirectedGraphVar graph, Orientation setType, IntVar[] degrees) {
 		super(ArrayUtils.append(degrees, new Variable[]{graph}), PropagatorPriority.BINARY, false);
 		this.g = graph;
 		this.n = g.getNbMaxNodes();
@@ -77,7 +77,7 @@ public class PropNodeDegree_Var extends Propagator<Variable> {
 		}
 	}
 
-	public PropNodeDegree_Var(UndirectedGraphVar graph, IntVar[] degrees) {
+	public PropNodeDegreeVar(UndirectedGraphVar graph, IntVar[] degrees) {
 		super(ArrayUtils.append(degrees, new Variable[]{graph}), PropagatorPriority.BINARY, false);
 		this.target = new IncidentSet.SuccOrNeighSet();
 		this.g = graph;

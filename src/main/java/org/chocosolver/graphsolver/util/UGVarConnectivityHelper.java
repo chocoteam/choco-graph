@@ -13,9 +13,19 @@ import java.util.BitSet;
  */
 public class UGVarConnectivityHelper {
 
+	// input data
 	private final UndirectedGraphVar g;
 	private final int n;
+
+	// internal variable for graph exploration
 	private final int[] fifo;
+
+	// internal variables for Articulation Points and Bridge detection
+	private TIntArrayList bridgeFrom, bridgeTo;
+	private BitSet hasMandInSubtree, visited;
+	private ISet articulationPoints;
+	private int[] parent, time, minT;
+	private int[] timer = new int[1];
 
 	public UGVarConnectivityHelper(UndirectedGraphVar g){
 		this.g = g;
@@ -47,13 +57,6 @@ public class UGVarConnectivityHelper {
 	//***********************************************************************************
 	// ARTICULATION POINTS AND BRIDGES
 	//***********************************************************************************
-
-	// internal variables for Articulation Points and Bridge detection
-	private TIntArrayList bridgeFrom, bridgeTo;
-	private BitSet hasMandInSubtree, visited;
-	private ISet articulationPoints;
-	private int[] parent, time, minT;
-	private int[] timer = new int[1];
 
 	public ISet getArticulationPoints(){
 		return articulationPoints;

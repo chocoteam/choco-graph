@@ -47,7 +47,7 @@ public class ConnectivityFinder {
 
 	private int n;
 	private IGraph graph;
-	private int[] CC_firstNode, CC_nextNode, node_CC, p, fifo, size_CC;
+	private int[] CCFirstNode, CCNextNode, nodeCC, p, fifo, sizeCC;
 	private int nbCC, sizeMinCC, sizeMaxCC;
 
 	/**
@@ -95,19 +95,19 @@ public class ConnectivityFinder {
 	 * @return The size of the CCs as an int array.
 	 */
 	public int[] getSizeCC() {
-		return size_CC;
+		return sizeCC;
 	}
 
-	public int[] getCC_firstNode() {
-		return CC_firstNode;
+	public int[] getCCFirstNode() {
+		return CCFirstNode;
 	}
 
-	public int[] getCC_nextNode() {
-		return CC_nextNode;
+	public int[] getCCNextNode() {
+		return CCNextNode;
 	}
 
-	public int[] getNode_CC() {
-		return node_CC;
+	public int[] getNodeCC() {
+		return nodeCC;
 	}
 
 	/**
@@ -115,11 +115,11 @@ public class ConnectivityFinder {
 	 * Complexity : O(M+N) light and fast in practice
 	 */
 	public void findAllCC() {
-		if (node_CC == null) {
-			CC_firstNode = new int[n];
-			CC_nextNode = new int[n];
-			node_CC = new int[n];
-			size_CC = new int[n];
+		if (nodeCC == null) {
+			CCFirstNode = new int[n];
+			CCNextNode = new int[n];
+			nodeCC = new int[n];
+			sizeCC = new int[n];
 		}
 		sizeMinCC = 0;
 		sizeMaxCC = 0;
@@ -127,19 +127,19 @@ public class ConnectivityFinder {
 		for (int i : act) {
 			p[i] = -1;
 		}
-		for (int i = 0; i < CC_firstNode.length; i++) {
-			CC_firstNode[i] = -1;
-			size_CC[i] = -1;
+		for (int i = 0; i < CCFirstNode.length; i++) {
+			CCFirstNode[i] = -1;
+			sizeCC[i] = -1;
 		}
 		int cc = 0;
 		for (int i : act) {
 			if (p[i] == -1) {
 				findCC(i, cc);
-				if (sizeMinCC == 0 || sizeMinCC > size_CC[cc]) {
-					sizeMinCC = size_CC[cc];
+				if (sizeMinCC == 0 || sizeMinCC > sizeCC[cc]) {
+					sizeMinCC = sizeCC[cc];
 				}
-				if (sizeMaxCC < size_CC[cc]) {
-					sizeMaxCC = size_CC[cc];
+				if (sizeMaxCC < sizeCC[cc]) {
+					sizeMaxCC = sizeCC[cc];
 				}
 				cc++;
 			}
@@ -175,12 +175,12 @@ public class ConnectivityFinder {
 				}
 			}
 		}
-		size_CC[cc] = size;
+		sizeCC[cc] = size;
 	}
 
 	private void add(int node, int cc) {
-		node_CC[node] = cc;
-		CC_nextNode[node] = CC_firstNode[cc];
-		CC_firstNode[cc] = node;
+		nodeCC[node] = cc;
+		CCNextNode[node] = CCFirstNode[cc];
+		CCFirstNode[cc] = node;
 	}
 }

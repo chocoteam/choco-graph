@@ -39,10 +39,10 @@ public class GraphDelta extends TimeStampedObject implements IDelta {
 	//NR NE AR AE : NodeRemoved NodeEnforced ArcRemoved ArcEnforced
 	public final static int NR = 0;
 	public final static int NE = 1;
-	public final static int AR_tail = 2;
-	public final static int AR_head = 3;
-	public final static int AE_tail = 4;
-	public final static int AE_head = 5;
+	public final static int AR_TAIL = 2;
+	public final static int AR_HEAD = 3;
+	public final static int AE_TAIL = 4;
+	public final static int AE_HEAD = 5;
 	public final static int NB = 6;
 
 	//***********************************************************************************

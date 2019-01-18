@@ -67,8 +67,8 @@ public class PropTransitivity<V extends GraphVar> extends Propagator<V> {
 		eT = new TIntArrayList(n);
 		rF = new TIntArrayList(n);
 		rT = new TIntArrayList(n);
-		arcEnforced = this::_enfArc;
-		arcRemoved = this::_remArc;
+		arcEnforced = this::arcEnforced;
+		arcRemoved = this::arcRemoved;
 	}
 
 	//***********************************************************************************
@@ -81,9 +81,9 @@ public class PropTransitivity<V extends GraphVar> extends Propagator<V> {
 		for (int i : g.getPotentialNodes()) {
 			for (int j = 0; j < n; j++) {
 				if (g.getMandSuccOrNeighOf(i).contains(j)) {
-					_enfArc(i, j);
+					arcEnforced(i, j);
 				} else if (!g.getPotSuccOrNeighOf(i).contains(j)) {
-					_remArc(i, j);
+					arcRemoved(i, j);
 				}
 			}
 		}
@@ -155,12 +155,12 @@ public class PropTransitivity<V extends GraphVar> extends Propagator<V> {
 	// PROCEDURE
 	//***********************************************************************************
 
-	private void _enfArc(int x, int y) {
+	private void arcEnforced(int x, int y) {
 		eF.add(x);
 		eT.add(y);
 	}
 
-	private void _remArc(int x, int y) {
+	private void arcRemoved(int x, int y) {
 		rF.add(x);
 		rT.add(y);
 	}
@@ -174,11 +174,11 @@ public class PropTransitivity<V extends GraphVar> extends Propagator<V> {
 				if (i != to && i != from) {
 					if (ker.contains(i)) {
 						if (g.enforceArc(from, i, this)) {
-							_enfArc(from, i);
+							arcEnforced(from, i);
 						}
 					} else if (!g.getPotSuccOrNeighOf(from).contains(i)) {
 						if (g.removeArc(to, i, this)) {
-							_remArc(to, i);
+							arcRemoved(to, i);
 						}
 					}
 				}
@@ -189,11 +189,11 @@ public class PropTransitivity<V extends GraphVar> extends Propagator<V> {
 				if (i != to && i != from) {
 					if (ker.contains(i)) {
 						if (g.enforceArc(i, to, this)) {
-							_enfArc(i, to);
+							arcEnforced(i, to);
 						}
 					} else if (!g.getPotSuccOrNeighOf(i).contains(to)) {
 						if (g.removeArc(i, from, this)) {
-							_remArc(i, from);
+							arcRemoved(i, from);
 						}
 					}
 				}
@@ -206,12 +206,12 @@ public class PropTransitivity<V extends GraphVar> extends Propagator<V> {
 		if (from != to) {
 			for (int i : g.getMandSuccOrNeighOf(from)) {
 				if (g.removeArc(i, to, this)) {
-					_remArc(i, to);
+					arcRemoved(i, to);
 				}
 			}
 			for (int i : g.getMandPredOrNeighOf(to)) {
 				if (g.removeArc(from, i, this)) {
-					_remArc(from, i);
+					arcRemoved(from, i);
 				}
 			}
 		}
