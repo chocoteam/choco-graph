@@ -27,7 +27,8 @@
 
 package org.chocosolver.graphsolver.cstrs.connectivity;
 
-import org.chocosolver.graphsolver.util.ConnectivityFinder;
+import gnu.trove.list.array.TIntArrayList;
+import org.chocosolver.graphsolver.util.UGVarConnectivityHelper;
 import org.chocosolver.graphsolver.variables.GraphEventType;
 import org.chocosolver.graphsolver.variables.UndirectedGraphVar;
 import org.chocosolver.solver.constraints.Propagator;
@@ -35,15 +36,13 @@ import org.chocosolver.solver.constraints.PropagatorPriority;
 import org.chocosolver.solver.exception.ContradictionException;
 import org.chocosolver.util.ESat;
 import org.chocosolver.util.objects.setDataStructures.ISet;
-import org.chocosolver.util.objects.setDataStructures.ISetIterator;
 
 import java.util.BitSet;
 
 /**
  * Propagator checking that the graph is connected
- * can filter by forcing bridges
- * <p>
- * In case not all vertices are mandatory, the filtering could be improved
+ * (Allows graphs with 0 or 1 nodes)
+ * Complete Filtering
  *
  * @author Jean-Guillaume Fages
  */
@@ -54,29 +53,21 @@ public class PropConnected extends Propagator<UndirectedGraphVar> {
 	// VARIABLES
 	//***********************************************************************************
 
-	private int n;
-	private BitSet visited;
-	private int[] fifo;
-	private UndirectedGraphVar g;
-	private ConnectivityFinder env_CC_finder;
-	private boolean checkerOnly;
+	private final int n;
+	private final UndirectedGraphVar g;
+	private final BitSet visited;
+	private final UGVarConnectivityHelper helper;
 
 	//***********************************************************************************
 	// CONSTRUCTORS
 	//***********************************************************************************
 
 	public PropConnected(UndirectedGraphVar graph) {
-		this(graph, false);
-	}
-
-	public PropConnected(UndirectedGraphVar graph, boolean checkerOnly) {
 		super(new UndirectedGraphVar[]{graph}, PropagatorPriority.LINEAR, false);
 		this.g = graph;
 		this.n = graph.getNbMaxNodes();
 		this.visited = new BitSet(n);
-		this.fifo = new int[n];
-		this.env_CC_finder = new ConnectivityFinder(g.getUB());
-		this.checkerOnly = checkerOnly;
+		this.helper = new UGVarConnectivityHelper(g);
 	}
 
 	//***********************************************************************************
@@ -90,29 +81,42 @@ public class PropConnected extends Propagator<UndirectedGraphVar> {
 
 	@Override
 	public void propagate(int evtmask) throws ContradictionException {
-		if (g.getPotentialNodes().size() == 0) {
-			fails();
+		// 0-node or 1-node graphs are accepted
+		if (g.getPotentialNodes().size() <= 1) {
+			setPassive();
+			return;
 		}
-		if (g.getMandatoryNodes().size() > 1) {
-			// explore the graph from the first mandatory node
-			explore();
-			// remove unreachable nodes
+		// cannot filter if no mandatory node
+		if (g.getMandatoryNodes().size() > 0) {
+
+			// 1 --- explore the graph from the first mandatory node and
+			// remove unreachable nodes (fail if mandatory node is not reached)
+			visited.clear();
+			int root = g.getMandatoryNodes().iterator().next();
+			helper.exploreFrom(root, visited);
 			for (int o = visited.nextClearBit(0); o < n; o = visited.nextClearBit(o + 1)) {
 				g.removeNode(o, this);
 			}
-			// force articulation points
-			if (g.getLB().getNodes().size() < g.getUB().getNodes().size()) {
-				forceArticulationPoints();
-			}
 
-			// force isthma in case vertices are fixed
-			if (g.getMandatoryNodes().size() == g.getPotentialNodes().size() && !checkerOnly) {
-				if (!env_CC_finder.isConnectedAndFindIsthma()) {
-					throw new UnsupportedOperationException("connectivity has been checked");
+			if (g.getMandatoryNodes().size() > 1) {
+
+				helper.findMandatoryArticulationPointsAndBridges();
+
+				// 2 --- enforce articulation points that link two mandatory nodes
+				for(int ap:helper.getArticulationPoints()){
+					g.enforceNode(ap, this);
 				}
-				int nbIsma = env_CC_finder.isthmusFrom.size();
-				for (int i = 0; i < nbIsma; i++) {
-					g.enforceArc(env_CC_finder.isthmusFrom.get(i), env_CC_finder.isthmusTo.get(i), this);
+
+				// 3 --- enforce isthma that link two mandatory nodes (current version is bugged)
+				ISet mNodes = g.getMandatoryNodes();
+				TIntArrayList brI = helper.getBridgeFrom();
+				TIntArrayList brJ = helper.getBridgeTo();
+				for(int k=0; k<brI.size(); k++){
+					int i = brI.get(k);
+					int j = brJ.get(k);
+					if(mNodes.contains(i) && mNodes.contains(j)){
+						g.enforceArc(i, j, this);
+					}
 				}
 			}
 		}
@@ -120,115 +124,27 @@ public class PropConnected extends Propagator<UndirectedGraphVar> {
 
 	@Override
 	public ESat isEntailed() {
-		if (g.getPotentialNodes().size() == 1) {
+		// 0-node or 1-node graphs are accepted
+		if (g.getPotentialNodes().size() <= 1) {
 			return ESat.TRUE;
 		}
-		//Graphs with zero nodes are not connected.
-		if (g.getMandatoryNodes().size() == 0) {
-			return ESat.FALSE;
+		// cannot conclude if less than 2 mandatory nodes
+		if (g.getMandatoryNodes().size() < 2) {
+			return ESat.UNDEFINED;
 		}
-		explore();
+		// BFS from a mandatory node
+		visited.clear();
+		int root = g.getMandatoryNodes().iterator().next();
+		helper.exploreFrom(root, visited);
+		// every mandatory node is reached?
 		for (int i : g.getMandatoryNodes()) {
 			if (!visited.get(i)) {
 				return ESat.FALSE;
 			}
 		}
-		if (!g.isInstantiated()) {
-			return ESat.UNDEFINED;
+		if (g.isInstantiated()) {
+			return ESat.TRUE;
 		}
-
-		return ESat.TRUE;
-	}
-
-	private void explore() {
-		visited.clear();
-		int first = 0;
-		int last = 0;
-		if (g.getMandatoryNodes().size() <= 0) {
-			return; // empty graph
-		}
-		int i = g.getMandatoryNodes().iterator().next();
-		fifo[last++] = i;
-		visited.set(i);
-		while (first < last) {
-			i = fifo[first++];
-			for (int j : g.getPotNeighOf(i)) {
-				if (!visited.get(j)) {
-					visited.set(j);
-					fifo[last++] = j;
-				}
-			}
-		}
-	}
-
-	int[] numOfNode;
-	int[] nodeOfNum;
-	int[] inf, p;
-	ISetIterator[] iterators;
-	boolean[] mandInSub;
-
-	public void forceArticulationPoints() throws ContradictionException {
-		if (inf == null) {
-			nodeOfNum = new int[n];
-			numOfNode = new int[n];
-			inf = new int[n];
-			p = new int[n];
-			iterators = new ISetIterator[n];
-			mandInSub = new boolean[n];
-		}
-		int start = -1;
-		int nNodes = g.getUB().getNodes().size();
-		ISet mandNodes = g.getLB().getNodes();
-		ISet act = g.getUB().getNodes();
-		ISetIterator iter = act.iterator();
-		while (iter.hasNext()) {
-			int i = iter.next();
-			inf[i] = Integer.MAX_VALUE;
-			p[i] = -1;
-			iterators[i] = g.getUB().getSuccOrNeighOf(i).iterator();
-			mandInSub[i] = false;
-			if (start == -1 && mandNodes.contains(i)) start = i;
-		}
-		if (start == -1) return;
-		//algo
-		int i = start;
-		int k = 0;
-		numOfNode[start] = k;
-		nodeOfNum[k] = start;
-		p[start] = start;
-		int j, q;
-		while (true) {
-			if (iterators[i].hasNext()) {
-				j = iterators[i].next();
-				if (p[j] == -1) { // no need to know if root is articulation (already mandatory node)
-					p[j] = i;
-					i = j;
-					k++;
-					numOfNode[i] = k;
-					nodeOfNum[k] = i;
-					inf[i] = numOfNode[i];
-					mandInSub[i] = mandNodes.contains(i);
-				} else if (p[i] != j) {
-					inf[i] = Math.min(inf[i], numOfNode[j]);
-					mandInSub[i] |= mandNodes.contains(j);
-				}
-			} else {
-				if (i == start) {
-					if (k < nNodes - 1) {
-						throw new UnsupportedOperationException("disconnected graph");
-					}
-					return;
-				}
-				q = inf[i];
-				boolean mis = mandInSub[i];
-				i = p[i];
-				mandInSub[i] |= mis;
-				inf[i] = Math.min(q, inf[i]);
-				if (q >= numOfNode[i] && i != start) {
-					if (mandInSub[i] && !mandNodes.contains(i)) // must contain a mandatory node in subtree
-						g.enforceNode(i, this); // ARTICULATION POINT DETECTED
-				}
-			}
-		}
+		return ESat.UNDEFINED;
 	}
 }

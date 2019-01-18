@@ -5,6 +5,14 @@ Module to manipulate graph variables
 
 CHANGES
 
+TODO : ConnectivityFinder from changes of PropConnected
+
+17/01/18:
+- release 4.2.3
+- fix nbConnectedComponents constraint (articulation points and isthma) -> bug fix + more filtering
+- fix connectivity constraint (articulation points and isthma) -> bug fix + more filtering
+- change connectivity constraint definition : graphs with 0 or 1 nodes validate the constraint
+
 01/03/18:
 - release 4.2.2
 - fix connectivity constraint by enforcing articulation points

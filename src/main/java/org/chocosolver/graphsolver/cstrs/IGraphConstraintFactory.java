@@ -798,6 +798,13 @@ public interface IGraphConstraintFactory {
 	/**
 	 * Creates a connectedness constraint which ensures that g is connected
 	 *
+	 * BEWARE : empty graphs or graph with 1 node are allowed (they are not disconnected...)
+	 * if one wants a graph with >= 2 nodes he should use the node number constraint (nbNodes)
+	 * connected only focuses on the graph structure to prevent two nodes not to be connected
+	 * if there is 0 or only 1 node, the constraint is therefore not violated
+	 *
+	 * The purpose of CP is to compose existing constraints, and nbNodes already exists
+	 *
 	 * @param g an undirected graph variable
 	 * @return A connectedness constraint which ensures that g is connected
 	 */
@@ -823,8 +830,6 @@ public interface IGraphConstraintFactory {
 	 * @return A connectedness constraint which ensures that g has nb connected components
 	 */
 	default Constraint nbConnectedComponents(UndirectedGraphVar g, IntVar nb) {
-		if (nb.isInstantiatedTo(1)) return connected(g);
-		if (nb.isInstantiatedTo(2)) return connected(g);
 		return new Constraint("NbCC", new PropNbCC(g, nb));
 	}
 

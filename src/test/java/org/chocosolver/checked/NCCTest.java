@@ -5,6 +5,7 @@ import org.chocosolver.graphsolver.variables.UndirectedGraphVar;
 import org.chocosolver.solver.Solver;
 import org.chocosolver.solver.exception.ContradictionException;
 import org.chocosolver.solver.variables.BoolVar;
+import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.util.ESat;
 import org.chocosolver.util.objects.graphs.UndirectedGraph;
 import org.chocosolver.util.objects.setDataStructures.SetType;
@@ -16,15 +17,15 @@ import static org.testng.Assert.assertEquals;
 /**
  * Created by ezulkosk on 5/22/15.
  */
-public class ConnectedTest {
+public class NCCTest {
 
     @Test(groups = "10s")
     public void testConnectedArticulationX() {
-        GraphModel model = new GraphModel();
+        GraphModel m = new GraphModel();
         int n = 6;
-        // build model
-        UndirectedGraph GLB = new UndirectedGraph(model,n, SetType.BIPARTITESET,false);
-        UndirectedGraph GUB = new UndirectedGraph(model,n,SetType.BIPARTITESET,false);
+        // build m
+        UndirectedGraph GLB = new UndirectedGraph(m,n, SetType.BIPARTITESET,false);
+        UndirectedGraph GUB = new UndirectedGraph(m,n,SetType.BIPARTITESET,false);
         for(int i=0;i<n;i++)GUB.addNode(i);
         GLB.addNode(0);
         GLB.addNode(4);
@@ -34,27 +35,27 @@ public class ConnectedTest {
         GUB.addEdge(1,3);
         GUB.addEdge(3,4);
         GUB.addEdge(4,5);
-        UndirectedGraphVar graph = model.graphVar("G", GLB, GUB);
+        UndirectedGraphVar graph = m.graphVar("G", GLB, GUB);
 
-        model.connected(graph).post();
+        m.nbConnectedComponents(graph, m.intVar(1)).post();
         try {
-            model.getSolver().propagate();
+            m.getSolver().propagate();
         } catch (ContradictionException e) {
             e.printStackTrace();
             Assert.assertFalse(true);
         }
         Assert.assertFalse(GLB.getNodes().contains(1));
         Assert.assertTrue(GLB.getNodes().contains(3));
-        while (model.getSolver().solve());
+        while (m.getSolver().solve());
     }
 
     @Test(groups = "10s")
     public void testConnectedArticulation() {
-        GraphModel model = new GraphModel();
+        GraphModel m = new GraphModel();
         int n = 7;
-        // build model
-        UndirectedGraph GLB = new UndirectedGraph(model,n, SetType.BIPARTITESET,false);
-        UndirectedGraph GUB = new UndirectedGraph(model,n,SetType.BIPARTITESET,false);
+        // build m
+        UndirectedGraph GLB = new UndirectedGraph(m,n, SetType.BIPARTITESET,false);
+        UndirectedGraph GUB = new UndirectedGraph(m,n,SetType.BIPARTITESET,false);
         for(int i=0;i<n;i++)GUB.addNode(i);
         GLB.addNode(0);
         GLB.addNode(5);
@@ -67,27 +68,27 @@ public class ConnectedTest {
         GUB.addEdge(4,5);
         GUB.addEdge(4,6);
         GUB.addEdge(5,6);
-        UndirectedGraphVar graph = model.graphVar("G", GLB, GUB);
+        UndirectedGraphVar graph = m.graphVar("G", GLB, GUB);
 
-        model.connected(graph).post();
+        m.nbConnectedComponents(graph, m.intVar(1)).post();
         try {
-            model.getSolver().propagate();
+            m.getSolver().propagate();
         } catch (ContradictionException e) {
             e.printStackTrace();
             Assert.assertFalse(true);
         }
         Assert.assertFalse(GLB.getNodes().contains(1));
         Assert.assertTrue(GLB.getNodes().contains(4));
-        while (model.getSolver().solve());
+        while (m.getSolver().solve());
     }
 
     @Test(groups = "10s")
     public void testConnectedArticulation1() {
-        GraphModel model = new GraphModel();
+        GraphModel m = new GraphModel();
         int n = 4;
-        // build model
-        UndirectedGraph GLB = new UndirectedGraph(model,n, SetType.BIPARTITESET,false);
-        UndirectedGraph GUB = new UndirectedGraph(model,n,SetType.BIPARTITESET,false);
+        // build m
+        UndirectedGraph GLB = new UndirectedGraph(m,n, SetType.BIPARTITESET,false);
+        UndirectedGraph GUB = new UndirectedGraph(m,n,SetType.BIPARTITESET,false);
         for(int i=0;i<n;i++)GUB.addNode(i);
         GLB.addNode(0);
         GLB.addNode(3);
@@ -95,11 +96,11 @@ public class ConnectedTest {
         GUB.addEdge(1,2);
         GLB.addEdge(0,3);
         GUB.addEdge(0,3);
-        UndirectedGraphVar graph = model.graphVar("G", GLB, GUB);
+        UndirectedGraphVar graph = m.graphVar("G", GLB, GUB);
 
-        model.connected(graph).post();
+        m.nbConnectedComponents(graph, m.intVar(1)).post();
         try {
-            model.getSolver().propagate();
+            m.getSolver().propagate();
         } catch (ContradictionException e) {
             e.printStackTrace();
             Assert.assertFalse(true);
@@ -109,11 +110,11 @@ public class ConnectedTest {
 
     @Test(groups = "10s")
     public void testConnectedArticulation2() {
-        GraphModel model = new GraphModel();
+        GraphModel m = new GraphModel();
         int n = 4;
-        // build model
-        UndirectedGraph GLB = new UndirectedGraph(model,n, SetType.BIPARTITESET,false);
-        UndirectedGraph GUB = new UndirectedGraph(model,n,SetType.BIPARTITESET,false);
+        // build m
+        UndirectedGraph GLB = new UndirectedGraph(m,n, SetType.BIPARTITESET,false);
+        UndirectedGraph GUB = new UndirectedGraph(m,n,SetType.BIPARTITESET,false);
         for(int i=0;i<n;i++)GUB.addNode(i);
         GLB.addNode(0);
         GLB.addNode(2);
@@ -122,12 +123,12 @@ public class ConnectedTest {
         GUB.addEdge(1,2);
         GLB.addEdge(0,3);
         GUB.addEdge(0,3);
-        UndirectedGraphVar graph = model.graphVar("G", GLB, GUB);
+        UndirectedGraphVar graph = m.graphVar("G", GLB, GUB);
 
-        model.connected(graph).post();
+        m.nbConnectedComponents(graph, m.intVar(1)).post();
 
         try {
-            model.getSolver().propagate();
+            m.getSolver().propagate();
         } catch (ContradictionException e) {
             e.printStackTrace();
             Assert.assertFalse(true);
@@ -137,10 +138,10 @@ public class ConnectedTest {
 
     @Test(groups = "10s")
     public void testChocoConnected() {
-        GraphModel model = new GraphModel();
-        // build model
-        UndirectedGraph GLB = new UndirectedGraph(model,2, SetType.BITSET,false);
-        UndirectedGraph GUB = new UndirectedGraph(model,2,SetType.BITSET,false);
+        GraphModel m = new GraphModel();
+        // build m
+        UndirectedGraph GLB = new UndirectedGraph(m,2, SetType.BITSET,false);
+        UndirectedGraph GUB = new UndirectedGraph(m,2,SetType.BITSET,false);
 
         GLB.addNode(0);
 
@@ -148,74 +149,76 @@ public class ConnectedTest {
         GUB.addNode(1);
         GUB.addEdge(0,1);
 
-        UndirectedGraphVar graph = model.graphVar("G", GLB, GUB);
+        UndirectedGraphVar graph = m.graphVar("G", GLB, GUB);
 
-        assertEquals(model.connected(graph).isSatisfied(), ESat.UNDEFINED);
+        assertEquals(m.nbConnectedComponents(graph, m.intVar(1)).isSatisfied(), ESat.UNDEFINED);
 
-        model.connected(graph).post();
+        m.nbConnectedComponents(graph, m.intVar(1)).post();
 
-        while (model.getSolver().solve()){
+        while (m.getSolver().solve()){
             System.out.println(graph);
         }
     }
 
 	@Test(groups = "10s")
 	public void testChocoConnectedEmpty() {
-		GraphModel model = new GraphModel();
-		// build model
-		UndirectedGraph GLB = new UndirectedGraph(model, 2, SetType.BITSET,false);
-		UndirectedGraph GUB = new UndirectedGraph(model, 2,SetType.BITSET,false);
+		GraphModel m = new GraphModel();
+		// build m
+		UndirectedGraph GLB = new UndirectedGraph(m, 2, SetType.BITSET,false);
+		UndirectedGraph GUB = new UndirectedGraph(m, 2,SetType.BITSET,false);
 
 		// if one wants a graph with >= 2 nodes he should use the node number constraint
 		// connected only focuses on the graph structure to prevent two nodes not to be connected
 		// if there is 0 or only 1 node, the constraint is therefore not violated
-		UndirectedGraphVar graph = model.graphVar("G", GLB, GUB);
+		UndirectedGraphVar graph = m.graphVar("G", GLB, GUB);
 
-		assertEquals(model.connected(graph).isSatisfied(), ESat.TRUE);
-		model.connected(graph).post();
-		Assert.assertTrue(model.getSolver().solve());
+		assertEquals(m.nbConnectedComponents(graph, m.intVar(0)).isSatisfied(), ESat.TRUE);
+		IntVar nCC = m.intVar(0,1);
+		m.nbConnectedComponents(graph, nCC).post();
+		Assert.assertTrue(m.getSolver().solve());
+		Assert.assertTrue(nCC.getValue() == 0);
 	}
 
 	@Test(groups = "10s")
 	public void testChocoConnectedSingle() {
-		GraphModel model = new GraphModel();
-		// build model
-		UndirectedGraph GLB = new UndirectedGraph(model, 2, SetType.BITSET,false);
-		UndirectedGraph GUB = new UndirectedGraph(model, 2,SetType.BITSET,false);
+		GraphModel m = new GraphModel();
+		// build m
+		UndirectedGraph GLB = new UndirectedGraph(m, 2, SetType.BITSET,false);
+		UndirectedGraph GUB = new UndirectedGraph(m, 2,SetType.BITSET,false);
 		GLB.addNode(0);
 		GUB.addNode(0);
 		GUB.addNode(1);
 		GUB.addEdge(0,1);
 
-		UndirectedGraphVar graph = model.graphVar("G", GLB, GUB);
+		UndirectedGraphVar graph = m.graphVar("G", GLB, GUB);
 
-		assertEquals(model.connected(graph).isSatisfied(), ESat.UNDEFINED);
-		model.connected(graph).post();
-		while (model.getSolver().solve());
-		Assert.assertTrue(model.getSolver().getSolutionCount() == 2);
+		assertEquals(m.nbConnectedComponents(graph, m.intVar(1)).isSatisfied(), ESat.UNDEFINED);
+		m.nbConnectedComponents(graph, m.intVar(1)).post();
+		while (m.getSolver().solve());
+		Assert.assertTrue(m.getSolver().getSolutionCount() == 2);
 	}
 
 	@Test(groups = "10s")
 	public void testChocoConnectedNot() {
-		GraphModel model = new GraphModel();
-		// build model
-		UndirectedGraph GLB = new UndirectedGraph(model, 3, SetType.BITSET,false);
-		UndirectedGraph GUB = new UndirectedGraph(model, 3,SetType.BITSET,false);
+		GraphModel m = new GraphModel();
+		// build m
+		UndirectedGraph GLB = new UndirectedGraph(m, 3, SetType.BITSET,false);
+		UndirectedGraph GUB = new UndirectedGraph(m, 3,SetType.BITSET,false);
 		GLB.addNode(0);
 		GUB.addNode(0);
 		GUB.addNode(1);
 		GUB.addNode(2);
 		GUB.addEdge(0,1);
 
-		UndirectedGraphVar graph = model.graphVar("G", GLB, GUB);
+		UndirectedGraphVar graph = m.graphVar("G", GLB, GUB);
 
-		model.nbNodes(graph, model.intVar(3)).post();
+		m.nbNodes(graph, m.intVar(3)).post();
 
-		assertEquals(model.connected(graph).isSatisfied(), ESat.UNDEFINED);
-		model.connected(graph).post();
-		while (model.getSolver().solve());
-		model.getSolver().printStatistics();
-		Assert.assertTrue(model.getSolver().getSolutionCount() == 0);
+		assertEquals(m.nbConnectedComponents(graph, m.intVar(1)).isSatisfied(), ESat.UNDEFINED);
+		m.nbConnectedComponents(graph, m.intVar(1)).post();
+		while (m.getSolver().solve());
+		m.getSolver().printStatistics();
+		Assert.assertTrue(m.getSolver().getSolutionCount() == 0);
 	}
 
     @Test(groups = "10s")
@@ -232,7 +235,7 @@ public class ConnectedTest {
 		UB.addEdge(1, 2);
         UndirectedGraphVar g = m.graphVar("g", LB, UB);
 
-        m.connected(g).post();
+        m.nbConnectedComponents(g, m.intVar(1)).post();
 		Solver s = m.getSolver();
 
 		s.propagate();
@@ -256,7 +259,7 @@ public class ConnectedTest {
 		UndirectedGraphVar g = m.graphVar("g", LB, UB);
 		m.nbNodes(g, m.intVar(3)).post();
 
-		m.connected(g).post();
+		m.nbConnectedComponents(g, m.intVar(1)).post();
 		Solver s = m.getSolver();
 
 		s.propagate();
@@ -282,7 +285,7 @@ public class ConnectedTest {
 		add_neighbors(GUB, 1, 2);
 
 		UndirectedGraphVar graph = m.graphVar("G", GLB, GUB);
-		BoolVar isConnected = m.connected(graph).reify();
+		BoolVar isConnected = m.nbConnectedComponents(graph, m.intVar(1)).reify();
 		m.arithm(isConnected,"+",m.nbNodes(graph),"=",3).post();
 
 		m.getSolver().propagate();
@@ -314,7 +317,7 @@ public class ConnectedTest {
 
 		System.out.println(graph.graphVizExport());
 
-		m.connected(graph).post();
+		m.nbConnectedComponents(graph, m.intVar(1)).post();
 
 		m.getSolver().propagate();
 
@@ -344,7 +347,7 @@ public class ConnectedTest {
 		add_neighbors(GUB, 2, 3);
 
 		UndirectedGraphVar graph = m.graphVar("G", GLB, GUB);
-		m.connected(graph).post();
+		m.nbConnectedComponents(graph, m.intVar(1)).post();
 
 		m.getSolver().propagate();
 		System.out.println(graph.graphVizExport());
@@ -372,7 +375,7 @@ public class ConnectedTest {
 		add_neighbors(GUB, 2, 3);
 
 		UndirectedGraphVar graph = m.graphVar("G", GLB, GUB);
-		m.connected(graph).post();
+		m.nbConnectedComponents(graph, m.intVar(1)).post();
 
 		m.getSolver().propagate();
 		System.out.println(graph.graphVizExport());
@@ -382,32 +385,6 @@ public class ConnectedTest {
 
 	@Test
 	public void testAPMiniIsthma() throws ContradictionException {
-		GraphModel m = new GraphModel();
-		int nb = 4;
-
-		UndirectedGraph GLB = new UndirectedGraph(m, nb, SetType.BITSET, false);
-		UndirectedGraph GUB = new UndirectedGraph(m, nb, SetType.BITSET, false);
-		for (int i : new int[] { 0, 3})
-			GLB.addNode(i);
-		for (int i : new int[] { 0, 1, 2, 3 })
-			GUB.addNode(i);
-
-		add_neighbors(GUB, 0, 3);
-		add_neighbors(GUB, 1, 2, 3);
-		add_neighbors(GUB, 2, 3);
-
-		UndirectedGraphVar graph = m.graphVar("G", GLB, GUB);
-		m.connected(graph).post();
-
-		m.getSolver().propagate();
-		System.out.println(graph.graphVizExport());
-		Assert.assertTrue(graph.getMandSuccOrNeighOf(0).contains(3));
-		Assert.assertTrue(graph.getMandatoryNodes().size()==2);
-		Assert.assertTrue(m.getSolver().solve());
-	}
-
-	@Test
-	public void test2CC() throws ContradictionException {
 		GraphModel m = new GraphModel();
 		int nb = 6;
 
@@ -432,6 +409,109 @@ public class ConnectedTest {
 		Assert.assertTrue(graph.getMandatoryNodes().size()==2);
 		Assert.assertTrue(!graph.getPotentialNodes().contains(4));
 		Assert.assertTrue(!graph.getPotentialNodes().contains(5));
+		Assert.assertTrue(m.getSolver().solve());
+	}
+
+	@Test
+	public void testAPMiniIsthma2() throws ContradictionException {
+		GraphModel m = new GraphModel();
+		int nb = 7;
+
+		UndirectedGraph GLB = new UndirectedGraph(m, nb, SetType.BITSET, false);
+		UndirectedGraph GUB = new UndirectedGraph(m, nb, SetType.BITSET, false);
+		for (int i : new int[] { 0, 3, 4, 6})
+			GLB.addNode(i);
+		for (int i : new int[] { 0, 1, 2, 3, 4, 5, 6})
+			GUB.addNode(i);
+
+		add_neighbors(GUB, 0, 3);
+		add_neighbors(GUB, 1, 2, 3);
+		add_neighbors(GUB, 2, 3);
+		add_neighbors(GUB, 4, 5);
+		add_neighbors(GUB, 5, 6);
+
+		UndirectedGraphVar graph = m.graphVar("G", GLB, GUB);
+		m.nbConnectedComponents(graph, m.intVar(2)).post();
+
+		m.getSolver().propagate();
+		System.out.println(graph.graphVizExport());
+		Assert.assertTrue(graph.getMandSuccOrNeighOf(0).contains(3));
+		Assert.assertTrue(graph.getMandatoryNodes().size()==5);
+		Assert.assertTrue(graph.getMandSuccOrNeighOf(5).size()==2);
+		Assert.assertTrue(m.getSolver().solve());
+	}
+
+	@Test
+	public void testAPMiniIsthmaMax() throws ContradictionException {
+		GraphModel m = new GraphModel();
+		int nb = 7;
+
+		UndirectedGraph GLB = new UndirectedGraph(m, nb, SetType.BITSET, false);
+		UndirectedGraph GUB = new UndirectedGraph(m, nb, SetType.BITSET, false);
+		for (int i : new int[] { 0, 3, 4, 6})
+			GLB.addNode(i);
+		for (int i : new int[] { 0, 1, 2, 3, 4, 5, 6})
+			GUB.addNode(i);
+
+		add_neighbors(GUB, 0, 3);
+		add_neighbors(GUB, 1, 2, 3);
+		add_neighbors(GUB, 2, 3);
+		add_neighbors(GUB, 4, 5);
+		add_neighbors(GUB, 5, 6);
+
+		UndirectedGraphVar graph = m.graphVar("G", GLB, GUB);
+		IntVar nCC = m.intVar(7,10);
+		m.nbConnectedComponents(graph, nCC).post();
+
+		m.getSolver().propagate();
+
+		System.out.println(graph.graphVizExport());
+		System.out.println(nCC);
+
+		Assert.assertTrue(nCC.getValue()==7);
+		Assert.assertTrue(graph.getMandatoryNodes().size()==7);
+		for(int i=0;i<nb;i++)
+			Assert.assertTrue(graph.getPotNeighOf(i).size()==0);
+		Assert.assertTrue(m.getSolver().solve());
+	}
+
+	@Test
+	public void testAPMiniIsthmaMax2() throws ContradictionException {
+		GraphModel m = new GraphModel();
+		int nb = 7;
+
+		UndirectedGraph GLB = new UndirectedGraph(m, nb, SetType.BITSET, false);
+		UndirectedGraph GUB = new UndirectedGraph(m, nb, SetType.BITSET, false);
+		for (int i : new int[] { 0, 1, 2, 3, 4, 6})
+			GLB.addNode(i);
+		for (int i : new int[] { 0, 1, 2, 3, 4, 5, 6})
+			GUB.addNode(i);
+
+		add_neighbors(GUB, 0, 3);
+		add_neighbors(GUB, 1, 2, 3);
+		add_neighbors(GUB, 2, 3);
+		add_neighbors(GUB, 4, 5);
+		add_neighbors(GUB, 5, 6);
+
+		add_neighbors(GLB, 1, 2);
+		add_neighbors(GLB, 2, 3);
+
+		UndirectedGraphVar graph = m.graphVar("G", GLB, GUB);
+		IntVar nCC = m.intVar(5,10);
+		m.nbConnectedComponents(graph, nCC).post();
+
+		m.getSolver().propagate();
+
+		System.out.println(graph.graphVizExport());
+		System.out.println(nCC);
+
+		Assert.assertTrue(nCC.getValue()==5);
+		Assert.assertTrue(graph.getMandatoryNodes().size()==7);
+		Assert.assertTrue(graph.getMandNeighOf(2).size()==2);
+		Assert.assertTrue(!graph.getMandNeighOf(1).contains(3));
+		Assert.assertTrue(graph.getPotNeighOf(1).contains(3));
+		for(int i:new int[]{0,4,5,6})
+			Assert.assertTrue(graph.getPotNeighOf(i).size()==0);
 		Assert.assertTrue(m.getSolver().solve());
 	}
 

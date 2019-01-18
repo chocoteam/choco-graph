@@ -27,7 +27,7 @@
 
 package org.chocosolver.graphsolver.cstrs.connectivity;
 
-import org.chocosolver.graphsolver.util.ConnectivityFinder;
+import org.chocosolver.graphsolver.util.UGVarConnectivityHelper;
 import org.chocosolver.graphsolver.variables.GraphEventType;
 import org.chocosolver.graphsolver.variables.UndirectedGraphVar;
 import org.chocosolver.solver.constraints.Propagator;
@@ -47,8 +47,8 @@ public class PropBiconnected extends Propagator<UndirectedGraphVar> {
 	// VARIABLES
 	//***********************************************************************************
 
-	private UndirectedGraphVar g;
-	private ConnectivityFinder env_CC_finder;
+	private final UndirectedGraphVar g;
+	private final UGVarConnectivityHelper helper;
 
 	//***********************************************************************************
 	// CONSTRUCTORS
@@ -57,7 +57,7 @@ public class PropBiconnected extends Propagator<UndirectedGraphVar> {
 	public PropBiconnected(UndirectedGraphVar graph) {
 		super(new UndirectedGraphVar[]{graph}, PropagatorPriority.LINEAR, false);
 		this.g = graph;
-		env_CC_finder = new ConnectivityFinder(g.getUB());
+		helper = new UGVarConnectivityHelper(g);
 	}
 
 	//***********************************************************************************
@@ -66,7 +66,7 @@ public class PropBiconnected extends Propagator<UndirectedGraphVar> {
 
 	@Override
 	public void propagate(int evtmask) throws ContradictionException {
-		if (g.getPotentialNodes().size() == g.getMandatoryNodes().size() && !env_CC_finder.isBiconnected()) {
+		if (g.getPotentialNodes().size() == g.getMandatoryNodes().size() && !helper.isBiconnected()) {
 			fails();
 		}
 	}
@@ -85,7 +85,7 @@ public class PropBiconnected extends Propagator<UndirectedGraphVar> {
 		if (g.getPotentialNodes().size() == g.getMandatoryNodes().size()) {
 			return ESat.UNDEFINED;
 		}
-		if (!env_CC_finder.isBiconnected()) {
+		if (!helper.isBiconnected()) {
 			return ESat.FALSE;
 		}
 		if (g.isInstantiated()) {

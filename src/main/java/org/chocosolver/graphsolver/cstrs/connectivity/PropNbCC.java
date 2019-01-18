@@ -27,7 +27,8 @@
 
 package org.chocosolver.graphsolver.cstrs.connectivity;
 
-import org.chocosolver.graphsolver.util.ConnectivityFinder;
+import gnu.trove.list.array.TIntArrayList;
+import org.chocosolver.graphsolver.util.UGVarConnectivityHelper;
 import org.chocosolver.graphsolver.variables.UndirectedGraphVar;
 import org.chocosolver.solver.constraints.Propagator;
 import org.chocosolver.solver.constraints.PropagatorPriority;
@@ -35,11 +36,14 @@ import org.chocosolver.solver.exception.ContradictionException;
 import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.solver.variables.Variable;
 import org.chocosolver.util.ESat;
+import org.chocosolver.util.objects.setDataStructures.ISet;
+
+import java.util.BitSet;
 
 /**
  * Propagator that ensures that the final graph consists in K Connected Components (CC)
  * <p/>
- * simple checker and a bit of pruning (runs in linear time)
+ * complete filtering in linear time
  *
  * @author Jean-Guillaume Fages
  */
@@ -49,9 +53,11 @@ public class PropNbCC extends Propagator<Variable> {
 	// VARIABLES
 	//***********************************************************************************
 
-	private UndirectedGraphVar g;
-	private IntVar k;
-	private ConnectivityFinder env_CC_finder, ker_CC_finder;
+	private final UndirectedGraphVar g;
+	private final IntVar k;
+	private final UGVarConnectivityHelper helper;
+	private final BitSet visitedMin, visitedMax;
+	private final int[] fifo, ccOf;
 
 	//***********************************************************************************
 	// CONSTRUCTORS
@@ -61,8 +67,11 @@ public class PropNbCC extends Propagator<Variable> {
 		super(new Variable[]{graph, k}, PropagatorPriority.LINEAR, false);
 		this.g = graph;
 		this.k = k;
-		env_CC_finder = new ConnectivityFinder(g.getUB());
-		ker_CC_finder = new ConnectivityFinder(g.getLB());
+		this.helper = new UGVarConnectivityHelper(g);
+		this.visitedMin = new BitSet(g.getNbMaxNodes());
+		this.visitedMax = new BitSet(g.getNbMaxNodes());
+		this.fifo = new int[g.getNbMaxNodes()];
+		this.ccOf = new int[g.getNbMaxNodes()];
 	}
 
 	//***********************************************************************************
@@ -71,16 +80,11 @@ public class PropNbCC extends Propagator<Variable> {
 
 	@Override
 	public void propagate(int evtmask) throws ContradictionException {
+
 		// trivial case
-		k.updateLowerBound(0, this);
-		if (g.getPotentialNodes().size() == 0) {
-			k.instantiateTo(0, this);
-			return;
-		}
+		k.updateBounds(0, g.getPotentialNodes().size(), this);
 		if (k.getUB() == 0) {
-			for (int i : g.getPotentialNodes()) {
-				g.removeNode(i, this);
-			}
+			for (int i : g.getPotentialNodes()) g.removeNode(i, this);
 			return;
 		}
 
@@ -90,56 +94,108 @@ public class PropNbCC extends Propagator<Variable> {
 		k.updateLowerBound(min, this);
 		k.updateUpperBound(max, this);
 
-		// A bit of pruning (removes unreachable nodes)
-		if (k.getUB() == min && min != max) {
-			int ccs = env_CC_finder.getNBCC();
-			boolean pot = true;
-			for (int cc = 0; cc < ccs; cc++) {
-				for (int i = env_CC_finder.getCC_firstNode()[cc]; i >= 0 && pot; i = env_CC_finder.getCC_nextNode()[i]) {
-					if (g.getMandatoryNodes().contains(i)) {
-						pot = false;
-					}
-				}
-				if (pot) {
-					for (int i = env_CC_finder.getCC_firstNode()[cc]; i >= 0; i = env_CC_finder.getCC_nextNode()[i]) {
-						g.removeNode(i, this);
-					}
-				}
-			}
-		}
+		// The number of CC cannot increase :
+		// - remove unreachable nodes
+		// - force articulation points and bridges
+		if(min != max) {
+			if (k.getUB() == min) {
 
-		// Force isthma in case of 1 CC and if vertices are fixed
-		if (k.isInstantiatedTo(1) && g.getMandatoryNodes().size() == g.getPotentialNodes().size()) {
-			if (!env_CC_finder.isConnectedAndFindIsthma()) {
-				throw new UnsupportedOperationException("connectivity has been checked");
+				// 1 --- remove unreachable nodes
+				int n = g.getNbMaxNodes();
+				for (int o = visitedMin.nextClearBit(0); o < n; o = visitedMin.nextClearBit(o + 1)) {
+					g.removeNode(o, this);
+				}
+
+				ISet mNodes = g.getMandatoryNodes();
+				if (mNodes.size() >= 2) {
+
+					helper.findMandatoryArticulationPointsAndBridges();
+
+					// 2 --- enforce articulation points that link two mandatory nodes
+					for (int ap : helper.getArticulationPoints()) {
+						g.enforceNode(ap, this);
+					}
+
+					// 3 --- enforce isthma that link two mandatory nodes (current version is bugged)
+					TIntArrayList brI = helper.getBridgeFrom();
+					TIntArrayList brJ = helper.getBridgeTo();
+					for (int k = 0; k < brI.size(); k++) {
+						int i = brI.get(k);
+						int j = brJ.get(k);
+						if (mNodes.contains(i) && mNodes.contains(j)) {
+							g.enforceArc(i, j, this);
+						}
+					}
+				}
 			}
-			int nbIsma = env_CC_finder.isthmusFrom.size();
-			for (int i = 0; i < nbIsma; i++) {
-				g.enforceArc(env_CC_finder.isthmusFrom.get(i), env_CC_finder.isthmusTo.get(i), this);
+			// a maximal number of CC is required : remaining nodes will be singleton
+			else if(k.getLB() == max){
+				// --- transform every potential node into a mandatory isolated node
+				ISet mNodes = g.getMandatoryNodes();
+				for(int i:g.getPotentialNodes()){
+					if(!mNodes.contains(i)){
+						for(int j:g.getPotNeighOf(i)){
+							g.removeArc(i,j,this);
+						}
+						g.enforceNode(i,this);
+					}
+				}
+				// --- remove edges between mandatory nodes that would merge 2 CC
+				// note that it can happen that 2 mandatory node already belong to the same CC
+				// if so the edge should not be filtered
+				for(int i:g.getPotentialNodes()){
+					for(int j:g.getPotNeighOf(i)){
+						if(ccOf[i] != ccOf[j]) {
+							g.removeArc(i,j,this);
+						}
+					}
+				}
 			}
 		}
 	}
 
-	public int minCC() {
-		env_CC_finder.findAllCC();
-		int ccs = env_CC_finder.getNBCC();
-		int minCC = 0;
-		for (int cc = 0; cc < ccs; cc++) {
-			for (int i = env_CC_finder.getCC_firstNode()[cc]; i >= 0; i = env_CC_finder.getCC_nextNode()[i]) {
-				if (g.getMandatoryNodes().contains(i)) {
-					minCC++;
-					break;
-				}
+	private int minCC() {
+		int min = 0;
+		visitedMin.clear();
+		for (int i : g.getMandatoryNodes().toArray()) {
+			if (!visitedMin.get(i)) {
+				helper.exploreFrom(i, visitedMin);
+				min++;
 			}
 		}
-		return minCC;
+		return min;
 	}
 
-	public int maxCC() {
-		ker_CC_finder.findAllCC();
-		int nbK = ker_CC_finder.getNBCC();
+	private int maxCC() {
+		int nbK = 0;
+		visitedMax.clear();
+		for(int i:g.getMandatoryNodes().toArray()) {
+			if(!visitedMax.get(i)) {
+				exploreLBFrom(i, visitedMax);
+				nbK++;
+			}
+		}
 		int delta = g.getPotentialNodes().size() - g.getMandatoryNodes().size();
 		return nbK + delta;
+	}
+
+	private void exploreLBFrom(int root, BitSet visited) {
+		int first = 0;
+		int last = 0;
+		int i = root;
+		fifo[last++] = i;
+		visited.set(i);
+		ccOf[i] = root; // mark cc of explored node
+		while (first < last) {
+			i = fifo[first++];
+			for (int j : g.getMandNeighOf(i)) { // mandatory edges only
+				if (!visited.get(j)) {
+					visited.set(j);
+					ccOf[j] = root; // mark cc of explored node
+					fifo[last++] = j;
+				}
+			}
+		}
 	}
 
 	//***********************************************************************************

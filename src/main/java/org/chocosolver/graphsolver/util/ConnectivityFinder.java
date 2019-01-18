@@ -23,38 +23,19 @@
  * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * <p>
- * Created by IntelliJ IDEA.
- * User: Jean-Guillaume Fages
- * Date: 17/04/2016
- * Time: 13:11
- * <p>
- * Created by IntelliJ IDEA.
- * User: Jean-Guillaume Fages
- * Date: 17/04/2016
- * Time: 13:11
- */
-
-/**
- * Created by IntelliJ IDEA.
- * User: Jean-Guillaume Fages
- * Date: 17/04/2016
- * Time: 13:11
  */
 
 package org.chocosolver.graphsolver.util;
 
 
-import gnu.trove.list.array.TIntArrayList;
 import org.chocosolver.util.objects.graphs.IGraph;
 import org.chocosolver.util.objects.setDataStructures.ISet;
-import org.chocosolver.util.objects.setDataStructures.ISetIterator;
-
-import java.util.Iterator;
 
 /**
- * Class containing algorithms to find all connected components and articulation points of graph by performing one dfs
+ * Class containing algorithms to find all connected components by performing one dfs
  * it uses Tarjan algorithm in a non recursive way and can be performed in O(M+N) time c.f. Gondrand Minoux
+ *
+ * SEE UGVarConnectivityHelper
  *
  * @author Jean-Guillaume Fages
  */
@@ -68,9 +49,6 @@ public class ConnectivityFinder {
 	private IGraph graph;
 	private int[] CC_firstNode, CC_nextNode, node_CC, p, fifo, size_CC;
 	private int nbCC, sizeMinCC, sizeMaxCC;
-	//bonus biconnection
-	private int[] numOfNode, nodeOfNum, inf;
-	private Iterator<Integer>[] iterators;
 
 	/**
 	 * Create an object that can compute Connected Components (CC) of a graph g
@@ -83,7 +61,6 @@ public class ConnectivityFinder {
 		n = g.getNbMaxNodes();
 		p = new int[n];
 		fifo = new int[n];
-		iterators = new Iterator[n];
 	}
 
 	/**
@@ -201,225 +178,9 @@ public class ConnectivityFinder {
 		size_CC[cc] = size;
 	}
 
-
 	private void add(int node, int cc) {
 		node_CC[node] = cc;
 		CC_nextNode[node] = CC_firstNode[cc];
 		CC_firstNode[cc] = node;
-	}
-
-	/**
-	 * Test biconnectivity (i.e. connected with no articulation point and no bridge)
-	 * only for undirected graphs
-	 *
-	 * @return true iff g is biconnected
-	 */
-	public boolean isBiconnected() {
-		assert (!graph.isDirected());
-		if (inf == null) {
-			nodeOfNum = new int[n];
-			numOfNode = new int[n];
-			inf = new int[n];
-		}
-		ISet act = graph.getNodes();
-		for (int i : act) {
-			inf[i] = Integer.MAX_VALUE;
-			p[i] = -1;
-			iterators[i] = graph.getSuccOrNeighOf(i).iterator();
-		}
-		//algo
-		int start = act.iterator().next();
-		int i = start;
-		int k = 0;
-		numOfNode[start] = k;
-		nodeOfNum[k] = start;
-		p[start] = start;
-		int j, q;
-		int nbRootChildren = 0;
-		while (true) {
-			if (iterators[i].hasNext()) {
-				j = iterators[i].next();
-				if (p[j] == -1) {
-					p[j] = i;
-					if (i == start) {
-						nbRootChildren++;
-						if (nbRootChildren > 1) {
-							return false;// ARTICULATION POINT DETECTED
-						}
-					}
-					i = j;
-					k++;
-					numOfNode[i] = k;
-					nodeOfNum[k] = i;
-					inf[i] = numOfNode[i];
-				} else if (p[i] != j) {
-					inf[i] = Math.min(inf[i], numOfNode[j]);
-				}
-			} else {
-				if (i == start) {
-					return k >= act.size() - 1;
-				}
-				q = inf[i];
-				i = p[i];
-				inf[i] = Math.min(q, inf[i]);
-				if (q >= numOfNode[i] && i != start) {
-					return false;
-				} // ARTICULATION POINT DETECTED
-			}
-		}
-	}
-
-	TIntArrayList articulations;
-
-	/**
-	 * Computes articulation points of the graph (must be connected)
-	 * @return the list of articulation points
-	 */
-	public TIntArrayList getArticulationPoints() {
-		if (articulations == null) articulations = new TIntArrayList();
-		if (inf == null) {
-			nodeOfNum = new int[n];
-			numOfNode = new int[n];
-			inf = new int[n];
-		}
-		articulations.clear();
-		ISet act = graph.getNodes();
-		ISetIterator iter = act.iterator();
-		while (iter.hasNext()) {
-			int i = iter.next();
-			inf[i] = Integer.MAX_VALUE;
-			p[i] = -1;
-			iterators[i] = graph.getSuccOrNeighOf(i).iterator();
-		}
-		//algo
-		int start = act.iterator().next();
-		int i = start;
-		int k = 0;
-		numOfNode[start] = k;
-		nodeOfNum[k] = start;
-		p[start] = start;
-		int j, q;
-		int nbRootChildren = 0;
-		while (true) {
-			if (iterators[i].hasNext()) {
-				j = iterators[i].next();
-				if (p[j] == -1) {
-					p[j] = i;
-					if (i == start) {
-						nbRootChildren++;
-						if (nbRootChildren > 1) {
-							articulations.add(i); // ARTICULATION POINT DETECTED
-						}
-					}
-					i = j;
-					k++;
-					numOfNode[i] = k;
-					nodeOfNum[k] = i;
-					inf[i] = numOfNode[i];
-				} else if (p[i] != j) {
-					inf[i] = Math.min(inf[i], numOfNode[j]);
-				}
-			} else {
-				if (i == start) {
-					if (k < act.size() - 1) {
-						throw new UnsupportedOperationException("disconnected graph");
-					}
-					return articulations;
-				}
-				q = inf[i];
-				i = p[i];
-				inf[i] = Math.min(q, inf[i]);
-				if (q >= numOfNode[i] && i != start) {
-					articulations.add(i); // ARTICULATION POINT DETECTED
-				}
-			}
-		}
-	}
-
-
-	public TIntArrayList isthmusFrom, isthmusTo;
-	private int[] ND, L, H;
-
-	/**
-	 * Only for undirected graphs
-	 * @return true iff g is connected
-	 */
-	public boolean isConnectedAndFindIsthma() {
-		assert (!graph.isDirected());
-		if (numOfNode == null || CC_firstNode == null) {
-			CC_firstNode = new int[n];
-			CC_nextNode = new int[n];
-			node_CC = new int[n];
-			nodeOfNum = new int[n];
-			numOfNode = new int[n];
-			isthmusFrom = new TIntArrayList();
-			isthmusTo = new TIntArrayList();
-			ND = new int[n];
-			L = new int[n];
-			H = new int[n];
-		}
-		ISet act = graph.getNodes();
-		for (int i : act) {
-			p[i] = -1;
-			iterators[i] = graph.getSuccOrNeighOf(i).iterator();
-		}
-		for (int i = 0; i < CC_firstNode.length; i++) {
-			CC_firstNode[i] = -1;
-		}
-		//algo
-		int start = act.iterator().next();
-		int i = start;
-		int k = 0;
-		numOfNode[start] = k;
-		nodeOfNum[k] = start;
-		p[start] = start;
-		int j;
-		while (true) {
-			if (iterators[i].hasNext()) {
-				j = iterators[i].next();
-				if (p[j] == -1) {
-					p[j] = i;
-					i = j;
-					add(i, 0);
-					k++;
-					numOfNode[i] = k;
-					nodeOfNum[k] = i;
-				}
-			} else {
-				if (i == start) {
-					if (k < act.size() - 1) {
-						return false;
-					} else {
-						break;
-					}
-				}
-				i = p[i];
-			}
-		}
-		// POST ORDER PASS FOR FINDING ISTHMUS
-		isthmusFrom.clear();
-		isthmusTo.clear();
-		int currentNode;
-		for (i = k; i >= 0; i--) {
-			currentNode = nodeOfNum[i];
-			ND[currentNode] = 1;
-			L[currentNode] = i;
-			H[currentNode] = i;
-			for (int s : graph.getSuccOrNeighOf(currentNode)) {
-				if (p[s] == currentNode) {
-					ND[currentNode] += ND[s];
-					L[currentNode] = Math.min(L[currentNode], L[s]);
-					H[currentNode] = Math.max(H[currentNode], H[s]);
-				} else if (s != p[currentNode]) {
-					L[currentNode] = Math.min(L[currentNode], numOfNode[s]);
-					H[currentNode] = Math.max(H[currentNode], numOfNode[s]);
-				}
-				if (s != currentNode && p[s] == currentNode && L[s] >= numOfNode[s] && H[s] < numOfNode[s] + ND[s]) {
-					isthmusFrom.add(currentNode);
-					isthmusTo.add(s);
-				}
-			}
-		}
-		return true;
 	}
 }

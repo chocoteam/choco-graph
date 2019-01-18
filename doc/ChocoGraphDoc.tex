@@ -381,13 +381,17 @@ model.noCircuit(g).post();
 
 \subsubsection{Connectivity}
 
-It is possible to force an undirected (resp. directed) graph variable to be connected (resp. strongly connected) \cite{Tarjan72} or even to control its number of connected (resp. strongly connected) components with an integer variable. The filtering of such constraint is quite weak but fast.
+It is possible to force an undirected (resp. directed) graph variable to be connected (resp. strongly connected) \cite{Tarjan72} or even to control its number of connected (resp. strongly connected) components with an integer variable. The filtering of such constraint is quite weak but fast. 
 
 Here is an example :
 \begin{lstlisting}
 IntVar nbSCC = model.intVar(2);
 model.nbStronglyConnectedComponents(g,nbSCC));
 \end{lstlisting}
+
+{\color{blue}Since version 4.2.3., connected constraint has been fixed and now provides GAC}
+
+{\color{blue}NB : Connected allows graphs with 0 or 1 node for a better composition of constraints (use nbNodes to restrict to force a minimum number of node if required).}
 
 \subsubsection{Tree}
 
