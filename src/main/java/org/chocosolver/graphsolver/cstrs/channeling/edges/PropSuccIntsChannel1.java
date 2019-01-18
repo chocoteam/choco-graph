@@ -102,10 +102,8 @@ public class PropSuccIntsChannel1 extends Propagator<DirectedGraphVar> {
 	@Override
 	public ESat isEntailed() {
 		for (int i = 0; i < n; i++) {
-			if (succs[i].isInstantiated()) {
-				if (!g.getPotSuccOrNeighOf(i).contains(succs[i].getValue())) {
-					return ESat.FALSE;
-				}
+			if (succs[i].isInstantiated() && !g.getPotSuccOrNeighOf(i).contains(succs[i].getValue())) {
+				return ESat.FALSE;
 			}
 			ISet tmp = g.getMandSuccOrNeighOf(i);
 			for (int j : tmp) {

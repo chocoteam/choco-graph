@@ -64,8 +64,9 @@ public class PropGenericLagrDCMST extends Propagator<Variable> implements GraphL
 	private final int[] Dmin;
 	private final double[] lambdaMin, lambdaMax;
 	private double C;
-	private double K;
 	private boolean firstPropag = true;
+	private long nbSols = 0;
+	private int objUB = -1;
 
 	//***********************************************************************************
 	// CONSTRUCTORS
@@ -102,9 +103,6 @@ public class PropGenericLagrDCMST extends Propagator<Variable> implements GraphL
 	//***********************************************************************************
 	// HK Algorithm(s)
 	//***********************************************************************************
-
-	private long nbSols = 0;
-	private int objUB = -1;
 
 	private void lagrangianRelaxation() throws ContradictionException {
 		int lb = obj.getLB();
@@ -199,6 +197,7 @@ public class PropGenericLagrDCMST extends Propagator<Variable> implements GraphL
 				nb2viol += (Dmin[i] - deg) * (Dmin[i] - deg);
 			}
 		}
+		double K;
 		if (nb2viol == 0) {
 			return true;
 		} else {

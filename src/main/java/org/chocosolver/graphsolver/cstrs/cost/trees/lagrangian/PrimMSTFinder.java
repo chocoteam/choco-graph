@@ -102,10 +102,8 @@ public class PrimMSTFinder extends AbstractTreeFinder {
 		}
 		Tree.addEdge(from, to);
 		treeCost += costs[from][to];
-		if (FILTER) {
-			if (!propHK.isMandatory(from, to)) {
-				maxTArc = Math.max(maxTArc, costs[from][to]);
-			}
+		if (FILTER && !propHK.isMandatory(from, to)) {
+			maxTArc = Math.max(maxTArc, costs[from][to]);
 		}
 		tSize++;
 		addNode(to);

@@ -64,8 +64,9 @@ public class PropLagrDCMST extends Propagator<Variable> implements GraphLagrangi
 	private boolean waitFirstSol;
 	private int nbSprints;
 	private final int[] maxDegree;
-	private double step;
 	private boolean firstPropag = true;
+	private long nbSols = 0;
+	private int objUB = -1;
 
 	//***********************************************************************************
 	// CONSTRUCTORS
@@ -100,9 +101,6 @@ public class PropLagrDCMST extends Propagator<Variable> implements GraphLagrangi
 	//***********************************************************************************
 	// HK Algorithm(s)
 	//***********************************************************************************
-
-	private long nbSols = 0;
-	private int objUB = -1;
 
 	private void lagrangianRelaxation() throws ContradictionException {
 		int lb = obj.getLB();
@@ -194,6 +192,7 @@ public class PropLagrDCMST extends Propagator<Variable> implements GraphLagrangi
 				nb2viol += (maxDegree[i] - deg) * (maxDegree[i] - deg);
 			}
 		}
+		double step;
 		if (nb2viol == 0) {
 			return true;
 		} else {

@@ -88,10 +88,8 @@ public class PropMaxDegTree extends Propagator<UndirectedGraphVar> {
 				ISet nei = g.getPotNeighOf(i);
 				if (oneNode.get(i)) {
 					for (int j : nei) {
-						if (oneNode.get(j)) {
-							if (!g.getMandNeighOf(i).contains(j)) {
-								g.removeArc(i, j, this);
-							}
+						if (oneNode.get(j) && !g.getMandNeighOf(i).contains(j)) {
+							g.removeArc(i, j, this);
 						}
 					}
 				}

@@ -102,12 +102,10 @@ public class PropDiameter extends Propagator<GraphVar> {
 					if (!visited.get(j)) {
 						visited.set(j);
 						nextSet.add(j);
-						if (min) {
-							if (g.getMandatoryNodes().contains(j)) {
-								count++;
-								if (count == nbMand) {
-									return depth + 1;
-								}
+						if (min && g.getMandatoryNodes().contains(j)) {
+							count++;
+							if (count == nbMand) {
+								return depth + 1;
 							}
 						}
 					}

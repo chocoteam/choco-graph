@@ -106,7 +106,7 @@ public class PropACyclic extends Propagator<GraphVar> {
 	}
 
 
-	public void propagateIJ(int from, int to) throws ContradictionException {
+	private void propagateIJ(int from, int to) throws ContradictionException {
 		if (g.isDirected()) {
 			g.removeArc(to, from, this);
 		}
@@ -150,10 +150,8 @@ public class PropACyclic extends Propagator<GraphVar> {
 			if (rfTo.get(i)) {
 				ISet nei = g.getPotSuccOrNeighOf(i);
 				for (int j : nei) {
-					if (rfFrom.get(j)) {
-						if ((i != from || j != to) && (i != to || j != from)) {
-							g.removeArc(i, j, this);
-						}
+					if (rfFrom.get(j) && (i != from || j != to) && (i != to || j != from)) {
+						g.removeArc(i, j, this);
 					}
 				}
 			}

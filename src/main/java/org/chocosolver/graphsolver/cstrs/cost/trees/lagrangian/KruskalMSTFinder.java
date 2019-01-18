@@ -244,10 +244,8 @@ public class KruskalMSTFinder extends AbstractTreeFinder {
 		ccTree.addNode(newNode);
 		ccTEdgeCost[newNode] = propHK.getMinArcVal();
 		for (int i : ccTree.getNodes()) {
-			if (ccTree.getPredOf(i).isEmpty()) {
-				if (i != cctRoot) {
-					ccTree.addArc(cctRoot, i);
-				}
+			if (i != cctRoot && ccTree.getPredOf(i).isEmpty()) {
+				ccTree.addArc(cctRoot, i);
 			}
 		}
 		return true;

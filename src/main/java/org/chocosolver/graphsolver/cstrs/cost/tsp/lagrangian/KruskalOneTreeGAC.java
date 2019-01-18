@@ -119,10 +119,8 @@ public class KruskalOneTreeGAC extends KruskalMSTFinder {
 	protected void pruning(int fi, double delta) throws ContradictionException {
 		ISet nei = g.getNeighOf(0);
 		for (int i : nei) {
-			if (i != min1 && i != min2) {
-				if (distMatrix[0][i] - distMatrix[0][min2] > delta) {
-					propHK.remove(0, i);
-				}
+			if (i != min1 && i != min2 && distMatrix[0][i] - distMatrix[0][min2] > delta) {
+				propHK.remove(0, i);
 			}
 		}
 
@@ -183,10 +181,8 @@ public class KruskalOneTreeGAC extends KruskalMSTFinder {
 		ccTree.addNode(newNode);
 		ccTEdgeCost[newNode] = propHK.getMinArcVal();
 		for (int i : ccTree.getNodes()) {
-			if (ccTree.getPredOf(i).isEmpty()) {
-				if (i != cctRoot) {
-					ccTree.addArc(cctRoot, i);
-				}
+			if (i != cctRoot && ccTree.getPredOf(i).isEmpty()) {
+				ccTree.addArc(cctRoot, i);
 			}
 		}
 		return true;
