@@ -1,6 +1,6 @@
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/3f09a253fa3349938d9310c0f52b4c46)](https://www.codacy.com/app/jg-fages/choco-graph?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=chocoteam/choco-graph&amp;utm_campaign=Badge_Grade)
 [![Build Status](https://travis-ci.org/chocoteam/choco-graph.svg?branch=master)](https://travis-ci.org/chocoteam/choco-graph)
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.choco-solver/choco-graph/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.choco-graph/choco-solver)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.choco-solver/choco-graph/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.choco-solver/choco-graph)
 
 Choco-graph is an open-source Java library for Constraint Programming over Graph Variables. 
 This extension of Choco Solver enables you to search for a graph that satisfies a graph properties such as 
