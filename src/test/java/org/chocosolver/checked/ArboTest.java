@@ -54,6 +54,7 @@ public class ArboTest {
 		model.directedForest(g).post();
 		model.getSolver().setSearch(new GraphStrategy(g, seed));
 
+		model.getSolver().limitSolution(100);
 		while (model.getSolver().solve());
 
 		assertTrue(model.getSolver().getFailCount() == 0);

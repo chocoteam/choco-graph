@@ -73,36 +73,34 @@ public class ArborescenceTest {
 		}
 		m.nbNodes(g, m.intVar("nbNodes", n / 3, n)).post();
 		m.getSolver().setSearch(new GraphStrategy(g, seed));
-		m.getSolver().limitSolution(1000);
+		m.getSolver().limitSolution(100);
 		while(m.getSolver().solve());
 		return m.getSolver();
 	}
 
 	@Test(groups = "10s")
 	public static void smallTrees() {
-		for (int s = 0; s < 3; s++) {
-			for (int n = 3; n < 8; n++) {
-                System.out.println("Test n=" + n + ", with seed=" + s);
-				Solver good = model(n, s, true);
-				assertEquals(good.getMeasures().getFailCount(), 0);
-				assertTrue(good.getMeasures().getSolutionCount() > 0);
-				Solver slow = model(n, s, false);
-				assertEquals(good.getMeasures().getSolutionCount(), slow.getMeasures().getSolutionCount());
-			}
+		int s = 0;
+		for (int n = 3; n < 8; n++) {
+			System.out.println("Test n=" + n + ", with seed=" + s);
+			Solver good = model(n, s, true);
+			assertEquals(good.getMeasures().getFailCount(), 0);
+			assertTrue(good.getMeasures().getSolutionCount() > 0);
+			Solver slow = model(n, s, false);
+			assertEquals(good.getMeasures().getSolutionCount(), slow.getMeasures().getSolutionCount());
 		}
 	}
 
 	@Test(groups = "10s")
 	public static void bigTrees() {
-		for (int s = 0; s < 3; s++) {
-			int n = 60;
-            System.out.println("Test n=" + n + ", with seed=" + s);
-			Solver good = model(n, s, true);
-			assertEquals(good.getMeasures().getFailCount(), 0);
-			assertTrue(good.getMeasures().getSolutionCount()>0);
-			Solver slow = model(n, s, false);
-			assertEquals(good.getMeasures().getSolutionCount(), slow.getMeasures().getSolutionCount());
-		}
+		int s = 0;
+		int n = 60;
+		System.out.println("Test n=" + n + ", with seed=" + s);
+		Solver good = model(n, s, true);
+		assertEquals(good.getMeasures().getFailCount(), 0);
+		assertTrue(good.getMeasures().getSolutionCount() > 0);
+		Solver slow = model(n, s, false);
+		assertEquals(good.getMeasures().getSolutionCount(), slow.getMeasures().getSolutionCount());
 	}
 
 	@Test(groups = "1m")
