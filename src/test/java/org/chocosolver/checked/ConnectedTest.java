@@ -325,8 +325,6 @@ public class ConnectedTest {
 		Assert.assertTrue(graph.getMandatoryNodes().size()==3);
 	}
 
-
-
 	@Test
 	public void testAPMini() throws ContradictionException {
 		GraphModel m = new GraphModel();
@@ -352,8 +350,6 @@ public class ConnectedTest {
 		Assert.assertTrue(graph.getMandatoryNodes().size()==3);
 		Assert.assertTrue(m.getSolver().solve());
 	}
-
-
 
 	@Test
 	public void testAPMiniNot() throws ContradictionException {
@@ -399,6 +395,7 @@ public class ConnectedTest {
 		UndirectedGraphVar graph = m.graphVar("G", GLB, GUB);
 		m.connected(graph).post();
 
+		System.out.println(graph.graphVizExport());
 		m.getSolver().propagate();
 		System.out.println(graph.graphVizExport());
 		Assert.assertTrue(graph.getMandSuccOrNeighOf(0).contains(3));

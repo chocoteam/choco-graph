@@ -61,6 +61,7 @@ import org.chocosolver.solver.Model;
 import org.chocosolver.solver.constraints.Constraint;
 import org.chocosolver.solver.constraints.Propagator;
 import org.chocosolver.solver.constraints.binary.PropGreaterOrEqualX_Y;
+import org.chocosolver.solver.exception.SolverException;
 import org.chocosolver.solver.variables.BoolVar;
 import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.solver.variables.SetVar;
@@ -683,27 +684,9 @@ public interface IGraphConstraintFactory {
 	// CYCLE CONSTRAINTS
 	//***********************************************************************************
 
-
-	/**
-	 * g must form a Hamiltonian cycle
-	 * Implies that every vertex in [0,g.getNbMaxNodes()-1] is mandatory
-	 *
-	 * @param g an undirected graph variable
-	 * @return a hamiltonian cycle constraint
-	 */
+	@Deprecated
 	default Constraint hamiltonianCycle(UndirectedGraphVar g) {
-		int m = 0;
-		int n = g.getNbMaxNodes();
-		for (int i = 0; i < n; i++) {
-			m += g.getPotNeighOf(i).size();
-		}
-		m /= 2;
-		Propagator pMaxDeg = (m < 20 * n) ? new PropNodeDegreeAtMostIncr(g, 2) : new PropNodeDegreeAtMostCoarse(g, 2);
-		return new Constraint("hamiltonianCycle",
-				new PropNodeDegreeAtLeastIncr(g, 2),
-				pMaxDeg,
-				new PropHamiltonianCycle(g)
-		);
+		throw new SolverException("Use a graph variable with all nodes mandatory and a cycle constraint instead");
 	}
 
 	/**
@@ -713,9 +696,6 @@ public interface IGraphConstraintFactory {
 	 * @return a cycle constraint
 	 */
 	default Constraint cycle(UndirectedGraphVar g) {
-		if (g.getMandatoryNodes().size() == g.getNbMaxNodes()) {
-			return hamiltonianCycle(g);
-		}
 		int m = 0;
 		int n = g.getNbMaxNodes();
 		for (int i = 0; i < n; i++) {
@@ -731,37 +711,14 @@ public interface IGraphConstraintFactory {
 		);
 	}
 
-	/**
-	 * g must form a Hamiltonian circuit
-	 * Implies that every vertex in [0,g.getNbMaxNodes()-1] is mandatory
-	 * This constraint cannot be reified
-	 *
-	 * @param g a directed graph variable
-	 * @return a circuit constraint
-	 */
+	@Deprecated
 	default Constraint hamiltonianCircuit(DirectedGraphVar g) {
-		IntVar[] gint = _me().succInts(g);
-		return _me().circuit(gint, 0);
+		throw new SolverException("Use circuit constraint over IntVar[] instead");
 	}
 
-	/**
-	 * g must form a circuit
-	 *
-	 * @param g a directed graph variable
-	 * @return a circuit constraint
-	 */
+	@Deprecated
 	default Constraint circuit(DirectedGraphVar g) {
-		if (g.getMandatoryNodes().size() == g.getNbMaxNodes()) {
-			return hamiltonianCircuit(g);
-		}
-		return new Constraint("circuit",
-				new PropNodeDegreeAtLeastIncr(g, Orientation.SUCCESSORS, 1),
-				new PropNodeDegreeAtLeastIncr(g, Orientation.PREDECESSORS, 1),
-				new PropNodeDegreeAtMostIncr(g, Orientation.SUCCESSORS, 1),
-				new PropNodeDegreeAtMostIncr(g, Orientation.PREDECESSORS, 1),
-				new PropNbSCC(g, g.getModel().intVar(1)),
-				new PropCircuit(g)
-		);
+		throw new SolverException("Use subcircuit constraint over IntVar[] instead");
 	}
 
 	/**
@@ -813,10 +770,11 @@ public interface IGraphConstraintFactory {
 	}
 
 	/**
-	 * Creates a connectedness constraint which ensures that g is connected
+	 * Creates a connectedness constraint which ensures that g is biconnected
+	 * Beware : should be used in addition to connected
 	 *
 	 * @param g an undirected graph variable
-	 * @return A connectedness constraint which ensures that g is connected
+	 * @return A connectedness constraint which ensures that g is biconnected
 	 */
 	default Constraint biconnected(UndirectedGraphVar g) {
 		return new Constraint("connected", new PropBiconnected(g));
@@ -974,35 +932,6 @@ public interface IGraphConstraintFactory {
 		return new Constraint("reachability_from_" + root, new PropReachability(g, root));
 	}
 
-	// directed path
-
-	/**
-	 * Creates a path constraint : g forms a path from node 'from' to node 'to'
-	 * Basic but fast propagation
-	 *
-	 * @param g    a directed graph variable
-	 * @param from an integer variable
-	 * @param to   an integer variable
-	 * @return a path constraint
-	 */
-	default Constraint path(DirectedGraphVar g, int from, int to) {
-		int n = g.getNbMaxNodes();
-		int[] succs = new int[n];
-		int[] preds = new int[n];
-		for (int i = 0; i < n; i++) {
-			succs[i] = preds[i] = 1;
-		}
-		succs[to] = preds[from] = 0;
-		Propagator[] props = new Propagator[]{
-				new PropNodeDegreeAtLeastCoarse(g, Orientation.SUCCESSORS, succs)
-				, new PropNodeDegreeAtMostIncr(g, Orientation.SUCCESSORS, succs)
-				, new PropNodeDegreeAtLeastCoarse(g, Orientation.PREDECESSORS, preds)
-				, new PropNodeDegreeAtMostIncr(g, Orientation.PREDECESSORS, preds)
-				, new PropPathNoCircuit(g)
-		};
-		return new Constraint("path", props);
-	}
-
 
 	//***********************************************************************************
 	// CLIQUES
@@ -1083,7 +1012,7 @@ public interface IGraphConstraintFactory {
 	 * @return a tsp constraint
 	 */
 	default Constraint tsp(UndirectedGraphVar graphVar, IntVar costVar, int[][] edgeCosts, int lagrMode) {
-		Propagator[] props = ArrayUtils.append(hamiltonianCycle(graphVar).getPropagators(),
+		Propagator[] props = ArrayUtils.append(cycle(graphVar).getPropagators(),
 				new Propagator[]{new PropCycleCostSimple(graphVar, costVar, edgeCosts)});
 		if (lagrMode > 0) {
 			PropLagrOneTree hk = new PropLagrOneTree(graphVar, costVar, edgeCosts);

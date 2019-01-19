@@ -38,7 +38,6 @@ import org.chocosolver.solver.exception.ContradictionException;
 import org.chocosolver.solver.variables.events.PropagatorEventType;
 import org.chocosolver.util.ESat;
 import org.chocosolver.util.objects.setDataStructures.ISet;
-import org.chocosolver.util.procedure.PairProcedure;
 
 /**
  * Simple NoSubtour of Caseau-Laburthe adapted to the undirected case
@@ -54,7 +53,6 @@ public class PropCycle extends Propagator<UndirectedGraphVar> {
 	private UndirectedGraphVar g;
 	private GraphDeltaMonitor gdm;
 	private int n;
-	private PairProcedure arcEnforced;
 	private IStateInt[] e1, e2, size;
 
 	//***********************************************************************************
@@ -67,7 +65,6 @@ public class PropCycle extends Propagator<UndirectedGraphVar> {
 		g = graph;
 		gdm = g.monitorDelta(this);
 		this.n = g.getNbMaxNodes();
-		arcEnforced = new EnfArc();
 		e1 = new IStateInt[n];
 		e2 = new IStateInt[n];
 		size = new IStateInt[n];
@@ -90,6 +87,7 @@ public class PropCycle extends Propagator<UndirectedGraphVar> {
 				e1[i].set(i);
 				e2[i].set(i);
 				size[i].set(1);
+				g.removeArc(i,i,this);
 			}
 			ISet nei;
 			for (int i = 0; i < n; i++) {
@@ -107,7 +105,7 @@ public class PropCycle extends Propagator<UndirectedGraphVar> {
 	@Override
 	public void propagate(int idxVarInProp, int mask) throws ContradictionException {
 		gdm.freeze();
-		gdm.forEachArc(arcEnforced, GraphEventType.ADD_ARC);
+		gdm.forEachArc(this::enforce, GraphEventType.ADD_ARC);
 		gdm.unfreeze();
 	}
 
@@ -138,10 +136,10 @@ public class PropCycle extends Propagator<UndirectedGraphVar> {
 		setExt(ext2, ext1);
 		size[ext1].set(t);
 		size[ext2].set(t);
-		if (t > 2 && t <= n) {
-			if (t < n && t < g.getMandatoryNodes().size()) {
+		if (t > 2) {
+			if (t < g.getMandatoryNodes().size()) {
 				g.removeArc(ext1, ext2, this);
-			} else if (t == n) {
+			} else if (g.getMandatoryNodes().size() == g.getPotentialNodes().size()) {
 				g.enforceArc(ext1, ext2, this);
 			}
 		}
@@ -156,17 +154,6 @@ public class PropCycle extends Propagator<UndirectedGraphVar> {
 			e2[i].set(ext);
 		} else {
 			e1[i].set(ext);
-		}
-	}
-
-	//***********************************************************************************
-	// PROCEDURES
-	//***********************************************************************************
-
-	protected class EnfArc implements PairProcedure {
-		@Override
-		public void execute(int i, int j) throws ContradictionException {
-			enforce(i, j);
 		}
 	}
 }

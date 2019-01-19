@@ -52,7 +52,7 @@ public class KnightTourProblem {
 	public static void main(String[] args) {
 		boolean[][] matrix;
 		boolean closedTour = true; //Open tour (path instead of cycle)
-		int boardLength = 6;
+		int boardLength = 60;
 		// This generates the boolean incidence matrix of the chessboard graph
 		// It is responsible of the high memory consumption of this example
 		// and could be replaced by lighter data structure
@@ -82,7 +82,7 @@ public class KnightTourProblem {
 		UndirectedGraphVar graph = model.graphVar("G", GLB, GUB);
 
 		// hamiltonian cycle constraint
-		model.hamiltonianCycle(graph).post();
+		model.cycle(graph).post();
 
 		// basically branch on sparse areas of the graph
 		Solver solver = model.getSolver();
