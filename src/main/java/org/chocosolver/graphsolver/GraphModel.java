@@ -28,12 +28,11 @@
 package org.chocosolver.graphsolver;
 
 import org.chocosolver.graphsolver.cstrs.IGraphConstraintFactory;
-import org.chocosolver.graphsolver.search.strategy.GraphStrategy;
+import org.chocosolver.graphsolver.search.strategy.GraphSearch;
 import org.chocosolver.graphsolver.variables.GraphVar;
 import org.chocosolver.graphsolver.variables.IGraphVarFactory;
+import org.chocosolver.solver.DefaultSettings;
 import org.chocosolver.solver.Model;
-import org.chocosolver.solver.Settings;
-import org.chocosolver.solver.search.strategy.Search;
 import org.chocosolver.solver.search.strategy.strategy.AbstractStrategy;
 import org.chocosolver.solver.variables.Variable;
 
@@ -56,23 +55,10 @@ public class GraphModel extends Model implements IGraphVarFactory, IGraphConstra
 	 * @param name label of the model
 	 */
 	public GraphModel(String name) {
-		super(name);
-		set(new Settings() {
+		super(name, new DefaultSettings() {
 			@Override
 			public AbstractStrategy makeDefaultSearch(Model model) {
-				// overrides default search strategy to handle graph vars
-				AbstractStrategy other = Search.defaultSearch(model);
-				GraphVar[] gvs = retrieveGraphVars();
-				if (gvs.length == 0) {
-					return other;
-				} else {
-					AbstractStrategy[] gss = new AbstractStrategy[gvs.length + 1];
-					for (int i = 0; i < gvs.length; i++) {
-						gss[i] = new GraphStrategy(gvs[i]);
-					}
-					gss[gvs.length] = other;
-					return Search.sequencer(gss);
-				}
+				return GraphSearch.defaultSearch((GraphModel)model);
 			}
 		});
 	}

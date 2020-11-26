@@ -34,9 +34,12 @@
 
 package org.chocosolver.graphsolver.search.strategy;
 
+import org.chocosolver.graphsolver.GraphModel;
 import org.chocosolver.graphsolver.search.GraphAssignment;
 import org.chocosolver.graphsolver.search.GraphDecision;
 import org.chocosolver.graphsolver.variables.GraphVar;
+import org.chocosolver.solver.search.strategy.Search;
+import org.chocosolver.solver.search.strategy.strategy.AbstractStrategy;
 import org.chocosolver.util.objects.setDataStructures.ISet;
 
 public class GraphSearch extends GraphStrategy {
@@ -206,5 +209,21 @@ public class GraphSearch extends GraphStrategy {
 
 	private static boolean isMinOrIn(int policy) {
 		return (policy % 2 == 1);
+	}
+
+	public static AbstractStrategy defaultSearch(GraphModel model){
+		// overrides default search strategy to handle graph vars
+		AbstractStrategy other = Search.defaultSearch(model);
+		GraphVar[] gvs = model.retrieveGraphVars();
+		if (gvs.length == 0) {
+			return other;
+		} else {
+			AbstractStrategy[] gss = new AbstractStrategy[gvs.length + 1];
+			for (int i = 0; i < gvs.length; i++) {
+				gss[i] = new GraphStrategy(gvs[i]);
+			}
+			gss[gvs.length] = other;
+			return Search.sequencer(gss);
+		}
 	}
 }

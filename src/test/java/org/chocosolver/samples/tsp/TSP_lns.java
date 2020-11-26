@@ -27,7 +27,6 @@
 
 package org.chocosolver.samples.tsp;
 
-import gnu.trove.list.array.TIntArrayList;
 import org.chocosolver.graphsolver.GraphModel;
 import org.chocosolver.graphsolver.search.strategy.GraphSearch;
 import org.chocosolver.graphsolver.variables.UndirectedGraphVar;
@@ -37,8 +36,6 @@ import org.chocosolver.solver.Solver;
 import org.chocosolver.solver.exception.ContradictionException;
 import org.chocosolver.solver.search.limits.FailCounter;
 import org.chocosolver.solver.search.loop.lns.neighbors.INeighbor;
-import org.chocosolver.solver.search.strategy.decision.Decision;
-import org.chocosolver.solver.search.strategy.decision.DecisionPath;
 import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.util.objects.graphs.UndirectedGraph;
 import org.chocosolver.util.objects.setDataStructures.ISet;
@@ -155,7 +152,6 @@ public class TSP_lns {
 		int n, nbRL;
 		UndirectedGraph solution;
 		int nbFreeEdges = 15;
-		LNSDecision metaDec = new LNSDecision();
 		UndirectedGraphVar graph;
 
 		protected SubpathLNS(UndirectedGraphVar graph) {
@@ -180,31 +176,28 @@ public class TSP_lns {
 		}
 
 		@Override
-		public void fixSomeVariables(DecisionPath decisionPath) {
-			metaDec.free();
+		public void fixSomeVariables() throws ContradictionException {
 			// relaxes a sub-path (a set of consecutive edges in a solution)
 			int i1 = rd.nextInt(n);
 			ISet nei = solution.getNeighOf(i1);
 			Iterator<Integer> iter = nei.iterator();
 			int i2 = iter.next();
-			if(rd.nextBoolean()){
+			if (rd.nextBoolean()) {
 				i2 = iter.next();
 			}
-			for(int k=0;k<n-nbFreeEdges;k++){
-				metaDec.add(i1,i2);
+			for (int k = 0; k < n - nbFreeEdges; k++) {
+				graph.enforceArc(i1,i2,this);
 				int i3 = -1;
-				for(int z : solution.getNeighOf(i2)) {
+				for (int z : solution.getNeighOf(i2)) {
 					if (z != i1) {
 						i3 = z;
 						break;
 					}
 				}
-				assert i3>=0;
+				assert i3 >= 0;
 				i1 = i2;
 				i2 = i3;
 			}
-			metaDec.setRefutable(false);
-			decisionPath.pushDecision(metaDec);
 		}
 
 		@Override
@@ -226,37 +219,6 @@ public class TSP_lns {
 		public void loadFromSolution(Solution solution) {
 			throw new UnsupportedOperationException("not implemented");
 		}
-
-		private class LNSDecision extends Decision{
-			TIntArrayList from = new TIntArrayList();
-			TIntArrayList to = new TIntArrayList();
-
-			public LNSDecision() {
-				super(1);
-			}
-
-			public void add(int i, int j){
-				from.add(i);
-				to.add(j);
-			}
-
-			@Override
-			public void apply() throws ContradictionException {
-				for(int k = 0;k<from.size();k++){
-					graph.enforceArc(from.get(k),to.get(k),this);
-				}
-			}
-
-			@Override
-			public Object getDecisionValue() {
-				return null;
-			}
-
-			@Override
-			public void free() {
-				from.clear();
-				to.clear();
-			}
-		}
+		
 	}
 }

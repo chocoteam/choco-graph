@@ -76,7 +76,7 @@
         <dependency>
             <groupId>org.choco-solver</groupId>
             <artifactId>choco-solver</artifactId>
-            <version>4.0.6</version>
+            <version>4.10.5</version>
             <scope>compile</scope>
         </dependency>
         <dependency>

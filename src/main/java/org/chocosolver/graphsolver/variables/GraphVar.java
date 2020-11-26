@@ -29,12 +29,14 @@ package org.chocosolver.graphsolver.variables;
 
 import org.chocosolver.graphsolver.variables.delta.GraphDelta;
 import org.chocosolver.graphsolver.variables.delta.GraphDeltaMonitor;
+import org.chocosolver.graphsolver.variables.impl.GraphEvtScheduler;
 import org.chocosolver.solver.ICause;
 import org.chocosolver.solver.Model;
 import org.chocosolver.solver.exception.ContradictionException;
 import org.chocosolver.solver.variables.Variable;
 import org.chocosolver.solver.variables.events.IEventType;
 import org.chocosolver.solver.variables.impl.AbstractVariable;
+import org.chocosolver.util.iterators.EvtScheduler;
 import org.chocosolver.util.objects.graphs.IGraph;
 import org.chocosolver.util.objects.setDataStructures.ISet;
 
@@ -326,6 +328,11 @@ public abstract class GraphVar<E extends IGraph> extends AbstractVariable implem
 	public GraphDeltaMonitor monitorDelta(ICause propagator) {
 		createDelta();
 		return new GraphDeltaMonitor(delta, propagator);
+	}
+
+	@Override
+	protected EvtScheduler createScheduler() {
+		return new GraphEvtScheduler();
 	}
 
 	@Override
